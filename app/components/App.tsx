@@ -4,9 +4,11 @@ import {
   Physics,
   RigidBody,
   CoefficientCombineRule,
+  useRapier,
+  RigidBodyApi,
 } from "@react-three/rapier";
 import { useThree, useFrame } from "@react-three/fiber";
-import type * as THREE from "three";
+import * as THREE from "three";
 
 function Table() {
   return (
@@ -18,8 +20,8 @@ function Table() {
       frictionCombineRule={CoefficientCombineRule.Min}
       restitutionCombineRule={CoefficientCombineRule.Min}
     >
-      <mesh position={[0, -0.1, 0]} receiveShadow>
-        <cylinderGeometry args={[3, 3, 0.2, 32]} />
+      <mesh position={[0, -0.01, 0]} receiveShadow>
+        <cylinderGeometry args={[0.3, 0.3, 0.02, 32]} />
         <meshStandardMaterial color="#8B4513" metalness={0.3} roughness={0.7} />
       </mesh>
     </RigidBody>
@@ -33,44 +35,94 @@ interface BookProps {
 }
 
 function Book({ position, size, color }: BookProps) {
-  const ref = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const rigidBodyRef = useRef<RigidBodyApi>(null);
   const [width, thickness, depth] = size;
+  const [isHovered, setIsHovered] = useState(false);
+  const [isKinematic, setIsKinematic] = useState(false);
+  const [isSleeping, setIsSleeping] = useState(false);
+  const originalZ = position[2];
+  const [currentZ, setCurrentZ] = useState(originalZ);
+
+  // Monitor sleep state
+  useFrame(() => {
+    if (rigidBodyRef.current && !isKinematic) {
+      const sleeping = rigidBodyRef.current.isSleeping();
+      if (sleeping && !isSleeping) {
+        setIsSleeping(true);
+        setIsKinematic(true);
+        rigidBodyRef.current.setBodyType(2); // 2 = KinematicPositionBased
+      }
+    }
+  });
+
+  // Handle hover animation
+  useFrame(() => {
+    if (isKinematic && rigidBodyRef.current && groupRef.current) {
+      const targetZ = isHovered ? originalZ + 0.02 : originalZ; // Slide out 2cm
+      const newZ = THREE.MathUtils.lerp(currentZ, targetZ, 0.1);
+      setCurrentZ(newZ);
+
+      const currentPos = rigidBodyRef.current.translation();
+      rigidBodyRef.current.setTranslation(
+        { x: currentPos.x, y: currentPos.y, z: newZ },
+        true
+      );
+
+      // Update the visual group position to match
+      groupRef.current.position.z = newZ - originalZ;
+    }
+  });
 
   return (
     <RigidBody
+      ref={rigidBodyRef}
       position={position}
-      restitution={0}
+      restitution={0.01}
       lockRotations={true}
       colliders="cuboid"
+      type={isKinematic ? "kinematicPosition" : "dynamic"}
     >
-      <group>
-        <mesh ref={ref} castShadow receiveShadow>
+      <group
+        ref={groupRef}
+        onPointerEnter={(e) => {
+          e.stopPropagation();
+          setIsHovered(true);
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation();
+          setIsHovered(false);
+        }}
+      >
+        <mesh castShadow>
           <boxGeometry args={size} />
           <meshStandardMaterial color={color} metalness={0.1} roughness={0.8} />
         </mesh>
 
         {/* Title - On the spine facing forward */}
         <Text
-          position={[-width / 3, 0, depth / 2 + 0.002]}
+          position={[-width / 3, 0, depth / 2 + 0.0002]}
           rotation={[0, 0, 0]}
-          fontSize={0.06}
+          fontSize={0.008}
           color="#ffffff"
           anchorX="center"
           anchorY="middle"
           fontWeight={700}
+          raycast={() => null}
         >
           The Promise
         </Text>
 
         {/* Author - On the spine facing forward */}
         <Text
-          position={[width / 3, 0, depth / 2 + 0.002]}
+          position={[width / 3, 0, depth / 2 + 0.0002]}
           rotation={[0, 0, 0]}
-          fontSize={0.04}
+          fontSize={0.006}
           color="#cccccc"
           anchorX="center"
           anchorY="middle"
           fontWeight={300}
+          raycast={() => null}
         >
           Damon Galmut
         </Text>
@@ -80,21 +132,24 @@ function Book({ position, size, color }: BookProps) {
 }
 
 function CameraController({ stackTop }: { stackTop: number }) {
-  const { camera } = useThree();
-  const [scrollY, setScrollY] = useState(-1); // -1 indicates uninitialized
+  const { camera, size } = useThree();
+  const [targetScrollY, setTargetScrollY] = useState(-1); // Target position
+  const [currentScrollY, setCurrentScrollY] = useState(-1); // Actual position
   const [scrollVelocity, setScrollVelocity] = useState(0);
   const [currentTilt, setCurrentTilt] = useState(0);
   const lastScrollTime = useRef(0);
 
-  // Calculate camera distance to make books fill 60% of screen width
-  const bookWidth = 1.9; // Maximum book width (largest type)
-  const desiredScreenPercentage = 0.6;
+  // Calculate camera distance to make books fill appropriate screen percentage
+  const bookWidth = 0.19; // Maximum book width (largest type)
+  const aspectRatio = size.width / size.height;
+  // Use more screen width on portrait orientation, less on landscape
+  const desiredScreenPercentage = aspectRatio < 1 ? 0.7 : 0.5;
   const fov = 50;
   const distance =
     bookWidth / desiredScreenPercentage / (2 * Math.tan((fov * Math.PI) / 360));
 
   // Stack height calculations
-  const bottomLimit = 0.15; // Bottom book position
+  const bottomLimit = 0.02; // Bottom book position (scaled down)
   const topLimit = stackTop;
   const initialY = (stackTop + bottomLimit) / 2;
 
@@ -104,13 +159,18 @@ function CameraController({ stackTop }: { stackTop: number }) {
       const now = Date.now();
       lastScrollTime.current = now;
 
-      setScrollY((prev) => {
-        const newY = prev + e.deltaY * 0.001;
+      // Normalize scroll input (mouse wheels typically have larger deltas)
+      const normalizedDelta =
+        Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
+
+      setTargetScrollY((prev) => {
+        const scrollSpeed = 0.0005; // Reduced for smoother scrolling
+        const newY = prev + normalizedDelta * scrollSpeed;
         return Math.max(bottomLimit, Math.min(topLimit, newY));
       });
 
       // Track scroll velocity for tilt
-      setScrollVelocity(e.deltaY);
+      setScrollVelocity(normalizedDelta);
     };
 
     window.addEventListener("wheel", handleWheel, { passive: false });
@@ -118,12 +178,20 @@ function CameraController({ stackTop }: { stackTop: number }) {
   }, [bottomLimit, topLimit]);
 
   useFrame(() => {
-    // Initialize camera position to middle of stack on first frame
-    let targetY = scrollY;
-    if (scrollY === -1) {
-      targetY = initialY;
-      setScrollY(targetY);
+    // Initialize positions on first frame
+    if (targetScrollY === -1) {
+      setTargetScrollY(initialY);
+      setCurrentScrollY(initialY);
     }
+
+    // Smoothly lerp current position to target position
+    const lerpFactor = 0.1; // Adjust for smoothness (lower = smoother)
+    const newCurrentY = THREE.MathUtils.lerp(
+      currentScrollY,
+      targetScrollY,
+      lerpFactor
+    );
+    setCurrentScrollY(newCurrentY);
 
     // Calculate tilt based on scroll velocity
     let targetTilt = 0;
@@ -145,12 +213,12 @@ function CameraController({ stackTop }: { stackTop: number }) {
 
     // Set camera position
     camera.position.x = 0;
-    camera.position.y = targetY;
+    camera.position.y = newCurrentY;
     camera.position.z = distance;
 
     // Look at current Y position with tilt
     const lookAtY =
-      targetY + Math.sin((currentTilt * Math.PI) / 180) * distance;
+      newCurrentY + Math.sin((currentTilt * Math.PI) / 180) * distance;
     camera.lookAt(0, lookAtY, 0);
   });
 
@@ -158,13 +226,13 @@ function CameraController({ stackTop }: { stackTop: number }) {
 }
 
 export default function App() {
-  // Define 5 book types with varied thickness but similar other dimensions
+  // Define 5 book types with realistic sizes (in meters)
   const bookTypes = [
-    { width: 1.8, thickness: 0.1, depth: 1.3 }, // Thin book
-    { width: 1.9, thickness: 0.12, depth: 1.31 }, // Thick book
-    { width: 1.85, thickness: 0.15, depth: 1.32 }, // Medium book
-    { width: 1.75, thickness: 0.2, depth: 1.29 }, // Very thick book
-    { width: 1.82, thickness: 0.3, depth: 1.38 }, // Extra thicc book
+    { width: 0.18, thickness: 0.015, depth: 0.23 }, // Thin book (18cm x 1.5cm x 23cm)
+    { width: 0.19, thickness: 0.025, depth: 0.24 }, // Thick book (19cm x 2.5cm x 24cm)
+    { width: 0.185, thickness: 0.02, depth: 0.235 }, // Medium book (18.5cm x 2cm x 23.5cm)
+    { width: 0.175, thickness: 0.035, depth: 0.22 }, // Very thick book (17.5cm x 3.5cm x 22cm)
+    { width: 0.182, thickness: 0.05, depth: 0.238 }, // Extra thicc book (18.2cm x 5cm x 23.8cm)
   ];
 
   // Generate 21 books with dark/black colors matching the wireframe
@@ -195,7 +263,7 @@ export default function App() {
   // First, create book objects with sizes
   const books = bookColors.map((color, index) => {
     const bookType = bookTypes[index % 5];
-    const xOffset = (Math.random() - 0.5) * 0.1;
+    const xOffset = (Math.random() - 0.5) * 0.01; // 1cm max offset
 
     return {
       color,
@@ -207,7 +275,7 @@ export default function App() {
 
   // Calculate Y positions sequentially
   // Books are positioned by their center, so we need to account for half thickness
-  let currentY = 0; // Start at table top (table is at -0.1 with 0.2 height, so top is at 0.1)
+  let currentY = 0.01; // Start at table top (table is at -0.01 with 0.02 height, so top is at 0.01)
 
   books.forEach((book, index) => {
     // Position is the center of the book
@@ -215,7 +283,7 @@ export default function App() {
     book.yPosition = currentY + book.bookType.thickness / 2;
 
     // For the next book, we need to account for the full thickness of this book plus a small gap
-    currentY += book.bookType.thickness + 0.02; // 1cm gap between books
+    currentY += book.bookType.thickness + 0.002; // 2mm gap between books
   });
 
   // Convert to final config format
@@ -231,13 +299,7 @@ export default function App() {
 
   return (
     <>
-      <OrbitControls
-        enableDamping
-        enableZoom={false}
-        enablePan={false}
-        enableRotate={true}
-        target={[0, 1, 0]}
-      />
+      <CameraController stackTop={currentY} />
       <Environment
         files="/artist_workshop_1k.hdr"
         background
@@ -276,7 +338,7 @@ export default function App() {
         shadow-bias={-0.0005}
       />
 
-      <Physics gravity={[0, -1, 0]}>
+      <Physics gravity={[0, -0.1, 0]}>
         <Table />
         {bookConfigs.map((config, index) => (
           <Book key={index} {...config} />

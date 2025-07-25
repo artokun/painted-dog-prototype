@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="h-screen w-screen">
       <Canvas 
-        camera={{ position: [0, 3, 5], fov: 50 }}
+        camera={{ position: [0, 0.3, 0.5], fov: 50 }}
         shadows
       >
         <App />
