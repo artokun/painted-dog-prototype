@@ -16,8 +16,11 @@ export default function Home() {
 
 const Background = () => {
   return (
-    <div className="h-full w-full flex items-center justify-center flex-col">
-      <h1 className="text-4xl font-fields text-gray-800">Background</h1>
+    <div className="h-full w-full flex items-center justify-center flex-col flex-wrap text-9xl font-fields text-black opacity-10 pointer-events-none">
+      <h1>painted dog</h1>
+      <h1>painted dog</h1>
+      <h1>painted dog</h1>
+      <h1>painted dog</h1>
     </div>
   );
 };
@@ -26,7 +29,7 @@ const Middle = () => {
   return (
     <div className="absolute inset-0 top-0 left-0 z-10">
       <Canvas
-        camera={{ position: [0, 0.01, 0.5], fov: 50 }}
+        camera={{ position: [0, 0.01, 0.5], fov: 60 }}
         shadows
         gl={{ antialias: true }}
       >
@@ -38,10 +41,8 @@ const Middle = () => {
 
 const Foreground = () => {
   return (
-    <div className="h-full w-full pointer-events-none">
-      <div className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20">
-        <Header />
-      </div>
+    <div className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20 pointer-events-none">
+      <Header />
     </div>
   );
 };

@@ -17,13 +17,26 @@ interface BookConfig {
 
 const BookStack = memo(function BookStack({
   bookConfigs,
+  featuredIndex,
+  onBookClick,
+  onFeaturedBookPositionUpdate,
 }: {
   bookConfigs: BookConfig[];
+  featuredIndex: number | null;
+  onBookClick: (index: number) => void;
+  onFeaturedBookPositionUpdate: (y: number) => void;
 }) {
   return (
     <>
       {bookConfigs.map((config, index) => (
-        <Book key={`book-${index}`} {...config} />
+        <Book
+          key={`book-${index}`}
+          {...config}
+          isFeatured={index === featuredIndex}
+          onClick={() => onBookClick(index)}
+          isTopBook={index === bookConfigs.length - 1}
+          onPositionUpdate={index === featuredIndex ? onFeaturedBookPositionUpdate : undefined}
+        />
       ))}
     </>
   );
@@ -59,6 +72,8 @@ function PaperSphere({ cameraY }: { cameraY: number }) {
 
 export default function App() {
   const [cameraY, setCameraY] = useState(0.05);
+  const [featuredIndex, setFeaturedIndex] = useState<number | null>(null); // Start with no book featured
+  const [featuredBookY, setFeaturedBookY] = useState<number | null>(null);
   // Memoize book configurations without spawn delay to prevent re-calculation
   const { bookConfigs: baseBookConfigs, stackTop } = useMemo(() => {
     // Define 5 book types with realistic sizes (in meters)
@@ -150,9 +165,10 @@ export default function App() {
       {/* <color attach="background" args={["#F9F6F0"]} /> */}
       {/* <fog attach="fog" args={["#F9F6F0", 5, 15]} /> */}
       <CameraController
-        stackTop={stackTop - 0.1}
+        stackTop={stackTop}
         totalBooks={bookConfigs.length}
         onCameraMove={setCameraY}
+        featuredBookY={featuredBookY}
       />
       {/* <OrbitControls /> */}
 
@@ -206,7 +222,21 @@ export default function App() {
           rotation={[0, Math.PI / 4, 0]}
           position={[0, -1.35, -0.15]}
         />
-        <BookStack bookConfigs={bookConfigs} />
+        <BookStack
+          bookConfigs={bookConfigs}
+          featuredIndex={featuredIndex}
+          onBookClick={(index) => {
+            // Toggle featured state
+            if (featuredIndex === index) {
+              setFeaturedIndex(null);
+              setFeaturedBookY(null);
+            } else {
+              setFeaturedIndex(index);
+              // Don't set initial position - let the book report its actual position
+            }
+          }}
+          onFeaturedBookPositionUpdate={setFeaturedBookY}
+        />
       </Physics>
     </>
   );

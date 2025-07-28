@@ -6,12 +6,14 @@ interface CameraControllerProps {
   stackTop: number;
   totalBooks: number;
   onCameraMove?: (scrollY: number) => void;
+  featuredBookY?: number | null;
 }
 
 const CameraController = memo(function CameraController({
   stackTop,
   totalBooks,
   onCameraMove,
+  featuredBookY,
 }: CameraControllerProps) {
   const { camera, size } = useThree();
   const [targetScrollY, setTargetScrollY] = useState(0.05); // Target position (adjusted for coffee table)
@@ -103,8 +105,11 @@ const CameraController = memo(function CameraController({
   }, []);
 
   useFrame(() => {
-    // Calculate target position based on animation progress
-    if (isAnimating && animationStartTime) {
+    // Calculate target position based on animation progress or featured book
+    if (featuredBookY !== null && featuredBookY !== undefined) {
+      // If there's a featured book, move camera to its Y position
+      setTargetScrollY(featuredBookY);
+    } else if (isAnimating && animationStartTime) {
       const elapsed = Date.now() - animationStartTime;
       const progress = Math.min(elapsed / totalAnimationDuration, 1);
 
@@ -159,8 +164,10 @@ const CameraController = memo(function CameraController({
     camera.position.z = rotatedZ;
 
     // Look at current Y position with tilt
-    const lookAtY =
-      newCurrentY + Math.sin((currentTilt * Math.PI) / 180) * distance;
+    // If there's a featured book, look directly at it (no tilt offset)
+    const lookAtY = (featuredBookY !== null && featuredBookY !== undefined)
+      ? newCurrentY
+      : newCurrentY + Math.sin((currentTilt * Math.PI) / 180) * distance;
     camera.lookAt(0, lookAtY, 0);
 
     // Notify parent of camera movement for parallax effect
