@@ -19,8 +19,15 @@
   }
 }
 
+/* Prevent browser back/forward navigation gestures */
+html,
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-fields), var(--font-montserrat), sans-serif;
+  overscroll-behavior: none;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
 }

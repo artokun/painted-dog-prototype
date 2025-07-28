@@ -28,6 +28,8 @@ const CameraController = memo(function CameraController({
   const hasStartedAnimation = useRef(false);
   const mouseX = useRef(0);
   const currentRotation = useRef(0);
+  const lastFeaturedBookY = useRef<number | null>(null);
+  const rotationAmplifier = useRef(1);
 
   // Calculate camera distance to make books fill appropriate screen percentage
   const bookWidth = 0.25; // Maximum book width (largest type)
@@ -70,7 +72,11 @@ const CameraController = memo(function CameraController({
     const handleWheel = (e: WheelEvent) => {
       if (isAnimating) return; // Don't allow manual scroll during animation
 
+      // Aggressively prevent all default behaviors
       e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
       const now = Date.now();
       lastScrollTime.current = now;
 
@@ -86,10 +92,44 @@ const CameraController = memo(function CameraController({
 
       // Track scroll velocity for tilt
       setScrollVelocity(normalizedDelta);
+
+      return false;
     };
 
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    return () => window.removeEventListener("wheel", handleWheel);
+    // Add comprehensive gesture and scroll prevention
+    const handleGesture = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      // Allow vertical scrolling but prevent horizontal gestures near edges
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        if (touch.clientX < 50 || touch.clientX > window.innerWidth - 50) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    // Add all event listeners with proper options
+    window.addEventListener("wheel", handleWheel, {
+      passive: false,
+      capture: true,
+    });
+    window.addEventListener("gesturestart", handleGesture, { passive: false });
+    window.addEventListener("gesturechange", handleGesture, { passive: false });
+    window.addEventListener("gestureend", handleGesture, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("gesturestart", handleGesture);
+      window.removeEventListener("gesturechange", handleGesture);
+      window.removeEventListener("gestureend", handleGesture);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
   }, [bottomLimit, topLimit, isAnimating]);
 
   // Handle mouse movement for horizontal camera rotation
@@ -105,11 +145,17 @@ const CameraController = memo(function CameraController({
   }, []);
 
   useFrame(() => {
-    // Calculate target position based on animation progress or featured book
-    if (featuredBookY !== null && featuredBookY !== undefined) {
-      // If there's a featured book, move camera to its Y position
-      setTargetScrollY(featuredBookY);
-    } else if (isAnimating && animationStartTime) {
+    // Check if featured book changed
+    if (featuredBookY !== lastFeaturedBookY.current) {
+      if (featuredBookY !== null && featuredBookY !== undefined) {
+        // New book featured - move camera to it
+        setTargetScrollY(featuredBookY);
+      }
+      lastFeaturedBookY.current = featuredBookY ?? null;
+    }
+
+    // Handle initial animation
+    if (isAnimating && animationStartTime && featuredBookY === null) {
       const elapsed = Date.now() - animationStartTime;
       const progress = Math.min(elapsed / totalAnimationDuration, 1);
 
@@ -147,7 +193,29 @@ const CameraController = memo(function CameraController({
     setScrollVelocity((prev) => prev * 0.9);
 
     // Smoothly lerp mouse rotation (flipped)
-    const targetRotation = -mouseX.current * 0.15; // Max 0.15 radians rotation (about 8.5 degrees) - FLIPPED
+    // When featuring a book, lerp to center (0), otherwise follow mouse
+    const isFeaturingBook =
+      featuredBookY !== null && featuredBookY !== undefined;
+    
+    // When transitioning from featured to unfeatured, boost rotation sensitivity
+    if (lastFeaturedBookY.current !== null && featuredBookY === null) {
+      rotationAmplifier.current = 3; // Temporarily amplify rotation
+    }
+    
+    // Gradually reduce amplifier back to 1
+    if (rotationAmplifier.current > 1) {
+      rotationAmplifier.current = THREE.MathUtils.lerp(
+        rotationAmplifier.current,
+        1,
+        0.02
+      );
+    }
+    
+    const baseRotationScale = 0.15;
+    const targetRotation = isFeaturingBook 
+      ? 0 
+      : -mouseX.current * baseRotationScale * rotationAmplifier.current;
+    
     currentRotation.current = THREE.MathUtils.lerp(
       currentRotation.current,
       targetRotation,
@@ -165,9 +233,10 @@ const CameraController = memo(function CameraController({
 
     // Look at current Y position with tilt
     // If there's a featured book, look directly at it (no tilt offset)
-    const lookAtY = (featuredBookY !== null && featuredBookY !== undefined)
-      ? newCurrentY
-      : newCurrentY + Math.sin((currentTilt * Math.PI) / 180) * distance;
+    const lookAtY =
+      featuredBookY !== null && featuredBookY !== undefined
+        ? newCurrentY
+        : newCurrentY + Math.sin((currentTilt * Math.PI) / 180) * distance;
     camera.lookAt(0, lookAtY, 0);
 
     // Notify parent of camera movement for parallax effect
