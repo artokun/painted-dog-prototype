@@ -47,34 +47,20 @@ function Book({
   const originalSettledZRef = useRef<number | null>(null);
   // const currentZRef = useRef(position[2]); // Not needed without hover
   
-  // Calculate vertical offset based on featured book
-  const verticalOffset = useRef(0);
-  useEffect(() => {
-    if (snap.featuredBookIndex !== null) {
-      if (index > snap.featuredBookIndex && !isFeatured) {
-        // This book is above the featured book, move down
-        verticalOffset.current = -snap.slidOutBookThickness;
-      } else {
-        verticalOffset.current = 0;
-      }
-    } else {
-      verticalOffset.current = 0;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snap.featuredBookIndex, snap.slidOutBookThickness, isFeatured]); // index is stable
+  // Calculate if this book should drop (is above the featured book)
+  const shouldDrop = snap.featuredBookIndex !== null && 
+                    index > snap.featuredBookIndex && 
+                    !isFeatured;
   
   // Spring refs for chaining
   const slideRef = useSpringRef();
   const rotateRef = useSpringRef();
-  const dropRef = useSpringRef();
   
   // Spring for vertical drop animation (books above featured)
   const [dropSpring] = useSpring(() => ({
-    ref: dropRef,
-    from: { dropY: 0 },
-    to: { dropY: verticalOffset.current },
+    dropY: shouldDrop ? -snap.slidOutBookThickness : 0,
     config: config.gentle
-  }), [verticalOffset.current]);
+  }), [shouldDrop, snap.slidOutBookThickness]);
   
   // Spring for slide animation
   const [slideSpring] = useSpring(() => ({
@@ -95,14 +81,14 @@ function Book({
     config: config.gentle
   }), [isFeatured]);
   
-  // Chain animations: drop books above, slide featured, then rotate
+  // Chain animations: slide featured, then rotate
   useChain(
     isFeatured ? 
-      (isTopBook ? [dropRef, slideRef, rotateRef] : [dropRef, slideRef, rotateRef]) : 
-      [rotateRef, slideRef, dropRef],
+      (isTopBook ? [slideRef, rotateRef] : [slideRef, rotateRef]) : 
+      [rotateRef, slideRef],
     isFeatured ? 
-      (isTopBook ? [0, 0, 0] : [0, 0, 0.3]) : // Top book: all at once, others: rotate after 30% of slide
-      [0, 0.3, 0.3] // Reverse: rotate first, then slide and drop
+      (isTopBook ? [0, 0] : [0, 0.3]) : // Top book: both at once, others: rotate after 30% of slide
+      [0, 0.3] // Reverse: rotate first, then slide
   );
 
   // Handle spawn animation
@@ -187,26 +173,27 @@ function Book({
       colliders="cuboid"
       type="dynamic"
     >
-      <animated.group
-        ref={groupRef}
-        position-y={slideSpring.posY}
-        position-z={slideSpring.posZ}
-        rotation-x={rotateSpring.rotX}
-        rotation-y={rotateSpring.rotY}
-        onPointerEnter={(e) => {
-          e.stopPropagation();
-          // Hover disabled for debugging
-          // if (!isFeatured) setIsHovered(true);
-        }}
-        onPointerLeave={(e) => {
-          e.stopPropagation();
-          // setIsHovered(false);
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onClick) onClick();
-        }}
-      >
+      <animated.group position-y={dropSpring.dropY}>
+        <animated.group
+          ref={groupRef}
+          position-y={slideSpring.posY}
+          position-z={slideSpring.posZ}
+          rotation-x={rotateSpring.rotX}
+          rotation-y={rotateSpring.rotY}
+          onPointerEnter={(e) => {
+            e.stopPropagation();
+            // Hover disabled for debugging
+            // if (!isFeatured) setIsHovered(true);
+          }}
+          onPointerLeave={(e) => {
+            e.stopPropagation();
+            // setIsHovered(false);
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onClick) onClick();
+          }}
+        >
         <mesh ref={meshRef} castShadow>
           <boxGeometry args={size} />
           <meshStandardMaterial
@@ -246,6 +233,7 @@ function Book({
         >
           Damon Galmut
         </Text>
+        </animated.group>
       </animated.group>
     </RigidBody>
   );
