@@ -33,6 +33,7 @@ function Book({
   const groupRef = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const meshRef = useRef<THREE.Mesh>(null);
+  const textGroupRef = useRef<THREE.Group>(null); // For syncing text with book
   const [width, , depth] = size;
   // const [isHovered, setIsHovered] = useState(false); // Disabled for debugging
   const [hasSpawned, setHasSpawned] = useState(false);
@@ -126,12 +127,24 @@ function Book({
     }
   });
 
-  // Report position updates for camera tracking
+  // Report position updates for camera tracking and sync text
   useFrame(() => {
     // Report actual Y position when featured
     if (isFeatured && onPositionUpdate && settledPositionRef.current && groupRef.current) {
       const actualY = settledPositionRef.current.y + groupRef.current.position.y;
       onPositionUpdate(actualY);
+    }
+    
+    // Sync text group with book position and rotation
+    if (textGroupRef.current && rigidBodyRef.current && groupRef.current) {
+      const rbPosition = rigidBodyRef.current.translation();
+      textGroupRef.current.position.set(rbPosition.x, rbPosition.y, rbPosition.z);
+      
+      // Copy the animated group's transforms for smooth animations
+      textGroupRef.current.position.y += dropSpring.dropY.get() + slideSpring.posY.get();
+      textGroupRef.current.position.z += slideSpring.posZ.get();
+      textGroupRef.current.rotation.x = rotateSpring.rotX.get();
+      textGroupRef.current.rotation.y = rotateSpring.rotY.get();
     }
 
     // Handle rigid body position updates
@@ -165,46 +178,52 @@ function Book({
   ];
 
   return (
-    <RigidBody
-      ref={rigidBodyRef}
-      position={startPosition}
-      restitution={0.01}
-      lockRotations={true}
-      colliders="cuboid"
-      type="dynamic"
-    >
-      <animated.group position-y={dropSpring.dropY}>
-        <animated.group
-          ref={groupRef}
-          position-y={slideSpring.posY}
-          position-z={slideSpring.posZ}
-          rotation-x={rotateSpring.rotX}
-          rotation-y={rotateSpring.rotY}
-          onPointerEnter={(e) => {
-            e.stopPropagation();
-            // Hover disabled for debugging
-            // if (!isFeatured) setIsHovered(true);
-          }}
-          onPointerLeave={(e) => {
-            e.stopPropagation();
-            // setIsHovered(false);
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onClick) onClick();
-          }}
-        >
-        <mesh ref={meshRef} castShadow>
-          <boxGeometry args={size} />
-          <meshStandardMaterial
-            color={color}
-            metalness={0.1}
-            roughness={0.8}
-            transparent
-            opacity={1}
-          />
-        </mesh>
-
+    <>
+      <RigidBody
+        ref={rigidBodyRef}
+        position={startPosition}
+        restitution={0.01}
+        lockRotations={true}
+        colliders="cuboid"
+        type="dynamic"
+      >
+        <animated.group position-y={dropSpring.dropY}>
+          <animated.group
+            ref={groupRef}
+            position-y={slideSpring.posY}
+            position-z={slideSpring.posZ}
+            rotation-x={rotateSpring.rotX}
+            rotation-y={rotateSpring.rotY}
+            onPointerEnter={(e) => {
+              e.stopPropagation();
+              // Hover disabled for debugging
+              // if (!isFeatured) setIsHovered(true);
+            }}
+            onPointerLeave={(e) => {
+              e.stopPropagation();
+              // setIsHovered(false);
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onClick) onClick();
+            }}
+          >
+            <mesh ref={meshRef} castShadow>
+              <boxGeometry args={size} />
+              <meshStandardMaterial
+                color={color}
+                metalness={0.1}
+                roughness={0.8}
+                transparent
+                opacity={1}
+              />
+            </mesh>
+          </animated.group>
+        </animated.group>
+      </RigidBody>
+      
+      {/* Text group - outside physics simulation */}
+      <group ref={textGroupRef}>
         {/* Spine text - always visible */}
         {/* Title - On the spine facing forward */}
         <Text
@@ -233,9 +252,36 @@ function Book({
         >
           Damon Galmut
         </Text>
-        </animated.group>
-      </animated.group>
-    </RigidBody>
+
+        {/* Front cover text - Title */}
+        <Text
+          position={[-width / 2 - 0.0002, 0.02, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          fontSize={0.012}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+          font="/fonts/fields-bold.otf"
+          raycast={() => null}
+        >
+          The Promise
+        </Text>
+
+        {/* Front cover text - Author */}
+        <Text
+          position={[-width / 2 - 0.0002, -0.01, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          fontSize={0.008}
+          color="#cccccc"
+          anchorX="center"
+          anchorY="middle"
+          fontWeight={300}
+          raycast={() => null}
+        >
+          Damon Galmut
+        </Text>
+      </group>
+    </>
   );
 }
 
