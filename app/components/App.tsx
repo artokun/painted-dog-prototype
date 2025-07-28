@@ -1,10 +1,12 @@
-import { useMemo, useState, useRef, memo } from "react";
+import { useMemo, useState, useRef, memo, useEffect } from "react";
 import { Environment } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import { CoffeeTable } from "./CoffeeTable";
 import Book from "./Book";
 import CameraController from "./CameraController";
 import * as THREE from "three";
+import { useSnapshot } from "valtio";
+import { bookStore, setFeaturedBook, registerBookThickness } from "../store/bookStore";
 
 // Memoized Book Stack Component
 interface BookConfig {
@@ -42,37 +44,24 @@ const BookStack = memo(function BookStack({
   );
 });
 
-// Paper Sphere Background Component
-function PaperSphere({ cameraY }: { cameraY: number }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  // useFrame(() => {
-  //   if (meshRef.current) {
-  //     // Create parallax effect: sphere rotates as camera moves
-  //     const normalizedY = (cameraY - 0.05) / 0.5;
-  //     const parallaxRotation = normalizedY * 0.3;
-
-  //     meshRef.current.rotation.y = -Math.PI / 4 + parallaxRotation;
-  //     meshRef.current.rotation.x = normalizedY * 0.1;
-  //   }
-  // });
-
-  return (
-    <mesh ref={meshRef} scale={[5, 5, 5]}>
-      <sphereGeometry args={[1, 64, 64]} />
-      <meshStandardMaterial
-        color="#F9F6F0"
-        side={THREE.BackSide}
-        roughness={0.9}
-        metalness={0}
-      />
-    </mesh>
-  );
-}
+// Paper Sphere Background Component (commented out for now)
+// function PaperSphere({ cameraY }: { cameraY: number }) {
+//   const meshRef = useRef<THREE.Mesh>(null);
+//   return (
+//     <mesh ref={meshRef} scale={[5, 5, 5]}>
+//       <sphereGeometry args={[1, 64, 64]} />
+//       <meshStandardMaterial
+//         color="#F9F6F0"
+//         side={THREE.BackSide}
+//         roughness={0.9}
+//         metalness={0}
+//       />
+//     </mesh>
+//   );
+// }
 
 export default function App() {
-  const [cameraY, setCameraY] = useState(0.05);
-  const [featuredIndex, setFeaturedIndex] = useState<number | null>(null); // Start with no book featured
+  const snap = useSnapshot(bookStore);
   const [featuredBookY, setFeaturedBookY] = useState<number | null>(null);
   // Memoize book configurations without spawn delay to prevent re-calculation
   const { bookConfigs: baseBookConfigs, stackTop } = useMemo(() => {
@@ -159,6 +148,14 @@ export default function App() {
     ...config,
     spawnDelay: config.index * 150, // 150ms between each book (faster spawning)
   }));
+  
+  // Register book thicknesses after component mounts
+  useEffect(() => {
+    bookConfigs.forEach((config) => {
+      registerBookThickness(config.index, config.size[1]);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount - bookConfigs is stable
 
   return (
     <>
@@ -167,7 +164,7 @@ export default function App() {
       <CameraController
         stackTop={stackTop}
         totalBooks={bookConfigs.length}
-        onCameraMove={setCameraY}
+        onCameraMove={() => {}}
         featuredBookY={featuredBookY}
       />
       {/* <OrbitControls /> */}
@@ -224,14 +221,14 @@ export default function App() {
         />
         <BookStack
           bookConfigs={bookConfigs}
-          featuredIndex={featuredIndex}
+          featuredIndex={snap.featuredBookIndex}
           onBookClick={(index) => {
             // Toggle featured state
-            if (featuredIndex === index) {
-              setFeaturedIndex(null);
+            if (snap.featuredBookIndex === index) {
+              setFeaturedBook(null);
               setFeaturedBookY(null);
             } else {
-              setFeaturedIndex(index);
+              setFeaturedBook(index);
               // Don't set initial position - let the book report its actual position
             }
           }}

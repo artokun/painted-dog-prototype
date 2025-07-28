@@ -4,6 +4,8 @@ import { RigidBody, type RapierRigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSpring, animated, config, useChain, useSpringRef } from "@react-spring/three";
+import { useSnapshot } from "valtio";
+import { bookStore } from "../store/bookStore";
 
 interface BookProps {
   position: [number, number, number];
@@ -14,6 +16,7 @@ interface BookProps {
   onClick?: () => void;
   isTopBook?: boolean;
   onPositionUpdate?: (y: number) => void;
+  index: number;
 }
 
 function Book({
@@ -25,13 +28,15 @@ function Book({
   onClick,
   isTopBook = false,
   onPositionUpdate,
+  index,
 }: BookProps) {
   const groupRef = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const meshRef = useRef<THREE.Mesh>(null);
-  const [width, _, depth] = size;
+  const [width, , depth] = size;
   // const [isHovered, setIsHovered] = useState(false); // Disabled for debugging
   const [hasSpawned, setHasSpawned] = useState(false);
+  const snap = useSnapshot(bookStore);
 
   // Use refs for values that change in useFrame
   const isKinematicRef = useRef(false);
@@ -41,11 +46,35 @@ function Book({
   );
   const originalSettledZRef = useRef<number | null>(null);
   // const currentZRef = useRef(position[2]); // Not needed without hover
-  const opacityRef = useRef(0);
+  
+  // Calculate vertical offset based on featured book
+  const verticalOffset = useRef(0);
+  useEffect(() => {
+    if (snap.featuredBookIndex !== null) {
+      if (index > snap.featuredBookIndex && !isFeatured) {
+        // This book is above the featured book, move down
+        verticalOffset.current = -snap.slidOutBookThickness;
+      } else {
+        verticalOffset.current = 0;
+      }
+    } else {
+      verticalOffset.current = 0;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snap.featuredBookIndex, snap.slidOutBookThickness, isFeatured]); // index is stable
   
   // Spring refs for chaining
   const slideRef = useSpringRef();
   const rotateRef = useSpringRef();
+  const dropRef = useSpringRef();
+  
+  // Spring for vertical drop animation (books above featured)
+  const [dropSpring] = useSpring(() => ({
+    ref: dropRef,
+    from: { dropY: 0 },
+    to: { dropY: verticalOffset.current },
+    config: config.gentle
+  }), [verticalOffset.current]);
   
   // Spring for slide animation
   const [slideSpring] = useSpring(() => ({
@@ -66,14 +95,14 @@ function Book({
     config: config.gentle
   }), [isFeatured]);
   
-  // Chain animations: slide first, then rotate (or both together for top book)
+  // Chain animations: drop books above, slide featured, then rotate
   useChain(
     isFeatured ? 
-      (isTopBook ? [slideRef, rotateRef] : [slideRef, rotateRef]) : 
-      [rotateRef, slideRef],
+      (isTopBook ? [dropRef, slideRef, rotateRef] : [dropRef, slideRef, rotateRef]) : 
+      [rotateRef, slideRef, dropRef],
     isFeatured ? 
-      (isTopBook ? [0, 0] : [0, 0.3]) : // Top book: both at once, others: rotate after 30% of slide
-      [0, 0.3] // Reverse: rotate first, then slide
+      (isTopBook ? [0, 0, 0] : [0, 0, 0.3]) : // Top book: all at once, others: rotate after 30% of slide
+      [0, 0.3, 0.3] // Reverse: rotate first, then slide and drop
   );
 
   // Handle spawn animation
@@ -88,16 +117,8 @@ function Book({
 
   // No need for manual animation state management - springs handle it
 
-  // Monitor sleep state and handle opacity
+  // Monitor sleep state
   useFrame(() => {
-    // Handle opacity fade-in
-    if (hasSpawned && opacityRef.current < 1) {
-      opacityRef.current = Math.min(1, opacityRef.current + 0.35); // ~3 frames to full opacity
-      if (meshRef.current && meshRef.current.material) {
-        (meshRef.current.material as THREE.MeshStandardMaterial).opacity =
-          opacityRef.current;
-      }
-    }
 
     // Handle sleep state
     if (rigidBodyRef.current && !isKinematicRef.current && hasSpawned) {
@@ -193,7 +214,7 @@ function Book({
             metalness={0.1}
             roughness={0.8}
             transparent
-            opacity={0}
+            opacity={1}
           />
         </mesh>
 
