@@ -3,6 +3,7 @@ import { Text } from "@react-three/drei";
 import { RigidBody, type RapierRigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSpring, animated, config, useChain, useSpringRef } from "@react-spring/three";
 
 interface BookProps {
   position: [number, number, number];
@@ -41,15 +42,39 @@ function Book({
   const originalSettledZRef = useRef<number | null>(null);
   // const currentZRef = useRef(position[2]); // Not needed without hover
   const opacityRef = useRef(0);
-  const currentRotationYRef = useRef(0);
-  const targetRotationYRef = useRef(isFeatured ? -Math.PI / 2 : 0);
-  const currentRotationXRef = useRef(0);
-  const targetRotationXRef = useRef(isFeatured ? -Math.PI / 2 : 0);
-  const currentYOffsetRef = useRef(0);
-  const targetYOffsetRef = useRef(0);
-  const currentZOffsetRef = useRef(0);
-  const targetZOffsetRef = useRef(0);
-  const animationPhaseRef = useRef<'idle' | 'sliding-out' | 'rotating' | 'rotating-back' | 'sliding-in'>('idle');
+  
+  // Spring refs for chaining
+  const slideRef = useSpringRef();
+  const rotateRef = useSpringRef();
+  
+  // Spring for slide animation
+  const [slideSpring] = useSpring(() => ({
+    ref: slideRef,
+    from: { posY: 0, posZ: 0 },
+    to: isFeatured ? {
+      posY: isTopBook ? width / 2 : 0,
+      posZ: isTopBook ? 0 : depth * 1.5
+    } : { posY: 0, posZ: 0 },
+    config: config.gentle
+  }), [isFeatured, isTopBook, width, depth]);
+  
+  // Spring for rotation animation
+  const [rotateSpring] = useSpring(() => ({
+    ref: rotateRef,
+    from: { rotX: 0, rotY: 0 },
+    to: isFeatured ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } : { rotX: 0, rotY: 0 },
+    config: config.gentle
+  }), [isFeatured]);
+  
+  // Chain animations: slide first, then rotate (or both together for top book)
+  useChain(
+    isFeatured ? 
+      (isTopBook ? [slideRef, rotateRef] : [slideRef, rotateRef]) : 
+      [rotateRef, slideRef],
+    isFeatured ? 
+      (isTopBook ? [0, 0] : [0, 0.3]) : // Top book: both at once, others: rotate after 30% of slide
+      [0, 0.3] // Reverse: rotate first, then slide
+  );
 
   // Handle spawn animation
   useEffect(() => {
@@ -61,47 +86,7 @@ function Book({
     return () => clearTimeout(timer);
   }, [spawnDelay]);
 
-  // Update target positions when featured state changes
-  useEffect(() => {
-    if (isFeatured) {
-      // Clear hover state when becoming featured
-      // setIsHovered(false);
-      
-      // Start sliding phase
-      animationPhaseRef.current = 'sliding-out';
-      
-      if (isTopBook) {
-        // Top book just lifts up
-        targetYOffsetRef.current = width / 2;
-        targetZOffsetRef.current = 0;
-        // Top book can rotate immediately
-        targetRotationYRef.current = -Math.PI / 2;
-        targetRotationXRef.current = -Math.PI / 2;
-      } else {
-        // Other books: slide out first, rotation will happen in the animation loop
-        targetYOffsetRef.current = 0;
-        // Move forward by 1.5x the book depth
-        targetZOffsetRef.current = depth * 1.5;
-        // Don't set rotation targets yet - will be set after sliding completes
-      }
-    } else if (!isFeatured && animationPhaseRef.current !== 'idle') {
-      // Start reverse animation only if we were previously animating
-      if (isTopBook) {
-        // Top book: rotate and lower simultaneously
-        animationPhaseRef.current = 'rotating-back';
-        targetRotationYRef.current = 0;
-        targetRotationXRef.current = 0;
-        targetYOffsetRef.current = 0;
-        targetZOffsetRef.current = 0;
-      } else {
-        // Other books: rotate back first, keep position
-        animationPhaseRef.current = 'rotating-back';
-        targetRotationYRef.current = 0;
-        targetRotationXRef.current = 0;
-        // Don't change Z offset yet - will slide back after rotation completes
-      }
-    }
-  }, [isFeatured, width, depth, isTopBook]);
+  // No need for manual animation state management - springs handle it
 
   // Monitor sleep state and handle opacity
   useFrame(() => {
@@ -134,85 +119,12 @@ function Book({
     }
   });
 
-  // Handle hover and rotation animation
+  // Report position updates for camera tracking
   useFrame(() => {
-    // Handle rotation animation and Y/Z offset
-    if (groupRef.current) {
-      const lerpSpeed = 0.08; // Faster with blended animations
-
-      // Apply Y offset for featured book
-      const newYOffset = THREE.MathUtils.lerp(
-        currentYOffsetRef.current,
-        targetYOffsetRef.current,
-        lerpSpeed
-      );
-      currentYOffsetRef.current = newYOffset;
-      groupRef.current.position.y = newYOffset;
-      
-      // Report actual Y position when featured
-      if (isFeatured && onPositionUpdate && settledPositionRef.current) {
-        const actualY = settledPositionRef.current.y + newYOffset;
-        onPositionUpdate(actualY);
-      }
-
-      // Apply Z offset for featured book (move toward camera)
-      const newZOffset = THREE.MathUtils.lerp(
-        currentZOffsetRef.current,
-        targetZOffsetRef.current,
-        lerpSpeed
-      );
-      currentZOffsetRef.current = newZOffset;
-      groupRef.current.position.z = newZOffset;
-
-      // Check animation phase transitions with blending
-      if (animationPhaseRef.current === 'sliding-out' && isFeatured && !isTopBook) {
-        // Start rotating when slide is 60% complete for smoother blend
-        const slideProgress = newZOffset / targetZOffsetRef.current;
-        if (slideProgress > 0.6) {
-          // Start rotating phase while still sliding
-          animationPhaseRef.current = 'rotating';
-          targetRotationYRef.current = -Math.PI / 2;
-          targetRotationXRef.current = -Math.PI / 2;
-        }
-      } else if (animationPhaseRef.current === 'rotating-back') {
-        // Start sliding back when rotation is 40% complete
-        const rotateProgress = (Math.abs(currentRotationYRef.current) + Math.abs(currentRotationXRef.current)) / Math.PI;
-        if (rotateProgress < 0.4) {
-          if (isTopBook) {
-            // Top book animation complete
-            animationPhaseRef.current = 'idle';
-          } else {
-            // Start sliding back in for other books while still rotating
-            animationPhaseRef.current = 'sliding-in';
-            targetZOffsetRef.current = 0;
-          }
-        }
-      } else if (animationPhaseRef.current === 'sliding-in' && !isFeatured && !isTopBook) {
-        const slideComplete = Math.abs(newZOffset) < 0.001;
-        const rotateComplete = Math.abs(currentRotationYRef.current) < 0.001 && 
-                              Math.abs(currentRotationXRef.current) < 0.001;
-        if (slideComplete && rotateComplete) {
-          // Animation complete when both are done
-          animationPhaseRef.current = 'idle';
-        }
-      }
-
-      // Apply rotation
-      const newRotationY = THREE.MathUtils.lerp(
-        currentRotationYRef.current,
-        targetRotationYRef.current,
-        lerpSpeed
-      );
-      currentRotationYRef.current = newRotationY;
-      groupRef.current.rotation.y = newRotationY;
-
-      const newRotationX = THREE.MathUtils.lerp(
-        currentRotationXRef.current,
-        targetRotationXRef.current,
-        lerpSpeed
-      );
-      currentRotationXRef.current = newRotationX;
-      groupRef.current.rotation.x = newRotationX;
+    // Report actual Y position when featured
+    if (isFeatured && onPositionUpdate && settledPositionRef.current && groupRef.current) {
+      const actualY = settledPositionRef.current.y + groupRef.current.position.y;
+      onPositionUpdate(actualY);
     }
 
     // Handle rigid body position updates
@@ -224,34 +136,15 @@ function Book({
       // Always use original Z position as base
       const baseZ = originalSettledZRef.current ?? settledPositionRef.current.z;
       
-      if (isFeatured || animationPhaseRef.current !== 'idle') {
-        // When featured or animating, update rigid body position
-        // Don't add the offset here since the group already has it
-        rigidBodyRef.current.setTranslation(
-          {
-            x: settledPositionRef.current.x,
-            y: settledPositionRef.current.y,
-            z: baseZ,
-          },
-          true
-        );
-      } else {
-        // When idle, keep at original position (no hover)
-        rigidBodyRef.current.setTranslation(
-          {
-            x: settledPositionRef.current.x,
-            y: settledPositionRef.current.y,
-            z: baseZ,
-          },
-          true
-        );
-        
-        // Reset visual position to ensure no offset
-        if (groupRef.current) {
-          groupRef.current.position.z = 0;
-          groupRef.current.position.y = 0;
-        }
-      }
+      // Keep rigid body at settled position
+      rigidBodyRef.current.setTranslation(
+        {
+          x: settledPositionRef.current.x,
+          y: settledPositionRef.current.y,
+          z: baseZ,
+        },
+        true
+      );
     }
   });
 
@@ -273,8 +166,12 @@ function Book({
       colliders="cuboid"
       type="dynamic"
     >
-      <group
+      <animated.group
         ref={groupRef}
+        position-y={slideSpring.posY}
+        position-z={slideSpring.posZ}
+        rotation-x={rotateSpring.rotX}
+        rotation-y={rotateSpring.rotY}
         onPointerEnter={(e) => {
           e.stopPropagation();
           // Hover disabled for debugging
@@ -328,7 +225,7 @@ function Book({
         >
           Damon Galmut
         </Text>
-      </group>
+      </animated.group>
     </RigidBody>
   );
 }
