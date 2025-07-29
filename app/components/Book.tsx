@@ -3,7 +3,13 @@ import { Text } from "@react-three/drei";
 import { RigidBody, type RapierRigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSpring, animated, config, useChain, useSpringRef } from "@react-spring/three";
+import {
+  useSpring,
+  animated,
+  config,
+  useChain,
+  useSpringRef,
+} from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 
@@ -17,6 +23,12 @@ interface BookProps {
   isTopBook?: boolean;
   onPositionUpdate?: (y: number) => void;
   index: number;
+  cmsData?: {
+    title: string;
+    author: string;
+    price: number;
+    description: string;
+  };
 }
 
 function Book({
@@ -29,6 +41,7 @@ function Book({
   isTopBook = false,
   onPositionUpdate,
   index,
+  cmsData,
 }: BookProps) {
   const groupRef = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RapierRigidBody>(null);
@@ -47,49 +60,108 @@ function Book({
   );
   const originalSettledZRef = useRef<number | null>(null);
   // const currentZRef = useRef(position[2]); // Not needed without hover
-  
+
+  // Default book data for fallback
+  const bookTitle = cmsData?.title || `Book ${index + 1}`;
+  const bookAuthor = cmsData?.author || "Unknown Author";
+
+  // Dynamic font sizing for spine based on title length
+  const getSpineFontSize = (text: string) => {
+    if (text.length > 20) return 0.005; // Very small for long titles
+    if (text.length > 15) return 0.006; // Small for medium titles
+    if (text.length > 10) return 0.007; // Normal-small for slightly long titles
+    return 0.008; // Normal size for short titles
+  };
+
+  // Text wrapping function for face titles
+  const wrapText = (text: string, maxLength: number = 12) => {
+    if (text.length <= maxLength) return text;
+
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+
+    for (const word of words) {
+      if ((currentLine + word).length > maxLength) {
+        if (currentLine) {
+          lines.push(currentLine.trim());
+          currentLine = word + " ";
+        } else {
+          // Word is too long, just add it
+          lines.push(word);
+        }
+      } else {
+        currentLine += word + " ";
+      }
+    }
+
+    if (currentLine.trim()) {
+      lines.push(currentLine.trim());
+    }
+
+    return lines.join("\n");
+  };
+
   // Calculate if this book should drop (is above the featured book)
-  const shouldDrop = snap.featuredBookIndex !== null && 
-                    index > snap.featuredBookIndex && 
-                    !isFeatured;
-  
+  const shouldDrop =
+    snap.featuredBookIndex !== null &&
+    index > snap.featuredBookIndex &&
+    !isFeatured;
+
   // Spring refs for chaining
   const slideRef = useSpringRef();
   const rotateRef = useSpringRef();
-  
+
   // Spring for vertical drop animation (books above featured)
-  const [dropSpring] = useSpring(() => ({
-    dropY: shouldDrop ? -snap.slidOutBookThickness : 0,
-    config: config.gentle
-  }), [shouldDrop, snap.slidOutBookThickness]);
-  
+  const [dropSpring] = useSpring(
+    () => ({
+      dropY: shouldDrop ? -snap.slidOutBookThickness : 0,
+      config: config.gentle,
+    }),
+    [shouldDrop, snap.slidOutBookThickness]
+  );
+
   // Spring for slide animation
-  const [slideSpring] = useSpring(() => ({
-    ref: slideRef,
-    from: { posY: 0, posZ: 0 },
-    to: isFeatured ? {
-      posY: isTopBook ? width / 2 : 0,
-      posZ: isTopBook ? 0 : depth * 1.5
-    } : { posY: 0, posZ: 0 },
-    config: config.gentle
-  }), [isFeatured, isTopBook, width, depth]);
-  
+  const [slideSpring] = useSpring(
+    () => ({
+      ref: slideRef,
+      from: { posY: 0, posZ: 0 },
+      to: isFeatured
+        ? {
+            posY: isTopBook ? width / 2 : 0,
+            posZ: isTopBook ? 0 : depth * 1.5,
+          }
+        : { posY: 0, posZ: 0 },
+      config: config.gentle,
+    }),
+    [isFeatured, isTopBook, width, depth]
+  );
+
   // Spring for rotation animation
-  const [rotateSpring] = useSpring(() => ({
-    ref: rotateRef,
-    from: { rotX: 0, rotY: 0 },
-    to: isFeatured ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } : { rotX: 0, rotY: 0 },
-    config: config.gentle
-  }), [isFeatured]);
-  
+  const [rotateSpring] = useSpring(
+    () => ({
+      ref: rotateRef,
+      from: { rotX: 0, rotY: 0 },
+      to: isFeatured
+        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 }
+        : { rotX: 0, rotY: 0 },
+      config: config.gentle,
+    }),
+    [isFeatured]
+  );
+
   // Chain animations: slide featured, then rotate
   useChain(
-    isFeatured ? 
-      (isTopBook ? [slideRef, rotateRef] : [slideRef, rotateRef]) : 
-      [rotateRef, slideRef],
-    isFeatured ? 
-      (isTopBook ? [0, 0] : [0, 0.3]) : // Top book: both at once, others: rotate after 30% of slide
-      [0, 0.3] // Reverse: rotate first, then slide
+    isFeatured
+      ? isTopBook
+        ? [slideRef, rotateRef]
+        : [slideRef, rotateRef]
+      : [rotateRef, slideRef],
+    isFeatured
+      ? isTopBook
+        ? [0, 0]
+        : [0, 0.3] // Top book: both at once, others: rotate after 30% of slide
+      : [0, 0.3] // Reverse: rotate first, then slide
   );
 
   // Handle spawn animation
@@ -106,7 +178,6 @@ function Book({
 
   // Monitor sleep state
   useFrame(() => {
-
     // Handle sleep state
     if (rigidBodyRef.current && !isKinematicRef.current && hasSpawned) {
       const sleeping = rigidBodyRef.current.isSleeping();
@@ -114,7 +185,7 @@ function Book({
         // Capture the settled position before converting to kinematic
         const pos = rigidBodyRef.current.translation();
         settledPositionRef.current = { x: pos.x, y: pos.y, z: pos.z };
-        
+
         // Store original Z position if not already stored
         if (originalSettledZRef.current === null) {
           originalSettledZRef.current = pos.z;
@@ -130,18 +201,29 @@ function Book({
   // Report position updates for camera tracking and sync text
   useFrame(() => {
     // Report actual Y position when featured
-    if (isFeatured && onPositionUpdate && settledPositionRef.current && groupRef.current) {
-      const actualY = settledPositionRef.current.y + groupRef.current.position.y;
+    if (
+      isFeatured &&
+      onPositionUpdate &&
+      settledPositionRef.current &&
+      groupRef.current
+    ) {
+      const actualY =
+        settledPositionRef.current.y + groupRef.current.position.y;
       onPositionUpdate(actualY);
     }
-    
+
     // Sync text group with book position and rotation
     if (textGroupRef.current && rigidBodyRef.current && groupRef.current) {
       const rbPosition = rigidBodyRef.current.translation();
-      textGroupRef.current.position.set(rbPosition.x, rbPosition.y, rbPosition.z);
-      
+      textGroupRef.current.position.set(
+        rbPosition.x,
+        rbPosition.y,
+        rbPosition.z
+      );
+
       // Copy the animated group's transforms for smooth animations
-      textGroupRef.current.position.y += dropSpring.dropY.get() + slideSpring.posY.get();
+      textGroupRef.current.position.y +=
+        dropSpring.dropY.get() + slideSpring.posY.get();
       textGroupRef.current.position.z += slideSpring.posZ.get();
       textGroupRef.current.rotation.x = rotateSpring.rotX.get();
       textGroupRef.current.rotation.y = rotateSpring.rotY.get();
@@ -155,7 +237,7 @@ function Book({
     ) {
       // Always use original Z position as base
       const baseZ = originalSettledZRef.current ?? settledPositionRef.current.z;
-      
+
       // Keep rigid body at settled position
       rigidBodyRef.current.setTranslation(
         {
@@ -221,64 +303,68 @@ function Book({
           </animated.group>
         </animated.group>
       </RigidBody>
-      
+
       {/* Text group - outside physics simulation */}
       <group ref={textGroupRef}>
         {/* Spine text - always visible */}
-        {/* Title - On the spine facing forward */}
+        {/* Title - On the spine facing forward, left aligned */}
         <Text
-          position={[-width / 3, 0, depth / 2 + 0.0002]}
+          position={[-width / 2 + 0.006, 0, depth / 2 + 0.0002]}
           rotation={[0, 0, 0]}
-          fontSize={0.008}
+          fontSize={getSpineFontSize(bookTitle)}
           color="#ffffff"
-          anchorX="center"
+          anchorX="left"
           anchorY="middle"
           font="/fonts/fields-bold.otf"
           raycast={() => null}
         >
-          The Promise
+          {bookTitle}
         </Text>
 
-        {/* Author - On the spine facing forward */}
+        {/* Author - On the spine facing forward, right aligned */}
         <Text
-          position={[width / 3, 0, depth / 2 + 0.0002]}
+          position={[width / 2 - 0.006, 0, depth / 2 + 0.0002]}
           rotation={[0, 0, 0]}
           fontSize={0.005}
           color="#cccccc"
-          anchorX="center"
+          anchorX="right"
           anchorY="middle"
           fontWeight={300}
           raycast={() => null}
         >
-          Damon Galmut
+          {bookAuthor}
         </Text>
 
-        {/* Front cover text - Title */}
+        {/* Front cover text - Title centered in main area */}
         <Text
-          position={[-width / 2 - 0.0002, 0.02, 0]}
-          rotation={[0, Math.PI / 2, 0]}
-          fontSize={0.012}
+          position={[0.01, -size[1] / 2 - 0.0001, 0]}
+          rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+          fontSize={0.009}
           color="#ffffff"
           anchorX="center"
           anchorY="middle"
           font="/fonts/fields-bold.otf"
           raycast={() => null}
+          maxWidth={width * 0.9}
+          textAlign="center"
         >
-          The Promise
+          {wrapText(bookTitle)}
         </Text>
 
-        {/* Front cover text - Author */}
+        {/* Front cover text - Author below title */}
         <Text
-          position={[-width / 2 - 0.0002, -0.01, 0]}
-          rotation={[0, Math.PI / 2, 0]}
-          fontSize={0.008}
+          position={[-0.02, -size[1] / 2 - 0.0002, 0]}
+          rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+          fontSize={0.006}
           color="#cccccc"
           anchorX="center"
           anchorY="middle"
           fontWeight={300}
           raycast={() => null}
+          maxWidth={width * 0.8}
+          textAlign="center"
         >
-          Damon Galmut
+          {bookAuthor}
         </Text>
       </group>
     </>
