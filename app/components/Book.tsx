@@ -51,6 +51,11 @@ function Book({
   // const [isHovered, setIsHovered] = useState(false); // Disabled for debugging
   const [hasSpawned, setHasSpawned] = useState(false);
   const snap = useSnapshot(bookStore);
+  
+  // Mouse position for featured book rotation
+  const mouseX = useRef(0);
+  const mouseY = useRef(0);
+  const [mouseRotation, setMouseRotation] = useState({ x: 0, y: 0 });
 
   // Use refs for values that change in useFrame
   const isKinematicRef = useRef(false);
@@ -176,6 +181,16 @@ function Book({
     }),
     [isFeatured]
   );
+  
+  // Spring for mouse-based tilt when featured
+  const [tiltSpring] = useSpring(
+    () => ({
+      tiltX: mouseRotation.x,
+      tiltY: mouseRotation.y,
+      config: { mass: 1, tension: 350, friction: 40 },
+    }),
+    [mouseRotation]
+  );
 
   // Chain animations: slide featured, then rotate
   useChain(
@@ -202,6 +217,27 @@ function Book({
   }, [spawnDelay]);
 
   // No need for manual animation state management - springs handle it
+
+  // Handle mouse movement for featured book
+  useEffect(() => {
+    if (!isFeatured) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      // Normalize mouse position to -1 to 1
+      mouseX.current = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY.current = -(e.clientY / window.innerHeight) * 2 + 1;
+      
+      // Set rotation based on mouse position (subtle effect)
+      const maxTilt = 0.15; // Maximum tilt in radians (~8.5 degrees)
+      setMouseRotation({
+        x: mouseY.current * maxTilt, // Pitch
+        y: mouseX.current * maxTilt, // Roll (reversed for natural feel)
+      });
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isFeatured]);
 
   // Monitor sleep state
   useFrame(() => {
@@ -239,22 +275,7 @@ function Book({
       onPositionUpdate(actualY);
     }
 
-    // Sync text group with book position and rotation
-    if (textGroupRef.current && rigidBodyRef.current && groupRef.current) {
-      const rbPosition = rigidBodyRef.current.translation();
-      textGroupRef.current.position.set(
-        rbPosition.x,
-        rbPosition.y,
-        rbPosition.z
-      );
-
-      // Copy the animated group's transforms for smooth animations
-      textGroupRef.current.position.y +=
-        dropSpring.dropY.get() + slideSpring.posY.get();
-      textGroupRef.current.position.z += slideSpring.posZ.get();
-      textGroupRef.current.rotation.x = rotateSpring.rotX.get();
-      textGroupRef.current.rotation.y = rotateSpring.rotY.get();
-    }
+    // Text is now inside the rotation groups, no need to sync separately
 
     // Handle rigid body position updates
     if (
@@ -317,83 +338,89 @@ function Book({
               if (onClick) onClick();
             }}
           >
-            <mesh ref={meshRef} castShadow receiveShadow>
-              <boxGeometry args={size} />
-              <meshStandardMaterial
-                color={color}
-                metalness={0.1}
-                roughness={0.8}
-                transparent
-                opacity={1}
-              />
-            </mesh>
+            {/* Additional rotation group for mouse-based tilt */}
+            <animated.group
+              rotation-x={isFeatured ? tiltSpring.tiltY : 0}
+              rotation-z={isFeatured ? tiltSpring.tiltX : 0}
+            >
+              <mesh ref={meshRef} castShadow receiveShadow>
+                <boxGeometry args={size} />
+                <meshStandardMaterial
+                  color={color}
+                  metalness={0.1}
+                  roughness={0.8}
+                  transparent
+                  opacity={1}
+                />
+              </mesh>
+              
+              {/* Text group - now inside tilt rotation */}
+              <group ref={textGroupRef}>
+                {/* Spine text - always visible */}
+                {/* Title - On the spine facing forward, left aligned */}
+                <Text
+                  position={[-width / 2 + 0.006, 0, depth / 2 + 0.0002]}
+                  rotation={[0, 0, 0]}
+                  fontSize={getSpineFontSize(bookTitle)}
+                  color="#ffffff"
+                  anchorX="left"
+                  anchorY="middle"
+                  font="/fonts/fields-bold.otf"
+                  raycast={() => null}
+                >
+                  {bookTitle}
+                </Text>
+
+                {/* Author - On the spine facing forward, right aligned */}
+                <Text
+                  position={[width / 2 - 0.006, 0, depth / 2 + 0.0002]}
+                  rotation={[0, 0, 0]}
+                  fontSize={0.005}
+                  color="#cccccc"
+                  anchorX="right"
+                  anchorY="middle"
+                  fontWeight={300}
+                  raycast={() => null}
+                >
+                  {bookAuthor}
+                </Text>
+
+                {/* Front cover text - Title centered in main area */}
+                <Text
+                  position={[0.01, -size[1] / 2 - 0.0001, 0]}
+                  rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+                  fontSize={0.009}
+                  color="#ffffff"
+                  anchorX="center"
+                  anchorY="middle"
+                  font="/fonts/fields-bold.otf"
+                  raycast={() => null}
+                  maxWidth={width * 0.9}
+                  textAlign="center"
+                >
+                  {wrapText(bookTitle)}
+                </Text>
+
+                {/* Front cover text - Author below title */}
+                <Text
+                  position={[-0.02, -size[1] / 2 - 0.0002, 0]}
+                  rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+                  fontSize={0.006}
+                  color="#cccccc"
+                  anchorX="center"
+                  anchorY="middle"
+                  fontWeight={300}
+                  raycast={() => null}
+                  maxWidth={width * 0.8}
+                  textAlign="center"
+                >
+                  {bookAuthor}
+                </Text>
+              </group>
+            </animated.group>
           </animated.group>
         </animated.group>
       </RigidBody>
-
-      {/* Text group - outside physics simulation */}
-      <group ref={textGroupRef}>
-        {/* Spine text - always visible */}
-        {/* Title - On the spine facing forward, left aligned */}
-        <Text
-          position={[-width / 2 + 0.006, 0, depth / 2 + 0.0002]}
-          rotation={[0, 0, 0]}
-          fontSize={getSpineFontSize(bookTitle)}
-          color="#ffffff"
-          anchorX="left"
-          anchorY="middle"
-          font="/fonts/fields-bold.otf"
-          raycast={() => null}
-        >
-          {bookTitle}
-        </Text>
-
-        {/* Author - On the spine facing forward, right aligned */}
-        <Text
-          position={[width / 2 - 0.006, 0, depth / 2 + 0.0002]}
-          rotation={[0, 0, 0]}
-          fontSize={0.005}
-          color="#cccccc"
-          anchorX="right"
-          anchorY="middle"
-          fontWeight={300}
-          raycast={() => null}
-        >
-          {bookAuthor}
-        </Text>
-
-        {/* Front cover text - Title centered in main area */}
-        <Text
-          position={[0.01, -size[1] / 2 - 0.0001, 0]}
-          rotation={[Math.PI / 2, 0, -Math.PI / 2]}
-          fontSize={0.009}
-          color="#ffffff"
-          anchorX="center"
-          anchorY="middle"
-          font="/fonts/fields-bold.otf"
-          raycast={() => null}
-          maxWidth={width * 0.9}
-          textAlign="center"
-        >
-          {wrapText(bookTitle)}
-        </Text>
-
-        {/* Front cover text - Author below title */}
-        <Text
-          position={[-0.02, -size[1] / 2 - 0.0002, 0]}
-          rotation={[Math.PI / 2, 0, -Math.PI / 2]}
-          fontSize={0.006}
-          color="#cccccc"
-          anchorX="center"
-          anchorY="middle"
-          fontWeight={300}
-          raycast={() => null}
-          maxWidth={width * 0.8}
-          textAlign="center"
-        >
-          {bookAuthor}
-        </Text>
-      </group>
     </>
   );
 }

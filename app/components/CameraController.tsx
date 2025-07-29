@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, memo } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSnapshot } from "valtio";
+import { bookStore } from "../store/bookStore";
 
 interface CameraControllerProps {
   stackTop: number;
@@ -30,6 +32,10 @@ const CameraController = memo(function CameraController({
   const currentRotation = useRef(0);
   const lastFeaturedBookY = useRef<number | null>(null);
   const rotationAmplifier = useRef(1);
+  
+  // Get book state once per render, not in useFrame
+  const snap = useSnapshot(bookStore);
+  const hasFeatureBook = snap.featuredBookIndex !== null;
 
   // Calculate camera distance to make books fill appropriate screen percentage
   const bookWidth = 0.25; // Maximum book width (largest type)
@@ -193,9 +199,9 @@ const CameraController = memo(function CameraController({
     setScrollVelocity((prev) => prev * 0.9);
 
     // Smoothly lerp mouse rotation (flipped)
-    // Always follow mouse, even when featuring a book
+    // Only rotate stack if no book is featured
     const baseRotationScale = 0.15;
-    const targetRotation = -mouseX.current * baseRotationScale;
+    const targetRotation = hasFeatureBook ? 0 : -mouseX.current * baseRotationScale;
     
     currentRotation.current = THREE.MathUtils.lerp(
       currentRotation.current,
