@@ -1,6 +1,10 @@
-import { useRef, useEffect, useState } from "react";
-import { Text } from "@react-three/drei";
-import { RigidBody, type RapierRigidBody } from "@react-three/rapier";
+import { useRef, useEffect, useState, Suspense } from "react";
+import { Center, Text, Text3D } from "@react-three/drei";
+import {
+  RigidBody,
+  type RapierRigidBody,
+  CuboidCollider,
+} from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import {
@@ -51,7 +55,7 @@ function Book({
   // const [isHovered, setIsHovered] = useState(false); // Disabled for debugging
   const [hasSpawned, setHasSpawned] = useState(false);
   const snap = useSnapshot(bookStore);
-  
+
   // Mouse position for featured book rotation
   const mouseX = useRef(0);
   const mouseY = useRef(0);
@@ -78,12 +82,12 @@ function Book({
     return 0.008; // Normal size for short titles
   };
 
-  // Text wrapping function for face titles
-  const wrapText = (text: string, maxLength: number = 12) => {
-    if (text.length <= maxLength) return text;
+  // Text wrapping function for face titles - returns array of lines
+  const wrapText = (text: string, maxLength: number = 12): string[] => {
+    if (text.length <= maxLength) return [text];
 
     const words = text.split(" ");
-    const lines = [];
+    const lines: string[] = [];
     let currentLine = "";
 
     for (const word of words) {
@@ -104,7 +108,7 @@ function Book({
       lines.push(currentLine.trim());
     }
 
-    return lines.join("\n");
+    return lines;
   };
 
   // Calculate if this book should drop (is above the featured book)
@@ -181,7 +185,7 @@ function Book({
     }),
     [isFeatured]
   );
-  
+
   // Spring for mouse-based tilt when featured
   const [tiltSpring] = useSpring(
     () => ({
@@ -221,12 +225,12 @@ function Book({
   // Handle mouse movement for featured book
   useEffect(() => {
     if (!isFeatured) return;
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       // Normalize mouse position to -1 to 1
       mouseX.current = (e.clientX / window.innerWidth) * 2 - 1;
       mouseY.current = -(e.clientY / window.innerHeight) * 2 + 1;
-      
+
       // Set rotation based on mouse position (subtle effect)
       const maxTilt = 0.15; // Maximum tilt in radians (~8.5 degrees)
       setMouseRotation({
@@ -234,9 +238,9 @@ function Book({
         y: mouseX.current * maxTilt, // Roll (reversed for natural feel)
       });
     };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [isFeatured]);
 
   // Monitor sleep state
@@ -308,15 +312,16 @@ function Book({
   ];
 
   return (
-    <>
+    <Suspense fallback={null}>
       <RigidBody
         ref={rigidBodyRef}
         position={startPosition}
         restitution={0.01}
         lockRotations={true}
-        colliders="cuboid"
+        colliders={false}
         type="dynamic"
       >
+        {/* <CuboidCollider args={[size[0], size[1], size[2]]} /> */}
         <animated.group position-y={dropSpring.dropY}>
           <animated.group
             ref={groupRef}
@@ -353,7 +358,7 @@ function Book({
                   opacity={1}
                 />
               </mesh>
-              
+
               {/* Text group - now inside tilt rotation */}
               <group ref={textGroupRef}>
                 {/* Spine text - always visible */}
@@ -386,20 +391,38 @@ function Book({
                 </Text>
 
                 {/* Front cover text - Title centered in main area */}
-                <Text
-                  position={[0.01, -size[1] / 2 - 0.0001, 0]}
-                  rotation={[Math.PI / 2, 0, -Math.PI / 2]}
-                  fontSize={0.009}
-                  color="#ffffff"
-                  anchorX="center"
-                  anchorY="middle"
-                  font="/fonts/fields-bold.otf"
-                  raycast={() => null}
-                  maxWidth={width * 0.9}
-                  textAlign="center"
-                >
-                  {wrapText(bookTitle)}
-                </Text>
+                {(() => {
+                  const lines = wrapText(bookTitle);
+                  const lineHeight = 0.012; // Space between lines
+                  const totalHeight = (lines.length - 1) * lineHeight;
+                  const startY = totalHeight / 2;
+                  
+                  return lines.map((line, index) => (
+                    <Center key={index} position={[0.01 - (index * lineHeight - startY), -size[1] / 2 - 0.001, 0]}>
+                      <Text3D
+                        rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+                        font="/FSP DEMO - Fields Display_Bold.json"
+                        size={0.009}
+                        height={0.0005} // Extrusion depth
+                        curveSegments={12}
+                        bevelEnabled={true}
+                        bevelThickness={0.00005}
+                        bevelSize={0.00005}
+                        bevelOffset={0}
+                        bevelSegments={5}
+                        letterSpacing={0}
+                        raycast={() => null}
+                      >
+                        {line}
+                        <meshStandardMaterial
+                          color="#ffffff"
+                          metalness={1}
+                          roughness={0.2}
+                        />
+                      </Text3D>
+                    </Center>
+                  ));
+                })()}
 
                 {/* Front cover text - Author below title */}
                 <Text
@@ -421,7 +444,7 @@ function Book({
           </animated.group>
         </animated.group>
       </RigidBody>
-    </>
+    </Suspense>
   );
 }
 

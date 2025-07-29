@@ -380,7 +380,7 @@ export default function App() {
       {/* <PaperSphere cameraY={cameraY} /> */}
 
       {/* Environment for lighting and reflections only, no background */}
-      {/* <Environment files="/artist_workshop_1k.hdr" background={false} /> */}
+      <Environment files="/artist_workshop_1k.hdr" background={false} />
       <ambientLight intensity={3} />
       {/* Single directional light for shadow debugging */}
       <directionalLight
