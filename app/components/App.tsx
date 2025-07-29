@@ -391,7 +391,7 @@ export default function App() {
         receiveShadow
         scale={0.15}
         rotation={[0, Math.PI / 4, 0]}
-        position={[0, -1.35, -0.15]}
+        position={[0, -1.341, -0.15]}
       />
       <BookStack
         bookConfigs={bookConfigs}

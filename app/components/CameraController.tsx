@@ -18,7 +18,7 @@ const CameraController = memo(function CameraController({
   featuredBookY,
 }: CameraControllerProps) {
   const { camera, size } = useThree();
-  const [targetScrollY, setTargetScrollY] = useState(0.05); // Target position (adjusted for coffee table)
+  const [targetScrollY, setTargetScrollY] = useState(0.12); // Target position (adjusted for coffee table)
   const [currentScrollY, setCurrentScrollY] = useState(-1.1); // Actual position (adjusted for coffee table)
   const [scrollVelocity, setScrollVelocity] = useState(0);
   const [currentTilt, setCurrentTilt] = useState(0);
@@ -32,7 +32,7 @@ const CameraController = memo(function CameraController({
   const currentRotation = useRef(0);
   const lastFeaturedBookY = useRef<number | null>(null);
   const rotationAmplifier = useRef(1);
-  
+
   // Get book state once per render, not in useFrame
   const snap = useSnapshot(bookStore);
   const hasFeatureBook = snap.featuredBookIndex !== null;
@@ -201,8 +201,10 @@ const CameraController = memo(function CameraController({
     // Smoothly lerp mouse rotation (flipped)
     // Only rotate stack if no book is featured
     const baseRotationScale = 0.15;
-    const targetRotation = hasFeatureBook ? 0 : -mouseX.current * baseRotationScale;
-    
+    const targetRotation = hasFeatureBook
+      ? 0
+      : -mouseX.current * baseRotationScale;
+
     currentRotation.current = THREE.MathUtils.lerp(
       currentRotation.current,
       targetRotation,

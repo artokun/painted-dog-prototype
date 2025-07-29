@@ -166,14 +166,19 @@ function Book({
     const minLift = calculateMinLift();
     return {
       ref: slideRef,
-      from: { posY: 0, posZ: 0 },
+      from: isTopBook
+        ? { posY: width / 2, posZ: 0 } // Top book starts in featured position
+        : { posY: 0, posZ: 0 },
       to: isFeatured
         ? {
             posY: isTopBook ? width / 2 : minLift,
             posZ: isTopBook ? 0 : depth,
           }
-        : { posY: 0, posZ: 0 },
+        : isTopBook && !isFeatured
+          ? { posY: width / 2, posZ: 0 } // Keep top book in standing position when not featured
+          : { posY: 0, posZ: 0 },
       config: config.gentle,
+      immediate: isTopBook && !isFeatured, // Skip animation for initial state
     };
   }, [isFeatured, isTopBook, width, depth]);
 
@@ -181,13 +186,16 @@ function Book({
   const [rotateSpring] = useSpring(
     () => ({
       ref: rotateRef,
-      from: { rotX: 0, rotY: 0 },
-      to: isFeatured
+      from: isTopBook 
+        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Top book starts standing
+        : { rotX: 0, rotY: 0 },
+      to: isFeatured || isTopBook
         ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 }
         : { rotX: 0, rotY: 0 },
       config: config.gentle,
+      immediate: isTopBook && !isFeatured, // Skip animation for initial state
     }),
-    [isFeatured]
+    [isFeatured, isTopBook]
   );
 
   // Spring for mouse-based tilt when featured
