@@ -63,7 +63,6 @@ const BookStack = (props: any) => (
 
 export default function App() {
   const snap = useSnapshot(bookStore);
-  const [featuredBookY, setFeaturedBookY] = useState<number | null>(null);
   // Memoize book configurations without spawn delay to prevent re-calculation
   const { bookConfigs: baseBookConfigs, stackTop } = useMemo(() => {
     const bookSizeMap = {
@@ -317,6 +316,18 @@ export default function App() {
       currentY += book.bookType.thickness; // 2mm gap between books
     });
 
+    // Adjust the top book's position since it's standing
+    const topBookIndex = books.length - 1;
+    if (books[topBookIndex]) {
+      // When the book is standing, its width becomes its height
+      // So we need to adjust the Y position to account for this
+      const topBook = books[topBookIndex];
+      const halfWidth = topBook.bookType.width / 2;
+      // Position the top book so its bottom edge sits on the book below
+      books[topBookIndex].yPosition =
+        currentY - topBook.bookType.thickness + halfWidth;
+    }
+
     // Convert to final config format without spawn delay
     const configs = books.map((book, index) => ({
       position: [book.xOffset, book.yPosition, 0] as [number, number, number],
@@ -361,7 +372,7 @@ export default function App() {
         stackTop={stackTop}
         totalBooks={bookConfigs.length}
         onCameraMove={() => {}}
-        featuredBookY={featuredBookY}
+        bookPositions={bookConfigs.map((config) => config.position[1])}
       />
       {/* <OrbitControls /> */}
 
@@ -400,13 +411,12 @@ export default function App() {
           // Toggle featured state
           if (snap.featuredBookIndex === index) {
             setFeaturedBook(null);
-            setFeaturedBookY(null);
           } else {
             setFeaturedBook(index);
             // Don't set initial position - let the book report its actual position
           }
         }}
-        onFeaturedBookPositionUpdate={setFeaturedBookY}
+        onFeaturedBookPositionUpdate={() => {}}
       />
     </>
   );

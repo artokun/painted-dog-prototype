@@ -29,5 +29,5 @@ body {
   overscroll-behavior-x: none;
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y pinch-zoom;
+  touch-action: pan-y;
 }

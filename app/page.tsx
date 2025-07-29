@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
+import { ScrollControls } from "@react-three/drei";
 import App from "./components/App";
 import Link from "next/link";
 
@@ -33,7 +34,9 @@ const Middle = () => {
         shadows
         gl={{ antialias: true }}
       >
-        <App />
+        <ScrollControls pages={3} damping={0.2}>
+          <App />
+        </ScrollControls>
       </Canvas>
     </div>
   );

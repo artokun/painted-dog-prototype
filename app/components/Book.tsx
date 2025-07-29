@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useMemo } from "react";
 import { Center, Text, Text3D } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import {
   useSpring,
@@ -8,6 +8,7 @@ import {
   config,
   useChain,
   useSpringRef,
+  to,
 } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
@@ -47,6 +48,7 @@ function Book({
   const textGroupRef = useRef<THREE.Group>(null);
   const [width, , depth] = size;
   const snap = useSnapshot(bookStore);
+  const { camera } = useThree();
 
   // Mouse position for featured book rotation
   const mouseX = useRef(0);
@@ -57,8 +59,8 @@ function Book({
   const rotationNoise = useMemo(() => {
     if (isFeatured) return { x: 0, y: 0, z: 0 }; // No noise when featured
     return {
-      x: (Math.random() - 0.5) * 0.01, // ±0.005 radians (~0.3 degrees)
-      y: (Math.random() - 0.5) * 0.02, // ±0.01 radians (~0.6 degrees)
+      x: 0,
+      y: 0,
       z: 0,
     };
   }, [isFeatured]);
@@ -116,6 +118,7 @@ function Book({
   // Spring refs for chaining
   const slideRef = useSpringRef();
   const rotateRef = useSpringRef();
+  const liftRef = useSpringRef();
 
   // Spring for initial spawn drop animation
   const [spawnSpring] = useSpring(
@@ -137,66 +140,80 @@ function Book({
     [shouldDrop, snap.slidOutBookThickness]
   );
 
-  // Calculate minimum Y lift needed to prevent table clipping
-  // When book rotates 90 degrees, its corner extends down by depth/2
-  // We need to ensure the lowest point stays 2cm (0.02) above table
-  const tableHeight = 0.0045; // Table top position from App.tsx
-  const minClearance = 0.05; // 5cm clearance
+  // Calculate optimal Z distance for featured book to fill 75% of viewport height
+  const calculateOptimalZDistance = () => {
+    if (!isFeatured) return depth;
 
-  // When featured and rotating, calculate if we need to lift the book
-  const calculateMinLift = () => {
-    if (!isFeatured) return 0;
+    // Use a fixed reference book height so all books appear the same size on screen
+    // Using medium book width (0.185) as the reference since it's in the middle of the range
+    const referenceBookHeight = 0.185;
 
-    // When rotated 90 degrees, the book's corner extends down by depth/2
-    const rotatedBottom = targetY - depth / 2;
+    // VIEWPORT_PERCENTAGE: Adjust this value to change how much of the screen the featured book fills
+    const targetScreenPercentage = 1.6;
 
-    // Required position to maintain clearance
-    const requiredBottom = tableHeight + minClearance;
+    // Camera FOV (from page.tsx)
+    const fov = 45;
+    const fovRadians = (fov * Math.PI) / 180;
 
-    // If rotated bottom would go below required position, calculate lift needed
-    if (rotatedBottom < requiredBottom) {
-      return requiredBottom - rotatedBottom;
-    }
+    // Calculate distance needed for book to fill target percentage of viewport
+    // Using: tan(fov/2) = (height/2) / distance
+    // Rearranged: distance = (height/2) / tan(fov/2)
+    const halfFov = fovRadians / 2;
+    const viewportHeightAtUnitDistance = 2 * Math.tan(halfFov);
 
-    return 0;
+    // Same distance for all books so they appear the same size on screen
+    const distance =
+      referenceBookHeight /
+      (targetScreenPercentage * viewportHeightAtUnitDistance);
+
+    return distance;
   };
 
   // Spring for slide animation
   const [slideSpring] = useSpring(() => {
-    const minLift = calculateMinLift();
+    const optimalZ = calculateOptimalZDistance();
     return {
       ref: slideRef,
-      from: isTopBook
-        ? { posY: width / 2, posZ: 0 } // Top book starts in featured position
-        : { posY: 0, posZ: 0 },
+      from: { posY: 0, posZ: 0 },
       to: isFeatured
         ? {
-            posY: isTopBook ? width / 2 : minLift,
-            posZ: isTopBook ? 0 : depth,
+            posY: 0,
+            posZ: optimalZ, // Slide to optimal distance for viewport
           }
-        : isTopBook && !isFeatured
-          ? { posY: width / 2, posZ: 0 } // Keep top book in standing position when not featured
-          : { posY: 0, posZ: 0 },
+        : { posY: 0, posZ: 0 },
       config: config.gentle,
-      immediate: isTopBook && !isFeatured, // Skip animation for initial state
     };
-  }, [isFeatured, isTopBook, width, depth]);
+  }, [isFeatured, width]);
 
-  // Spring for rotation animation
+  // Spring for rotation animation (without Y tracking)
   const [rotateSpring] = useSpring(
     () => ({
       ref: rotateRef,
-      from: isTopBook 
+      from: isTopBook
         ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Top book starts standing
         : { rotX: 0, rotY: 0 },
-      to: isFeatured || isTopBook
-        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 }
-        : { rotX: 0, rotY: 0 },
+      to: isFeatured
+        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // All featured books rotate the same
+        : isTopBook
+          ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Top book stays standing when not featured
+          : { rotX: 0, rotY: 0 }, // Other books lay flat when not featured
       config: config.gentle,
       immediate: isTopBook && !isFeatured, // Skip animation for initial state
     }),
     [isFeatured, isTopBook]
   );
+
+  // Separate spring for Y position lifting
+  const [liftSpring, liftApi] = useSpring(() => {
+    const cameraOffset = isFeatured ? camera.position.y - targetY : 0;
+
+    return {
+      ref: liftRef,
+      from: { posY: 0 },
+      to: { posY: isFeatured ? cameraOffset : 0 },
+      config: config.gentle,
+    };
+  }, [isFeatured, camera.position.y, targetY]);
 
   // Spring for mouse-based tilt when featured
   const [tiltSpring] = useSpring(
@@ -208,18 +225,14 @@ function Book({
     [mouseRotation]
   );
 
-  // Chain animations: slide featured, then rotate
+  // Chain animations: slide, rotate, and lift happen together after slide
   useChain(
     isFeatured
-      ? isTopBook
-        ? [slideRef, rotateRef]
-        : [slideRef, rotateRef]
-      : [rotateRef, slideRef],
+      ? [slideRef, rotateRef, liftRef] // Slide first, then rotate and lift together
+      : [liftRef, rotateRef, slideRef], // Reverse: lift down and rotate, then slide
     isFeatured
-      ? isTopBook
-        ? [0, 0]
-        : [0, 0.3] // Top book: both at once, others: rotate after 30% of slide
-      : [0, 0.3] // Reverse: rotate first, then slide
+      ? [0, 0.5, 0.5] // Slide at 0, rotate and lift at 50%
+      : [0, 0, 0.5] // Lift and rotate together at 0, slide at 50%
   );
 
   // No need for spawn state - handled by spring animation
@@ -245,15 +258,11 @@ function Book({
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [isFeatured]);
 
-  // Report position updates for camera tracking
+  // Update Y tracking position as camera moves
   useFrame(() => {
-    // Report actual Y position when featured
-    if (isFeatured && onPositionUpdate) {
-      // Get animated values
-      const dropY = dropSpring.dropY.get();
-      const slideY = slideSpring.posY.get();
-      const actualY = targetY + dropY + slideY;
-      onPositionUpdate(actualY);
+    if (isFeatured) {
+      const targetOffset = camera.position.y - targetY;
+      liftApi.start({ posY: targetOffset });
     }
   });
 
@@ -267,7 +276,10 @@ function Book({
       <animated.group position-y={dropSpring.dropY}>
         <animated.group
           ref={groupRef}
-          position-y={slideSpring.posY}
+          position-y={to(
+            [slideSpring.posY, liftSpring.posY],
+            (slide, lift) => slide + lift
+          )}
           position-z={slideSpring.posZ}
           rotation-x={rotateSpring.rotX}
           rotation-y={rotateSpring.rotY}
