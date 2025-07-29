@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import React from "react";
 import { useGLTF } from "@react-three/drei";
-import { RigidBody } from "@react-three/rapier";
 import { GLTF } from "three-stdlib";
 import { ThreeElements } from "@react-three/fiber";
 
@@ -21,22 +20,20 @@ export function CoffeeTable(props: ThreeElements["group"]) {
   ) as unknown as GLTFResult;
 
   return (
-    <RigidBody type="fixed" colliders="trimesh">
-      <group {...props} dispose={null}>
-        <group scale={0.01}>
-          <mesh
-            receiveShadow
-            geometry={nodes.Table__0.geometry}
-            material={materials["Scene_-_Root"]}
-          />
-          <mesh
-            receiveShadow
-            geometry={nodes.Table__0_1.geometry}
-            material={materials["Scene_-_Root"]}
-          />
-        </group>
+    <group {...props} dispose={null}>
+      <group scale={0.01}>
+        <mesh
+          receiveShadow
+          geometry={nodes.Table__0.geometry}
+          material={materials["Scene_-_Root"]}
+        />
+        <mesh
+          receiveShadow
+          geometry={nodes.Table__0_1.geometry}
+          material={materials["Scene_-_Root"]}
+        />
       </group>
-    </RigidBody>
+    </group>
   );
 }
 

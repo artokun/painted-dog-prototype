@@ -1,10 +1,8 @@
-import { useMemo, useState, useRef, memo, useEffect } from "react";
+import { useMemo, useState, useRef, memo, useEffect, Suspense } from "react";
 import { Environment } from "@react-three/drei";
-import { Physics } from "@react-three/rapier";
 import { CoffeeTable } from "./CoffeeTable";
 import Book from "./Book";
 import CameraController from "./CameraController";
-import * as THREE from "three";
 import { useSnapshot } from "valtio";
 import {
   bookStore,
@@ -27,7 +25,7 @@ interface BookConfig {
   };
 }
 
-const BookStack = memo(function BookStack({
+const BookStackInner = memo(function BookStackInner({
   bookConfigs,
   featuredIndex,
   onBookClick,
@@ -56,21 +54,12 @@ const BookStack = memo(function BookStack({
   );
 });
 
-// Paper Sphere Background Component (commented out for now)
-// function PaperSphere({ cameraY }: { cameraY: number }) {
-//   const meshRef = useRef<THREE.Mesh>(null);
-//   return (
-//     <mesh ref={meshRef} scale={[5, 5, 5]}>
-//       <sphereGeometry args={[1, 64, 64]} />
-//       <meshStandardMaterial
-//         color="#F9F6F0"
-//         side={THREE.BackSide}
-//         roughness={0.9}
-//         metalness={0}
-//       />
-//     </mesh>
-//   );
-// }
+// Wrap BookStack with Suspense
+const BookStack = (props: any) => (
+  <Suspense fallback={null}>
+    <BookStackInner {...props} />
+  </Suspense>
+);
 
 export default function App() {
   const snap = useSnapshot(bookStore);
@@ -325,7 +314,7 @@ export default function App() {
       book.yPosition = currentY + book.bookType.thickness / 2;
 
       // For the next book, we need to account for the full thickness of this book plus a small gap
-      currentY += book.bookType.thickness + 0.002; // 2mm gap between books
+      currentY += book.bookType.thickness; // 2mm gap between books
     });
 
     // Convert to final config format without spawn delay
@@ -353,7 +342,7 @@ export default function App() {
   // Add spawn delays
   const bookConfigs = baseBookConfigs.map((config) => ({
     ...config,
-    spawnDelay: config.index * 150, // 150ms between each book (faster spawning)
+    spawnDelay: config.index * 50, // 150ms between each book (faster spawning)
   }));
 
   // Register book thicknesses after component mounts
@@ -398,29 +387,27 @@ export default function App() {
         shadow-bias={-0.0001}
       />
 
-      <Physics gravity={[0, -0.1, 0]}>
-        <CoffeeTable
-          receiveShadow
-          scale={0.15}
-          rotation={[0, Math.PI / 4, 0]}
-          position={[0, -1.35, -0.15]}
-        />
-        <BookStack
-          bookConfigs={bookConfigs}
-          featuredIndex={snap.featuredBookIndex}
-          onBookClick={(index) => {
-            // Toggle featured state
-            if (snap.featuredBookIndex === index) {
-              setFeaturedBook(null);
-              setFeaturedBookY(null);
-            } else {
-              setFeaturedBook(index);
-              // Don't set initial position - let the book report its actual position
-            }
-          }}
-          onFeaturedBookPositionUpdate={setFeaturedBookY}
-        />
-      </Physics>
+      <CoffeeTable
+        receiveShadow
+        scale={0.15}
+        rotation={[0, Math.PI / 4, 0]}
+        position={[0, -1.35, -0.15]}
+      />
+      <BookStack
+        bookConfigs={bookConfigs}
+        featuredIndex={snap.featuredBookIndex}
+        onBookClick={(index: number) => {
+          // Toggle featured state
+          if (snap.featuredBookIndex === index) {
+            setFeaturedBook(null);
+            setFeaturedBookY(null);
+          } else {
+            setFeaturedBook(index);
+            // Don't set initial position - let the book report its actual position
+          }
+        }}
+        onFeaturedBookPositionUpdate={setFeaturedBookY}
+      />
     </>
   );
 }
