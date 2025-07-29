@@ -225,6 +225,7 @@ function Book({
     [mouseRotation]
   );
 
+
   // Chain animations: slide, rotate, and lift happen together after slide
   useChain(
     isFeatured

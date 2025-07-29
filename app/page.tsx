@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { ScrollControls } from "@react-three/drei";
+import * as THREE from "three";
 import App from "./components/App";
 import Link from "next/link";
 
@@ -32,7 +33,12 @@ const Middle = () => {
       <Canvas
         camera={{ position: [0, 0.01, 0.3], fov: 45 }}
         shadows
-        gl={{ antialias: true }}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.LinearToneMapping,
+          outputColorSpace: THREE.SRGBColorSpace,
+          toneMappingExposure: 1.0,
+        }}
       >
         <ScrollControls pages={3} damping={0.2}>
           <App />

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import React from "react";
+import React, { useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { ThreeElements } from "@react-three/fiber";
@@ -14,10 +14,22 @@ type GLTFResult = GLTF & {
   };
 };
 
-export function CoffeeTable(props: ThreeElements["group"]) {
+type CoffeeTableProps = ThreeElements["group"] & {
+  opacity?: number;
+};
+
+export function CoffeeTable({ opacity = 1, ...props }: CoffeeTableProps) {
   const { nodes, materials } = useGLTF(
     "/coffee_table.glb"
   ) as unknown as GLTFResult;
+
+  // Create a modified material with opacity
+  const tableMaterial = useMemo(() => {
+    const mat = materials["Scene_-_Root"].clone();
+    mat.transparent = true;
+    mat.opacity = opacity;
+    return mat;
+  }, [materials, opacity]);
 
   return (
     <group {...props} dispose={null}>
@@ -25,12 +37,12 @@ export function CoffeeTable(props: ThreeElements["group"]) {
         <mesh
           receiveShadow
           geometry={nodes.Table__0.geometry}
-          material={materials["Scene_-_Root"]}
+          material={tableMaterial}
         />
         <mesh
           receiveShadow
           geometry={nodes.Table__0_1.geometry}
-          material={materials["Scene_-_Root"]}
+          material={tableMaterial}
         />
       </group>
     </group>

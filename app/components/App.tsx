@@ -1,9 +1,12 @@
-import { useMemo, useState, useRef, memo, useEffect, Suspense } from "react";
+import React, { useMemo, memo, useEffect, Suspense } from "react";
 import { Environment } from "@react-three/drei";
 import { CoffeeTable } from "./CoffeeTable";
 import Book from "./Book";
 import CameraController from "./CameraController";
+import Backdrop from "./Backdrop";
 import { useSnapshot } from "valtio";
+import { useSpring, config } from "@react-spring/three";
+import { useFrame } from "@react-three/fiber";
 import {
   bookStore,
   setFeaturedBook,
@@ -61,8 +64,30 @@ const BookStack = (props: any) => (
   </Suspense>
 );
 
+// Animated CoffeeTable wrapper
+const AnimatedCoffeeTable = ({ opacity, ...props }: any) => {
+  const [currentOpacity, setCurrentOpacity] = React.useState(1);
+
+  useFrame(() => {
+    setCurrentOpacity(opacity.get());
+  });
+
+  return <CoffeeTable {...props} opacity={currentOpacity} />;
+};
+
 export default function App() {
   const snap = useSnapshot(bookStore);
+
+  // Animate coffee table opacity
+  const [tableSpring] = useSpring(
+    () => ({
+      opacity: snap.featuredBookIndex !== null ? 0 : 1,
+      config: config.gentle,
+      delay: snap.featuredBookIndex !== null ? 600 : 0,
+    }),
+    [snap.featuredBookIndex]
+  );
+
   // Memoize book configurations without spawn delay to prevent re-calculation
   const { bookConfigs: baseBookConfigs, stackTop } = useMemo(() => {
     const bookSizeMap = {
@@ -290,7 +315,7 @@ export default function App() {
     ].reverse();
 
     // Convert CMS books to physical book objects with positions
-    const books = CMSBooks.map((cmsBook, index) => {
+    const books = CMSBooks.map((cmsBook) => {
       const bookType = bookSizeMap[cmsBook.size as keyof typeof bookSizeMap];
       const xOffset = (Math.random() - 0.5) * 0.01; // 1cm max offset
 
@@ -381,7 +406,7 @@ export default function App() {
 
       {/* Environment for lighting and reflections only, no background */}
       <Environment files="/artist_workshop_1k.hdr" background={false} />
-      <ambientLight intensity={3} />
+      {/* <ambientLight intensity={3} /> */}
       {/* Single directional light for shadow debugging */}
       <directionalLight
         position={[2, 4, 2]}
@@ -398,11 +423,12 @@ export default function App() {
         shadow-bias={-0.0001}
       />
 
-      <CoffeeTable
+      <AnimatedCoffeeTable
         receiveShadow
         scale={0.15}
         rotation={[0, Math.PI / 4, 0]}
         position={[0, -1.341, -0.15]}
+        opacity={tableSpring.opacity}
       />
       <BookStack
         bookConfigs={bookConfigs}
@@ -418,6 +444,7 @@ export default function App() {
         }}
         onFeaturedBookPositionUpdate={() => {}}
       />
+      <Backdrop />
     </>
   );
 }
