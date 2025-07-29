@@ -193,28 +193,9 @@ const CameraController = memo(function CameraController({
     setScrollVelocity((prev) => prev * 0.9);
 
     // Smoothly lerp mouse rotation (flipped)
-    // When featuring a book, lerp to center (0), otherwise follow mouse
-    const isFeaturingBook =
-      featuredBookY !== null && featuredBookY !== undefined;
-    
-    // When transitioning from featured to unfeatured, boost rotation sensitivity
-    if (lastFeaturedBookY.current !== null && featuredBookY === null) {
-      rotationAmplifier.current = 3; // Temporarily amplify rotation
-    }
-    
-    // Gradually reduce amplifier back to 1
-    if (rotationAmplifier.current > 1) {
-      rotationAmplifier.current = THREE.MathUtils.lerp(
-        rotationAmplifier.current,
-        1,
-        0.02
-      );
-    }
-    
+    // Always follow mouse, even when featuring a book
     const baseRotationScale = 0.15;
-    const targetRotation = isFeaturingBook 
-      ? 0 
-      : -mouseX.current * baseRotationScale * rotationAmplifier.current;
+    const targetRotation = -mouseX.current * baseRotationScale;
     
     currentRotation.current = THREE.MathUtils.lerp(
       currentRotation.current,

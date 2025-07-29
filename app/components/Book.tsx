@@ -121,21 +121,48 @@ function Book({
     [shouldDrop, snap.slidOutBookThickness]
   );
 
+  // Calculate minimum Y lift needed to prevent table clipping
+  // When book rotates 90 degrees, its corner extends down by depth/2
+  // We need to ensure the lowest point stays 2cm (0.02) above table
+  const tableHeight = 0.0045; // Table top position from App.tsx
+  const minClearance = 0.05; // 5cm clearance
+
+  // When featured and rotating, calculate if we need to lift the book
+  const calculateMinLift = () => {
+    if (!isFeatured || !settledPositionRef.current) return 0;
+
+    // Current book bottom when flat
+    const currentBottom = settledPositionRef.current.y - size[1] / 2;
+
+    // When rotated 90 degrees, the book's corner extends down by depth/2
+    const rotatedBottom = settledPositionRef.current.y - depth / 2;
+
+    // Required position to maintain clearance
+    const requiredBottom = tableHeight + minClearance;
+
+    // If rotated bottom would go below required position, calculate lift needed
+    if (rotatedBottom < requiredBottom) {
+      return requiredBottom - rotatedBottom;
+    }
+
+    return 0;
+  };
+
   // Spring for slide animation
-  const [slideSpring] = useSpring(
-    () => ({
+  const [slideSpring] = useSpring(() => {
+    const minLift = calculateMinLift();
+    return {
       ref: slideRef,
       from: { posY: 0, posZ: 0 },
       to: isFeatured
         ? {
-            posY: isTopBook ? width / 2 : 0,
-            posZ: isTopBook ? 0 : depth * 1.5,
+            posY: isTopBook ? width / 2 : minLift,
+            posZ: isTopBook ? 0 : depth,
           }
         : { posY: 0, posZ: 0 },
       config: config.gentle,
-    }),
-    [isFeatured, isTopBook, width, depth]
-  );
+    };
+  }, [isFeatured, isTopBook, width, depth, settledPositionRef.current]);
 
   // Spring for rotation animation
   const [rotateSpring] = useSpring(
@@ -290,7 +317,7 @@ function Book({
               if (onClick) onClick();
             }}
           >
-            <mesh ref={meshRef} castShadow>
+            <mesh ref={meshRef} castShadow receiveShadow>
               <boxGeometry args={size} />
               <meshStandardMaterial
                 color={color}

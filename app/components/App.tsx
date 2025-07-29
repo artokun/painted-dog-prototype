@@ -77,15 +77,6 @@ export default function App() {
   const [featuredBookY, setFeaturedBookY] = useState<number | null>(null);
   // Memoize book configurations without spawn delay to prevent re-calculation
   const { bookConfigs: baseBookConfigs, stackTop } = useMemo(() => {
-    // Define 5 book types with realistic sizes (in meters)
-    // const bookTypes = [
-    //   { width: 0.18, thickness: 0.01, depth: 0.13 }, // Thin book (18cm x 1.5cm x 23cm)
-    //   { width: 0.19, thickness: 0.015, depth: 0.14 }, // Thick book (19cm x 2.5cm x 24cm)
-    //   { width: 0.185, thickness: 0.02, depth: 0.135 }, // Medium book (18.5cm x 2cm x 23.5cm)
-    //   { width: 0.175, thickness: 0.025, depth: 0.12 }, // Very thick book (17.5cm x 3.5cm x 22cm)
-    //   { width: 0.182, thickness: 0.03, depth: 0.138 }, // Extra thicc book (18.2cm x 5cm x 23.8cm)
-    // ];
-
     const bookSizeMap = {
       thin: { width: 0.18, thickness: 0.01, depth: 0.13 },
       thick: { width: 0.19, thickness: 0.015, depth: 0.14 },
@@ -310,31 +301,6 @@ export default function App() {
       },
     ].reverse();
 
-    // // Generate 21 books with dark/black colors matching the wireframe
-    // const bookColors = [
-    //   "#1a1a1a",
-    //   "#2d2d2d",
-    //   "#262626",
-    //   "#333333",
-    //   "#1f1f1f",
-    //   "#3a3a3a",
-    //   "#242424",
-    //   "#2e2e2e",
-    //   "#202020",
-    //   "#363636",
-    //   "#282828",
-    //   "#313131",
-    //   "#1d1d1d",
-    //   "#2f2f2f",
-    //   "#272727",
-    //   "#343434",
-    //   "#222222",
-    //   "#383838",
-    //   "#2b2b2b",
-    //   "#303030",
-    //   "#252525",
-    // ];
-
     // Convert CMS books to physical book objects with positions
     const books = CMSBooks.map((cmsBook, index) => {
       const bookType = bookSizeMap[cmsBook.size as keyof typeof bookSizeMap];
@@ -414,43 +380,22 @@ export default function App() {
       {/* <PaperSphere cameraY={cameraY} /> */}
 
       {/* Environment for lighting and reflections only, no background */}
-      <Environment files="/artist_workshop_1k.hdr" background={false} />
-      {/* <ambientLight intensity={0.2} /> */}
-      {/* Main front light */}
+      {/* <Environment files="/artist_workshop_1k.hdr" background={false} /> */}
+      <ambientLight intensity={3} />
+      {/* Single directional light for shadow debugging */}
       <directionalLight
-        position={[-3, 5, 8]}
-        intensity={0.5}
+        position={[2, 4, 2]}
+        intensity={3}
         color="#FFFFFF"
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-near={0.1}
-        shadow-camera-far={20}
-        shadow-camera-left={-5}
-        shadow-camera-right={5}
-        shadow-camera-top={5}
-        shadow-camera-bottom={-5}
-      />
-      {/* Sunset light from front right */}
-      <directionalLight
-        position={[8, 3, 6]}
-        intensity={0.5}
-        color="#FFFFFF"
-        castShadow
-        shadow-mapSize-width={4096}
-        shadow-mapSize-height={4096}
-        shadow-camera-near={0.1}
-        shadow-camera-far={25}
-        shadow-camera-left={-6}
-        shadow-camera-right={6}
-        shadow-camera-top={6}
-        shadow-camera-bottom={-6}
-        shadow-bias={-0.0005}
-      />
-      <pointLight
-        position={[0.2, 0.5, 0.4]}
-        intensity={1}
-        rotation={[0, 0, 0]}
+        shadow-mapSize={[4096, 4096]}
+        shadow-camera-near={0.001}
+        shadow-camera-far={10}
+        shadow-camera-left={-1}
+        shadow-camera-right={1}
+        shadow-camera-top={1}
+        shadow-camera-bottom={-1}
+        shadow-bias={-0.0001}
       />
 
       <Physics gravity={[0, -0.1, 0]}>
