@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { authStore } from "@/app/store/authStore";
+import Image from "next/image";
 
 const CORRECT_PASSWORD = "The-Quick-Spotted-Dog";
 const AUTH_STORAGE_KEY = "painted-dog-auth";
@@ -39,7 +40,13 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
       <div className="p-8 max-w-md w-full mx-4 flex flex-col items-center">
-        <img src="/logo-dog.png" alt="Logo" className="w-50 mb-10" />
+        <Image
+          src="/logo-dog.png"
+          alt="Logo"
+          className="w-50 mb-10"
+          width={200}
+          height={200}
+        />
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

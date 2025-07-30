@@ -5,7 +5,7 @@ import Book from "./Book";
 import CameraController from "./CameraController";
 import Backdrop from "./Backdrop";
 import { useSnapshot } from "valtio";
-import { useSpring, config } from "@react-spring/three";
+import { useSpring, config, animated } from "@react-spring/three";
 import { useFrame } from "@react-three/fiber";
 import {
   bookStore,
@@ -405,12 +405,16 @@ export default function App() {
       {/* <PaperSphere cameraY={cameraY} /> */}
 
       {/* Environment for lighting and reflections only, no background */}
-      <Environment files="/artist_workshop_1k.hdr" background={false} />
+      <Environment
+        files="/artist_workshop_1k.hdr"
+        background={false}
+        environmentIntensity={0.97}
+      />
       {/* <ambientLight intensity={3} /> */}
       {/* Single directional light for shadow debugging */}
       <directionalLight
         position={[2, 4, 2]}
-        intensity={3}
+        intensity={2.2}
         color="#FFFFFF"
         castShadow
         shadow-mapSize={[4096, 4096]}
@@ -423,13 +427,25 @@ export default function App() {
         shadow-bias={-0.0001}
       />
 
-      <AnimatedCoffeeTable
+      {/* <AnimatedCoffeeTable
         receiveShadow
         scale={0.15}
         rotation={[0, Math.PI / 4, 0]}
         position={[0, -1.341, -0.15]}
         opacity={tableSpring.opacity}
-      />
+      /> */}
+      <mesh
+        position={[0, 0.005, 0]}
+        receiveShadow
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <circleGeometry args={[0.5, 128]} />
+        <animated.meshStandardMaterial
+          color="#F9F6F0"
+          transparent
+          opacity={tableSpring.opacity}
+        />
+      </mesh>
       <BookStack
         bookConfigs={bookConfigs}
         featuredIndex={snap.featuredBookIndex}
