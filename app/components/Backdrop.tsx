@@ -25,20 +25,39 @@ export default function Backdrop() {
   // Using a Z position that's closer than the featured book but further than the stack
   const zPosition = 0.09; // Halfway between stack (0) and featured book (~0.3)
 
+  // Only render the mesh when it should be interactive
+  if (!isVisible && spring.opacity.get() <= 0.01) {
+    return null;
+  }
+
   return (
     <animated.mesh
       receiveShadow
       ref={meshRef}
       position={[0, 0, zPosition]}
-      // Keep visible during fade out animation
-      // visible={isVisible || spring.opacity.get() > 0}
+      onPointerDown={(e) => {
+        // Prevent clicks from passing through to objects behind
+        e.stopPropagation();
+      }}
+      onPointerOver={(e) => {
+        // Also stop hover events
+        e.stopPropagation();
+      }}
+      onPointerMove={(e) => {
+        // Stop pointer move events too
+        e.stopPropagation();
+      }}
+      onPointerOut={(e) => {
+        // Stop pointer out events
+        e.stopPropagation();
+      }}
     >
       <planeGeometry args={[10, 10, 100, 100]} />
       <animated.meshBasicMaterial
         color="#F9F6F0"
         opacity={spring.opacity}
         transparent
-        depthWrite={true}
+        depthWrite={false}
         depthTest={true}
       />
     </animated.mesh>

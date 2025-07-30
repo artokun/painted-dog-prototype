@@ -25,7 +25,8 @@ interface BookProps {
   index: number;
   cmsData?: {
     title: string;
-    author: string;
+    firstName: string;
+    surname: string;
     price: number;
     description: string;
   };
@@ -70,7 +71,9 @@ function Book({
 
   // Default book data for fallback
   const bookTitle = cmsData?.title || `Book ${index + 1}`;
-  const bookAuthor = cmsData?.author || "Unknown Author";
+  const bookAuthor = cmsData
+    ? `${cmsData.firstName} ${cmsData.surname}`
+    : "Unknown Author";
 
   // Dynamic font sizing for spine based on title length
   const getSpineFontSize = (text: string) => {

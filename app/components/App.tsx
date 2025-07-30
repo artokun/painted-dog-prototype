@@ -1,4 +1,4 @@
-import React, { useMemo, memo, useEffect, Suspense } from "react";
+import React, { useMemo, memo, useEffect, Suspense, useState } from "react";
 import { Environment } from "@react-three/drei";
 import { CoffeeTable } from "./CoffeeTable";
 import Book from "./Book";
@@ -12,6 +12,7 @@ import {
   setFeaturedBook,
   registerBookThickness,
 } from "../store/bookStore";
+import { validateBooksSafe, type Book as BookData } from "../../types/book";
 
 // Memoized Book Stack Component
 interface BookConfig {
@@ -22,7 +23,8 @@ interface BookConfig {
   index: number;
   cmsData?: {
     title: string;
-    author: string;
+    firstName: string;
+    surname: string;
     price: number;
     description: string;
   };
@@ -65,18 +67,42 @@ const BookStack = (props: any) => (
 );
 
 // Animated CoffeeTable wrapper
-const AnimatedCoffeeTable = ({ opacity, ...props }: any) => {
-  const [currentOpacity, setCurrentOpacity] = React.useState(1);
-
-  useFrame(() => {
-    setCurrentOpacity(opacity.get());
-  });
-
-  return <CoffeeTable {...props} opacity={currentOpacity} />;
-};
 
 export default function App() {
   const snap = useSnapshot(bookStore);
+  const [booksData, setBooksData] = useState<BookData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Load and validate books data
+  useEffect(() => {
+    async function loadBooksData() {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/books.json");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch books: ${response.statusText}`);
+        }
+        const rawData = await response.json();
+
+        const validation = validateBooksSafe(rawData);
+        if (!validation.success) {
+          console.error("Book data validation failed:", validation.error);
+          throw new Error("Invalid book data format");
+        }
+
+        setBooksData(validation.data.reverse()); // Reverse to match original order
+        setLoadError(null);
+      } catch (error) {
+        console.error("Error loading books data:", error);
+        setLoadError(error instanceof Error ? error.message : "Unknown error");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadBooksData();
+  }, []);
 
   // Animate coffee table opacity
   const [tableSpring] = useSpring(
@@ -90,6 +116,10 @@ export default function App() {
 
   // Memoize book configurations without spawn delay to prevent re-calculation
   const { bookConfigs: baseBookConfigs, stackTop } = useMemo(() => {
+    if (booksData.length === 0) {
+      return { bookConfigs: [], stackTop: 0 };
+    }
+
     const bookSizeMap = {
       thin: { width: 0.18, thickness: 0.01, depth: 0.13 },
       thick: { width: 0.19, thickness: 0.015, depth: 0.14 },
@@ -98,224 +128,8 @@ export default function App() {
       extraThick: { width: 0.182, thickness: 0.03, depth: 0.138 },
     };
 
-    const CMSBooks = [
-      {
-        title: "The Promise",
-        author: "Damon Galgut",
-        size: "medium",
-        color: "#1a1a1a",
-        price: 28,
-        description:
-          "Booker Prize winner exploring a white South African family's decline over decades",
-      },
-      {
-        title: "Disgrace",
-        author: "J.M. Coetzee",
-        size: "thick",
-        color: "#2d2d2d",
-        price: 24,
-        description:
-          "Nobel laureate's powerful novel about post-apartheid South Africa",
-      },
-      {
-        title: "July's People",
-        author: "Nadine Gordimer",
-        size: "thin",
-        color: "#262626",
-        price: 22,
-        description:
-          "Nobel Prize winner's prescient tale of racial upheaval and survival",
-      },
-      {
-        title: "Zoo City",
-        author: "Lauren Beukes",
-        size: "medium",
-        color: "#333333",
-        price: 26,
-        description:
-          "Arthur C. Clarke Award winner blending urban fantasy with contemporary Johannesburg",
-      },
-      {
-        title: "Ways of Dying",
-        author: "Zakes Mda",
-        size: "thick",
-        color: "#1f1f1f",
-        price: 25,
-        description:
-          "Magical realist masterpiece about love and loss in post-apartheid transition",
-      },
-      {
-        title: "A Dry White Season",
-        author: "André Brink",
-        size: "veryThick",
-        color: "#3a3a3a",
-        price: 23,
-        description:
-          "Anti-apartheid classic about an Afrikaner teacher's awakening to injustice",
-      },
-      {
-        title: "Triomf",
-        author: "Marlene van Niekerk",
-        size: "extraThick",
-        color: "#242424",
-        price: 32,
-        description:
-          "Dark comedy chronicling poor white Afrikaners on the eve of democracy",
-      },
-      {
-        title: "Mother to Mother",
-        author: "Sindiwe Magona",
-        size: "medium",
-        color: "#2e2e2e",
-        price: 21,
-        description:
-          "Heart-wrenching exploration of township life and the roots of violence",
-      },
-      {
-        title: "Double Negative",
-        author: "Ivan Vladislavić",
-        size: "thin",
-        color: "#202020",
-        price: 27,
-        description:
-          "Experimental novel capturing the disorientation of post-apartheid Johannesburg",
-      },
-      {
-        title: "You Can't Get Lost in Cape Town",
-        author: "Zoë Wicomb",
-        size: "thick",
-        color: "#363636",
-        price: 24,
-        description:
-          "Groundbreaking collection exploring coloured identity under apartheid",
-      },
-      {
-        title: "The Heart of Redness",
-        author: "Zakes Mda",
-        size: "veryThick",
-        color: "#282828",
-        price: 29,
-        description:
-          "Epic tale weaving together 19th-century Xhosa prophecies with modern South Africa",
-      },
-      {
-        title: "Waiting for the Barbarians",
-        author: "J.M. Coetzee",
-        size: "medium",
-        color: "#313131",
-        price: 26,
-        description:
-          "Allegorical masterpiece about empire, torture, and moral responsibility",
-      },
-      {
-        title: "Born a Crime",
-        author: "Trevor Noah",
-        size: "thick",
-        color: "#1d1d1d",
-        price: 24,
-        description:
-          "Comedian's memoir of growing up in apartheid South Africa",
-      },
-      {
-        title: "Nervous Conditions",
-        author: "Tsitsi Dangarembga",
-        size: "medium",
-        color: "#2f2f2f",
-        price: 23,
-        description:
-          "Coming-of-age novel about education and colonial Zimbabwe",
-      },
-      {
-        title: "Broken Glass",
-        author: "Alain Mabanckou",
-        size: "thin",
-        color: "#272727",
-        price: 22,
-        description:
-          "Congolese author's tale of bar life and storytelling in Brazzaville",
-      },
-      {
-        title: "The Beautiful Ones Are Not Yet Born",
-        author: "Ayi Kwei Armah",
-        size: "veryThick",
-        color: "#343434",
-        price: 28,
-        description:
-          "Ghanaian classic exploring corruption in post-independence Africa",
-      },
-      {
-        title: "Purple Hibiscus",
-        author: "Chimamanda Ngozi Adichie",
-        size: "medium",
-        color: "#222222",
-        price: 25,
-        description:
-          "Nigerian author's debut about family, faith, and political upheaval",
-      },
-      {
-        title: "Burger's Daughter",
-        author: "Nadine Gordimer",
-        size: "extraThick",
-        color: "#383838",
-        price: 30,
-        description:
-          "Anti-apartheid novel following the daughter of a political activist",
-      },
-      {
-        title: "The Conservationist",
-        author: "Nadine Gordimer",
-        size: "thick",
-        color: "#2b2b2b",
-        price: 27,
-        description:
-          "Booker Prize winner examining white South African identity",
-      },
-      {
-        title: "My Son's Story",
-        author: "Nadine Gordimer",
-        size: "medium",
-        color: "#303030",
-        price: 24,
-        description: "Family drama set against the backdrop of apartheid's end",
-      },
-      {
-        title: "The Book of Not",
-        author: "Tsitsi Dangarembga",
-        size: "thick",
-        color: "#252525",
-        price: 26,
-        description: "Sequel exploring colonial education and African identity",
-      },
-      {
-        title: "Coconut",
-        author: "Kopano Matlwa",
-        size: "thin",
-        color: "#404040",
-        price: 21,
-        description:
-          "Young South African voices navigating post-apartheid identity",
-      },
-      {
-        title: "The Pickup",
-        author: "Nadine Gordimer",
-        size: "medium",
-        color: "#353535",
-        price: 23,
-        description:
-          "Cross-cultural love story examining privilege and displacement",
-      },
-      {
-        title: "Age of Iron",
-        author: "J.M. Coetzee",
-        size: "veryThick",
-        color: "#2c2c2c",
-        price: 29,
-        description: "Dying woman's letter during the final years of apartheid",
-      },
-    ].reverse();
-
     // Convert CMS books to physical book objects with positions
-    const books = CMSBooks.map((cmsBook) => {
+    const books = booksData.map((cmsBook) => {
       const bookType = bookSizeMap[cmsBook.size as keyof typeof bookSizeMap];
       const xOffset = (Math.random() - 0.5) * 0.01; // 1cm max offset
 
@@ -366,14 +180,15 @@ export default function App() {
       index, // Keep track of index for spawn delay
       cmsData: {
         title: book.title,
-        author: book.author,
+        firstName: book.firstName,
+        surname: book.surname,
         price: book.price,
         description: book.description,
       },
     }));
 
     return { bookConfigs: configs, stackTop: currentY };
-  }, []); // No dependencies - calculated once
+  }, [booksData]); // Recalculate when books data changes
 
   // Add spawn delays
   const bookConfigs = baseBookConfigs.map((config) => ({
@@ -388,6 +203,11 @@ export default function App() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount - bookConfigs is stable
+
+  // Don't render anything while loading or if there's an error
+  if (isLoading || loadError || booksData.length === 0) {
+    return null; // In a 3D scene context, we just don't render anything
+  }
 
   return (
     <>
@@ -446,21 +266,28 @@ export default function App() {
           opacity={tableSpring.opacity}
         />
       </mesh>
+      <Backdrop />
       <BookStack
         bookConfigs={bookConfigs}
         featuredIndex={snap.featuredBookIndex}
         onBookClick={(index: number) => {
-          // Toggle featured state
-          if (snap.featuredBookIndex === index) {
-            setFeaturedBook(null);
-          } else {
-            setFeaturedBook(index);
-            // Don't set initial position - let the book report its actual position
+          // Only allow clicking if no book is featured, or clicking the featured book
+          if (
+            snap.featuredBookIndex === null ||
+            snap.featuredBookIndex === index
+          ) {
+            // Toggle featured state
+            if (snap.featuredBookIndex === index) {
+              setFeaturedBook(null);
+            } else {
+              setFeaturedBook(index);
+              // Don't set initial position - let the book report its actual position
+            }
           }
+          // If another book is featured, ignore the click
         }}
         onFeaturedBookPositionUpdate={() => {}}
       />
-      <Backdrop />
     </>
   );
 }
