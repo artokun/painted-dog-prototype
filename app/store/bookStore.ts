@@ -1,29 +1,29 @@
-import { proxy } from 'valtio';
+import { proxy } from "valtio";
 
 interface BookState {
-  featuredBookIndex: number | null;
-  bookThicknesses: number[];
+  featuredBookId: string | null;
+  bookThicknesses: Record<string, number>;
   slidOutBookThickness: number;
 }
 
 export const bookStore = proxy<BookState>({
-  featuredBookIndex: null,
-  bookThicknesses: [],
+  featuredBookId: null,
+  bookThicknesses: {},
   slidOutBookThickness: 0,
 });
 
-export const setFeaturedBook = (index: number | null) => {
-  const previousIndex = bookStore.featuredBookIndex;
-  bookStore.featuredBookIndex = index;
-  
+export const setFeaturedBook = (id: string | null) => {
+  const previousId = bookStore.featuredBookId;
+  bookStore.featuredBookId = id;
+
   // Update slid out book thickness
-  if (index !== null && bookStore.bookThicknesses[index]) {
-    bookStore.slidOutBookThickness = bookStore.bookThicknesses[index];
+  if (id !== null && bookStore.bookThicknesses[id]) {
+    bookStore.slidOutBookThickness = bookStore.bookThicknesses[id];
   } else {
     bookStore.slidOutBookThickness = 0;
   }
 };
 
-export const registerBookThickness = (index: number, thickness: number) => {
-  bookStore.bookThicknesses[index] = thickness;
+export const registerBookThickness = (id: string, thickness: number) => {
+  bookStore.bookThicknesses[id] = thickness;
 };

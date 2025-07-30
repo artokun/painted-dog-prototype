@@ -11,6 +11,7 @@ export const BookSizeSchema = z.enum([
 
 // Define the book schema
 export const BookSchema = z.object({
+  id: z.string().min(1, "ID is required"),
   title: z.string().min(1, "Title is required"),
   firstName: z.string().min(1, "First name is required"),
   surname: z.string().min(1, "Surname is required"),

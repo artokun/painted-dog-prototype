@@ -9,7 +9,7 @@ export default function Backdrop() {
   const meshRef = useRef<Mesh>(null);
 
   // Show backdrop when a book is featured
-  const isVisible = snap.featuredBookIndex !== null;
+  const isVisible = snap.featuredBookId !== null;
 
   // Spring for opacity animation
   const [spring] = useSpring(

@@ -21,6 +21,7 @@ interface BookConfig {
   color: string;
   spawnDelay: number;
   index: number;
+  id: string;
   cmsData?: {
     title: string;
     firstName: string;
@@ -32,27 +33,33 @@ interface BookConfig {
 
 const BookStackInner = memo(function BookStackInner({
   bookConfigs,
-  featuredIndex,
+  featuredId,
   onBookClick,
   onFeaturedBookPositionUpdate,
 }: {
   bookConfigs: BookConfig[];
-  featuredIndex: number | null;
-  onBookClick: (index: number) => void;
+  featuredId: string | null;
+  onBookClick: (id: string) => void;
   onFeaturedBookPositionUpdate: (y: number) => void;
 }) {
+  // Find the featured book's index for ordering logic
+  const featuredIndex = featuredId
+    ? bookConfigs.findIndex((config) => config.id === featuredId)
+    : null;
+
   return (
     <>
       {bookConfigs.map((config, index) => (
         <Book
-          key={`book-${index}`}
+          key={config.id}
           {...config}
-          isFeatured={index === featuredIndex}
-          onClick={() => onBookClick(index)}
+          isFeatured={config.id === featuredId}
+          onClick={() => onBookClick(config.id)}
           isTopBook={index === bookConfigs.length - 1}
           onPositionUpdate={
-            index === featuredIndex ? onFeaturedBookPositionUpdate : undefined
+            config.id === featuredId ? onFeaturedBookPositionUpdate : undefined
           }
+          featuredBookIndex={featuredIndex}
         />
       ))}
     </>
@@ -107,11 +114,11 @@ export default function App() {
   // Animate coffee table opacity
   const [tableSpring] = useSpring(
     () => ({
-      opacity: snap.featuredBookIndex !== null ? 0 : 1,
+      opacity: snap.featuredBookId !== null ? 0 : 1,
       config: config.gentle,
-      delay: snap.featuredBookIndex !== null ? 600 : 0,
+      delay: snap.featuredBookId !== null ? 600 : 0,
     }),
-    [snap.featuredBookIndex]
+    [snap.featuredBookId]
   );
 
   // Memoize book configurations without spawn delay to prevent re-calculation
@@ -178,6 +185,7 @@ export default function App() {
       color: book.color,
       targetY: book.yPosition + book.bookType.thickness / 2, // Top of this book
       index, // Keep track of index for spawn delay
+      id: book.id, // Unique identifier for the book
       cmsData: {
         title: book.title,
         firstName: book.firstName,
@@ -199,7 +207,7 @@ export default function App() {
   // Register book thicknesses after component mounts
   useEffect(() => {
     bookConfigs.forEach((config) => {
-      registerBookThickness(config.index, config.size[1]);
+      registerBookThickness(config.id, config.size[1]);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount - bookConfigs is stable
@@ -269,18 +277,15 @@ export default function App() {
       <Backdrop />
       <BookStack
         bookConfigs={bookConfigs}
-        featuredIndex={snap.featuredBookIndex}
-        onBookClick={(index: number) => {
+        featuredId={snap.featuredBookId}
+        onBookClick={(id: string) => {
           // Only allow clicking if no book is featured, or clicking the featured book
-          if (
-            snap.featuredBookIndex === null ||
-            snap.featuredBookIndex === index
-          ) {
+          if (snap.featuredBookId === null || snap.featuredBookId === id) {
             // Toggle featured state
-            if (snap.featuredBookIndex === index) {
+            if (snap.featuredBookId === id) {
               setFeaturedBook(null);
             } else {
-              setFeaturedBook(index);
+              setFeaturedBook(id);
               // Don't set initial position - let the book report its actual position
             }
           }

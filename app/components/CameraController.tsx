@@ -22,7 +22,7 @@ const CameraController = memo(function CameraController({
 
   // Get book state
   const snap = useSnapshot(bookStore);
-  const hasFeatureBook = snap.featuredBookIndex !== null;
+  const hasFeatureBook = snap.featuredBookId !== null;
 
   // Drei scroll hook
   const scroll = useScroll();

@@ -1,5 +1,6 @@
 [
   {
+    "id": "the-promise",
     "title": "The Promise",
     "firstName": "Damon",
     "surname": "Galgut",
@@ -12,6 +13,7 @@
     "isFeatured": true
   },
   {
+    "id": "disgrace",
     "title": "Disgrace",
     "firstName": "J.M.",
     "surname": "Coetzee",
@@ -24,6 +26,7 @@
     "isFeatured": false
   },
   {
+    "id": "julys-people",
     "title": "July's People",
     "firstName": "Nadine",
     "surname": "Gordimer",
@@ -36,6 +39,7 @@
     "isFeatured": false
   },
   {
+    "id": "zoo-city",
     "title": "Zoo City",
     "firstName": "Lauren",
     "surname": "Beukes",
@@ -48,6 +52,7 @@
     "isFeatured": false
   },
   {
+    "id": "ways-of-dying",
     "title": "Ways of Dying",
     "firstName": "Zakes",
     "surname": "Mda",
@@ -60,6 +65,7 @@
     "isFeatured": false
   },
   {
+    "id": "dry-white-season",
     "title": "A Dry White Season",
     "firstName": "André",
     "surname": "Brink",
@@ -72,6 +78,7 @@
     "isFeatured": false
   },
   {
+    "id": "triomf",
     "title": "Triomf",
     "firstName": "Marlene",
     "surname": "van Niekerk",
@@ -84,6 +91,7 @@
     "isFeatured": false
   },
   {
+    "id": "mother-to-mother",
     "title": "Mother to Mother",
     "firstName": "Sindiwe",
     "surname": "Magona",
@@ -96,6 +104,7 @@
     "isFeatured": false
   },
   {
+    "id": "double-negative",
     "title": "Double Negative",
     "firstName": "Ivan",
     "surname": "Vladislavić",
@@ -108,6 +117,7 @@
     "isFeatured": false
   },
   {
+    "id": "you-cant-get-lost-cape-town",
     "title": "You Can't Get Lost in Cape Town",
     "firstName": "Zoë",
     "surname": "Wicomb",
@@ -120,6 +130,7 @@
     "isFeatured": false
   },
   {
+    "id": "heart-of-redness",
     "title": "The Heart of Redness",
     "firstName": "Zakes",
     "surname": "Mda",
@@ -132,6 +143,7 @@
     "isFeatured": false
   },
   {
+    "id": "waiting-for-barbarians",
     "title": "Waiting for the Barbarians",
     "firstName": "J.M.",
     "surname": "Coetzee",
@@ -144,6 +156,7 @@
     "isFeatured": false
   },
   {
+    "id": "born-a-crime",
     "title": "Born a Crime",
     "firstName": "Trevor",
     "surname": "Noah",
@@ -156,6 +169,7 @@
     "isFeatured": true
   },
   {
+    "id": "nervous-conditions",
     "title": "Nervous Conditions",
     "firstName": "Tsitsi",
     "surname": "Dangarembga",
@@ -168,6 +182,7 @@
     "isFeatured": false
   },
   {
+    "id": "broken-glass",
     "title": "Broken Glass",
     "firstName": "Alain",
     "surname": "Mabanckou",
@@ -180,6 +195,7 @@
     "isFeatured": false
   },
   {
+    "id": "beautiful-ones-not-yet-born",
     "title": "The Beautiful Ones Are Not Yet Born",
     "firstName": "Ayi Kwei",
     "surname": "Armah",
@@ -192,6 +208,7 @@
     "isFeatured": false
   },
   {
+    "id": "purple-hibiscus",
     "title": "Purple Hibiscus",
     "firstName": "Chimamanda Ngozi",
     "surname": "Adichie",
@@ -204,6 +221,7 @@
     "isFeatured": false
   },
   {
+    "id": "burgers-daughter",
     "title": "Burger's Daughter",
     "firstName": "Nadine",
     "surname": "Gordimer",
@@ -216,6 +234,7 @@
     "isFeatured": false
   },
   {
+    "id": "the-conservationist",
     "title": "The Conservationist",
     "firstName": "Nadine",
     "surname": "Gordimer",
@@ -228,6 +247,7 @@
     "isFeatured": false
   },
   {
+    "id": "my-sons-story",
     "title": "My Son's Story",
     "firstName": "Nadine",
     "surname": "Gordimer",
@@ -240,6 +260,7 @@
     "isFeatured": false
   },
   {
+    "id": "book-of-not",
     "title": "The Book of Not",
     "firstName": "Tsitsi",
     "surname": "Dangarembga",
@@ -252,6 +273,7 @@
     "isFeatured": false
   },
   {
+    "id": "coconut",
     "title": "Coconut",
     "firstName": "Kopano",
     "surname": "Matlwa",
@@ -264,6 +286,7 @@
     "isFeatured": false
   },
   {
+    "id": "the-pickup",
     "title": "The Pickup",
     "firstName": "Nadine",
     "surname": "Gordimer",
@@ -276,6 +299,7 @@
     "isFeatured": false
   },
   {
+    "id": "age-of-iron",
     "title": "Age of Iron",
     "firstName": "J.M.",
     "surname": "Coetzee",

@@ -23,6 +23,8 @@ interface BookProps {
   isTopBook?: boolean;
   onPositionUpdate?: (y: number) => void;
   index: number;
+  id: string;
+  featuredBookIndex?: number | null;
   cmsData?: {
     title: string;
     firstName: string;
@@ -42,6 +44,8 @@ function Book({
   isTopBook = false,
   onPositionUpdate,
   index,
+  id,
+  featuredBookIndex,
   cmsData,
 }: BookProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -114,8 +118,9 @@ function Book({
 
   // Calculate if this book should drop (is above the featured book)
   const shouldDrop =
-    snap.featuredBookIndex !== null &&
-    index > snap.featuredBookIndex &&
+    featuredBookIndex !== null &&
+    featuredBookIndex !== undefined &&
+    index > featuredBookIndex &&
     !isFeatured;
 
   // Spring refs for chaining
