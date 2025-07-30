@@ -10,6 +10,8 @@ import { SortDesc } from "./components/icons/SortDesc";
 import { SortBy } from "./components/icons/SortBy";
 import { Search } from "./components/icons/Search";
 import AuthGate from "./components/AuthGate";
+import { useSnapshot } from "valtio";
+import { bookStore } from "./store/bookStore";
 
 export default function Home() {
   return (
@@ -60,6 +62,7 @@ const Foreground = () => {
     <div className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20 pointer-events-none">
       <Header />
       <FloatingBar />
+      <RightFloatingBar />
     </div>
   );
 };
@@ -85,14 +88,21 @@ const Header = () => {
   );
 };
 
-const FloatingBarButton = ({ children }: { children: React.ReactNode }) => {
-  const [isActive, setIsActive] = useState(false);
+const FloatingBarButton = ({
+  children,
+  active = false,
+  onClick,
+}: {
+  children: React.ReactNode;
+  active?: boolean;
+  onClick?: () => void;
+}) => {
   return (
     <button
       className={`flex items-center justify-center p-2 font-fields h-12 min-w-12 border-1 border-black text-black font-[500] rounded-xs ${
-        isActive ? "bg-black text-white" : ""
+        active ? "bg-black text-white" : ""
       }`}
-      onClick={() => setIsActive(!isActive)}
+      onClick={onClick}
     >
       {children}
     </button>
@@ -120,6 +130,51 @@ const FloatingBar = () => {
             <Search />
           </FloatingBarButton>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const RightFloatingBar = () => {
+  const snap = useSnapshot(bookStore);
+
+  const setSortStep = (step: number | null) => {
+    bookStore.sortStep = step;
+  };
+
+  return (
+    <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-auto">
+      <div className="bg-[#F9F6F0] p-1 flex flex-col gap-1 rounded-xs">
+        <FloatingBarButton
+          active={snap.sortStep === 1}
+          onClick={() => setSortStep(1)}
+        >
+          1
+        </FloatingBarButton>
+        <FloatingBarButton
+          active={snap.sortStep === 2}
+          onClick={() => setSortStep(2)}
+        >
+          2
+        </FloatingBarButton>
+        <FloatingBarButton
+          active={snap.sortStep === 3}
+          onClick={() => setSortStep(3)}
+        >
+          3
+        </FloatingBarButton>
+        <FloatingBarButton
+          active={snap.sortStep === 4}
+          onClick={() => setSortStep(4)}
+        >
+          4
+        </FloatingBarButton>
+        <FloatingBarButton
+          active={snap.sortStep === null}
+          onClick={() => setSortStep(null)}
+        >
+          ⌫
+        </FloatingBarButton>
       </div>
     </div>
   );

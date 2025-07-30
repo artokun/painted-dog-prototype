@@ -166,7 +166,7 @@
     "description": "Comedian's memoir of growing up in apartheid South Africa",
     "publishDate": "2016-11-15",
     "genre": "Memoir",
-    "isFeatured": true
+    "isFeatured": false
   },
   {
     "id": "nervous-conditions",

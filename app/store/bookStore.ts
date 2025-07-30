@@ -1,20 +1,22 @@
 import { proxy } from "valtio";
 
 interface BookState {
-  featuredBookId: string | null;
+  focusedBookId: string | null;
   bookThicknesses: Record<string, number>;
   slidOutBookThickness: number;
+  sortStep: number | null;
 }
 
 export const bookStore = proxy<BookState>({
-  featuredBookId: null,
+  focusedBookId: null,
   bookThicknesses: {},
   slidOutBookThickness: 0,
+  sortStep: null,
 });
 
-export const setFeaturedBook = (id: string | null) => {
-  const previousId = bookStore.featuredBookId;
-  bookStore.featuredBookId = id;
+export const setFocusedBook = (id: string | null) => {
+  const previousId = bookStore.focusedBookId;
+  bookStore.focusedBookId = id;
 
   // Update slid out book thickness
   if (id !== null && bookStore.bookThicknesses[id]) {

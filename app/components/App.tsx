@@ -1,15 +1,15 @@
 import React, { useMemo, memo, useEffect, Suspense, useState } from "react";
 import { Environment } from "@react-three/drei";
-import { CoffeeTable } from "./CoffeeTable";
 import Book from "./Book";
 import CameraController from "./CameraController";
 import Backdrop from "./Backdrop";
+import Floor from "./Floor";
 import { useSnapshot } from "valtio";
 import { useSpring, config, animated } from "@react-spring/three";
 import { useFrame } from "@react-three/fiber";
 import {
   bookStore,
-  setFeaturedBook,
+  setFocusedBook,
   registerBookThickness,
 } from "../store/bookStore";
 import { validateBooksSafe, type Book as BookData } from "../../types/book";
@@ -22,29 +22,32 @@ interface BookConfig {
   spawnDelay: number;
   index: number;
   id: string;
+  cumulativeDepth: number;
+  sortedYPosition?: number; // Y position for step 2 sorting
   cmsData?: {
     title: string;
     firstName: string;
     surname: string;
     price: number;
     description: string;
+    isFeatured: boolean;
   };
 }
 
 const BookStackInner = memo(function BookStackInner({
   bookConfigs,
-  featuredId,
+  focusedId,
   onBookClick,
-  onFeaturedBookPositionUpdate,
+  onFocusedBookPositionUpdate,
 }: {
   bookConfigs: BookConfig[];
-  featuredId: string | null;
+  focusedId: string | null;
   onBookClick: (id: string) => void;
-  onFeaturedBookPositionUpdate: (y: number) => void;
+  onFocusedBookPositionUpdate: (y: number) => void;
 }) {
-  // Find the featured book's index for ordering logic
-  const featuredIndex = featuredId
-    ? bookConfigs.findIndex((config) => config.id === featuredId)
+  // Find the focused book's index for ordering logic
+  const focusedIndex = focusedId
+    ? bookConfigs.findIndex((config) => config.id === focusedId)
     : null;
 
   return (
@@ -53,13 +56,13 @@ const BookStackInner = memo(function BookStackInner({
         <Book
           key={config.id}
           {...config}
-          isFeatured={config.id === featuredId}
+          isFocused={config.id === focusedId}
+          isFeatured={config.cmsData?.isFeatured || false} // JSON flag for top book
           onClick={() => onBookClick(config.id)}
-          isTopBook={index === bookConfigs.length - 1}
           onPositionUpdate={
-            config.id === featuredId ? onFeaturedBookPositionUpdate : undefined
+            config.id === focusedId ? onFocusedBookPositionUpdate : undefined
           }
-          featuredBookIndex={featuredIndex}
+          focusedBookIndex={focusedIndex}
         />
       ))}
     </>
@@ -72,8 +75,6 @@ const BookStack = (props: any) => (
     <BookStackInner {...props} />
   </Suspense>
 );
-
-// Animated CoffeeTable wrapper
 
 export default function App() {
   const snap = useSnapshot(bookStore);
@@ -111,14 +112,14 @@ export default function App() {
     loadBooksData();
   }, []);
 
-  // Animate coffee table opacity
-  const [tableSpring] = useSpring(
+  // Animate floor opacity - fade during sort steps or when book is focused
+  const [floorSpring] = useSpring(
     () => ({
-      opacity: snap.featuredBookId !== null ? 0 : 1,
+      opacity: snap.focusedBookId !== null || snap.sortStep !== null ? 0 : 1,
       config: config.gentle,
-      delay: snap.featuredBookId !== null ? 600 : 0,
+      delay: snap.focusedBookId !== null ? 600 : 0,
     }),
-    [snap.featuredBookId]
+    [snap.focusedBookId, snap.sortStep]
   );
 
   // Memoize book configurations without spawn delay to prevent re-calculation
@@ -175,31 +176,90 @@ export default function App() {
     }
 
     // Convert to final config format without spawn delay
-    const configs = books.map((book, index) => ({
-      position: [book.xOffset, book.yPosition, 0] as [number, number, number],
-      size: [
-        book.bookType.width,
-        book.bookType.thickness,
-        book.bookType.depth,
-      ] as [number, number, number],
-      color: book.color,
-      targetY: book.yPosition + book.bookType.thickness / 2, // Top of this book
-      index, // Keep track of index for spawn delay
-      id: book.id, // Unique identifier for the book
-      cmsData: {
-        title: book.title,
-        firstName: book.firstName,
-        surname: book.surname,
-        price: book.price,
-        description: book.description,
-      },
-    }));
+    const configs = books.map((book, index) => {
+      // Calculate cumulative depth: own depth + sum of all depths below
+      const cumulativeDepth = books
+        .slice(0, index + 1) // Include current book and all below
+        .reduce((sum, b) => sum + b.bookType.depth, 0);
+
+      return {
+        position: [book.xOffset, book.yPosition, 0] as [number, number, number],
+        size: [
+          book.bookType.width,
+          book.bookType.thickness,
+          book.bookType.depth,
+        ] as [number, number, number],
+        color: book.color,
+        targetY: book.yPosition + book.bookType.thickness / 2, // Top of this book
+        index, // Keep track of index for spawn delay
+        id: book.id, // Unique identifier for the book
+        cumulativeDepth,
+        cmsData: {
+          title: book.title,
+          firstName: book.firstName,
+          surname: book.surname,
+          price: book.price,
+          description: book.description,
+          isFeatured: book.isFeatured,
+        },
+      };
+    });
 
     return { bookConfigs: configs, stackTop: currentY };
   }, [booksData]); // Recalculate when books data changes
 
+  // Calculate sorted Y positions for step 2 (title descending)
+  const bookConfigsWithSorting = useMemo(() => {
+    if (snap.sortStep !== 2) {
+      return baseBookConfigs;
+    }
+
+    // Get focused book ID to exclude from sorting
+    const focusedBookId = snap.focusedBookId;
+
+    // Separate focused and non-focused books
+    const focusedBookConfig = baseBookConfigs.find(
+      (config) => config.id === focusedBookId
+    );
+    const nonFocusedBooks = baseBookConfigs.filter(
+      (config) => config.id !== focusedBookId
+    );
+
+    // Sort non-focused books by title descending
+    const sortedNonFocusedBooks = [...nonFocusedBooks].sort((a, b) => {
+      const titleA = a.cmsData?.title || "";
+      const titleB = b.cmsData?.title || "";
+      return titleB.localeCompare(titleA); // Descending order
+    });
+
+    // Calculate new Y positions for sorted books
+    // Start from the bottom position (same as original logic)
+    let currentY = 0.0045; // Coffee table top surface
+
+    const booksWithNewY = sortedNonFocusedBooks.map((config, index) => {
+      // Calculate Y position (same logic as original)
+      const bookHeight = config.size[1]; // thickness
+      const newYPosition = currentY + bookHeight / 2;
+      currentY += bookHeight;
+
+      return {
+        ...config,
+        sortedYPosition: newYPosition,
+      };
+    });
+
+    // If there's a focused book, add it back without sortedYPosition
+    // (focused book position is handled in Book component directly)
+    const result = focusedBookConfig
+      ? [...booksWithNewY, focusedBookConfig]
+      : booksWithNewY;
+
+    // Sort the result back to original order for consistent rendering
+    return result.sort((a, b) => a.index - b.index);
+  }, [baseBookConfigs, snap.sortStep, snap.focusedBookId]);
+
   // Add spawn delays
-  const bookConfigs = baseBookConfigs.map((config) => ({
+  const bookConfigs = bookConfigsWithSorting.map((config) => ({
     ...config,
     spawnDelay: config.index * 50, // 150ms between each book (faster spawning)
   }));
@@ -255,43 +315,25 @@ export default function App() {
         shadow-bias={-0.0001}
       />
 
-      {/* <AnimatedCoffeeTable
-        receiveShadow
-        scale={0.15}
-        rotation={[0, Math.PI / 4, 0]}
-        position={[0, -1.341, -0.15]}
-        opacity={tableSpring.opacity}
-      /> */}
-      <mesh
-        position={[0, 0.005, 0]}
-        receiveShadow
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <circleGeometry args={[0.5, 128]} />
-        <animated.meshStandardMaterial
-          color="#F9F6F0"
-          transparent
-          opacity={tableSpring.opacity}
-        />
-      </mesh>
+      <Floor opacity={floorSpring.opacity} />
       <Backdrop />
       <BookStack
         bookConfigs={bookConfigs}
-        featuredId={snap.featuredBookId}
+        focusedId={snap.focusedBookId}
         onBookClick={(id: string) => {
-          // Only allow clicking if no book is featured, or clicking the featured book
-          if (snap.featuredBookId === null || snap.featuredBookId === id) {
-            // Toggle featured state
-            if (snap.featuredBookId === id) {
-              setFeaturedBook(null);
+          // Only allow clicking if no book is focused, or clicking the focused book
+          if (snap.focusedBookId === null || snap.focusedBookId === id) {
+            // Toggle focused state
+            if (snap.focusedBookId === id) {
+              setFocusedBook(null);
             } else {
-              setFeaturedBook(id);
+              setFocusedBook(id);
               // Don't set initial position - let the book report its actual position
             }
           }
-          // If another book is featured, ignore the click
+          // If another book is focused, ignore the click
         }}
-        onFeaturedBookPositionUpdate={() => {}}
+        onFocusedBookPositionUpdate={() => {}}
       />
     </>
   );

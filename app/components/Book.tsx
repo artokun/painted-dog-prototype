@@ -18,19 +18,22 @@ interface BookProps {
   size: [number, number, number];
   color: string;
   spawnDelay?: number;
-  isFeatured?: boolean;
+  isFocused?: boolean; // User selected/focused book (camera moves to it)
+  isFeatured?: boolean; // JSON flag - this book is the top book in the stack
   onClick?: () => void;
-  isTopBook?: boolean;
   onPositionUpdate?: (y: number) => void;
   index: number;
   id: string;
-  featuredBookIndex?: number | null;
+  focusedBookIndex?: number | null;
+  cumulativeDepth: number;
+  sortedYPosition?: number; // Y position for step 2 sorting
   cmsData?: {
     title: string;
     firstName: string;
     surname: string;
     price: number;
     description: string;
+    isFeatured: boolean;
   };
 }
 
@@ -39,13 +42,15 @@ function Book({
   size,
   color,
   spawnDelay = 0,
+  isFocused = false,
   isFeatured = false,
   onClick,
-  isTopBook = false,
   onPositionUpdate,
   index,
   id,
-  featuredBookIndex,
+  focusedBookIndex,
+  cumulativeDepth,
+  sortedYPosition,
   cmsData,
 }: BookProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -116,12 +121,14 @@ function Book({
     return lines;
   };
 
-  // Calculate if this book should drop (is above the featured book)
+  // Calculate if this book should drop (is above the focused book)
+  // Disable drop logic during sort steps since focused book interaction is disabled
   const shouldDrop =
-    featuredBookIndex !== null &&
-    featuredBookIndex !== undefined &&
-    index > featuredBookIndex &&
-    !isFeatured;
+    snap.sortStep === null &&
+    focusedBookIndex !== null &&
+    focusedBookIndex !== undefined &&
+    index > focusedBookIndex &&
+    !isFocused;
 
   // Spring refs for chaining
   const slideRef = useSpringRef();
@@ -148,9 +155,9 @@ function Book({
     [shouldDrop, snap.slidOutBookThickness]
   );
 
-  // Calculate optimal Z distance for featured book to fill 75% of viewport height
+  // Calculate optimal Z distance for focused book to fill 75% of viewport height
   const calculateOptimalZDistance = () => {
-    if (!isFeatured) return depth;
+    if (!isFocused) return depth;
 
     // Use a fixed reference book height so all books appear the same size on screen
     // Using medium book width (0.185) as the reference since it's in the middle of the range
@@ -180,50 +187,82 @@ function Book({
   // Spring for slide animation
   const [slideSpring] = useSpring(() => {
     const optimalZ = calculateOptimalZDistance();
+
+    // Calculate positions based on focus and sort step
+    let targetY = 0;
+    let targetZ = 0;
+
+    if (isFocused) {
+      // Focused book moves to camera for viewing (takes priority over everything)
+      targetY = 0;
+      targetZ = optimalZ;
+    } else if (snap.sortStep === 1) {
+      // Step 1: Staircase effect (reversed Z direction)
+      targetY = 0;
+      targetZ = -cumulativeDepth;
+    } else if (snap.sortStep === 2) {
+      // Step 2: Sort by title (Y position changes, Z stays from step 1)
+      // Featured book (top book) doesn't move during sorting
+      if (isFeatured) {
+        targetY = 0; // Featured book stays at top
+        targetZ = -cumulativeDepth; // Keep staircase Z from step 1
+      } else {
+        targetY =
+          sortedYPosition !== undefined ? sortedYPosition - position[1] : 0;
+        targetZ = -cumulativeDepth; // Keep staircase Z from step 1
+      }
+    } else {
+      // Default state
+      targetY = 0;
+      targetZ = 0;
+    }
+
     return {
       ref: slideRef,
       from: { posY: 0, posZ: 0 },
-      to: isFeatured
-        ? {
-            posY: 0,
-            posZ: optimalZ, // Slide to optimal distance for viewport
-          }
-        : { posY: 0, posZ: 0 },
+      to: { posY: targetY, posZ: targetZ },
       config: config.gentle,
     };
-  }, [isFeatured, width]);
+  }, [
+    isFocused,
+    isFeatured,
+    width,
+    snap.sortStep,
+    cumulativeDepth,
+    sortedYPosition,
+    position,
+  ]);
 
   // Spring for rotation animation (without Y tracking)
   const [rotateSpring] = useSpring(
     () => ({
       ref: rotateRef,
-      from: isTopBook
-        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Top book starts standing
+      from: isFeatured
+        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Featured book (top book) starts standing
         : { rotX: 0, rotY: 0 },
-      to: isFeatured
-        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // All featured books rotate the same
-        : isTopBook
-          ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Top book stays standing when not featured
-          : { rotX: 0, rotY: 0 }, // Other books lay flat when not featured
+      to:
+        isFeatured || isFocused
+          ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Featured (top) or focused books stand
+          : { rotX: 0, rotY: 0 }, // Other books lay flat
       config: config.gentle,
-      immediate: isTopBook && !isFeatured, // Skip animation for initial state
+      immediate: isFeatured && !isFocused, // Skip animation for featured books' initial state (unless they're also focused)
     }),
-    [isFeatured, isTopBook]
+    [isFeatured, isFocused]
   );
 
   // Separate spring for Y position lifting
   const [liftSpring, liftApi] = useSpring(() => {
-    const cameraOffset = isFeatured ? camera.position.y - targetY : 0;
+    const cameraOffset = isFocused ? camera.position.y - targetY : 0;
 
     return {
       ref: liftRef,
       from: { posY: 0 },
-      to: { posY: isFeatured ? cameraOffset : 0 },
+      to: { posY: isFocused ? cameraOffset : 0 },
       config: config.gentle,
     };
-  }, [isFeatured, camera.position.y, targetY]);
+  }, [isFocused, camera.position.y, targetY]);
 
-  // Spring for mouse-based tilt when featured
+  // Spring for mouse-based tilt when focused
   const [tiltSpring] = useSpring(
     () => ({
       tiltX: mouseRotation.x,
@@ -235,19 +274,19 @@ function Book({
 
   // Chain animations: slide, rotate, and lift happen together after slide
   useChain(
-    isFeatured
-      ? [slideRef, rotateRef, liftRef] // Slide first, then rotate and lift together
-      : [liftRef, rotateRef, slideRef], // Reverse: lift down and rotate, then slide
-    isFeatured
-      ? [0, 0.5, 0.5] // Slide at 0, rotate and lift at 50%
+    isFocused
+      ? [slideRef, rotateRef, liftRef] // For focused books: slide to camera, rotate, lift
+      : [liftRef, rotateRef, slideRef], // Reverse: lift down and rotate, then slide back
+    isFocused
+      ? [0, 0.3, 0.3] // Slide immediately, then rotate and lift at 30%
       : [0, 0, 0.5] // Lift and rotate together at 0, slide at 50%
   );
 
   // No need for spawn state - handled by spring animation
 
-  // Handle mouse movement for featured book
+  // Handle mouse movement for focused book
   useEffect(() => {
-    if (!isFeatured) return;
+    if (!isFocused) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       // Normalize mouse position to -1 to 1
@@ -264,11 +303,11 @@ function Book({
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [isFeatured]);
+  }, [isFocused]);
 
   // Update Y tracking position as camera moves
   useFrame(() => {
-    if (isFeatured) {
+    if (isFocused) {
       const targetOffset = camera.position.y - targetY;
       liftApi.start({ posY: targetOffset });
     }
@@ -307,8 +346,8 @@ function Book({
         >
           {/* Additional rotation group for mouse-based tilt */}
           <animated.group
-            rotation-x={isFeatured ? tiltSpring.tiltY : 0}
-            rotation-z={isFeatured ? tiltSpring.tiltX : 0}
+            rotation-x={isFocused ? tiltSpring.tiltY : 0}
+            rotation-z={isFocused ? tiltSpring.tiltX : 0}
           >
             <animated.mesh ref={meshRef} castShadow receiveShadow>
               <boxGeometry args={size} />
