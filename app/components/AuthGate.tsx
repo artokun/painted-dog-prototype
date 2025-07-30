@@ -56,7 +56,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
             />
             {error && (
               <p className="mt-2 text-sm text-red-600">
-                Incorrect password. Please try again.
+                Incorrect woof pattern. Please try again.
               </p>
             )}
           </div>
