@@ -5,14 +5,21 @@ import { ScrollControls } from "@react-three/drei";
 import * as THREE from "three";
 import App from "./components/App";
 import Link from "next/link";
+import { useState } from "react";
+import { SortDesc } from "./components/icons/SortDesc";
+import { SortBy } from "./components/icons/SortBy";
+import { Search } from "./components/icons/Search";
+import AuthGate from "./components/AuthGate";
 
 export default function Home() {
   return (
-    <main className="h-dvh w-screen relative bg-[#F9F6F0]">
-      <Background />
-      <Middle />
-      <Foreground />
-    </main>
+    <AuthGate>
+      <main className="h-dvh w-screen relative bg-[#F9F6F0]">
+        <Background />
+        <Middle />
+        <Foreground />
+      </main>
+    </AuthGate>
   );
 }
 
@@ -52,6 +59,7 @@ const Foreground = () => {
   return (
     <div className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20 pointer-events-none">
       <Header />
+      <FloatingBar />
     </div>
   );
 };
@@ -71,6 +79,46 @@ const Header = () => {
         <div className="gap-2 items-center flex-1 flex justify-end">
           <Link href="/podcast">Podcast</Link>
           <button className="text-gray-800">Menu</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FloatingBarButton = ({ children }: { children: React.ReactNode }) => {
+  const [isActive, setIsActive] = useState(false);
+  return (
+    <button
+      className={`flex items-center justify-center p-2 font-fields h-12 min-w-12 border-1 border-black text-black font-[500] rounded-xs ${
+        isActive ? "bg-black text-white" : ""
+      }`}
+      onClick={() => setIsActive(!isActive)}
+    >
+      {children}
+    </button>
+  );
+};
+
+const FloatingBar = () => {
+  return (
+    <div className="flex justify-center fixed bottom-4 left-0 w-full h-18 gap-2">
+      <div className="flex flex-row gap-4 justify-center items-center m-4 pointer-events-auto">
+        <div className="flex p-1 items-center gap-1">
+          <div className="bg-[#F9F6F0] p-1 flex gap-1 rounded-xs">
+            <FloatingBarButton>Stack</FloatingBarButton>
+            <FloatingBarButton>Grid</FloatingBarButton>
+          </div>
+        </div>
+        <div className="bg-[#F9F6F0] p-1 flex gap-1 rounded-xs">
+          <FloatingBarButton>
+            <SortDesc />
+          </FloatingBarButton>
+          <FloatingBarButton>
+            <SortBy />
+          </FloatingBarButton>
+          <FloatingBarButton>
+            <Search />
+          </FloatingBarButton>
         </div>
       </div>
     </div>
