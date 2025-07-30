@@ -11,6 +11,9 @@ import {
   bookStore,
   setFocusedBook,
   registerBookThickness,
+  setSortOrders,
+  setActiveSortKey,
+  type SortOrder,
 } from "../store/bookStore";
 import { validateBooksSafe, type Book as BookData } from "../../types/book";
 
@@ -24,6 +27,7 @@ interface BookConfig {
   id: string;
   cumulativeDepth: number;
   sortedYPosition?: number; // Y position for step 2 sorting
+  sortedCumulativeDepth?: number; // Z position for step 3 new ladder
   cmsData?: {
     title: string;
     firstName: string;
@@ -111,6 +115,36 @@ export default function App() {
 
     loadBooksData();
   }, []);
+
+  // Pre-calculate sort orders when books data is loaded
+  useEffect(() => {
+    if (booksData.length === 0) return;
+
+    // Filter out featured books for sorting (they don't participate in sorts)
+    const sortableBooks = booksData.filter((book) => !book.isFeatured);
+
+    // Pre-calculate different sort orders
+    const sortOrders: Record<string, SortOrder> = {
+      "title-desc": {
+        name: "Title (Z-A)",
+        bookIds: [...sortableBooks]
+          .sort((a, b) => b.title.localeCompare(a.title))
+          .map((book) => book.id),
+      },
+      "title-asc": {
+        name: "Title (A-Z)",
+        bookIds: [...sortableBooks]
+          .sort((a, b) => a.title.localeCompare(b.title))
+          .map((book) => book.id),
+      },
+      // Future sorts can be added here:
+      // "author-desc": { ... },
+      // "date-desc": { ... },
+    };
+
+    // Store the pre-calculated sort orders
+    setSortOrders(sortOrders);
+  }, [booksData]);
 
   // Animate floor opacity - fade during sort steps or when book is focused
   const [floorSpring] = useSpring(
@@ -208,36 +242,54 @@ export default function App() {
     return { bookConfigs: configs, stackTop: currentY };
   }, [booksData]); // Recalculate when books data changes
 
-  // Calculate sorted Y positions for step 2 (title descending)
+  // Calculate sorted positions using pre-calculated sort orders
   const bookConfigsWithSorting = useMemo(() => {
-    if (snap.sortStep !== 2) {
+    // For steps 2, 3, and 4, use the pre-calculated "title-desc" sort order
+    const shouldUseSortedOrder =
+      snap.sortStep === 2 ||
+      snap.sortStep === 3 ||
+      snap.sortStep === 4 ||
+      snap.activeSortKey !== null;
+
+    if (!shouldUseSortedOrder) {
+      return baseBookConfigs;
+    }
+
+    // Get the sort order to use (default to "title-desc" for steps 2-4)
+    const sortKey = snap.activeSortKey || "title-desc";
+    const sortOrder = bookStore.availableSorts[sortKey];
+
+    if (!sortOrder) {
+      // Fallback to original order if sort doesn't exist yet
       return baseBookConfigs;
     }
 
     // Get focused book ID to exclude from sorting
     const focusedBookId = snap.focusedBookId;
 
-    // Separate focused and non-focused books
+    // Find books that don't participate in sorting
     const focusedBookConfig = baseBookConfigs.find(
       (config) => config.id === focusedBookId
     );
-    const nonFocusedBooks = baseBookConfigs.filter(
-      (config) => config.id !== focusedBookId
+    const featuredBookConfig = baseBookConfigs.find(
+      (config) => config.cmsData?.isFeatured === true
     );
 
-    // Sort non-focused books by title descending
-    const sortedNonFocusedBooks = [...nonFocusedBooks].sort((a, b) => {
-      const titleA = a.cmsData?.title || "";
-      const titleB = b.cmsData?.title || "";
-      return titleB.localeCompare(titleA); // Descending order
-    });
+    // Create a lookup map for faster access
+    const configMap = new Map(
+      baseBookConfigs.map((config) => [config.id, config])
+    );
+
+    // Reorder sortable books according to pre-calculated sort
+    const sortedBooks = sortOrder.bookIds
+      .map((id) => configMap.get(id))
+      .filter(
+        (config): config is NonNullable<typeof config> => config !== undefined
+      );
 
     // Calculate new Y positions for sorted books
-    // Start from the bottom position (same as original logic)
     let currentY = 0.0045; // Coffee table top surface
-
-    const booksWithNewY = sortedNonFocusedBooks.map((config, index) => {
-      // Calculate Y position (same logic as original)
+    const booksWithNewPositions = sortedBooks.map((config) => {
       const bookHeight = config.size[1]; // thickness
       const newYPosition = currentY + bookHeight / 2;
       currentY += bookHeight;
@@ -248,15 +300,39 @@ export default function App() {
       };
     });
 
-    // If there's a focused book, add it back without sortedYPosition
-    // (focused book position is handled in Book component directly)
-    const result = focusedBookConfig
-      ? [...booksWithNewY, focusedBookConfig]
-      : booksWithNewY;
+    // For step 3, also calculate sorted cumulative depths (new ladder Z positions)
+    let booksWithSortedDepths = booksWithNewPositions;
+    if (snap.sortStep === 3) {
+      let currentDepth = 0;
+      booksWithSortedDepths = booksWithNewPositions.map((config) => {
+        const bookDepth = config.size[2]; // depth
+        currentDepth += bookDepth;
+
+        return {
+          ...config,
+          sortedCumulativeDepth: currentDepth,
+        };
+      });
+    }
+
+    // Add back the focused and featured books without sorted positions
+    let result = [...booksWithSortedDepths];
+    if (focusedBookConfig) {
+      result.push(focusedBookConfig as any);
+    }
+    if (featuredBookConfig && featuredBookConfig.id !== focusedBookId) {
+      result.push(featuredBookConfig as any);
+    }
 
     // Sort the result back to original order for consistent rendering
     return result.sort((a, b) => a.index - b.index);
-  }, [baseBookConfigs, snap.sortStep, snap.focusedBookId]);
+  }, [
+    baseBookConfigs,
+    snap.sortStep,
+    snap.focusedBookId,
+    snap.activeSortKey,
+    bookStore.availableSorts,
+  ]);
 
   // Add spawn delays
   const bookConfigs = bookConfigsWithSorting.map((config) => ({

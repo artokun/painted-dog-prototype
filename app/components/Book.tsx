@@ -27,6 +27,7 @@ interface BookProps {
   focusedBookIndex?: number | null;
   cumulativeDepth: number;
   sortedYPosition?: number; // Y position for step 2 sorting
+  sortedCumulativeDepth?: number; // Z position for step 3 new ladder
   cmsData?: {
     title: string;
     firstName: string;
@@ -51,6 +52,7 @@ function Book({
   focusedBookIndex,
   cumulativeDepth,
   sortedYPosition,
+  sortedCumulativeDepth,
   cmsData,
 }: BookProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -211,6 +213,31 @@ function Book({
           sortedYPosition !== undefined ? sortedYPosition - position[1] : 0;
         targetZ = -cumulativeDepth; // Keep staircase Z from step 1
       }
+    } else if (snap.sortStep === 3) {
+      // Step 3: New ladder with sorted order - both Y and Z follow new arrangement
+      // Featured book (top book) doesn't move during sorting
+      if (isFeatured) {
+        targetY = 0; // Featured book stays at top
+        targetZ = -cumulativeDepth; // Keep original Z position as top book
+      } else {
+        targetY =
+          sortedYPosition !== undefined ? sortedYPosition - position[1] : 0;
+        targetZ =
+          sortedCumulativeDepth !== undefined
+            ? -sortedCumulativeDepth
+            : -cumulativeDepth;
+      }
+    } else if (snap.sortStep === 4 || snap.activeSortKey !== null) {
+      // Step 4: Bring everything back in - reset Z positions, keep sorted Y positions
+      // This is also used when a sort is permanently active
+      if (isFeatured) {
+        targetY = 0; // Featured book stays at top
+        targetZ = 0; // Reset Z position
+      } else {
+        targetY =
+          sortedYPosition !== undefined ? sortedYPosition - position[1] : 0;
+        targetZ = 0; // Reset Z position - bring books back in
+      }
     } else {
       // Default state
       targetY = 0;
@@ -228,8 +255,10 @@ function Book({
     isFeatured,
     width,
     snap.sortStep,
+    snap.activeSortKey,
     cumulativeDepth,
     sortedYPosition,
+    sortedCumulativeDepth,
     position,
   ]);
 

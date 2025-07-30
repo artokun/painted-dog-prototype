@@ -11,7 +11,7 @@ import { SortBy } from "./components/icons/SortBy";
 import { Search } from "./components/icons/Search";
 import AuthGate from "./components/AuthGate";
 import { useSnapshot } from "valtio";
-import { bookStore } from "./store/bookStore";
+import { bookStore, setActiveSortKey } from "./store/bookStore";
 
 export default function Home() {
   return (
@@ -142,6 +142,22 @@ const RightFloatingBar = () => {
     bookStore.sortStep = step;
   };
 
+  const handleStep4 = () => {
+    // Trigger Step 4 animation
+    setSortStep(4);
+
+    // After animation completes, make the sort permanent and reset step
+    setTimeout(() => {
+      setActiveSortKey("title-desc"); // Make the sort permanent
+      setSortStep(null); // Reset step to null
+    }, 1500); // Wait for animation to complete (adjust timing as needed)
+  };
+
+  const handleReset = () => {
+    setActiveSortKey(null); // Clear active sort
+    setSortStep(null); // Clear sort step
+  };
+
   return (
     <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-auto">
       <div className="bg-[#F9F6F0] p-1 flex flex-col gap-1 rounded-xs">
@@ -163,15 +179,12 @@ const RightFloatingBar = () => {
         >
           3
         </FloatingBarButton>
-        <FloatingBarButton
-          active={snap.sortStep === 4}
-          onClick={() => setSortStep(4)}
-        >
+        <FloatingBarButton active={snap.sortStep === 4} onClick={handleStep4}>
           4
         </FloatingBarButton>
         <FloatingBarButton
-          active={snap.sortStep === null}
-          onClick={() => setSortStep(null)}
+          active={snap.sortStep === null && snap.activeSortKey === null}
+          onClick={handleReset}
         >
           ⌫
         </FloatingBarButton>
