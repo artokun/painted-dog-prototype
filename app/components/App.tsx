@@ -28,6 +28,7 @@ interface BookConfig {
   cumulativeDepth: number;
   sortedYPosition?: number; // Y position for step 2 sorting
   sortedCumulativeDepth?: number; // Z position for step 3 new ladder
+  sortedIndex?: number; // Index in the sorted order
   cmsData?: {
     title: string;
     firstName: string;
@@ -53,6 +54,12 @@ const BookStackInner = memo(function BookStackInner({
   const focusedIndex = focusedId
     ? bookConfigs.findIndex((config) => config.id === focusedId)
     : null;
+    
+  // Find the focused book's sorted index
+  const focusedConfig = focusedId
+    ? bookConfigs.find((config) => config.id === focusedId)
+    : null;
+  const focusedBookSortedIndex = focusedConfig?.sortedIndex ?? null;
 
   return (
     <>
@@ -67,6 +74,7 @@ const BookStackInner = memo(function BookStackInner({
             config.id === focusedId ? onFocusedBookPositionUpdate : undefined
           }
           focusedBookIndex={focusedIndex}
+          focusedBookSortedIndex={focusedBookSortedIndex}
         />
       ))}
     </>
@@ -289,7 +297,7 @@ export default function App() {
 
     // Calculate new Y positions for sorted books
     let currentY = 0.0045; // Coffee table top surface
-    const booksWithNewPositions = sortedBooks.map((config) => {
+    const booksWithNewPositions = sortedBooks.map((config, sortedIdx) => {
       const bookHeight = config.size[1]; // thickness
       const newYPosition = currentY + bookHeight / 2;
       currentY += bookHeight;
@@ -297,6 +305,7 @@ export default function App() {
       return {
         ...config,
         sortedYPosition: newYPosition,
+        sortedIndex: sortedIdx, // Add sorted index
       };
     });
 
@@ -315,13 +324,14 @@ export default function App() {
       });
     }
 
-    // Add back the focused and featured books without sorted positions
+    // Add back the featured book if it exists and isn't already in the sorted list
     let result = [...booksWithSortedDepths];
-    if (focusedBookConfig) {
-      result.push(focusedBookConfig as any);
-    }
-    if (featuredBookConfig && featuredBookConfig.id !== focusedBookId) {
-      result.push(featuredBookConfig as any);
+    if (featuredBookConfig && !sortOrder.bookIds.includes(featuredBookConfig.id)) {
+      // Featured book gets the highest sorted index (top of stack)
+      result.push({
+        ...featuredBookConfig,
+        sortedIndex: booksWithSortedDepths.length,
+      } as any);
     }
 
     // Sort the result back to original order for consistent rendering

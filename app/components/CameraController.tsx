@@ -27,7 +27,6 @@ const CameraController = memo(function CameraController({
 
   // Drei scroll hook
   const scroll = useScroll();
-  const prevScrollPosition = useRef(0);
 
   // Calculate camera distance (fixed distance, no responsive behavior)
   const distance = useMemo(() => {
@@ -69,52 +68,18 @@ const CameraController = memo(function CameraController({
       const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
       mouseX.current = normalizedX;
 
-      // Only rotate if no book is focused AND no sort step is active
-      if (!hasFocusedBook && snap.sortStep === null) {
-        rotationApi.start({ rotation: -normalizedX * 0.15 });
+      if (hasFocusedBook || snap.sortStep !== null) {
+        // Disable rotation when book is focused
+        rotationApi.start({ rotation: 0 });
+      } else {
+        // Resume following mouse only when no book is focused
+        rotationApi.start({ rotation: -mouseX.current * 0.15 });
       }
     };
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [hasFocusedBook, snap.sortStep, rotationApi]);
-
-  // Reset rotation when book is focused/unfocused or sort step changes
-  useEffect(() => {
-    if (hasFocusedBook || snap.sortStep !== null) {
-      // Disable rotation when book is focused OR sort step is active
-      rotationApi.start({ rotation: 0 });
-    } else {
-      // Resume following mouse only when no book is focused AND no sort step is active
-      rotationApi.start({ rotation: -mouseX.current * 0.15 });
-    }
-  }, [hasFocusedBook, snap.sortStep, rotationApi, scroll]);
-
-  // Reset scroll position when sort step changes
-  useEffect(() => {
-    if (snap.sortStep !== null) {
-      // Store current scroll position (if not already stored) and scroll to bottom
-      if (prevScrollPosition.current === 0) {
-        prevScrollPosition.current = scroll.offset; // Store as 0-1 value
-        scroll.el.scrollTo({
-          top: scroll.el.scrollHeight,
-          behavior: "smooth",
-        });
-      }
-    } else {
-      // Scroll back to previous position
-      if (prevScrollPosition.current !== 0) {
-        const targetScrollTop =
-          prevScrollPosition.current *
-          (scroll.el.scrollHeight - scroll.el.clientHeight);
-        scroll.el.scrollTo({
-          top: targetScrollTop,
-          behavior: "smooth",
-        });
-        prevScrollPosition.current = 0;
-      }
-    }
-  }, [snap.sortStep, scroll]);
 
   // Apply camera transformations in useFrame (required for camera updates)
   useFrame(() => {

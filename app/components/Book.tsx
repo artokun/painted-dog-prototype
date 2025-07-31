@@ -28,6 +28,8 @@ interface BookProps {
   cumulativeDepth: number;
   sortedYPosition?: number; // Y position for step 2 sorting
   sortedCumulativeDepth?: number; // Z position for step 3 new ladder
+  sortedIndex?: number; // Index in the sorted order
+  focusedBookSortedIndex?: number | null; // Sorted index of the focused book
   cmsData?: {
     title: string;
     firstName: string;
@@ -53,6 +55,8 @@ function Book({
   cumulativeDepth,
   sortedYPosition,
   sortedCumulativeDepth,
+  sortedIndex,
+  focusedBookSortedIndex,
   cmsData,
 }: BookProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -125,12 +129,26 @@ function Book({
 
   // Calculate if this book should drop (is above the focused book)
   // Disable drop logic during sort steps since focused book interaction is disabled
-  const shouldDrop =
-    snap.sortStep === null &&
-    focusedBookIndex !== null &&
-    focusedBookIndex !== undefined &&
-    index > focusedBookIndex &&
-    !isFocused;
+  const shouldDrop = (() => {
+    if (snap.sortStep !== null || isFocused) return false;
+
+    // Use sorted indices when a sort is active
+    if (
+      snap.activeSortKey !== null &&
+      sortedIndex !== undefined &&
+      focusedBookSortedIndex !== null &&
+      focusedBookSortedIndex !== undefined
+    ) {
+      return sortedIndex > focusedBookSortedIndex;
+    }
+
+    // Use original indices when no sort is active
+    if (focusedBookIndex !== null && focusedBookIndex !== undefined) {
+      return index > focusedBookIndex;
+    }
+
+    return false;
+  })();
 
   // Spring refs for chaining
   const slideRef = useSpringRef();
@@ -186,68 +204,52 @@ function Book({
     return distance;
   };
 
-  // Spring for slide animation
+  const isSlidingRef = useRef(false);
+
+  // Spring for slide animation (Z axis only)
   const [slideSpring] = useSpring(() => {
     const optimalZ = calculateOptimalZDistance();
 
-    // Calculate positions based on focus and sort step
-    let targetY = 0;
+    // Calculate Z position based on focus and sort step
     let targetZ = 0;
 
     if (isFocused) {
       // Focused book moves to camera for viewing (takes priority over everything)
-      targetY = 0;
       targetZ = optimalZ;
     } else if (snap.sortStep === 1) {
       // Step 1: Staircase effect (reversed Z direction)
-      targetY = 0;
       targetZ = -cumulativeDepth;
     } else if (snap.sortStep === 2) {
-      // Step 2: Sort by title (Y position changes, Z stays from step 1)
-      // Featured book (top book) doesn't move during sorting
-      if (isFeatured) {
-        targetY = 0; // Featured book stays at top
-        targetZ = -cumulativeDepth; // Keep staircase Z from step 1
-      } else {
-        targetY =
-          sortedYPosition !== undefined ? sortedYPosition - position[1] : 0;
-        targetZ = -cumulativeDepth; // Keep staircase Z from step 1
-      }
+      // Step 2: Sort by title (Z stays from step 1)
+      targetZ = -cumulativeDepth;
     } else if (snap.sortStep === 3) {
-      // Step 3: New ladder with sorted order - both Y and Z follow new arrangement
-      // Featured book (top book) doesn't move during sorting
+      // Step 3: New ladder with sorted order - Z follows new arrangement
       if (isFeatured) {
-        targetY = 0; // Featured book stays at top
         targetZ = -cumulativeDepth; // Keep original Z position as top book
       } else {
-        targetY =
-          sortedYPosition !== undefined ? sortedYPosition - position[1] : 0;
         targetZ =
           sortedCumulativeDepth !== undefined
             ? -sortedCumulativeDepth
             : -cumulativeDepth;
       }
     } else if (snap.sortStep === 4 || snap.activeSortKey !== null) {
-      // Step 4: Bring everything back in - reset Z positions, keep sorted Y positions
-      // This is also used when a sort is permanently active
-      if (isFeatured) {
-        targetY = 0; // Featured book stays at top
-        targetZ = 0; // Reset Z position
-      } else {
-        targetY =
-          sortedYPosition !== undefined ? sortedYPosition - position[1] : 0;
-        targetZ = 0; // Reset Z position - bring books back in
-      }
+      // Step 4: Bring everything back in - reset Z positions
+      targetZ = 0;
     } else {
       // Default state
-      targetY = 0;
       targetZ = 0;
     }
 
     return {
       ref: slideRef,
-      from: { posY: 0, posZ: 0 },
-      to: { posY: targetY, posZ: targetZ },
+      onStart: () => {
+        isSlidingRef.current = true;
+      },
+      onRest: () => {
+        isSlidingRef.current = false;
+      },
+      from: { posZ: 0 },
+      to: { posZ: targetZ },
       config: config.gentle,
     };
   }, [
@@ -257,9 +259,7 @@ function Book({
     snap.sortStep,
     snap.activeSortKey,
     cumulativeDepth,
-    sortedYPosition,
     sortedCumulativeDepth,
-    position,
   ]);
 
   // Spring for rotation animation (without Y tracking)
@@ -279,17 +279,51 @@ function Book({
     [isFeatured, isFocused]
   );
 
-  // Separate spring for Y position lifting
+  // Separate spring for Y position lifting (handles all Y logic)
   const [liftSpring, liftApi] = useSpring(() => {
-    const cameraOffset = isFocused ? camera.position.y - targetY : 0;
+    // Calculate Y position based on focus, sort step, and camera
+    let targetLiftY = 0;
+
+    if (isFocused) {
+      // Focused book tracks camera Y position
+      const cameraOffset = camera.position.y - targetY;
+      targetLiftY = cameraOffset;
+    } else if (snap.sortStep === 2) {
+      // Step 2: Sort by title (Y position changes)
+      // Featured book (top book) doesn't move during sorting
+      if (!isFeatured && sortedYPosition !== undefined) {
+        targetLiftY = sortedYPosition - position[1];
+      }
+    } else if (snap.sortStep === 3) {
+      // Step 3: New ladder with sorted order - Y follows new arrangement
+      // Featured book (top book) doesn't move during sorting
+      if (!isFeatured && sortedYPosition !== undefined) {
+        targetLiftY = sortedYPosition - position[1];
+      }
+    } else if (snap.sortStep === 4 || snap.activeSortKey !== null) {
+      // Step 4: Keep sorted Y positions
+      // This is also used when a sort is permanently active
+      if (!isFeatured && sortedYPosition !== undefined) {
+        targetLiftY = sortedYPosition - position[1];
+      }
+    }
 
     return {
       ref: liftRef,
       from: { posY: 0 },
-      to: { posY: isFocused ? cameraOffset : 0 },
+      to: { posY: targetLiftY },
       config: config.gentle,
     };
-  }, [isFocused, camera.position.y, targetY]);
+  }, [
+    isFocused,
+    isFeatured,
+    camera.position.y,
+    targetY,
+    snap.sortStep,
+    snap.activeSortKey,
+    sortedYPosition,
+    position,
+  ]);
 
   // Spring for mouse-based tilt when focused
   const [tiltSpring] = useSpring(
@@ -307,7 +341,7 @@ function Book({
       ? [slideRef, rotateRef, liftRef] // For focused books: slide to camera, rotate, lift
       : [liftRef, rotateRef, slideRef], // Reverse: lift down and rotate, then slide back
     isFocused
-      ? [0, 0.3, 0.3] // Slide immediately, then rotate and lift at 30%
+      ? [0, 0.2, 0.2] // Slide immediately, then rotate and lift at 30%
       : [0, 0, 0.5] // Lift and rotate together at 0, slide at 50%
   );
 
@@ -336,7 +370,7 @@ function Book({
 
   // Update Y tracking position as camera moves
   useFrame(() => {
-    if (isFocused) {
+    if (isFocused && !isSlidingRef.current) {
       const targetOffset = camera.position.y - targetY;
       liftApi.start({ posY: targetOffset });
     }
@@ -352,10 +386,7 @@ function Book({
       <animated.group position-y={dropSpring.dropY}>
         <animated.group
           ref={groupRef}
-          position-y={to(
-            [slideSpring.posY, liftSpring.posY],
-            (slide, lift) => slide + lift
-          )}
+          position-y={liftSpring.posY}
           position-z={slideSpring.posZ}
           rotation-x={rotateSpring.rotX}
           rotation-y={rotateSpring.rotY}
