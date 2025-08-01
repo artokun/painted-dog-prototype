@@ -150,9 +150,11 @@ function Book({
   })();
 
   // Spring refs for chaining
-  const slideRef = useSpringRef();
+  const slideRefFocus = useSpringRef();
+  const slideRefSorting = useSpringRef();
   const rotateRef = useSpringRef();
-  const liftRef = useSpringRef();
+  const liftRefFocus = useSpringRef();
+  const liftRefSorting = useSpringRef();
 
   // Spring for initial spawn drop animation
   const [spawnSpring] = useSpring(
@@ -205,17 +207,30 @@ function Book({
 
   const isSlidingRef = useRef(false);
 
-  // Spring for slide animation (Z axis only)
-  const [slideSpring] = useSpring(() => {
+  // Spring for focus slide animation (Z axis only)
+  const [slideSpringFocus] = useSpring(() => {
     const optimalZ = calculateOptimalZDistance();
 
-    // Calculate Z position based on focus and sort step
+    return {
+      ref: slideRefFocus,
+      onStart: () => {
+        isSlidingRef.current = true;
+      },
+      onRest: () => {
+        isSlidingRef.current = false;
+      },
+      from: { posZ: 0 },
+      to: { posZ: isFocused ? optimalZ : 0 },
+      config: config.gentle,
+    };
+  }, [isFocused]);
+
+  // Spring for sorting slide animation (Z axis only)
+  const [slideSpringSort] = useSpring(() => {
+    // Calculate Z position based on sort step
     let targetZ = 0;
 
-    if (isFocused) {
-      // Focused book moves to camera for viewing (takes priority over everything)
-      targetZ = optimalZ;
-    } else if (snap.sortStep === 1) {
+    if (snap.sortStep === 1) {
       // Step 1: Staircase effect (reversed Z direction)
       targetZ = -cumulativeDepth;
     } else if (snap.sortStep === 2) {
@@ -240,21 +255,13 @@ function Book({
     }
 
     return {
-      ref: slideRef,
-      onStart: () => {
-        isSlidingRef.current = true;
-      },
-      onRest: () => {
-        isSlidingRef.current = false;
-      },
+      ref: slideRefSorting,
       from: { posZ: 0 },
       to: { posZ: targetZ },
       config: config.gentle,
     };
   }, [
-    isFocused,
     isFeatured,
-    width,
     snap.sortStep,
     snap.activeSortKey,
     cumulativeDepth,
@@ -278,16 +285,25 @@ function Book({
     [isFeatured, isFocused]
   );
 
-  // Separate spring for Y position lifting (handles all Y logic)
-  const [liftSpring, liftApi] = useSpring(() => {
-    // Calculate Y position based on focus, sort step, and camera
+  // Spring for focus Y position lifting (tracks camera)
+  const [liftSpringFocus, liftApiFocus] = useSpring(() => {
+    // Focused book tracks camera Y position
+    const cameraOffset = isFocused ? camera.position.y - targetY : 0;
+
+    return {
+      ref: liftRefFocus,
+      from: { posY: 0 },
+      to: { posY: cameraOffset },
+      config: config.gentle,
+    };
+  }, [isFocused, camera.position.y, targetY]);
+
+  // Spring for sorting Y position lifting
+  const [liftSpringSort] = useSpring(() => {
+    // Calculate Y position based on sort step
     let targetLiftY = 0;
 
-    if (isFocused) {
-      // Focused book tracks camera Y position
-      const cameraOffset = camera.position.y - targetY;
-      targetLiftY = cameraOffset;
-    } else if (snap.sortStep === 2) {
+    if (snap.sortStep === 2) {
       // Step 2: Sort by title (Y position changes)
       // Featured book (top book) doesn't move during sorting
       if (!isFeatured && sortedYPosition !== undefined) {
@@ -308,16 +324,13 @@ function Book({
     }
 
     return {
-      ref: liftRef,
+      ref: liftRefSorting,
       from: { posY: 0 },
       to: { posY: targetLiftY },
       config: config.gentle,
     };
   }, [
-    isFocused,
     isFeatured,
-    camera.position.y,
-    targetY,
     snap.sortStep,
     snap.activeSortKey,
     sortedYPosition,
@@ -337,8 +350,8 @@ function Book({
   // Chain animations: slide, rotate, and lift happen together after slide
   useChain(
     isFocused
-      ? [slideRef, rotateRef, liftRef] // For focused books: slide to camera, rotate, lift
-      : [liftRef, rotateRef, slideRef], // Reverse: lift down and rotate, then slide back
+      ? [slideRefFocus, rotateRef, liftRefFocus] // For focused books: slide to camera, rotate, lift
+      : [liftRefSorting, rotateRef, slideRefSorting], // Reverse: lift down and rotate, then slide back
     isFocused
       ? [0, 0.2, 0.2] // Slide immediately, then rotate and lift at 30%
       : [0, 0, 0.5] // Lift and rotate together at 0, slide at 50%
@@ -371,7 +384,7 @@ function Book({
   useFrame(() => {
     if (isFocused && !isSlidingRef.current) {
       const targetOffset = camera.position.y - targetY;
-      liftApi.start({ posY: targetOffset });
+      liftApiFocus.start({ posY: targetOffset });
     }
   });
 
@@ -385,8 +398,8 @@ function Book({
       <animated.group position-y={dropSpring.dropY}>
         <animated.group
           ref={groupRef}
-          position-y={liftSpring.posY}
-          position-z={slideSpring.posZ}
+          position-y={isFocused ? liftSpringFocus.posY : liftSpringSort.posY}
+          position-z={isFocused ? slideSpringFocus.posZ : slideSpringSort.posZ}
           rotation-x={rotateSpring.rotX}
           rotation-y={rotateSpring.rotY}
           onPointerEnter={(e) => {
