@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef } from "react";
 import { useSpring, animated, config } from "@react-spring/three";
 import { useSnapshot } from "valtio";

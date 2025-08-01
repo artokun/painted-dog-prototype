@@ -1,528 +1,157 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef } from "react";
 import { Center, Text, Text3D } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import {
-  useSpring,
-  animated,
-  config,
-  useChain,
-  useSpringRef,
-} from "@react-spring/three";
+import { animated } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
+import { Book as BookType } from "@/types/book";
+import { getBookSize, getSpineFontSize, wrapText } from "../utils/book";
 
-interface BookProps {
-  position: [number, number, number];
-  size: [number, number, number];
-  color: string;
-  spawnDelay?: number;
-  isFocused?: boolean; // User selected/focused book (camera moves to it)
-  isFeatured?: boolean; // JSON flag - this book is the top book in the stack
-  onClick?: () => void;
-  onPositionUpdate?: (y: number) => void;
-  index: number;
-  id: string;
-  focusedBookIndex?: number | null;
-  cumulativeDepth: number;
-  sortedYPosition?: number; // Y position for step 2 sorting
-  sortedCumulativeDepth?: number; // Z position for step 3 new ladder
-  sortedIndex?: number; // Index in the sorted order
-  focusedBookSortedIndex?: number | null; // Sorted index of the focused book
-  cmsData?: {
-    title: string;
-    firstName: string;
-    surname: string;
-    price: number;
-    description: string;
-    isFeatured: boolean;
-  };
-}
-
-function Book({
-  position,
-  size,
-  color,
-  spawnDelay = 0,
-  isFocused = false,
-  isFeatured = false,
-  onClick,
-  onPositionUpdate,
-  index,
-  id,
-  focusedBookIndex,
-  cumulativeDepth,
-  sortedYPosition,
-  sortedCumulativeDepth,
-  sortedIndex,
-  focusedBookSortedIndex,
-  cmsData,
-}: BookProps) {
-  const groupRef = useRef<THREE.Group>(null);
-  const meshRef = useRef<THREE.Mesh>(null);
-  const textGroupRef = useRef<THREE.Group>(null);
-  const [width, , depth] = size;
+function Book(book: BookType) {
+  const bookRef = useRef<THREE.Group>(null);
   const snap = useSnapshot(bookStore);
   const { camera } = useThree();
 
-  // Mouse position for featured book rotation
-  const mouseX = useRef(0);
-  const mouseY = useRef(0);
-  const [mouseRotation, setMouseRotation] = useState({ x: 0, y: 0 });
+  const [width, height, depth] = getBookSize(book.size);
 
-  // Generate subtle rotation noise
-  const rotationNoise = useMemo(() => {
-    if (isFeatured) return { x: 0, y: 0, z: 0 }; // No noise when featured
-    return {
-      x: 0,
-      y: 0,
-      z: 0,
-    };
-  }, [isFeatured]);
-
-  // Target Y position (for stacking and drop animations)
-  const targetY = position[1];
-
-  // Default book data for fallback
-  const bookTitle = cmsData?.title || `Book ${index + 1}`;
-  const bookAuthor = cmsData
-    ? `${cmsData.firstName} ${cmsData.surname}`
-    : "Unknown Author";
-
-  // Dynamic font sizing for spine based on title length
-  const getSpineFontSize = (text: string) => {
-    if (text.length > 20) return 0.005; // Very small for long titles
-    if (text.length > 15) return 0.006; // Small for medium titles
-    if (text.length > 10) return 0.007; // Normal-small for slightly long titles
-    return 0.008; // Normal size for short titles
-  };
-
-  // Text wrapping function for face titles - returns array of lines
-  const wrapText = (text: string, maxLength: number = 12): string[] => {
-    if (text.length <= maxLength) return [text];
-
-    const words = text.split(" ");
-    const lines: string[] = [];
-    let currentLine = "";
-
-    for (const word of words) {
-      if ((currentLine + word).length > maxLength) {
-        if (currentLine) {
-          lines.push(currentLine.trim());
-          currentLine = word + " ";
-        } else {
-          // Word is too long, just add it
-          lines.push(word);
-        }
-      } else {
-        currentLine += word + " ";
-      }
-    }
-
-    if (currentLine.trim()) {
-      lines.push(currentLine.trim());
-    }
-
-    return lines;
-  };
-
-  // Calculate if this book should drop (is above the focused book)
-  // Disable drop logic during sort steps since focused book interaction is disabled
-  const shouldDrop = (() => {
-    if (snap.sortStep !== null || isFocused) return false;
-
-    // Use sorted indices when a sort is active
-    if (
-      snap.activeSortKey !== null &&
-      sortedIndex !== undefined &&
-      focusedBookSortedIndex !== null &&
-      focusedBookSortedIndex !== undefined
-    ) {
-      return sortedIndex > focusedBookSortedIndex;
-    }
-
-    // Use original indices when no sort is active
-    if (focusedBookIndex !== null && focusedBookIndex !== undefined) {
-      return index > focusedBookIndex;
-    }
-
-    return false;
-  })();
-
-  // Spring refs for chaining
-  const slideRefFocus = useSpringRef();
-  const slideRefSorting = useSpringRef();
-  const rotateRef = useSpringRef();
-  const liftRefFocus = useSpringRef();
-  const liftRefSorting = useSpringRef();
-
-  // Spring for initial spawn drop animation
-  const [spawnSpring] = useSpring(
-    () => ({
-      from: { posY: 0.01 }, // Start 0.5 meters above
-      to: { posY: 0 },
-      delay: spawnDelay,
-      config: config.stiff,
-    }),
-    [spawnDelay]
-  );
-
-  // Spring for vertical drop animation (books above featured)
-  const [dropSpring] = useSpring(
-    () => ({
-      dropY: shouldDrop ? -snap.slidOutBookThickness : 0,
-      config: config.gentle,
-    }),
-    [shouldDrop, snap.slidOutBookThickness]
-  );
-
-  // Calculate optimal Z distance for focused book to fill 75% of viewport height
-  const calculateOptimalZDistance = () => {
-    if (!isFocused) return depth;
-
-    // Use a fixed reference book height so all books appear the same size on screen
-    // Using medium book width (0.185) as the reference since it's in the middle of the range
-    const referenceBookHeight = 0.185;
-
-    // VIEWPORT_PERCENTAGE: Adjust this value to change how much of the screen the featured book fills
-    const targetScreenPercentage = 1.6;
-
-    // Camera FOV (from page.tsx)
-    const fov = 45;
-    const fovRadians = (fov * Math.PI) / 180;
-
-    // Calculate distance needed for book to fill target percentage of viewport
-    // Using: tan(fov/2) = (height/2) / distance
-    // Rearranged: distance = (height/2) / tan(fov/2)
-    const halfFov = fovRadians / 2;
-    const viewportHeightAtUnitDistance = 2 * Math.tan(halfFov);
-
-    // Same distance for all books so they appear the same size on screen
-    const distance =
-      referenceBookHeight /
-      (targetScreenPercentage * viewportHeightAtUnitDistance);
-
-    return distance;
-  };
-
-  const isSlidingRef = useRef(false);
-
-  // Spring for focus slide animation (Z axis only)
-  const [slideSpringFocus] = useSpring(() => {
-    const optimalZ = calculateOptimalZDistance();
-
-    return {
-      ref: slideRefFocus,
-      onStart: () => {
-        isSlidingRef.current = true;
-      },
-      onRest: () => {
-        isSlidingRef.current = false;
-      },
-      from: { posZ: 0 },
-      to: { posZ: isFocused ? optimalZ : 0 },
-      config: config.gentle,
-    };
-  }, [isFocused]);
-
-  // Spring for sorting slide animation (Z axis only)
-  const [slideSpringSort] = useSpring(() => {
-    // Calculate Z position based on sort step
-    let targetZ = 0;
-
-    if (snap.sortStep === 1) {
-      // Step 1: Staircase effect (reversed Z direction)
-      targetZ = -cumulativeDepth;
-    } else if (snap.sortStep === 2) {
-      // Step 2: Sort by title (Z stays from step 1)
-      targetZ = -cumulativeDepth;
-    } else if (snap.sortStep === 3) {
-      // Step 3: New ladder with sorted order - Z follows new arrangement
-      if (isFeatured) {
-        targetZ = -cumulativeDepth; // Keep original Z position as top book
-      } else {
-        targetZ =
-          sortedCumulativeDepth !== undefined
-            ? -sortedCumulativeDepth
-            : -cumulativeDepth;
-      }
-    } else if (snap.sortStep === 4 || snap.activeSortKey !== null) {
-      // Step 4: Bring everything back in - reset Z positions
-      targetZ = 0;
-    } else {
-      // Default state
-      targetZ = 0;
-    }
-
-    return {
-      ref: slideRefSorting,
-      from: { posZ: 0 },
-      to: { posZ: targetZ },
-      config: config.gentle,
-    };
-  }, [
-    isFeatured,
-    snap.sortStep,
-    snap.activeSortKey,
-    cumulativeDepth,
-    sortedCumulativeDepth,
-  ]);
-
-  // Spring for rotation animation (without Y tracking)
-  const [rotateSpring] = useSpring(
-    () => ({
-      ref: rotateRef,
-      from: isFeatured
-        ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Featured book (top book) starts standing
-        : { rotX: 0, rotY: 0 },
-      to:
-        isFeatured || isFocused
-          ? { rotX: -Math.PI / 2, rotY: -Math.PI / 2 } // Featured (top) or focused books stand
-          : { rotX: 0, rotY: 0 }, // Other books lay flat
-      config: config.gentle,
-      immediate: isFeatured && !isFocused, // Skip animation for featured books' initial state (unless they're also focused)
-    }),
-    [isFeatured, isFocused]
-  );
-
-  // Spring for focus Y position lifting (tracks camera)
-  const [liftSpringFocus, liftApiFocus] = useSpring(() => {
-    // Focused book tracks camera Y position
-    const cameraOffset = isFocused ? camera.position.y - targetY : 0;
-
-    return {
-      ref: liftRefFocus,
-      from: { posY: 0 },
-      to: { posY: cameraOffset },
-      config: config.gentle,
-    };
-  }, [isFocused, camera.position.y, targetY]);
-
-  // Spring for sorting Y position lifting
-  const [liftSpringSort] = useSpring(() => {
-    // Calculate Y position based on sort step
-    let targetLiftY = 0;
-
-    if (snap.sortStep === 2) {
-      // Step 2: Sort by title (Y position changes)
-      // Featured book (top book) doesn't move during sorting
-      if (!isFeatured && sortedYPosition !== undefined) {
-        targetLiftY = sortedYPosition - position[1];
-      }
-    } else if (snap.sortStep === 3) {
-      // Step 3: New ladder with sorted order - Y follows new arrangement
-      // Featured book (top book) doesn't move during sorting
-      if (!isFeatured && sortedYPosition !== undefined) {
-        targetLiftY = sortedYPosition - position[1];
-      }
-    } else if (snap.sortStep === 4 || snap.activeSortKey !== null) {
-      // Step 4: Keep sorted Y positions
-      // This is also used when a sort is permanently active
-      if (!isFeatured && sortedYPosition !== undefined) {
-        targetLiftY = sortedYPosition - position[1];
-      }
-    }
-
-    return {
-      ref: liftRefSorting,
-      from: { posY: 0 },
-      to: { posY: targetLiftY },
-      config: config.gentle,
-    };
-  }, [
-    isFeatured,
-    snap.sortStep,
-    snap.activeSortKey,
-    sortedYPosition,
-    position,
-  ]);
-
-  // Spring for mouse-based tilt when focused
-  const [tiltSpring] = useSpring(
-    () => ({
-      tiltX: mouseRotation.x,
-      tiltY: mouseRotation.y,
-      config: { mass: 1, tension: 350, friction: 40 },
-    }),
-    [mouseRotation]
-  );
-
-  // Chain animations: slide, rotate, and lift happen together after slide
-  useChain(
-    isFocused
-      ? [slideRefFocus, rotateRef, liftRefFocus] // For focused books: slide to camera, rotate, lift
-      : [liftRefSorting, rotateRef, slideRefSorting], // Reverse: lift down and rotate, then slide back
-    isFocused
-      ? [0, 0.2, 0.2] // Slide immediately, then rotate and lift at 30%
-      : [0, 0, 0.5] // Lift and rotate together at 0, slide at 50%
-  );
-
-  // No need for spawn state - handled by spring animation
-
-  // Handle mouse movement for focused book
-  useEffect(() => {
-    if (!isFocused) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      // Normalize mouse position to -1 to 1
-      mouseX.current = (e.clientX / window.innerWidth) * 2 - 1;
-      mouseY.current = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      // Set rotation based on mouse position (subtle effect)
-      const maxTilt = 0.15; // Maximum tilt in radians (~8.5 degrees)
-      setMouseRotation({
-        x: mouseY.current * maxTilt, // Pitch
-        y: mouseX.current * maxTilt, // Roll (reversed for natural feel)
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [isFocused]);
-
-  // Update Y tracking position as camera moves
-  useFrame(() => {
-    if (isFocused && !isSlidingRef.current) {
-      const targetOffset = camera.position.y - targetY;
-      liftApiFocus.start({ posY: targetOffset });
-    }
-  });
+  const bookAuthor = `${book.firstName} ${book.surname}`;
 
   return (
-    <animated.group
-      position-x={position[0]}
-      position-y={spawnSpring.posY.to((py) => targetY + py)}
-      position-z={position[2]}
-      rotation={[rotationNoise.x, rotationNoise.y, rotationNoise.z]}
-    >
-      <animated.group position-y={dropSpring.dropY}>
-        <animated.group
-          ref={groupRef}
-          position-y={isFocused ? liftSpringFocus.posY : liftSpringSort.posY}
-          position-z={isFocused ? slideSpringFocus.posZ : slideSpringSort.posZ}
-          rotation-x={rotateSpring.rotX}
-          rotation-y={rotateSpring.rotY}
-          onPointerEnter={(e) => {
-            e.stopPropagation();
-            // Hover disabled for debugging
-            // if (!isFeatured) setIsHovered(true);
-          }}
-          onPointerLeave={(e) => {
-            e.stopPropagation();
-            // setIsHovered(false);
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onClick) onClick();
-          }}
-        >
-          {/* Additional rotation group for mouse-based tilt */}
-          <animated.group
-            rotation-x={isFocused ? tiltSpring.tiltY : 0}
-            rotation-z={isFocused ? tiltSpring.tiltX : 0}
-          >
-            <animated.mesh ref={meshRef} castShadow receiveShadow>
-              <boxGeometry args={size} />
-              <meshStandardMaterial
-                color={color}
-                metalness={0.1}
-                roughness={0.8}
-              />
-            </animated.mesh>
-
-            {/* Text group - now inside tilt rotation */}
-            <group ref={textGroupRef}>
-              {/* Spine text - always visible */}
-              {/* Title - On the spine facing forward, left aligned */}
-              <Text
-                position={[-width / 2 + 0.006, 0, depth / 2 + 0.0002]}
-                rotation={[0, 0, 0]}
-                fontSize={getSpineFontSize(bookTitle)}
-                color="#ffffff"
-                anchorX="left"
-                anchorY="middle"
-                font="/fonts/fields-bold.otf"
-                raycast={() => null}
-              >
-                {bookTitle}
-              </Text>
-
-              {/* Author - On the spine facing forward, right aligned */}
-              <Text
-                position={[width / 2 - 0.006, 0, depth / 2 + 0.0002]}
-                rotation={[0, 0, 0]}
-                fontSize={0.005}
-                color="#cccccc"
-                anchorX="right"
-                anchorY="middle"
-                fontWeight={300}
-                raycast={() => null}
-              >
-                {bookAuthor}
-              </Text>
-
-              {/* Front cover text - Title centered in main area */}
-              {(() => {
-                const lines = wrapText(bookTitle);
-                const lineHeight = 0.012; // Space between lines
-                const totalHeight = (lines.length - 1) * lineHeight;
-                const startY = totalHeight / 2;
-
-                return lines.map((line, index) => (
-                  <Center
-                    key={index}
-                    position={[
-                      0.01 - (index * lineHeight - startY),
-                      -size[1] / 2 - 0.0001,
-                      0,
-                    ]}
-                  >
-                    <Text3D
-                      rotation={[Math.PI / 2, 0, -Math.PI / 2]}
-                      font="/FSP DEMO - Fields Display_Bold.json"
-                      size={0.009}
-                      height={0.0005} // Extrusion depth
-                      curveSegments={12}
-                      bevelEnabled={true}
-                      bevelThickness={0.00005}
-                      bevelSize={0.00005}
-                      bevelOffset={0}
-                      bevelSegments={5}
-                      letterSpacing={0}
-                      raycast={() => null}
-                    >
-                      {line}
-                      <meshStandardMaterial
-                        color={new THREE.Color(0.5, 0.5, 0.3)}
-                        metalness={0.9}
-                        roughness={0.4}
-                      />
-                    </Text3D>
-                  </Center>
-                ));
-              })()}
-
-              {/* Front cover text - Author below title */}
-              <Text
-                position={[-0.02, -size[1] / 2 - 0.0002, 0]}
-                rotation={[Math.PI / 2, 0, -Math.PI / 2]}
-                fontSize={0.006}
-                color="#cccccc"
-                anchorX="center"
-                anchorY="middle"
-                fontWeight={300}
-                raycast={() => null}
-                maxWidth={width * 0.8}
-                textAlign="center"
-              >
-                {bookAuthor}
-              </Text>
-            </group>
-          </animated.group>
-        </animated.group>
-      </animated.group>
+    <animated.group ref={bookRef}>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[width, height, depth]} />
+        <meshStandardMaterial
+          color={book.color}
+          metalness={0.1}
+          roughness={0.8}
+        />
+      </mesh>
+      <group>
+        <CoverText
+          title={book.title}
+          author={bookAuthor}
+          width={width}
+          height={height}
+        />
+        <SpineText
+          title={book.title}
+          author={bookAuthor}
+          width={width}
+          depth={depth}
+        />
+      </group>
     </animated.group>
   );
 }
+
+const SpineText = ({
+  title,
+  author,
+  width,
+  depth,
+}: {
+  title: string;
+  author: string;
+  width: number;
+  depth: number;
+}) => {
+  return (
+    <group>
+      <Text
+        position={[-width / 2 + 0.006, 0, depth / 2 + 0.0002]}
+        rotation={[0, 0, 0]}
+        fontSize={getSpineFontSize(title)}
+        color="#ffffff"
+        anchorX="left"
+        anchorY="middle"
+        font="/fonts/fields-bold.otf"
+        raycast={() => null}
+      >
+        {title}
+      </Text>
+      );
+      {/* Author - On the spine facing forward, right aligned */}
+      <Text
+        position={[width / 2 - 0.006, 0, depth / 2 + 0.0002]}
+        rotation={[0, 0, 0]}
+        fontSize={0.005}
+        color="#cccccc"
+        anchorX="right"
+        anchorY="middle"
+        fontWeight={300}
+        raycast={() => null}
+      >
+        {author}
+      </Text>
+    </group>
+  );
+};
+
+const CoverText = ({
+  title,
+  author,
+  width,
+  height,
+}: {
+  title: string;
+  author: string;
+  width: number;
+  height: number;
+}) => {
+  const lines = wrapText(title);
+  const lineHeight = 0.012; // Space between lines
+  const totalHeight = (lines.length - 1) * lineHeight;
+  const startY = totalHeight / 2;
+
+  return lines.map((line, index) => (
+    <group key={index}>
+      <Center
+        key={index}
+        position={[
+          0.01 - (index * lineHeight - startY),
+          -height / 2 - 0.0001,
+          0,
+        ]}
+      >
+        <Text3D
+          rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+          font="/FSP DEMO - Fields Display_Bold.json"
+          size={0.009}
+          height={0.0005} // Extrusion depth
+          curveSegments={12}
+          bevelEnabled={true}
+          bevelThickness={0.00005}
+          bevelSize={0.00005}
+          bevelOffset={0}
+          bevelSegments={5}
+          letterSpacing={0}
+          raycast={() => null}
+        >
+          {line}
+          <meshStandardMaterial
+            color={new THREE.Color(0.5, 0.5, 0.3)}
+            metalness={0.9}
+            roughness={0.4}
+          />
+        </Text3D>
+      </Center>
+      <Text
+        position={[-0.02, -height / 2 - 0.0002, 0]}
+        rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+        fontSize={0.006}
+        color="#cccccc"
+        anchorX="center"
+        anchorY="middle"
+        fontWeight={300}
+        raycast={() => null}
+        maxWidth={width * 0.8}
+        textAlign="center"
+      >
+        {author}
+      </Text>
+    </group>
+  ));
+};
 
 export default Book;
