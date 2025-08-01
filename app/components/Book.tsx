@@ -8,7 +8,6 @@ import {
   config,
   useChain,
   useSpringRef,
-  to,
 } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
