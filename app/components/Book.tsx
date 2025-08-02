@@ -1,12 +1,19 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Center, Text, Text3D } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { animated, config, useSpring } from "@react-spring/three";
+import {
+  animated,
+  config,
+  useChain,
+  useSpring,
+  useSpringRef,
+} from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { Book as BookType } from "@/types/book";
 import {
+  calculateOptimalZDistance,
   getBookSize,
   getBookSortYPosition,
   getSpineFontSize,
@@ -15,56 +22,119 @@ import {
 import { Euler, EulerOrder, Vector3 } from "three";
 
 function Book(book: BookType) {
-  const bookRef = useRef<THREE.Group>(null);
-  const { books, sortBy, sortOrder } = useSnapshot(bookStore);
+  const { books, sortBy, sortOrder, focusedBookId } = useSnapshot(bookStore);
   const { camera } = useThree();
+  const isFocused = useMemo(() => focusedBookId === book.id, [focusedBookId]);
+
+  const bookRef = useSpringRef();
+  const bookSpring = useSpring({
+    ref: bookRef,
+    to: {
+      posX: 0,
+      posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
+      posZ: 0,
+      rotX: 0,
+      rotY: Math.random() * 0.05 - 0.025,
+      rotZ: 0,
+    },
+    config: config.gentle,
+  });
+
+  const bookFocusedSlideRef = useSpringRef();
+  const [bookFocusedSlideSpring] = useSpring(
+    {
+      ref: bookFocusedSlideRef,
+      to: isFocused
+        ? {
+            posZ: calculateOptimalZDistance(),
+          }
+        : {
+            posZ: 0,
+          },
+      config: config.gentle,
+    },
+    [isFocused]
+  );
+
+  const bookFocusedLiftRef = useSpringRef();
+  const [bookFocusedLiftSpring] = useSpring(
+    {
+      ref: bookFocusedLiftRef,
+      to: isFocused
+        ? {
+            posY: camera.position.y - bookSpring.posY.get(),
+            rotX: -Math.PI / 2,
+            rotY: -Math.PI / 2,
+          }
+        : {
+            posY: 0,
+            rotX: book.isFeatured ? -Math.PI / 2 : 0,
+            rotY: book.isFeatured ? -Math.PI / 2 : 0,
+          },
+      config: config.default,
+    },
+    [isFocused]
+  );
+
+  useChain(
+    isFocused
+      ? [bookFocusedSlideRef, bookFocusedLiftRef]
+      : [bookFocusedLiftRef, bookFocusedSlideRef],
+    isFocused ? [0, 0.3] : [0, 0.5]
+  );
+
+  const handleClick = (e: React.MouseEvent<THREE.Mesh>) => {
+    e.stopPropagation();
+
+    if (isFocused) {
+      bookStore.focusedBookId = null;
+    } else {
+      bookStore.focusedBookId = book.id;
+    }
+  };
 
   const [width, height, depth] = getBookSize(book.size);
-
   const bookAuthor = `${book.firstName} ${book.surname}`;
-
-  const [springs] = useSpring(() => ({
-    posX: 0,
-    posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
-    posZ: 0,
-    rotX: book.isFeatured ? -Math.PI / 2 : 0,
-    rotY: book.isFeatured ? -Math.PI / 2 : Math.random() * 0.05 - 0.025,
-    rotZ: 0,
-    config: config.gentle,
-  }));
 
   return (
     <animated.group
-      ref={bookRef}
-      position-x={springs.posX}
-      position-y={springs.posY}
-      position-z={springs.posZ}
-      rotation-x={springs.rotX}
-      rotation-y={springs.rotY}
-      rotation-z={springs.rotZ}
+      position-x={bookSpring.posX}
+      position-y={bookSpring.posY}
+      position-z={bookSpring.posZ}
+      rotation-x={bookSpring.rotX}
+      rotation-y={bookSpring.rotY}
+      rotation-z={bookSpring.rotZ}
+      onClick={handleClick}
     >
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial
-          color={book.color}
-          metalness={0.1}
-          roughness={0.8}
-        />
-      </mesh>
-      <group>
-        <CoverText
-          title={book.title}
-          author={bookAuthor}
-          width={width}
-          height={height}
-        />
-        <SpineText
-          title={book.title}
-          author={bookAuthor}
-          width={width}
-          depth={depth}
-        />
-      </group>
+      <animated.group
+        position-z={bookFocusedSlideSpring.posZ}
+        position-y={bookFocusedLiftSpring.posY}
+        rotation-x={bookFocusedLiftSpring.rotX}
+        rotation-y={bookFocusedLiftSpring.rotY}
+      >
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[width, height, depth]} />
+          <meshStandardMaterial
+            color={book.color}
+            metalness={0.1}
+            roughness={0.8}
+          />
+        </mesh>
+        <group>
+          <CoverText
+            title={book.title}
+            author={bookAuthor}
+            width={width}
+            height={height}
+          />
+          <SpineText
+            title={book.title}
+            author={bookAuthor}
+            width={width}
+            depth={depth}
+          />
+        </group>
+      </animated.group>
     </animated.group>
   );
 }
