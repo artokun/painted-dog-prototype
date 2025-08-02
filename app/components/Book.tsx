@@ -28,15 +28,15 @@ function Book(book: BookType) {
   const isSlidingRef = useRef(false);
 
   const bookRef = useSpringRef();
-  const [bookSpring] = useSpring(
+  const [bookSpring, bookApi] = useSpring(
     {
       ref: bookRef,
       to: {
-        posX: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
+        posX: book.isFeatured ? 0 : Math.random() * 0.012 - 0.006,
         posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
-        posZ: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
+        posZ: book.isFeatured ? 0 : Math.random() * 0.012 - 0.006,
         rotX: 0,
-        rotY: book.isFeatured ? 0 : Math.random() * 0.02 - 0.01,
+        rotY: book.isFeatured ? 0 : Math.random() * 0.012 - 0.006,
         rotZ: 0,
       },
       config: config.gentle,
@@ -109,10 +109,34 @@ function Book(book: BookType) {
     }
   };
 
-  useFrame(() => {
+  const bookFocusedTiltGroupRef = useSpringRef();
+  const [bookFocusedTiltGroupSpring, bookFocusedTiltGroupApi] = useSpring(
+    {
+      ref: bookFocusedTiltGroupRef,
+      to: { rotX: 0, rotZ: 0 },
+      config: { mass: 1, tension: 350, friction: 40 },
+    },
+    [isFocused]
+  );
+
+  useFrame(({ pointer }) => {
     if (isFocused && !isSlidingRef.current) {
       const targetOffset = camera.position.y - bookSpring.posY.get();
-      liftApi.start({ posY: targetOffset });
+      liftApi.start({
+        posY: targetOffset,
+      });
+      const maxTilt = 0.15;
+      const tiltX = pointer.x * maxTilt;
+      const tiltY = pointer.y * maxTilt;
+      bookFocusedTiltGroupApi.start({
+        rotX: tiltX,
+        rotZ: tiltY,
+      });
+    } else {
+      bookFocusedTiltGroupApi.start({
+        rotX: 0,
+        rotZ: 0,
+      });
     }
   });
 
@@ -121,6 +145,7 @@ function Book(book: BookType) {
 
   return (
     <animated.group
+      name="book-group"
       position-x={bookSpring.posX}
       position-y={bookSpring.posY}
       position-z={bookSpring.posZ}
@@ -130,33 +155,40 @@ function Book(book: BookType) {
       onClick={handleClick}
     >
       <animated.group
+        name="book-focused-group"
         position-z={bookFocusedSlideSpring.posZ}
         position-y={bookFocusedLiftSpring.posY}
         rotation-x={bookFocusedLiftSpring.rotX}
         rotation-y={bookFocusedLiftSpring.rotY}
       >
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[width, height, depth]} />
-          <meshStandardMaterial
-            color={book.color}
-            metalness={0.1}
-            roughness={0.8}
-          />
-        </mesh>
-        <group>
-          <CoverText
-            title={book.title}
-            author={bookAuthor}
-            width={width}
-            height={height}
-          />
-          <SpineText
-            title={book.title}
-            author={bookAuthor}
-            width={width}
-            depth={depth}
-          />
-        </group>
+        <animated.group
+          name="book-focused-tilt-group"
+          rotation-x={bookFocusedTiltGroupSpring.rotX}
+          rotation-z={bookFocusedTiltGroupSpring.rotZ}
+        >
+          <mesh castShadow receiveShadow>
+            <boxGeometry args={[width, height, depth]} />
+            <meshStandardMaterial
+              color={book.color}
+              metalness={0.1}
+              roughness={0.8}
+            />
+          </mesh>
+          <group>
+            <CoverText
+              title={book.title}
+              author={bookAuthor}
+              width={width}
+              height={height}
+            />
+            <SpineText
+              title={book.title}
+              author={bookAuthor}
+              width={width}
+              depth={depth}
+            />
+          </group>
+        </animated.group>
       </animated.group>
     </animated.group>
   );
