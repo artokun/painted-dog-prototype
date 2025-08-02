@@ -41,7 +41,7 @@ const CameraController = memo(function CameraController() {
   //     : stackTop;
 
   const topLimit = getBookStackHeight(books) + 0.1;
-  const bottomLimit = 0.1;
+  const bottomLimit = 0.13;
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({
