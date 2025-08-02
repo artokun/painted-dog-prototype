@@ -9,6 +9,17 @@ export const BookSizeSchema = z.enum([
   "extraThick",
 ]);
 
+export enum SortBy {
+  Title = "title",
+  Author = "author",
+}
+export enum SortOrder {
+  Asc = "asc",
+  Desc = "desc",
+}
+
+export type BookId = string;
+
 // Define the book schema
 export const BookSchema = z.object({
   id: z.string().min(1, "ID is required"),
@@ -35,6 +46,7 @@ export const BooksArraySchema = z.array(BookSchema);
 export type Book = z.infer<typeof BookSchema>;
 export type BookSize = z.infer<typeof BookSizeSchema>;
 export type BooksArray = z.infer<typeof BooksArraySchema>;
+export type BookMap = Record<BookId, Book>;
 
 // Validation function
 export function validateBooks(data: unknown): BooksArray {
