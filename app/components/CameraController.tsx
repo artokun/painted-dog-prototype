@@ -4,26 +4,16 @@ import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
+import { getBookStackHeight } from "../utils/book";
 
-interface CameraControllerProps {
-  stackTop: number;
-  totalBooks: number;
-  onCameraMove?: (scrollY: number) => void;
-  bookPositions?: number[]; // Array of Y positions for each book
-}
-
-const CameraController = memo(function CameraController({
-  stackTop,
-  onCameraMove,
-  bookPositions = [],
-}: CameraControllerProps) {
+const CameraController = memo(function CameraController() {
   const { camera } = useThree();
   const mouseX = useRef(0);
 
   // Get book state
 
-  const snap = useSnapshot(bookStore);
-  const hasFocusedBook = snap.focusedBookId !== null;
+  const { focusedBookId, books } = useSnapshot(bookStore);
+  const hasFocusedBook = focusedBookId !== null;
 
   // Drei scroll hook
   const scroll = useScroll();
@@ -44,11 +34,14 @@ const CameraController = memo(function CameraController({
   // Stack height calculations
   // Use actual book positions if available
   // Add offset to prevent featured books from clipping through table
-  const bottomLimit = bookPositions.length > 0 ? bookPositions[0] + 0.1 : 0.2;
-  const topLimit =
-    bookPositions.length > 0
-      ? bookPositions[bookPositions.length - 1] + 0.0
-      : stackTop;
+  // const bottomLimit = bookPositions.length > 0 ? bookPositions[0] + 0.1 : 0.2;
+  // const topLimit =
+  //   bookPositions.length > 0
+  //     ? bookPositions[bookPositions.length - 1] + 0.0
+  //     : stackTop;
+
+  const topLimit = getBookStackHeight(books) + 0.1;
+  const bottomLimit = 0.1;
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({
@@ -68,7 +61,7 @@ const CameraController = memo(function CameraController({
       const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
       mouseX.current = normalizedX;
 
-      if (hasFocusedBook || snap.sortStep !== null) {
+      if (hasFocusedBook) {
         // Disable rotation when book is focused
         rotationApi.start({ rotation: 0 });
       } else {
@@ -79,7 +72,7 @@ const CameraController = memo(function CameraController({
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [hasFocusedBook, snap.sortStep, rotationApi]);
+  }, [hasFocusedBook, rotationApi]);
 
   // Apply camera transformations in useFrame (required for camera updates)
   useFrame(() => {
@@ -105,11 +98,6 @@ const CameraController = memo(function CameraController({
 
     // Look at the same Y position as camera (straight ahead)
     camera.lookAt(0, currentY, 0);
-
-    // Notify parent
-    if (onCameraMove) {
-      onCameraMove(currentY);
-    }
   });
 
   return null;
