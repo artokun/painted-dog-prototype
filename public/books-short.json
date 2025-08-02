@@ -1,0 +1,41 @@
+[
+  {
+    "id": "the-promise",
+    "title": "The Promise",
+    "firstName": "Damon",
+    "surname": "Galgut",
+    "size": "medium",
+    "color": "#1a1a1a",
+    "price": 28,
+    "description": "Booker Prize winner exploring a white South African family's decline over decades",
+    "publishDate": "2021-03-15",
+    "genre": "Literary Fiction",
+    "isFeatured": true
+  },
+  {
+    "id": "disgrace",
+    "title": "Disgrace",
+    "firstName": "J.M.",
+    "surname": "Coetzee",
+    "size": "thick",
+    "color": "#2d2d2d",
+    "price": 24,
+    "description": "Nobel laureate's powerful novel about post-apartheid South Africa",
+    "publishDate": "1999-08-12",
+    "genre": "Literary Fiction",
+    "isFeatured": false
+  },
+  {
+    "id": "julys-people",
+    "title": "July's People",
+    "firstName": "Nadine",
+    "surname": "Gordimer",
+    "size": "thin",
+    "color": "#262626",
+    "price": 22,
+    "description": "Nobel Prize winner's prescient tale of racial upheaval and survival",
+    "publishDate": "1981-06-20",
+    "genre": "Literary Fiction",
+    "isFeatured": false
+  }
+]

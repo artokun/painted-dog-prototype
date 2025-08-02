@@ -4,6 +4,7 @@ import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
+import { getBookStackHeight } from "../utils/book";
 
 const CameraController = memo(function CameraController() {
   const { camera } = useThree();
@@ -11,8 +12,8 @@ const CameraController = memo(function CameraController() {
 
   // Get book state
 
-  const snap = useSnapshot(bookStore);
-  const hasFocusedBook = snap.focusedBookId !== null;
+  const { focusedBookId, books } = useSnapshot(bookStore);
+  const hasFocusedBook = focusedBookId !== null;
 
   // Drei scroll hook
   const scroll = useScroll();
@@ -39,8 +40,8 @@ const CameraController = memo(function CameraController() {
   //     ? bookPositions[bookPositions.length - 1] + 0.0
   //     : stackTop;
 
-  const topLimit = 1;
-  const bottomLimit = 0;
+  const topLimit = getBookStackHeight(books) + 0.1;
+  const bottomLimit = 0.1;
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({

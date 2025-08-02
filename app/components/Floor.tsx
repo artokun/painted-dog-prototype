@@ -15,11 +15,7 @@ export default function Floor() {
   );
 
   return (
-    <mesh
-      position={[0, 0.005, 0]}
-      receiveShadow
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
+    <mesh position={[0, 0, 0]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
       <circleGeometry args={[0.5, 128]} />
       <animated.meshStandardMaterial
         color="#F9F6F0"

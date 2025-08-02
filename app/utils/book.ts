@@ -1,3 +1,5 @@
+import { BookId, BookMap, SortBy, SortOrder } from "@/types/book";
+
 // Dynamic font sizing for spine based on title length
 export const getSpineFontSize = (text: string) => {
   if (text.length > 20) return 0.005; // Very small for long titles
@@ -77,4 +79,59 @@ export const getBookSize = (
   size: string
 ): [width: number, height: number, depth: number] => {
   return bookSizeMap[size as keyof typeof bookSizeMap];
+};
+
+export const getSortedBooks = (
+  books: BookMap,
+  sortBy: SortBy,
+  sortOrder: SortOrder
+) => {
+  return Object.values(books).sort((a, b) => {
+    switch (sortBy) {
+      case SortBy.Title:
+        return sortOrder === SortOrder.Asc
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      case SortBy.Author:
+        return sortOrder === SortOrder.Asc
+          ? a.firstName.localeCompare(b.firstName)
+          : b.firstName.localeCompare(a.firstName);
+    }
+  });
+};
+
+export const getBookStackHeight = (books: BookMap): number => {
+  const sortedBooks = getSortedBooks(books, SortBy.Title, SortOrder.Desc);
+  const filteredBooks = sortedBooks.filter((book) => !book.isFeatured);
+  return filteredBooks.reduce((acc, book) => {
+    const [, height] = getBookSize(book.size);
+    return acc + height;
+  }, 0);
+};
+
+export const getBookSortYPosition = (
+  bookId: BookId,
+  books: BookMap,
+  sortBy: SortBy,
+  sortOrder: SortOrder
+): number => {
+  const { size, isFeatured } = books[bookId];
+  const [ownWidth, ownHeight] = getBookSize(size);
+
+  if (isFeatured) {
+    return getBookStackHeight(books) + ownWidth / 2;
+  }
+
+  const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
+
+  //remove featured books
+  const filteredBooks = sortedBooks.filter((book) => !book.isFeatured);
+
+  const bookIndex = filteredBooks.findIndex((book) => book.id === bookId);
+  const slicedBooks = filteredBooks.slice(0, bookIndex);
+
+  return slicedBooks.reduce((acc, book) => {
+    const [, height] = getBookSize(book.size);
+    return acc + height;
+  }, ownHeight / 2);
 };

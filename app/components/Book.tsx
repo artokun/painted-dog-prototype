@@ -1,24 +1,48 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Center, Text, Text3D } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { animated } from "@react-spring/three";
+import { animated, config, useSpring } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { Book as BookType } from "@/types/book";
-import { getBookSize, getSpineFontSize, wrapText } from "../utils/book";
+import {
+  getBookSize,
+  getBookSortYPosition,
+  getSpineFontSize,
+  wrapText,
+} from "../utils/book";
+import { Euler, EulerOrder, Vector3 } from "three";
 
 function Book(book: BookType) {
   const bookRef = useRef<THREE.Group>(null);
-  const snap = useSnapshot(bookStore);
+  const { books, sortBy, sortOrder } = useSnapshot(bookStore);
   const { camera } = useThree();
 
   const [width, height, depth] = getBookSize(book.size);
 
   const bookAuthor = `${book.firstName} ${book.surname}`;
 
+  const [springs] = useSpring(() => ({
+    posX: 0,
+    posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
+    posZ: 0,
+    rotX: book.isFeatured ? -Math.PI / 2 : 0,
+    rotY: book.isFeatured ? -Math.PI / 2 : Math.random() * 0.05 - 0.025,
+    rotZ: 0,
+    config: config.gentle,
+  }));
+
   return (
-    <animated.group ref={bookRef}>
+    <animated.group
+      ref={bookRef}
+      position-x={springs.posX}
+      position-y={springs.posY}
+      position-z={springs.posZ}
+      rotation-x={springs.rotX}
+      rotation-y={springs.rotY}
+      rotation-z={springs.rotZ}
+    >
       <mesh castShadow receiveShadow>
         <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial
