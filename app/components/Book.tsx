@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { Center, Text, Text3D } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -16,10 +16,10 @@ import {
   calculateOptimalZDistance,
   getBookSize,
   getBookSortYPosition,
+  getDropHeight,
   getSpineFontSize,
   wrapText,
 } from "../utils/book";
-import { Euler, EulerOrder, Vector3 } from "three";
 
 function Book(book: BookType) {
   const { books, sortBy, sortOrder, focusedBookId } = useSnapshot(bookStore);
@@ -30,11 +30,11 @@ function Book(book: BookType) {
   const bookSpring = useSpring({
     ref: bookRef,
     to: {
-      posX: 0,
+      posX: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
       posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
-      posZ: 0,
+      posZ: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
       rotX: 0,
-      rotY: Math.random() * 0.05 - 0.025,
+      rotY: book.isFeatured ? 0 : Math.random() * 0.02 - 0.01,
       rotZ: 0,
     },
     config: config.gentle,
@@ -56,6 +56,11 @@ function Book(book: BookType) {
     [isFocused]
   );
 
+  const dropHeight = useMemo(
+    () => getDropHeight(book.id, focusedBookId, books, sortBy, sortOrder),
+    [book.id, focusedBookId, books, sortBy, sortOrder]
+  );
+
   const bookFocusedLiftRef = useSpringRef();
   const [bookFocusedLiftSpring] = useSpring(
     {
@@ -67,13 +72,14 @@ function Book(book: BookType) {
             rotY: -Math.PI / 2,
           }
         : {
-            posY: 0,
+            posY: -dropHeight,
             rotX: book.isFeatured ? -Math.PI / 2 : 0,
             rotY: book.isFeatured ? -Math.PI / 2 : 0,
           },
       config: config.default,
+      delay: !isFocused && dropHeight > 0 ? 250 : 0,
     },
-    [isFocused]
+    [isFocused, dropHeight]
   );
 
   useChain(

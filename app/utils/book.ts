@@ -86,18 +86,27 @@ export const getSortedBooks = (
   sortBy: SortBy,
   sortOrder: SortOrder
 ) => {
-  return Object.values(books).sort((a, b) => {
-    switch (sortBy) {
-      case SortBy.Title:
-        return sortOrder === SortOrder.Asc
-          ? a.title.localeCompare(b.title)
-          : b.title.localeCompare(a.title);
-      case SortBy.Author:
-        return sortOrder === SortOrder.Asc
-          ? a.firstName.localeCompare(b.firstName)
-          : b.firstName.localeCompare(a.firstName);
-    }
-  });
+  return (
+    Object.values(books)
+      .sort((a, b) => {
+        switch (sortBy) {
+          case SortBy.Title:
+            return sortOrder === SortOrder.Asc
+              ? a.title.localeCompare(b.title)
+              : b.title.localeCompare(a.title);
+          case SortBy.Author:
+            return sortOrder === SortOrder.Asc
+              ? a.firstName.localeCompare(b.firstName)
+              : b.firstName.localeCompare(a.firstName);
+        }
+      })
+      // Move featured books to the top
+      .sort((a, b) => {
+        if (a.isFeatured && !b.isFeatured) return 1;
+        if (!a.isFeatured && b.isFeatured) return -1;
+        return 0;
+      })
+  );
 };
 
 export const getBookStackHeight = (books: BookMap): number => {
@@ -107,6 +116,26 @@ export const getBookStackHeight = (books: BookMap): number => {
     const [, height] = getBookSize(book.size);
     return acc + height;
   }, 0);
+};
+
+export const getDropHeight = (
+  bookId: BookId,
+  focusedBookId: BookId | null,
+  books: BookMap,
+  sortBy: SortBy,
+  sortOrder: SortOrder
+): number => {
+  if (focusedBookId !== null && focusedBookId !== bookId) {
+    const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
+    const bookIndex = sortedBooks.findIndex((book) => book.id === bookId);
+    const focusedBookIndex = sortedBooks.findIndex(
+      (book) => book.id === focusedBookId
+    );
+    if (bookIndex <= focusedBookIndex) return 0;
+    const [, height] = getBookSize(books[focusedBookId].size);
+    return height;
+  }
+  return 0;
 };
 
 export const getBookSortYPosition = (
