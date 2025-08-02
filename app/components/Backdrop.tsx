@@ -11,8 +11,7 @@ export default function Backdrop() {
   const meshRef = useRef<Mesh>(null);
 
   // Show backdrop when a book is focused
-  // const isVisible = snap.focusedBookId !== null;
-  const isVisible = false;
+  const isVisible = snap.focusedBookId !== null;
 
   // Spring for opacity animation
   const [spring] = useSpring(

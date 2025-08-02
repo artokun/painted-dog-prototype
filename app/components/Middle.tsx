@@ -1,7 +1,8 @@
-import { ScrollControls } from "@react-three/drei";
+import { Loader, ScrollControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import App from "./App";
 import * as THREE from "three";
+import { Suspense } from "react";
 
 export const Middle = () => {
   return (
@@ -16,9 +17,11 @@ export const Middle = () => {
           toneMappingExposure: 1.0,
         }}
       >
-        <ScrollControls pages={3} damping={0.2}>
-          <App />
-        </ScrollControls>
+        <Suspense fallback={null}>
+          <ScrollControls pages={3} damping={0.2}>
+            <App />
+          </ScrollControls>
+        </Suspense>
       </Canvas>
     </div>
   );

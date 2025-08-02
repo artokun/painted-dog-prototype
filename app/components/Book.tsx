@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Center, Text, Text3D } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import {
   animated,
@@ -25,20 +25,24 @@ function Book(book: BookType) {
   const { books, sortBy, sortOrder, focusedBookId } = useSnapshot(bookStore);
   const { camera } = useThree();
   const isFocused = useMemo(() => focusedBookId === book.id, [focusedBookId]);
+  const isSlidingRef = useRef(false);
 
   const bookRef = useSpringRef();
-  const bookSpring = useSpring({
-    ref: bookRef,
-    to: {
-      posX: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
-      posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
-      posZ: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
-      rotX: 0,
-      rotY: book.isFeatured ? 0 : Math.random() * 0.02 - 0.01,
-      rotZ: 0,
+  const [bookSpring] = useSpring(
+    {
+      ref: bookRef,
+      to: {
+        posX: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
+        posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
+        posZ: book.isFeatured ? 0 : Math.random() * 0.01 - 0.005,
+        rotX: 0,
+        rotY: book.isFeatured ? 0 : Math.random() * 0.02 - 0.01,
+        rotZ: 0,
+      },
+      config: config.gentle,
     },
-    config: config.gentle,
-  });
+    [sortBy, sortOrder]
+  );
 
   const bookFocusedSlideRef = useSpringRef();
   const [bookFocusedSlideSpring] = useSpring(
@@ -51,6 +55,12 @@ function Book(book: BookType) {
         : {
             posZ: 0,
           },
+      onStart: () => {
+        isSlidingRef.current = true;
+      },
+      onRest: () => {
+        isSlidingRef.current = false;
+      },
       config: config.gentle,
     },
     [isFocused]
@@ -62,7 +72,7 @@ function Book(book: BookType) {
   );
 
   const bookFocusedLiftRef = useSpringRef();
-  const [bookFocusedLiftSpring] = useSpring(
+  const [bookFocusedLiftSpring, liftApi] = useSpring(
     {
       ref: bookFocusedLiftRef,
       to: isFocused
@@ -98,6 +108,13 @@ function Book(book: BookType) {
       bookStore.focusedBookId = book.id;
     }
   };
+
+  useFrame(() => {
+    if (isFocused && !isSlidingRef.current) {
+      const targetOffset = camera.position.y - bookSpring.posY.get();
+      liftApi.start({ posY: targetOffset });
+    }
+  });
 
   const [width, height, depth] = getBookSize(book.size);
   const bookAuthor = `${book.firstName} ${book.surname}`;
