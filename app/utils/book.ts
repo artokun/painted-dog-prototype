@@ -1,4 +1,6 @@
 import { BookId, BookMap, SortBy, SortOrder } from "@/types/book";
+import { filterStore } from "../store/filterStore";
+import Fuse from "fuse.js";
 
 // Dynamic font sizing for spine based on title length
 export const getSpineFontSize = (text: string) => {
@@ -173,4 +175,46 @@ export const getCurrentBookIndex = (
 ) => {
   const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
   return sortedBooks.findIndex((book) => book.id === bookId);
+};
+
+// Configure Fuse.js for fuzzy searching books
+const fuseOptions = {
+  keys: [
+    { name: "title", weight: 0.7 },
+    { name: "firstName", weight: 0.15 },
+    { name: "surname", weight: 0.15 },
+  ],
+  threshold: 0.3, // Balance between strict and fuzzy (0 = exact, 1 = match anything)
+  includeScore: true,
+  includeMatches: true,
+  ignoreLocation: true, // Search anywhere in the string
+  shouldSort: true, // Sort by best match
+};
+
+export const filterBooksByFuzzySearch = (books: BookMap, search: string) => {
+  // If no search term, return all books
+  if (!search || search.trim() === "") {
+    return books;
+  }
+
+  // Create Fuse instance with the books
+  const bookArray = Object.values(books);
+  const fuse = new Fuse(bookArray, fuseOptions);
+
+  // Perform the search
+  const results = fuse.search(search);
+
+  // Convert results back to BookMap format
+  const filteredBooks: BookMap = Object.values(books).reduce((acc, book) => {
+    acc[book.id] = {
+      ...book,
+      hidden: false,
+    };
+    return acc;
+  }, {} as BookMap);
+  results.forEach((result) => {
+    filteredBooks[result.item.id].hidden = true;
+  });
+
+  return search.length > 1 ? filteredBooks : books;
 };
