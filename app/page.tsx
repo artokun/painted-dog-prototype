@@ -8,7 +8,7 @@ import { Foreground } from "./components/Foreground";
 export default function Home() {
   return (
     <AuthGate>
-      <main className="h-dvh w-screen relative bg-[#F9F6F0]">
+      <main className="h-dvh w-screen relative">
         <Background />
         <Middle />
         <Foreground />

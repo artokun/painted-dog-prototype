@@ -27,6 +27,7 @@ export const BookSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   surname: z.string().min(1, "Surname is required"),
   size: BookSizeSchema,
+  hidden: z.boolean().default(false),
   color: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Color must be a valid hex color"),

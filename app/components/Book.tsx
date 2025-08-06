@@ -33,11 +33,8 @@ const getOffsets = () => {
 
 function Book(book: BookType) {
   const { books, focusedBookId } = useSnapshot(bookStore);
-  const {
-    sortBy,
-    sortOrder,
-    isSorting: isAnimating,
-  } = useSnapshot(filterStore);
+  const { search } = useSnapshot(filterStore);
+  const { sortBy, sortOrder, isSorting } = useSnapshot(filterStore);
   const { camera } = useThree();
   const isFocused = focusedBookId === book.id;
   const isSlidingRef = useRef(false);
@@ -59,18 +56,26 @@ function Book(book: BookType) {
     posX:
       book.isFeatured || isFocused
         ? 0
-        : isAnimating
+        : isSorting
           ? getBookSize(book.size)[0] *
             2 *
             (currentBookIndex % 2 === 0 ? 1 : -1)
-          : offsets.posX,
+          : search.length > 1
+            ? book.hidden
+              ? 0
+              : offsets.posX
+            : offsets.posX,
     posY: bookPosition,
     posZ:
       book.isFeatured || isFocused
         ? 0
-        : isAnimating
+        : isSorting
           ? -getBookSize(book.size)[2] * 2
-          : offsets.posZ,
+          : search.length > 1
+            ? book.hidden
+              ? 0
+              : -0.5
+            : offsets.posZ,
     rotX: 0,
     rotY: book.isFeatured ? 0 : offsets.rotY,
     rotZ: 0,
@@ -89,9 +94,9 @@ function Book(book: BookType) {
       if (key === "posX") {
         return config.default;
       }
-      return config.stiff;
+      return config.default;
     },
-    delay: currentBookIndex * 25,
+    delay: currentBookIndex * (search.length > 1 ? 0 : 25),
   });
 
   const bookFocusedSlideRef = useSpringRef();
@@ -103,7 +108,7 @@ function Book(book: BookType) {
             posZ: calculateOptimalZDistance(),
           }
         : {
-            posZ: isAnimating ? -getBookSize(book.size)[2] - 0.001 : 0,
+            posZ: isSorting ? -getBookSize(book.size)[2] - 0.001 : 0,
           },
       onStart: () => {
         isSlidingRef.current = true;
@@ -244,6 +249,7 @@ function Book(book: BookType) {
             />
             <SpineText
               title={book.title}
+              hidden={search.length > 1 ? !book.hidden : false}
               author={bookAuthor}
               width={width}
               depth={depth}
@@ -259,11 +265,13 @@ const SpineText = ({
   title,
   author,
   width,
+  hidden,
   depth,
 }: {
   title: string;
   author: string;
   width: number;
+  hidden: boolean;
   depth: number;
 }) => {
   return (
@@ -273,6 +281,7 @@ const SpineText = ({
         rotation={[0, 0, 0]}
         fontSize={getSpineFontSize(title)}
         color="#ffffff"
+        fillOpacity={hidden ? 0.1 : 1}
         anchorX="left"
         anchorY="middle"
         font="/fonts/fields-bold.otf"
@@ -287,6 +296,7 @@ const SpineText = ({
         rotation={[0, 0, 0]}
         fontSize={0.005}
         color="#cccccc"
+        fillOpacity={hidden ? 0.1 : 1}
         anchorX="right"
         anchorY="middle"
         fontWeight={300}
