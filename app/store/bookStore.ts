@@ -1,25 +1,15 @@
 import { proxy } from "valtio";
-import {
-  BookId,
-  BookMap,
-  SortBy,
-  SortOrder,
-  validateBooks,
-} from "../../types/book";
+import { BookId, BookMap, validateBooks } from "../../types/book";
 import booksDataRaw from "../../public/books.json";
 
 interface BookState {
   focusedBookId: BookId | null;
   books: BookMap;
-  sortBy: SortBy;
-  sortOrder: SortOrder;
 }
 
 export const bookStore = proxy<BookState>({
   focusedBookId: null,
   books: {},
-  sortBy: SortBy.Title,
-  sortOrder: SortOrder.Desc,
 });
 
 export const loadBooks = () => {
