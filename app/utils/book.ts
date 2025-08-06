@@ -164,3 +164,13 @@ export const getBookSortYPosition = (
     return acc + height;
   }, ownHeight / 2);
 };
+
+export const getCurrentBookIndex = (
+  bookId: BookId,
+  books: BookMap,
+  sortBy: SortBy,
+  sortOrder: SortOrder
+) => {
+  const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
+  return sortedBooks.findIndex((book) => book.id === bookId);
+};

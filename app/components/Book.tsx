@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Center, Text, Text3D } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -16,33 +16,83 @@ import {
   calculateOptimalZDistance,
   getBookSize,
   getBookSortYPosition,
+  getCurrentBookIndex,
   getDropHeight,
   getSpineFontSize,
   wrapText,
 } from "../utils/book";
+import { filterStore } from "../store/filterStore";
+
+const getOffsets = () => {
+  return {
+    posX: Math.random() * 0.012 - 0.006,
+    rotY: Math.random() * 0.012 - 0.006,
+    posZ: Math.random() * 0.012 - 0.006,
+  };
+};
 
 function Book(book: BookType) {
-  const { books, sortBy, sortOrder, focusedBookId } = useSnapshot(bookStore);
+  const { books, focusedBookId } = useSnapshot(bookStore);
+  const {
+    sortBy,
+    sortOrder,
+    isSorting: isAnimating,
+  } = useSnapshot(filterStore);
   const { camera } = useThree();
-  const isFocused = useMemo(() => focusedBookId === book.id, [focusedBookId]);
+  const isFocused = focusedBookId === book.id;
   const isSlidingRef = useRef(false);
 
-  const bookRef = useSpringRef();
-  const [bookSpring, bookApi] = useSpring(
-    {
-      ref: bookRef,
-      to: {
-        posX: book.isFeatured ? 0 : Math.random() * 0.012 - 0.006,
-        posY: getBookSortYPosition(book.id, books, sortBy, sortOrder),
-        posZ: book.isFeatured ? 0 : Math.random() * 0.012 - 0.006,
-        rotX: 0,
-        rotY: book.isFeatured ? 0 : Math.random() * 0.012 - 0.006,
-        rotZ: 0,
-      },
-      config: config.gentle,
-    },
-    [sortBy, sortOrder]
+  const bookPosition = useMemo(
+    () => getBookSortYPosition(book.id, books, sortBy, sortOrder),
+    [book.id, books, sortBy, sortOrder]
   );
+
+  const offsets = useMemo(() => getOffsets(), []);
+  const currentBookIndex = getCurrentBookIndex(
+    book.id,
+    books,
+    sortBy,
+    sortOrder
+  );
+
+  const bookSpring = useSpring({
+    posX:
+      book.isFeatured || isFocused
+        ? 0
+        : isAnimating
+          ? getBookSize(book.size)[0] *
+            2 *
+            (currentBookIndex % 2 === 0 ? 1 : -1)
+          : offsets.posX,
+    posY: bookPosition,
+    posZ:
+      book.isFeatured || isFocused
+        ? 0
+        : isAnimating
+          ? -getBookSize(book.size)[2] * 2
+          : offsets.posZ,
+    rotX: 0,
+    rotY: book.isFeatured ? 0 : offsets.rotY,
+    rotZ: 0,
+    onRest: {
+      posZ: () => {
+        filterStore.isSorting = false;
+      },
+    },
+    config: (key) => {
+      if (key === "posZ") {
+        return config.stiff;
+      }
+      if (key === "posY") {
+        return config.slow;
+      }
+      if (key === "posX") {
+        return config.default;
+      }
+      return config.stiff;
+    },
+    delay: currentBookIndex * 25,
+  });
 
   const bookFocusedSlideRef = useSpringRef();
   const [bookFocusedSlideSpring] = useSpring(
@@ -53,7 +103,7 @@ function Book(book: BookType) {
             posZ: calculateOptimalZDistance(),
           }
         : {
-            posZ: 0,
+            posZ: isAnimating ? -getBookSize(book.size)[2] - 0.001 : 0,
           },
       onStart: () => {
         isSlidingRef.current = true;
@@ -120,10 +170,12 @@ function Book(book: BookType) {
   );
 
   useFrame(({ pointer }) => {
+    // tilt the book when focused
     if (isFocused && !isSlidingRef.current) {
       const targetOffset = camera.position.y - bookSpring.posY.get();
       liftApi.start({
         posY: targetOffset,
+        config: config.stiff,
       });
       const maxTilt = 0.15;
       const tiltX = pointer.x * maxTilt;
@@ -145,7 +197,16 @@ function Book(book: BookType) {
 
   return (
     <animated.group
-      name="book-group"
+      name="book"
+      userData={{
+        id: book.id,
+        width,
+        height,
+        depth,
+        x: bookSpring.posX,
+        y: bookSpring.posY,
+        z: bookSpring.posZ,
+      }}
       position-x={bookSpring.posX}
       position-y={bookSpring.posY}
       position-z={bookSpring.posZ}
@@ -166,7 +227,7 @@ function Book(book: BookType) {
           rotation-x={bookFocusedTiltGroupSpring.rotX}
           rotation-z={bookFocusedTiltGroupSpring.rotZ}
         >
-          <mesh castShadow receiveShadow>
+          <mesh castShadow receiveShadow name="book-mesh">
             <boxGeometry args={[width, height, depth]} />
             <meshStandardMaterial
               color={book.color}

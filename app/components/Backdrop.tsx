@@ -7,11 +7,11 @@ import { bookStore } from "../store/bookStore";
 import { Mesh } from "three";
 
 export default function Backdrop() {
-  const snap = useSnapshot(bookStore);
+  const { focusedBookId } = useSnapshot(bookStore);
   const meshRef = useRef<Mesh>(null);
 
   // Show backdrop when a book is focused
-  const isVisible = snap.focusedBookId !== null;
+  const isVisible = focusedBookId !== null;
 
   // Spring for opacity animation
   const [spring] = useSpring(
