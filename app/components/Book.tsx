@@ -133,12 +133,12 @@ function Book(book: BookType) {
       to: isFocused
         ? {
             posY: camera.position.y - bookSpring.posY.get(),
-            rotX: -Math.PI / 2,
+            rotX: Math.PI / 2,
             rotY: -Math.PI / 2,
           }
         : {
             posY: -dropHeight,
-            rotX: book.isFeatured ? -Math.PI / 2 : 0,
+            rotX: book.isFeatured ? Math.PI / 2 : 0,
             rotY: book.isFeatured ? -Math.PI / 2 : 0,
           },
       config: config.default,
@@ -326,19 +326,16 @@ const CoverText = ({
 
   return lines.map((line, index) => (
     <group key={index}>
+      {/* Adjust the cover title block vertical position (Y axis). Increase to move up, decrease to move down. */}
       <Center
         key={index}
-        position={[
-          0.01 - (index * lineHeight - startY),
-          -height / 2 - 0.0001,
-          0,
-        ]}
+        position={[-0.01 + (index * lineHeight - startY), height / 2, 0]}
       >
         <Text3D
-          rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
           font="/FSP DEMO - Fields Display_Bold.json"
           size={0.009}
-          height={0.0005} // Extrusion depth
+          height={0.0001} // Extrusion depth
           curveSegments={12}
           bevelEnabled={true}
           bevelThickness={0.00005}
@@ -357,8 +354,8 @@ const CoverText = ({
         </Text3D>
       </Center>
       <Text
-        position={[-0.02, -height / 2 - 0.0002, 0]}
-        rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+        position={[0.01, height / 2 + 0.0002, 0]}
+        rotation={[-Math.PI / 2, 0, Math.PI / 2]}
         fontSize={0.006}
         color="#cccccc"
         anchorX="center"
