@@ -37,21 +37,10 @@ export default function Backdrop() {
       receiveShadow
       ref={meshRef}
       position={[0, 0, zPosition]}
-      onPointerDown={(e) => {
-        // Prevent clicks from passing through to objects behind
-        e.stopPropagation();
-      }}
-      onPointerOver={(e) => {
-        // Also stop hover events
-        e.stopPropagation();
-      }}
-      onPointerMove={(e) => {
-        // Stop pointer move events too
-        e.stopPropagation();
-      }}
-      onPointerOut={(e) => {
-        // Stop pointer out events
-        e.stopPropagation();
+      onClick={(e) => {
+        if (focusedBookId !== null) {
+          e.stopPropagation();
+        }
       }}
     >
       <planeGeometry args={[10, 10, 100, 100]} />

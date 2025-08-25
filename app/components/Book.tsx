@@ -186,7 +186,7 @@ function Book(book: BookType) {
       const tiltX = pointer.x * maxTilt;
       const tiltY = pointer.y * maxTilt;
       bookFocusedTiltGroupApi.start({
-        rotX: tiltX,
+        rotX: -tiltX,
         rotZ: tiltY,
       });
     } else {
@@ -354,7 +354,7 @@ const CoverText = ({
         </Text3D>
       </Center>
       <Text
-        position={[0.01, height / 2 + 0.0002, 0]}
+        position={[lines.length > 3 ? 0.02 : 0.01, height / 2 + 0.0002, 0]}
         rotation={[-Math.PI / 2, 0, Math.PI / 2]}
         fontSize={0.006}
         color="#cccccc"
