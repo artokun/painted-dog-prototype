@@ -5,9 +5,12 @@ import { useSpring, animated, config } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { Mesh } from "three";
+import { filterStore, FilterView } from "../store/filterStore";
 
 export default function Backdrop() {
   const { focusedBookId } = useSnapshot(bookStore);
+  const { view } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
   const meshRef = useRef<Mesh>(null);
 
   // Show backdrop when a book is focused
@@ -25,7 +28,7 @@ export default function Backdrop() {
 
   // Position the backdrop between the stack and featured book
   // Using a Z position that's closer than the featured book but further than the stack
-  const zPosition = 0.09; // Halfway between stack (0) and featured book (~0.3)
+  const zPosition = isGridMode ? -0.45 : 0.09; // Halfway between stack (0) and featured book (~0.3)
 
   // Only render the mesh when it should be interactive
   if (!isVisible && spring.opacity.get() <= 0.01) {

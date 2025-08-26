@@ -1,17 +1,21 @@
 import { animated, config, SpringValue, useSpring } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
+import { filterStore, FilterView } from "../store/filterStore";
 
 export default function Floor() {
   const { focusedBookId } = useSnapshot(bookStore);
+  const { view } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
+  const hideFloor = isGridMode || focusedBookId !== null;
 
   const [floorSpring, api] = useSpring(
     () => ({
-      opacity: focusedBookId !== null ? 0 : 1,
+      opacity: hideFloor ? 0 : 1,
       config: config.gentle,
-      delay: focusedBookId !== null ? 600 : 0,
+      delay: hideFloor ? 600 : 0,
     }),
-    [focusedBookId]
+    [focusedBookId, isGridMode]
   );
 
   return (

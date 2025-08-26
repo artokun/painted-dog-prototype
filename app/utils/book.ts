@@ -1,6 +1,7 @@
 import { BookId, BookMap, SortBy, SortOrder } from "@/types/book";
 import { filterStore } from "../store/filterStore";
 import Fuse from "fuse.js";
+import * as THREE from "three";
 
 // Dynamic font sizing for spine based on title length
 export const getSpineFontSize = (text: string) => {
@@ -40,13 +41,13 @@ export const wrapText = (text: string, maxLength: number = 12): string[] => {
 };
 
 // Calculate optimal Z distance for focused book to fill 75% of viewport height
-export const calculateOptimalZDistance = () => {
+export const calculateOptimalZDistance = (camera: THREE.Camera) => {
   // Use a fixed reference book height so all books appear the same size on screen
   // Using medium book width (0.185) as the reference since it's in the middle of the range
   const referenceBookHeight = 0.185;
 
   // VIEWPORT_PERCENTAGE: Adjust this value to change how much of the screen the featured book fills
-  const targetScreenPercentage = 1.6;
+  const targetScreenPercentage = 0.8;
 
   // Camera FOV (from page.tsx)
   const fov = 45;
@@ -63,7 +64,7 @@ export const calculateOptimalZDistance = () => {
     referenceBookHeight /
     (targetScreenPercentage * viewportHeightAtUnitDistance);
 
-  return distance;
+  return camera.position.z - distance;
 };
 
 const bookSizeMap: Record<
@@ -145,12 +146,12 @@ export const getBookSortYPosition = (
   books: BookMap,
   sortBy: SortBy,
   sortOrder: SortOrder
-): number => {
+): { posX: number; posY: number; posZ: number } => {
   const { size, isFeatured } = books[bookId];
   const [ownWidth, ownHeight] = getBookSize(size);
 
   if (isFeatured) {
-    return getBookStackHeight(books) + ownWidth / 2;
+    return { posX: 0, posY: getBookStackHeight(books) + ownWidth / 2, posZ: 0 };
   }
 
   const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
@@ -161,12 +162,64 @@ export const getBookSortYPosition = (
   const bookIndex = filteredBooks.findIndex((book) => book.id === bookId);
   const slicedBooks = filteredBooks.slice(0, bookIndex);
 
-  return slicedBooks.reduce((acc, book) => {
+  const y = slicedBooks.reduce((acc, book) => {
     const [, height] = getBookSize(book.size);
     return acc + height;
   }, ownHeight / 2);
+
+  return { posX: 0, posY: y, posZ: 0 };
 };
 
+export const calculateSortGridPosition = (
+  bookId: BookId,
+  books: BookMap,
+  sortBy: SortBy,
+  sortOrder: SortOrder
+): { posX: number; posY: number; posZ: number } => {
+  const columns = 4;
+  const bookIndex = getCurrentBookIndex(bookId, books, sortBy, sortOrder);
+  const gridItemWidth = 0.2;
+  const gridItemHeight = 0.24;
+  const columnSpacing = 0.01;
+  const rowSpacing = 0.01;
+  const baseY = 0.75; // top row baseline
+
+  const totalBooks = Object.keys(books).length;
+  const reversedIndex = totalBooks - 1 - bookIndex;
+  const row = Math.floor(reversedIndex / columns);
+  const col = reversedIndex % columns;
+
+  const xStep = gridItemWidth + columnSpacing;
+  const yStep = gridItemHeight + rowSpacing;
+
+  // Center columns around 0 on X and move rows downward from baseY on Y
+  const x = (col - (columns - 1) / 2) * xStep;
+  const y = baseY - row * yStep;
+  const z = -0.5;
+
+  return { posX: x, posY: y, posZ: z };
+};
+
+export const getGridHeight = (
+  books: BookMap
+): { topLimit: number; bottomLimit: number } => {
+  const columns = 4;
+  const gridItemHeight = 0.24;
+  const rowSpacing = 0.01;
+  const baseY = 0.75; // top row baseline
+
+  const totalBooks = Object.keys(books).length;
+  const totalRows = Math.ceil(totalBooks / columns);
+
+  // Top limit is the baseline Y position
+  const topLimit = baseY + gridItemHeight / 2;
+
+  // Bottom limit is calculated based on the number of rows
+  const yStep = gridItemHeight + rowSpacing;
+  const bottomLimit = baseY - (totalRows - 1) * yStep - gridItemHeight / 2;
+
+  return { topLimit, bottomLimit };
+};
 export const getCurrentBookIndex = (
   bookId: BookId,
   books: BookMap,

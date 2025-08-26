@@ -42,7 +42,22 @@ const FilterBarToggle = ({
           <button
             onClick={() => {
               if (isSorting || isChangingView) return;
-              filterStore.view = filterView;
+              
+              // Start transition
+              if (filterStore.view !== filterView) {
+                filterStore.isChangingView = true;
+                
+                // Clear any focused book when changing views
+                bookStore.focusedBookId = null;
+                
+                // Change the view
+                filterStore.view = filterView;
+                
+                // End transition after animations complete
+                setTimeout(() => {
+                  filterStore.isChangingView = false;
+                }, 1500); // Allow time for staggered animations
+              }
             }}
             className="flex items-center justify-center font-[500] h-12 min-w-12 p-2 cursor-pointer"
           >

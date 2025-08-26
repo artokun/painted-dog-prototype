@@ -4,12 +4,14 @@ import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
-import { getBookStackHeight } from "../utils/book";
+import { getBookStackHeight, getGridHeight } from "../utils/book";
+import { filterStore, FilterView } from "../store/filterStore";
 
 const CameraController = memo(function CameraController() {
   const { camera } = useThree();
   const mouseX = useRef(0);
-
+  const { view } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
   // Get book state
 
   const { focusedBookId, books } = useSnapshot(bookStore);
@@ -40,8 +42,21 @@ const CameraController = memo(function CameraController() {
   //     ? bookPositions[bookPositions.length - 1] + 0.0
   //     : stackTop;
 
-  const topLimit = getBookStackHeight(books) + 0.1;
-  const bottomLimit = 0.13;
+  // Calculate height limits based on view mode
+  const { topLimit, bottomLimit } = useMemo(() => {
+    if (isGridMode) {
+      const gridLimits = getGridHeight(books);
+      return {
+        topLimit: gridLimits.topLimit - 0.3,
+        bottomLimit: gridLimits.bottomLimit + 0.3,
+      };
+    } else {
+      return {
+        topLimit: getBookStackHeight(books) + 0.1,
+        bottomLimit: 0.13,
+      };
+    }
+  }, [isGridMode, books]);
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({
@@ -61,7 +76,7 @@ const CameraController = memo(function CameraController() {
       const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
       mouseX.current = normalizedX;
 
-      if (hasFocusedBook) {
+      if (hasFocusedBook || isGridMode) {
         // Disable rotation when book is focused
         rotationApi.start({ rotation: 0 });
       } else {
@@ -72,7 +87,7 @@ const CameraController = memo(function CameraController() {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [hasFocusedBook, rotationApi]);
+  }, [hasFocusedBook, rotationApi, isGridMode]);
 
   // Apply camera transformations in useFrame (required for camera updates)
   useFrame(() => {

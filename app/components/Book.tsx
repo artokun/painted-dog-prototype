@@ -14,6 +14,7 @@ import { bookStore } from "../store/bookStore";
 import { Book as BookType } from "@/types/book";
 import {
   calculateOptimalZDistance,
+  calculateSortGridPosition,
   getBookSize,
   getBookSortYPosition,
   getCurrentBookIndex,
@@ -21,7 +22,7 @@ import {
   getSpineFontSize,
   wrapText,
 } from "../utils/book";
-import { filterStore } from "../store/filterStore";
+import { filterStore, FilterView } from "../store/filterStore";
 
 const getOffsets = () => {
   return {
@@ -38,10 +39,15 @@ function Book(book: BookType) {
   const { camera } = useThree();
   const isFocused = focusedBookId === book.id;
   const isSlidingRef = useRef(false);
+  const { view } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
 
   const bookPosition = useMemo(
-    () => getBookSortYPosition(book.id, books, sortBy, sortOrder),
-    [book.id, books, sortBy, sortOrder]
+    () =>
+      !isGridMode
+        ? getBookSortYPosition(book.id, books, sortBy, sortOrder)
+        : calculateSortGridPosition(book.id, books, sortBy, sortOrder),
+    [book.id, books, sortBy, sortOrder, isGridMode]
   );
 
   const offsets = useMemo(() => getOffsets(), []);
@@ -52,52 +58,97 @@ function Book(book: BookType) {
     sortOrder
   );
 
-  const bookSpring = useSpring({
-    posX:
-      book.isFeatured || isFocused
-        ? 0
-        : isSorting
-          ? getBookSize(book.size)[0] *
-            2 *
-            (currentBookIndex % 2 === 0 ? 1 : -1)
-          : search.length > 1
-            ? book.hidden
-              ? 0
-              : offsets.posX
-            : offsets.posX,
-    posY: bookPosition,
-    posZ:
-      book.isFeatured || isFocused
-        ? 0
-        : isSorting
-          ? -getBookSize(book.size)[2] * 2
-          : search.length > 1
-            ? book.hidden
-              ? 0
-              : -0.5
-            : offsets.posZ,
-    rotX: 0,
-    rotY: book.isFeatured ? 0 : offsets.rotY,
-    rotZ: 0,
-    onRest: {
-      posZ: () => {
-        filterStore.isSorting = false;
+  const stackAnimation = useMemo(
+    () => ({
+      posX:
+        book.isFeatured || isFocused
+          ? 0
+          : isSorting
+            ? getBookSize(book.size)[0] *
+              2 *
+              (currentBookIndex % 2 === 0 ? 1 : -1)
+            : search.length > 1
+              ? book.hidden
+                ? 0
+                : offsets.posX
+              : offsets.posX,
+      posY: bookPosition.posY,
+      posZ:
+        book.isFeatured || isFocused
+          ? 0
+          : isSorting
+            ? -getBookSize(book.size)[2] * 2
+            : search.length > 1
+              ? book.hidden
+                ? 0
+                : -0.5
+              : offsets.posZ,
+      rotX: 0,
+      rotY: book.isFeatured ? 0 : offsets.rotY,
+      rotZ: 0,
+      onRest: () => {
+        // Reset isSorting when animation completes
+        if (filterStore.isSorting) {
+          filterStore.isSorting = false;
+        }
       },
-    },
-    config: (key) => {
-      if (key === "posZ") {
-        return config.stiff;
-      }
-      if (key === "posY") {
-        return config.slow;
-      }
-      if (key === "posX") {
-        return config.default;
-      }
-      return config.default;
-    },
-    delay: currentBookIndex * (search.length > 1 ? 0 : 25),
-  });
+      config: isGridMode
+        ? config.default
+        : (key: string) => {
+            if (key === "posZ") {
+              return config.stiff;
+            }
+            if (key === "posY") {
+              return config.slow;
+            }
+            if (key === "posX") {
+              return config.default;
+            }
+            return config.default;
+          },
+      delay: isFocused ? 0 : currentBookIndex * (search.length > 1 ? 0 : 25),
+    }),
+    [
+      book.isFeatured,
+      isFocused,
+      isSorting,
+      search.length,
+      currentBookIndex,
+      offsets,
+      bookPosition,
+      isGridMode,
+    ]
+  );
+
+  const gridAnimation = useMemo(
+    () => ({
+      posX: isFocused ? 0 : bookPosition.posX,
+      posY: bookPosition.posY,
+      posZ: bookPosition.posZ,
+      rotX: 0,
+      rotY: 0,
+      rotZ: 0,
+      onRest: () => {
+        // Reset isSorting when any animation completes
+        if (filterStore.isSorting) {
+          filterStore.isSorting = false;
+        }
+      },
+      delay: isGridMode
+        ? 0
+        : (Object.keys(books).length - currentBookIndex) * 50,
+    }),
+    [
+      bookPosition.posX,
+      bookPosition.posY,
+      bookPosition.posZ,
+      Object.keys(books).length,
+      currentBookIndex,
+      isFocused,
+    ]
+  );
+
+  const bookSpring = useSpring(isGridMode ? gridAnimation : stackAnimation);
 
   const bookFocusedSlideRef = useSpringRef();
   const [bookFocusedSlideSpring] = useSpring(
@@ -105,7 +156,8 @@ function Book(book: BookType) {
       ref: bookFocusedSlideRef,
       to: isFocused
         ? {
-            posZ: calculateOptimalZDistance(),
+            // posZ: calculateOptimalZDistance(camera),
+            posZ: calculateOptimalZDistance(camera) - bookPosition.posZ,
           }
         : {
             posZ: isSorting ? -getBookSize(book.size)[2] - 0.001 : 0,
@@ -116,9 +168,9 @@ function Book(book: BookType) {
       onRest: () => {
         isSlidingRef.current = false;
       },
-      config: config.gentle,
+      config: isGridMode ? config.default : config.gentle,
     },
-    [isFocused]
+    [isFocused, isGridMode]
   );
 
   const dropHeight = useMemo(
@@ -136,22 +188,34 @@ function Book(book: BookType) {
             rotX: Math.PI / 2,
             rotY: -Math.PI / 2,
           }
-        : {
-            posY: -dropHeight,
-            rotX: book.isFeatured ? Math.PI / 2 : 0,
-            rotY: book.isFeatured ? -Math.PI / 2 : 0,
-          },
+        : isGridMode
+          ? isFocused
+            ? {
+                posY: camera.position.y,
+                rotX: Math.PI / 2,
+                rotY: -Math.PI / 2,
+              }
+            : {
+                posY: 0,
+                rotX: Math.PI / 2,
+                rotY: -Math.PI / 2,
+              }
+          : {
+              posY: -dropHeight,
+              rotX: book.isFeatured ? Math.PI / 2 : 0,
+              rotY: book.isFeatured ? -Math.PI / 2 : 0,
+            },
       config: config.default,
-      delay: !isFocused && dropHeight > 0 ? 250 : 0,
+      delay: isGridMode ? 0 : !isFocused && dropHeight > 0 ? 250 : 0,
     },
-    [isFocused, dropHeight]
+    [isFocused, dropHeight, isGridMode]
   );
 
   useChain(
     isFocused
       ? [bookFocusedSlideRef, bookFocusedLiftRef]
       : [bookFocusedLiftRef, bookFocusedSlideRef],
-    isFocused ? [0, 0.3] : [0, 0.5]
+    isGridMode ? [0, 0] : isFocused ? [0, 0.3] : [0, 0.5]
   );
 
   const handleClick = (e: React.MouseEvent<THREE.Mesh>) => {
