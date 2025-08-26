@@ -5,13 +5,14 @@ import Backdrop from "./Backdrop";
 import Floor from "./Floor";
 import BookStack from "./BookStack";
 import { useSnapshot } from "valtio";
-import { filterStore } from "../store/filterStore";
-import { animated, useSpring } from "@react-spring/three";
+import { filterStore, FilterView } from "../store/filterStore";
+import { animated, config, useSpring } from "@react-spring/three";
 import { Vector3 } from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 
 export default function App() {
-  const { search } = useSnapshot(filterStore);
+  const { search, view } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
 
   const environmentIntensity = useMemo(() => {
     return search.length > 1 ? 0 : 0.97;
@@ -19,7 +20,9 @@ export default function App() {
 
   const spring = useSpring({
     environmentIntensity,
-    directionalLightIntensity: search.length > 1 ? 0 : 2.2,
+    directionalLightIntensity: isGridMode ? 0.5 : search.length > 1 ? 0 : 2.2,
+    position: isGridMode ? new Vector3(-2, 0, 5) : new Vector3(2, 4, 2),
+    config: isGridMode ? config.default : config.gentle,
   });
 
   const depthBuffer = useDepthBuffer({ frames: 1 });
@@ -34,10 +37,11 @@ export default function App() {
       />
       <fog attach="fog" args={["#202020", 5, 10]} />
       <animated.directionalLight
-        position={[2, 4, 2]}
+        position={spring.position}
+        lookAt={[0, 0, 0]}
         intensity={spring.directionalLightIntensity}
         color="#FFFFFF"
-        castShadow
+        castShadow={!isGridMode}
         shadow-mapSize={[4096, 4096]}
         shadow-camera-near={0.001}
         shadow-camera-far={10}
@@ -61,7 +65,8 @@ export default function App() {
 
 function MovingSpot({ vec = new Vector3(), ...props }) {
   const light = useRef<any>(null);
-  const { search } = useSnapshot(filterStore);
+  const { search, view } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
   const viewport = useThree((state) => state.viewport);
 
   useFrame((state) => {
@@ -73,7 +78,7 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
       ),
       0.1
     );
-    light.current.intensity = search.length > 1 ? 4 : 0;
+    light.current.intensity = !isGridMode && search.length > 1 ? 4 : 0;
     light.current.target.updateMatrixWorld();
   });
   return (

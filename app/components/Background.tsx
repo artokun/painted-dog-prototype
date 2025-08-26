@@ -1,12 +1,13 @@
 import { useSnapshot } from "valtio";
-import { filterStore } from "../store/filterStore";
+import { filterStore, FilterView } from "../store/filterStore";
 import { animated, useSpring } from "@react-spring/web";
 
 export const Background = () => {
-  const { search } = useSnapshot(filterStore);
+  const { search, view } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
 
   const spring = useSpring({
-    color: search.length <= 1 ? "#F9F6F0" : "#111",
+    color: !isGridMode && search.length > 1 ? "#111" : "#F9F6F0",
   });
 
   return (
