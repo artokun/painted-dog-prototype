@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+// Define the BookLink schema
+export const BookLinkSchema = z.object({
+  content: z.string().min(1, "Content is required"),
+  href: z.string().min(1, "Href is required"),
+  isExternal: z.boolean(),
+});
+
 // Define the book size options
 export const BookSizeSchema = z.enum([
   "thin",
@@ -38,12 +45,15 @@ export const BookSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Publish date must be in YYYY-MM-DD format"),
   genre: z.string().min(1, "Genre is required"),
   isFeatured: z.boolean(),
+  featuredArticle: BookLinkSchema.optional(),
+  featuredPodcastEpisode: BookLinkSchema.optional(),
 });
 
 // Define the array schema
 export const BooksArraySchema = z.array(BookSchema);
 
 // Export types
+export type BookLink = z.infer<typeof BookLinkSchema>;
 export type Book = z.infer<typeof BookSchema>;
 export type BookSize = z.infer<typeof BookSizeSchema>;
 export type BooksArray = z.infer<typeof BooksArraySchema>;

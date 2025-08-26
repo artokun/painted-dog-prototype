@@ -4,11 +4,13 @@ import booksDataRaw from "../../public/books.json";
 
 interface BookState {
   focusedBookId: BookId | null;
+  hoveredBookId: BookId | null;
   books: BookMap;
 }
 
 export const bookStore = proxy<BookState>({
   focusedBookId: null,
+  hoveredBookId: null,
   books: {},
 });
 

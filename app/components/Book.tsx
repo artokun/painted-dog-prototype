@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
-import { Center, Text, Text3D } from "@react-three/drei";
+import { useMemo, useRef, useState } from "react";
+import { Center, Text, Text3D, TextProps, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
-import { Book as BookType } from "@/types/book";
+import { Book as BookType, BookLink } from "@/types/book";
 import {
   calculateOptimalZDistance,
   calculateSortGridPosition,
@@ -23,6 +23,8 @@ import {
   wrapText,
 } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
+import { useRouter } from "next/navigation";
+import { lerp } from "three/src/math/MathUtils.js";
 
 const getOffsets = () => {
   return {
@@ -33,7 +35,7 @@ const getOffsets = () => {
 };
 
 function Book(book: BookType) {
-  const { books, focusedBookId } = useSnapshot(bookStore);
+  const { books, focusedBookId, hoveredBookId } = useSnapshot(bookStore);
   const { search } = useSnapshot(filterStore);
   const { sortBy, sortOrder, isSorting } = useSnapshot(filterStore);
   const { camera } = useThree();
@@ -283,6 +285,10 @@ function Book(book: BookType) {
       rotation-y={bookSpring.rotY}
       rotation-z={bookSpring.rotZ}
       onClick={handleClick}
+      onPointerEnter={(e) => {
+        e.stopPropagation();
+        bookStore.hoveredBookId = book.id;
+      }}
     >
       <animated.group
         name="book-focused-group"
@@ -321,6 +327,34 @@ function Book(book: BookType) {
           </group>
         </animated.group>
       </animated.group>
+      <group position={[-0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
+        {book.featuredArticle && (
+          <Link3d
+            {...book.featuredArticle}
+            align="left"
+            visible={
+              hoveredBookId === book.id &&
+              !isFocused &&
+              !isGridMode &&
+              !isSorting
+            }
+          />
+        )}
+      </group>
+      <group position={[0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
+        {book.featuredPodcastEpisode && (
+          <Link3d
+            {...book.featuredPodcastEpisode}
+            align="right"
+            visible={
+              hoveredBookId === book.id &&
+              !isFocused &&
+              !isGridMode &&
+              !isSorting
+            }
+          />
+        )}
+      </group>
     </animated.group>
   );
 }
@@ -433,6 +467,57 @@ const CoverText = ({
       </Text>
     </group>
   ));
+};
+
+const Link3d = ({
+  content,
+  href,
+  isExternal,
+  align,
+  visible,
+}: BookLink & { align: "left" | "right"; visible: boolean }) => {
+  const [hovered, setHovered] = useState(false);
+  const router = useRouter();
+  const ref = useRef<TextProps>(null);
+
+  useFrame(() => {
+    if (ref.current) {
+      ref.current.fillOpacity = lerp(
+        ref.current.fillOpacity || 0,
+        visible ? 1 : 0,
+        0.2
+      );
+    }
+  });
+  useCursor(hovered, "pointer");
+
+  return (
+    <Text
+      ref={ref}
+      fontSize={0.003}
+      color="#000000"
+      anchorX={align}
+      castShadow={visible}
+      textAlign={align}
+      anchorY="middle"
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+
+        alert("clicked link, needs setting up");
+        return;
+
+        if (isExternal) {
+          window.open(href, "_blank");
+        } else {
+          router.push(href);
+        }
+      }}
+    >
+      {content}
+    </Text>
+  );
 };
 
 export default Book;
