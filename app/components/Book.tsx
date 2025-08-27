@@ -44,13 +44,21 @@ function Book(book: BookType) {
   const { view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
   const isHovered = hoveredBookId === book.id;
+  const lastViewRef = useRef(view);
+  const wasFocusedRef = useRef(false);
 
-  useFrame(() => {
-    if (!(camera instanceof THREE.PerspectiveCamera)) return;
-    camera.fov = lerp(camera.fov, isGridMode ? 10 : 45, 0.01);
-    camera.zoom = lerp(camera.zoom, isGridMode ? 0.2 : 1, 0.01);
-    camera.updateProjectionMatrix();
-  });
+  useEffect(() => {
+    if (lastViewRef.current !== view) {
+      bookStore.hoveredBookId = null;
+    }
+    lastViewRef.current = view;
+  }, [view]);
+
+  useEffect(() => {
+    if (wasFocusedRef.current !== Boolean(focusedBookId === book.id)) {
+      wasFocusedRef.current = Boolean(focusedBookId === book.id);
+    }
+  }, [focusedBookId]);
 
   const bookPosition = useMemo(
     () =>
@@ -67,6 +75,8 @@ function Book(book: BookType) {
     sortBy,
     sortOrder
   );
+
+  const reverseBookIndex = Object.keys(books).length - 1 - currentBookIndex;
 
   const stackAnimation = useMemo(
     () => ({
@@ -102,31 +112,28 @@ function Book(book: BookType) {
           filterStore.isSorting = false;
         }
       },
-      config: isGridMode
-        ? config.default
-        : (key: string) => {
-            if (key === "posZ") {
-              return config.stiff;
-            }
-            if (key === "posY") {
-              return config.slow;
-            }
-            if (key === "posX") {
-              return config.default;
-            }
+      config: (key: string) => {
+        switch (key) {
+          case "posY":
             return config.default;
-          },
-      delay: isFocused ? 0 : currentBookIndex * (search.length > 1 ? 0 : 25),
+          case "posZ":
+            return config.default;
+          default:
+            return isGridMode ? config.gentle : config.default;
+        }
+      },
+      delay: (_key: string) => (isFocused ? 0 : currentBookIndex * 10),
     }),
     [
       book.isFeatured,
       isFocused,
+      isGridMode,
       isSorting,
       search.length,
       currentBookIndex,
       offsets,
       bookPosition,
-      isGridMode,
+      reverseBookIndex,
     ]
   );
 
@@ -138,22 +145,27 @@ function Book(book: BookType) {
       rotX: 0,
       rotY: 0,
       rotZ: 0,
-      onRest: () => {
-        // Reset isSorting when any animation completes
-        if (filterStore.isSorting) {
-          filterStore.isSorting = false;
+      delay: (key: string) => {
+        switch (key) {
+          case "posX":
+            return isFocused
+              ? 0
+              : wasFocusedRef.current
+                ? 0
+                : reverseBookIndex * 50;
+          case "posY":
+          case "posZ":
+            return reverseBookIndex * 50;
+          default:
+            return 0;
         }
       },
-      delay: isGridMode
-        ? 0
-        : (Object.keys(books).length - currentBookIndex) * 50,
     }),
     [
       bookPosition.posX,
       bookPosition.posY,
       bookPosition.posZ,
-      Object.keys(books).length,
-      currentBookIndex,
+      reverseBookIndex,
       isFocused,
     ]
   );
@@ -216,7 +228,17 @@ function Book(book: BookType) {
               rotY: book.isFeatured ? -Math.PI / 2 : 0,
             },
       config: config.default,
-      delay: isGridMode ? 0 : !isFocused && dropHeight > 0 ? 250 : 0,
+      delay: (key: string) => {
+        switch (key) {
+          case "posY":
+            return isGridMode ? 0 : 250;
+          case "rotX":
+          case "rotY":
+            return isGridMode && !isFocused ? 50 : !isFocused ? 250 : 0;
+          default:
+            return isGridMode ? 0 : !isFocused && dropHeight > 0 ? 250 : 0;
+        }
+      },
     },
     [isFocused, dropHeight, isGridMode]
   );

@@ -6,6 +6,7 @@ import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
 import { getBookStackHeight, getGridHeight } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
+import { lerp } from "three/src/math/MathUtils.js";
 
 const CameraController = memo(function CameraController() {
   const { camera } = useThree();
@@ -60,7 +61,7 @@ const CameraController = memo(function CameraController() {
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({
-    cameraY: topLimit,
+    cameraY: lerp(topLimit, bottomLimit, scroll.offset),
     config: { mass: 1, tension: 120, friction: 20 },
   }));
 
