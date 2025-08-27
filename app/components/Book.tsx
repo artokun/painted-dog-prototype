@@ -233,6 +233,7 @@ function Book(book: BookType) {
 
     if (isFocused) {
       bookStore.focusedBookId = null;
+      bookStore.hoveredBookId = null;
     } else {
       bookStore.focusedBookId = book.id;
     }
@@ -242,7 +243,7 @@ function Book(book: BookType) {
   const [bookFocusedTiltGroupSpring, bookFocusedTiltGroupApi] = useSpring(
     {
       ref: bookFocusedTiltGroupRef,
-      to: { rotX: 0, rotZ: 0 },
+      to: { rotX: 0, rotZ: 0, posY: 0 },
       config: { mass: 1, tension: 350, friction: 40 },
     },
     [isFocused, isHovered]
@@ -264,16 +265,24 @@ function Book(book: BookType) {
         rotZ: tiltY,
       });
     } else {
-      bookFocusedTiltGroupApi.start({
-        rotX: isHovered && !isFocused ? Math.PI / 12 : 0,
-        rotZ: 0,
-        config: (key: string) => {
-          if (key === "rotX") {
-            return config.stiff;
-          }
-          return config.default;
-        },
-      });
+      if (isGridMode) {
+        bookFocusedTiltGroupApi.start({
+          rotX: isHovered && !isFocused ? Math.PI / 12 : 0,
+          rotZ: 0,
+          config: (key: string) => {
+            if (key === "rotX") {
+              return config.stiff;
+            }
+            return config.default;
+          },
+        });
+      } else {
+        bookFocusedTiltGroupApi.start({
+          rotX: 0,
+          rotZ: 0,
+          posY: isHovered && !isFocused && !book.isFeatured ? 0.01 : 0,
+        });
+      }
     }
   });
 
@@ -318,6 +327,7 @@ function Book(book: BookType) {
       >
         <animated.group
           name="book-focused-tilt-group"
+          position-z={bookFocusedTiltGroupSpring.posY}
           rotation-x={bookFocusedTiltGroupSpring.rotX}
           rotation-z={bookFocusedTiltGroupSpring.rotZ}
         >
