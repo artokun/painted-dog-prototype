@@ -8,8 +8,8 @@ export const Header = () => {
   const isSearching = search.length > 1;
   const spring = useSpring({
     color: !isSearching ? "#000000" : "#ffffff",
-    borderColor: !isSearching ? "#000000" : "#dadada",
-    backgroundColor: !isSearching ? "#ffffff11" : "#00000000",
+    borderColor: !isSearching ? "#00000000" : "#dadada66",
+    backgroundColor: !isSearching ? "#ffffff22" : "#00000000",
   });
   return (
     <animated.div

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Center, Text, Text3D, TextProps, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -43,6 +43,14 @@ function Book(book: BookType) {
   const isSlidingRef = useRef(false);
   const { view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
+  const isHovered = hoveredBookId === book.id;
+
+  useFrame(() => {
+    if (!(camera instanceof THREE.PerspectiveCamera)) return;
+    camera.fov = lerp(camera.fov, isGridMode ? 10 : 45, 0.01);
+    camera.zoom = lerp(camera.zoom, isGridMode ? 0.2 : 1, 0.01);
+    camera.updateProjectionMatrix();
+  });
 
   const bookPosition = useMemo(
     () =>
@@ -237,7 +245,7 @@ function Book(book: BookType) {
       to: { rotX: 0, rotZ: 0 },
       config: { mass: 1, tension: 350, friction: 40 },
     },
-    [isFocused]
+    [isFocused, isHovered]
   );
 
   useFrame(({ pointer }) => {
@@ -257,8 +265,14 @@ function Book(book: BookType) {
       });
     } else {
       bookFocusedTiltGroupApi.start({
-        rotX: 0,
+        rotX: isHovered && !isFocused ? Math.PI / 12 : 0,
         rotZ: 0,
+        config: (key: string) => {
+          if (key === "rotX") {
+            return config.stiff;
+          }
+          return config.default;
+        },
       });
     }
   });
@@ -288,6 +302,11 @@ function Book(book: BookType) {
       onPointerEnter={(e) => {
         e.stopPropagation();
         bookStore.hoveredBookId = book.id;
+      }}
+      onPointerLeave={(e) => {
+        e.stopPropagation();
+        if (!isGridMode) return;
+        bookStore.hoveredBookId = null;
       }}
     >
       <animated.group

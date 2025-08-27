@@ -181,7 +181,7 @@ export const calculateSortGridPosition = (
   const gridItemWidth = 0.2;
   const gridItemHeight = 0.24;
   const columnSpacing = 0.01;
-  const rowSpacing = 0.01;
+  const rowSpacing = 0.02;
   const baseY = 0.75; // top row baseline
 
   const totalBooks = Object.keys(books).length;
