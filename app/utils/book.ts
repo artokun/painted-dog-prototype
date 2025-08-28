@@ -75,7 +75,7 @@ const bookSizeMap: Record<
   thick: [0.19, 0.015, 0.14],
   medium: [0.185, 0.02, 0.135],
   veryThick: [0.175, 0.025, 0.12],
-  extraThick: [0.182, 0.03, 0.138],
+  extraThick: [0.139, 0.044, 0.208],
 };
 
 export const getBookSize = (

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Center, Text, Text3D, TextProps, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { ExtraThickBookModel } from "./models/books/133x203";
 import {
   animated,
   config,
@@ -353,29 +354,35 @@ function Book(book: BookType) {
           rotation-x={bookFocusedTiltGroupSpring.rotX}
           rotation-z={bookFocusedTiltGroupSpring.rotZ}
         >
-          <mesh castShadow receiveShadow name="book-mesh">
-            <boxGeometry args={[width, height, depth]} />
-            <meshStandardMaterial
-              color={book.color}
-              metalness={0.1}
-              roughness={0.8}
-            />
-          </mesh>
-          <group>
-            <CoverText
-              title={book.title}
-              author={bookAuthor}
-              width={width}
-              height={height}
-            />
-            <SpineText
-              title={book.title}
-              hidden={search.length > 1 ? !book.hidden : false}
-              author={bookAuthor}
-              width={width}
-              depth={depth}
-            />
-          </group>
+          {book.size === "extraThick" ? (
+            <ExtraThickBookModel castShadow receiveShadow />
+          ) : (
+            <>
+              <mesh castShadow receiveShadow name="book-mesh">
+                <boxGeometry args={[width, height, depth]} />
+                <meshStandardMaterial
+                  color={book.color}
+                  metalness={0.1}
+                  roughness={0.8}
+                />
+              </mesh>
+              <group>
+                <CoverText
+                  title={book.title}
+                  author={bookAuthor}
+                  width={width}
+                  height={height}
+                />
+                <SpineText
+                  title={book.title}
+                  hidden={search.length > 1 ? !book.hidden : false}
+                  author={bookAuthor}
+                  width={width}
+                  depth={depth}
+                />
+              </group>
+            </>
+          )}
         </animated.group>
       </animated.group>
       <group position={[-0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>

@@ -7,7 +7,7 @@ import BookStack from "./BookStack";
 import { useSnapshot } from "valtio";
 import { filterStore, FilterView } from "../store/filterStore";
 import { animated, config, useSpring } from "@react-spring/three";
-import { Vector3 } from "three";
+import { PCFSoftShadowMap, Vector3 } from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 
 export default function App() {
@@ -84,6 +84,15 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
   return (
     <SpotLight
       castShadow
+      shadow-mapSize={[4096, 4096]}
+      shadow-camera-near={0.001}
+      shadow-camera-far={1}
+      shadow-camera-left={-0.5}
+      shadow-camera-right={0.5}
+      shadow-camera-top={0.5}
+      shadow-camera-bottom={-0.5}
+      shadow-bias={-0.0001}
+      shadow-normalBias={0.0001}
       ref={light}
       penumbra={0.5}
       distance={2}
