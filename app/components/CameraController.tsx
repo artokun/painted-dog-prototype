@@ -3,7 +3,7 @@ import { useThree, useFrame } from "@react-three/fiber";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { useScroll } from "@react-three/drei";
-import { config, useSpring } from "@react-spring/three";
+import { useSpring } from "@react-spring/three";
 import { getBookStackHeight, getGridHeight } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
 import { lerp } from "three/src/math/MathUtils.js";
@@ -11,7 +11,7 @@ import { lerp } from "three/src/math/MathUtils.js";
 const CameraController = memo(function CameraController() {
   const { camera } = useThree();
   const mouseX = useRef(0);
-  const { view } = useSnapshot(filterStore);
+  const { view, isChangingView } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
   // Get book state
 
@@ -94,9 +94,17 @@ const CameraController = memo(function CameraController() {
     const scrollBasedY = topLimit - (topLimit - bottomLimit) * scrollValue;
 
     // Update camera Y position from scroll
-    api.start({
-      cameraY: lerp(scrollBasedY, bottomLimit, scrollValue),
-    });
+    if (isChangingView) {
+      // Reset scroll position to top and animate camera
+      scroll.el.scrollTop = 0;
+      api.start({
+        cameraY: topLimit,
+      });
+    } else {
+      api.set({
+        cameraY: scrollBasedY,
+      });
+    }
 
     // Get current spring values
     const currentY = cameraY.get();

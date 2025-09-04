@@ -9,7 +9,7 @@ export const Header = () => {
   const spring = useSpring({
     color: !isSearching ? "#000000" : "#ffffff",
     borderColor: !isSearching ? "#00000000" : "#dadada66",
-    backgroundColor: !isSearching ? "#ffffff22" : "#00000000",
+    backgroundColor: !isSearching ? "#F5E9DC33" : "#00000000",
   });
   return (
     <animated.div

@@ -230,7 +230,11 @@ function Book(book: BookType) {
       delay: (key: string) => {
         switch (key) {
           case "posY":
-            return isGridMode ? reverseBookIndex * GRID_DELAY : 250;
+            return isGridMode
+              ? isFocused || wasFocusedRef.current
+                ? 0
+                : reverseBookIndex * GRID_DELAY
+              : 250;
           case "rotX":
           case "rotY":
             return isGridMode && !isFocused

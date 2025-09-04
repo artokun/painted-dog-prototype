@@ -27,7 +27,7 @@ export default function Floor() {
     >
       <circleGeometry args={[0.5, 128]} />
       <animated.meshStandardMaterial
-        color="#F9F6F0"
+        color="#F5E9DC"
         transparent
         opacity={floorSpring.opacity}
       />
