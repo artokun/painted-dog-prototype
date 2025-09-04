@@ -20,8 +20,8 @@ export default function App() {
 
   const spring = useSpring({
     environmentIntensity,
-    directionalLightIntensity: isGridMode ? 0.5 : search.length > 1 ? 0 : 2.2,
-    position: isGridMode ? new Vector3(-2, 0, 5) : new Vector3(2, 4, 2),
+    directionalLightIntensity: isGridMode ? 2.2 : search.length > 1 ? 0 : 2.2,
+    position: new Vector3(2, 4, 2),
     config: isGridMode ? config.default : config.gentle,
   });
 
@@ -41,7 +41,7 @@ export default function App() {
         lookAt={[0, 0, 0]}
         intensity={spring.directionalLightIntensity}
         color="#FFFFFF"
-        castShadow={!isGridMode}
+        castShadow
         shadow-mapSize={[4096, 4096]}
         shadow-camera-near={0.001}
         shadow-camera-far={10}
@@ -57,7 +57,7 @@ export default function App() {
         position={[0, 1.2, 0.6]}
       />
       <Floor />
-      <Backdrop />
+      {/* <Backdrop /> */}
       <BookStack />
     </>
   );

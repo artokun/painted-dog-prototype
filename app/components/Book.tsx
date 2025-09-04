@@ -35,6 +35,9 @@ const getOffsets = () => {
   };
 };
 
+const GRID_DELAY = 50; // delay between books in grid mode
+const STACK_DELAY = 10; // delay between books in stack mode
+
 function Book(book: BookType) {
   const { books, focusedBookId, hoveredBookId } = useSnapshot(bookStore);
   const { search } = useSnapshot(filterStore);
@@ -45,15 +48,7 @@ function Book(book: BookType) {
   const { view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
   const isHovered = hoveredBookId === book.id;
-  const lastViewRef = useRef(view);
   const wasFocusedRef = useRef(false);
-
-  useEffect(() => {
-    if (lastViewRef.current !== view) {
-      bookStore.hoveredBookId = null;
-    }
-    lastViewRef.current = view;
-  }, [view]);
 
   useEffect(() => {
     if (wasFocusedRef.current !== Boolean(focusedBookId === book.id)) {
@@ -123,7 +118,7 @@ function Book(book: BookType) {
             return isGridMode ? config.gentle : config.default;
         }
       },
-      delay: (_key: string) => (isFocused ? 0 : currentBookIndex * 10),
+      delay: (_key: string) => (isFocused ? 0 : currentBookIndex * STACK_DELAY),
     }),
     [
       book.isFeatured,
@@ -153,10 +148,13 @@ function Book(book: BookType) {
               ? 0
               : wasFocusedRef.current
                 ? 0
-                : reverseBookIndex * 50;
+                : reverseBookIndex * GRID_DELAY;
           case "posY":
           case "posZ":
-            return reverseBookIndex * 50;
+          case "rotX":
+          case "rotY":
+          case "rotZ":
+            return reverseBookIndex * GRID_DELAY;
           default:
             return 0;
         }
@@ -232,12 +230,20 @@ function Book(book: BookType) {
       delay: (key: string) => {
         switch (key) {
           case "posY":
-            return isGridMode ? 0 : 250;
+            return isGridMode ? reverseBookIndex * GRID_DELAY : 250;
           case "rotX":
           case "rotY":
-            return isGridMode && !isFocused ? 50 : !isFocused ? 250 : 0;
+            return isGridMode && !isFocused
+              ? reverseBookIndex * GRID_DELAY
+              : !isFocused
+                ? 250
+                : 0;
           default:
-            return isGridMode ? 0 : !isFocused && dropHeight > 0 ? 250 : 0;
+            return isGridMode
+              ? reverseBookIndex * GRID_DELAY
+              : !isFocused && dropHeight > 0
+                ? 250
+                : 0;
         }
       },
     },

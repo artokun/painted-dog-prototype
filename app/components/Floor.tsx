@@ -1,4 +1,4 @@
-import { animated, config, SpringValue, useSpring } from "@react-spring/three";
+import { animated, config, useSpring } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { filterStore, FilterView } from "../store/filterStore";
@@ -6,26 +6,31 @@ import { filterStore, FilterView } from "../store/filterStore";
 export default function Floor() {
   const { focusedBookId } = useSnapshot(bookStore);
   const { view } = useSnapshot(filterStore);
+  const hideFloor = focusedBookId !== null;
   const isGridMode = view === FilterView.Grid;
-  const hideFloor = isGridMode || focusedBookId !== null;
 
-  const [floorSpring, api] = useSpring(
+  const [floorSpring] = useSpring(
     () => ({
       opacity: hideFloor ? 0 : 1,
-      config: config.gentle,
-      delay: hideFloor ? 600 : 0,
+      config: config.default,
+      yPos: isGridMode ? -0.11 : 0,
+      delay: hideFloor || isGridMode ? 600 : 0,
     }),
     [focusedBookId, isGridMode]
   );
 
   return (
-    <mesh position={[0, 0, 0]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+    <animated.mesh
+      position-y={floorSpring.yPos}
+      receiveShadow
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
       <circleGeometry args={[0.5, 128]} />
       <animated.meshStandardMaterial
         color="#F9F6F0"
         transparent
         opacity={floorSpring.opacity}
       />
-    </mesh>
+    </animated.mesh>
   );
 }

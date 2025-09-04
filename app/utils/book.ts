@@ -44,7 +44,7 @@ export const wrapText = (text: string, maxLength: number = 12): string[] => {
 export const calculateOptimalZDistance = (camera: THREE.Camera) => {
   // Use a fixed reference book height so all books appear the same size on screen
   // Using medium book width (0.185) as the reference since it's in the middle of the range
-  const referenceBookHeight = 0.185;
+  const referenceBookHeight = 0.22;
 
   // VIEWPORT_PERCENTAGE: Adjust this value to change how much of the screen the featured book fills
   const targetScreenPercentage = 0.8;
@@ -182,9 +182,11 @@ export const calculateSortGridPosition = (
   const gridItemHeight = 0.24;
   const columnSpacing = 0.01;
   const rowSpacing = 0.02;
-  const baseY = 0.75; // top row baseline
 
   const totalBooks = Object.keys(books).length;
+  const totalRows = Math.ceil(totalBooks / columns);
+  const bottomRowY = 0; // Bottom of the last row
+
   const reversedIndex = totalBooks - 1 - bookIndex;
   const row = Math.floor(reversedIndex / columns);
   const col = reversedIndex % columns;
@@ -192,9 +194,9 @@ export const calculateSortGridPosition = (
   const xStep = gridItemWidth + columnSpacing;
   const yStep = gridItemHeight + rowSpacing;
 
-  // Center columns around 0 on X and move rows downward from baseY on Y
+  // Center columns around 0 on X and calculate Y from bottom row up
   const x = (col - (columns - 1) / 2) * xStep;
-  const y = baseY - row * yStep;
+  const y = bottomRowY + (totalRows - 1 - row) * yStep + gridItemHeight / 2;
   const z = -0.5;
 
   return { posX: x, posY: y, posZ: z };
@@ -205,21 +207,22 @@ export const getGridHeight = (
 ): { topLimit: number; bottomLimit: number } => {
   const columns = 4;
   const gridItemHeight = 0.24;
-  const rowSpacing = 0.01;
-  const baseY = 0.75; // top row baseline
+  const rowSpacing = 0.02;
+  const bottomRowY = -0.13; // Bottom of the last row
 
   const totalBooks = Object.keys(books).length;
   const totalRows = Math.ceil(totalBooks / columns);
 
-  // Top limit is the baseline Y position
-  const topLimit = baseY + gridItemHeight / 2;
+  // Bottom limit is the bottom of the bottom row
+  const bottomLimit = bottomRowY - gridItemHeight / 2;
 
-  // Bottom limit is calculated based on the number of rows
+  // Top limit is calculated based on the number of rows
   const yStep = gridItemHeight + rowSpacing;
-  const bottomLimit = baseY - (totalRows - 1) * yStep - gridItemHeight / 2;
+  const topLimit = bottomRowY + (totalRows - 1) * yStep + gridItemHeight / 2;
 
   return { topLimit, bottomLimit };
 };
+
 export const getCurrentBookIndex = (
   bookId: BookId,
   books: BookMap,

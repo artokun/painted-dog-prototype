@@ -3,7 +3,7 @@ import { useThree, useFrame } from "@react-three/fiber";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { useScroll } from "@react-three/drei";
-import { useSpring } from "@react-spring/three";
+import { config, useSpring } from "@react-spring/three";
 import { getBookStackHeight, getGridHeight } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
 import { lerp } from "three/src/math/MathUtils.js";
@@ -45,18 +45,15 @@ const CameraController = memo(function CameraController() {
 
   // Calculate height limits based on view mode
   const { topLimit, bottomLimit } = useMemo(() => {
-    if (isGridMode) {
-      const gridLimits = getGridHeight(books);
-      return {
-        topLimit: gridLimits.topLimit - 0.3,
-        bottomLimit: gridLimits.bottomLimit + 0.3,
-      };
-    } else {
-      return {
-        topLimit: getBookStackHeight(books) + 0.1,
-        bottomLimit: 0.13,
-      };
-    }
+    const gridLimits = getGridHeight(books);
+
+    return {
+      gridLimits,
+      topLimit: isGridMode
+        ? gridLimits.topLimit
+        : getBookStackHeight(books) + 0.1,
+      bottomLimit: 0.13,
+    };
   }, [isGridMode, books]);
 
   // Spring for camera Y position - start at top
@@ -97,7 +94,9 @@ const CameraController = memo(function CameraController() {
     const scrollBasedY = topLimit - (topLimit - bottomLimit) * scrollValue;
 
     // Update camera Y position from scroll
-    api.set({ cameraY: scrollBasedY });
+    api.start({
+      cameraY: lerp(scrollBasedY, bottomLimit, scrollValue),
+    });
 
     // Get current spring values
     const currentY = cameraY.get();
