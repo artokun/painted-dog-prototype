@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useSpring, animated, config } from "@react-spring/three";
 import { useSnapshot } from "valtio";
+import { useControls } from "leva";
 import { bookStore } from "../store/bookStore";
 import { Mesh } from "three";
 import { filterStore, FilterView } from "../store/filterStore";
@@ -12,6 +13,10 @@ export default function Backdrop() {
   const { view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
   const meshRef = useRef<Mesh>(null);
+
+  const { backdropColor } = useControls("Backdrop", {
+    backdropColor: { value: "#fffee9", label: "Backdrop Color" },
+  });
 
   // Show backdrop when a book is focused
   const isVisible = focusedBookId !== null;
@@ -48,7 +53,7 @@ export default function Backdrop() {
     >
       <planeGeometry args={[10, 10, 100, 100]} />
       <animated.meshBasicMaterial
-        color="#F9F6F0"
+        color={backdropColor}
         opacity={spring.opacity}
         transparent
         depthWrite={false}

@@ -1,5 +1,6 @@
 import { animated, config, useSpring } from "@react-spring/three";
 import { useSnapshot } from "valtio";
+import { useControls } from "leva";
 import { bookStore } from "../store/bookStore";
 import { filterStore, FilterView } from "../store/filterStore";
 
@@ -9,9 +10,13 @@ export default function Floor() {
   const hideFloor = focusedBookId !== null;
   const isGridMode = view === FilterView.Grid;
 
+  const { floorColor } = useControls("Floor", {
+    floorColor: { value: "#fff3e7", label: "Floor Color" },
+  });
+
   const [floorSpring] = useSpring(
     () => ({
-      opacity: hideFloor ? 0 : 1,
+      opacity: hideFloor ? 0 : 0.2,
       config: config.default,
       yPos: isGridMode ? -0.11 : 0,
       delay: hideFloor || isGridMode ? 600 : 0,
@@ -25,9 +30,9 @@ export default function Floor() {
       receiveShadow
       rotation={[-Math.PI / 2, 0, 0]}
     >
-      <circleGeometry args={[0.5, 128]} />
+      <circleGeometry args={[0.6, 128]} />
       <animated.meshStandardMaterial
-        color="#F5E9DC"
+        color={floorColor}
         transparent
         opacity={floorSpring.opacity}
       />

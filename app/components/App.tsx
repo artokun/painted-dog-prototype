@@ -1,5 +1,10 @@
 import React, { useMemo, useRef } from "react";
-import { Environment, SpotLight, useDepthBuffer } from "@react-three/drei";
+import {
+  Environment,
+  Sparkles,
+  SpotLight,
+  useDepthBuffer,
+} from "@react-three/drei";
 import CameraController from "./CameraController";
 import Backdrop from "./Backdrop";
 import Floor from "./Floor";
@@ -7,7 +12,7 @@ import BookStack from "./BookStack";
 import { useSnapshot } from "valtio";
 import { filterStore, FilterView } from "../store/filterStore";
 import { animated, config, useSpring } from "@react-spring/three";
-import { PCFSoftShadowMap, Vector3 } from "three";
+import { Vector3 } from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 
 export default function App() {
@@ -15,12 +20,12 @@ export default function App() {
   const isGridMode = view === FilterView.Grid;
 
   const environmentIntensity = useMemo(() => {
-    return search.length > 1 ? 0 : 0.97;
+    return search.length > 1 ? 0 : 0;
   }, [search]);
 
   const spring = useSpring({
     environmentIntensity,
-    directionalLightIntensity: isGridMode ? 2.2 : search.length > 1 ? 0 : 2.2,
+    directionalLightIntensity: isGridMode ? 3 : search.length > 1 ? 0 : 3,
     position: new Vector3(2, 4, 2),
     config: isGridMode ? config.default : config.gentle,
   });
@@ -31,11 +36,18 @@ export default function App() {
     <>
       <CameraController />
       <Environment
-        files="/artist_workshop_1k.hdr"
-        background={false}
+        files="/painted-dog-2k.hdr"
+        resolution={2048}
         environmentIntensity={environmentIntensity}
+        ground={{
+          height: 20,
+          radius: 20,
+          scale: 2,
+        }}
       />
       <fog attach="fog" args={["#202020", 5, 10]} />
+      <ambientLight intensity={1} />
+      {/* sun light */}
       <animated.directionalLight
         position={spring.position}
         lookAt={[0, 0, 0]}
@@ -49,16 +61,34 @@ export default function App() {
         shadow-camera-right={1}
         shadow-camera-top={1}
         shadow-camera-bottom={-1}
-        shadow-bias={-0.0001}
+        shadow-bias={-0.0002}
+        shadow-normalBias={0.0002}
+      />
+      {/* camera light */}
+      <animated.directionalLight
+        position={[-1, 0, 2]}
+        rotation={[0, 0, 0]}
+        intensity={spring.directionalLightIntensity}
+        color="#FFFFFF"
       />
       <MovingSpot
         depthBuffer={depthBuffer}
         color="#ffffff"
-        position={[0, 1.2, 0.6]}
+        position={[0, 1.3, 0.6]}
       />
       <Floor />
-      {/* <Backdrop /> */}
+      <Backdrop />
       <BookStack />
+      {/* <Sparkles
+        position={[0.1, 0.6, -2.67]}
+        rotation={[Math.PI / 6, Math.PI / 5, Math.PI / -3]}
+        count={10000}
+        scale={[3, 0.1, 0.5]}
+        speed={0.1}
+        opacity={1}
+        size={0.8}
+        color="#efefef"
+      /> */}
     </>
   );
 }
