@@ -1,10 +1,6 @@
 import React, { useMemo, useRef } from "react";
-import {
-  Environment,
-  Sparkles,
-  SpotLight,
-  useDepthBuffer,
-} from "@react-three/drei";
+import { Environment, SpotLight, useDepthBuffer } from "@react-three/drei";
+import { useControls } from "leva";
 import CameraController from "./CameraController";
 import Backdrop from "./Backdrop";
 import Floor from "./Floor";
@@ -19,6 +15,57 @@ export default function App() {
   const { search, view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
 
+  const { groundHeight, groundRadius, groundScale } = useControls(
+    "Environment Ground",
+    {
+      groundHeight: {
+        value: 20,
+        min: 0,
+        max: 50,
+        step: 0.01,
+        label: "Ground Height",
+      },
+      groundRadius: {
+        value: 20,
+        min: 0,
+        max: 50,
+        step: 0.01,
+        label: "Ground Radius",
+      },
+      groundScale: {
+        value: 2,
+        min: 0,
+        max: 10,
+        step: 0.01,
+        label: "Ground Scale",
+      },
+    }
+  );
+
+  const { lightX, lightY, lightZ } = useControls("Directional Light", {
+    lightX: {
+      value: 2,
+      min: -10,
+      max: 10,
+      step: 0.01,
+      label: "Light X Position",
+    },
+    lightY: {
+      value: 4,
+      min: -10,
+      max: 10,
+      step: 0.01,
+      label: "Light Y Position",
+    },
+    lightZ: {
+      value: 2,
+      min: -10,
+      max: 10,
+      step: 0.01,
+      label: "Light Z Position",
+    },
+  });
+
   const environmentIntensity = useMemo(() => {
     return search.length > 1 ? 0 : 0;
   }, [search]);
@@ -26,7 +73,7 @@ export default function App() {
   const spring = useSpring({
     environmentIntensity,
     directionalLightIntensity: isGridMode ? 3 : search.length > 1 ? 0 : 3,
-    position: new Vector3(2, 4, 2),
+    position: new Vector3(lightX, lightY, lightZ),
     config: isGridMode ? config.default : config.gentle,
   });
 
@@ -40,9 +87,9 @@ export default function App() {
         resolution={2048}
         environmentIntensity={environmentIntensity}
         ground={{
-          height: 20,
-          radius: 20,
-          scale: 2,
+          height: groundHeight,
+          radius: groundRadius,
+          scale: groundScale,
         }}
       />
       <fog attach="fog" args={["#202020", 5, 10]} />
@@ -79,16 +126,6 @@ export default function App() {
       <Floor />
       <Backdrop />
       <BookStack />
-      {/* <Sparkles
-        position={[0.1, 0.6, -2.67]}
-        rotation={[Math.PI / 6, Math.PI / 5, Math.PI / -3]}
-        count={10000}
-        scale={[3, 0.1, 0.5]}
-        speed={0.1}
-        opacity={1}
-        size={0.8}
-        color="#efefef"
-      /> */}
     </>
   );
 }
