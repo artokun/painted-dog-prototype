@@ -448,20 +448,26 @@ function Book(book: BookType) {
               </div>
             )}
             {book.linkToPodcastEpisode && (
-              <Link
-                href={book.linkToPodcastEpisode.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-ellipsis hover:underline flex justify-end items-center h-full pointer-events-auto w-[28dvw] text-right"
+              <div
+                className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
                 onPointerOver={(e) => {
+                  e.preventDefault();
                   setIsHovered(true);
                 }}
                 onPointerLeave={(e) => {
+                  e.preventDefault();
                   setIsHovered(false);
                 }}
               >
-                {book.linkToPodcastEpisode.text}
-              </Link>
+                <Link
+                  href={book.linkToPodcastEpisode.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  {book.linkToPodcastEpisode.text}
+                </Link>
+              </div>
             )}
           </div>
         </Html>
