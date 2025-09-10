@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BBAnchor, Html, Text, TextProps, useCursor } from "@react-three/drei";
+import {
+  BBAnchor,
+  Html,
+  Text,
+  TextProps,
+  useCursor,
+  useScroll,
+} from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
@@ -20,7 +27,6 @@ import {
   getBookSortYPosition,
   getCurrentBookIndex,
   getDropHeight,
-  calculateXFromCameraDepthOnRotation,
 } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
 import { useRouter } from "next/navigation";
@@ -69,6 +75,8 @@ function Book(book: BookType) {
   // Use local state for hover to avoid global state rerenders
   const [isHovered, setIsHovered] = useState(false);
   const wasFocusedRef = useRef(false);
+
+  useCursor(isHovered, "pointer", "auto");
 
   useEffect(() => {
     if (wasFocusedRef.current !== Boolean(focusedBookId === book.id)) {
@@ -353,6 +361,7 @@ function Book(book: BookType) {
   });
 
   const [width, thickness, height] = getContentfulBookSize(book.bookSize);
+  const scroll = useScroll();
 
   const middleDivRef = useRef<HTMLDivElement>(
     document.getElementById("middle") as HTMLDivElement
@@ -404,81 +413,48 @@ function Book(book: BookType) {
           <BookModel book={book} />
         </animated.group>
       </animated.group>
-      {/* <group position={[-0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
-        {bookLinks.featuredArticle && (
-          <Link3d
-            {...bookLinks.featuredArticle}
-            align="left"
-            visible={
-              isHovered &&
-              !isFocused &&
-              !isGridMode &&
-              !isSorting
-            }
-          />
-        )}
-      </group>
-      <group position={[0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
-        {bookLinks.featuredPodcastEpisode && (
-          <Link3d
-            {...bookLinks.featuredPodcastEpisode}
-            align="right"
-            visible={
-              isHovered &&
-              !isFocused &&
-              !isGridMode &&
-              !isSorting
-            }
-          />
-        )}
-      </group> */}
-      {/* {book.linkToFeaturedArticle && (
-        <Html
-          className="border border-red-500"
-          center
-          position={[
-            0.12 - offsets.posX,
-            getContentfulBookSize(book.bookSize)[1] * 0.25,
-            0.065 - offsets.posZ,
-          ]}
-          portal={{ current: document.body }}
-        >
-          <span className="whitespace-nowrap text-black">
-            {book.linkToFeaturedArticle.text}
-          </span>
-        </Html>
-      )} */}
       <Html
+        zIndexRange={[-0.1, 0]}
         center
         className={cn(
-          "text-sm opacity-50 border border-red-500 transition-all duration-100 ease-in-out w-dvw px-12",
+          "text-sm opacity-0 w-dvw px-12 pointer-events-none",
           textVisible && "opacity-100"
         )}
+        style={{
+          height:
+            getContentfulBookSize(book.bookSize)[book.isFeatured ? 2 : 1] *
+            3400,
+          transition: "opacity ease-in-out",
+          transitionDuration: isHovered ? "0ms" : "0.3s",
+        }}
         position={[
-          calculateXFromCameraDepthOnRotation(
-            camera as THREE.PerspectiveCamera,
-            -offsets.posX
-          ),
+          -offsets.posX,
           0,
-          getContentfulBookSize(book.bookSize)[0] * 0.5 + offsets.posZ,
+          getContentfulBookSize(book.bookSize)[0] * 0.5 - offsets.posZ,
         ]}
         portal={middleDivRef}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setIsHovered(true);
-        }}
-        onPointerLeave={(e) => {
-          e.stopPropagation();
-          setIsHovered(false);
-        }}
       >
-        <div className="text-black flex justify-between w-full">
+        <div
+          className="text-black flex justify-between h-full w-full"
+          onWheel={(e) => {
+            e.preventDefault();
+            scroll.el.scrollTop += e.deltaY;
+          }}
+        >
           {book.linkToFeaturedArticle && (
             <Link
               href={book.linkToFeaturedArticle.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto text-ellipsis"
+              className="text-ellipsis hover:underline flex items-center justify-start h-full pointer-events-auto w-[28dvw]"
+              onPointerOver={(e) => {
+                e.preventDefault();
+                setIsHovered(true);
+              }}
+              onPointerLeave={(e) => {
+                e.preventDefault();
+                setIsHovered(false);
+              }}
             >
               {book.linkToFeaturedArticle.text}
             </Link>
@@ -488,7 +464,13 @@ function Book(book: BookType) {
               href={book.linkToPodcastEpisode.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto text-ellipsis"
+              className="text-ellipsis hover:underline flex justify-end items-center h-full pointer-events-auto w-[28dvw] text-right"
+              onPointerOver={(e) => {
+                setIsHovered(true);
+              }}
+              onPointerLeave={(e) => {
+                setIsHovered(false);
+              }}
             >
               {book.linkToPodcastEpisode.text}
             </Link>

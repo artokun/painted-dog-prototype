@@ -47,15 +47,27 @@ export const wrapText = (text: string, maxLength: number = 12): string[] => {
 
 export const calculateXFromCameraDepthOnRotation = (
   camera: THREE.PerspectiveCamera,
-  x: number
+  normalizedX: number, // Expected: -1 to 1 (screen coordinates)
+  targetZ: number = 0 // Z position where you want to place the HTML element
 ) => {
-  const cameraRotation = -camera.rotation.y;
-  return (
-    x *
-    camera.position.z *
-    Math.tan((camera.fov * Math.PI) / 180 / 2) *
-    Math.cos(cameraRotation)
-  );
+  const cameraRotation = camera.rotation.y;
+  const fovRadians = (camera.fov * Math.PI) / 180;
+  
+  // Calculate the world width at the target Z distance
+  const distanceToTarget = camera.position.z - targetZ;
+  const worldWidth = 2 * Math.tan(fovRadians / 2) * distanceToTarget * camera.aspect;
+  
+  // Convert normalized screen X to world X
+  const worldX = normalizedX * (worldWidth / 2);
+  
+  // Compensate for camera rotation
+  const compensatedX = worldX * Math.cos(cameraRotation);
+  const compensatedZ = worldX * Math.sin(cameraRotation);
+  
+  return {
+    x: compensatedX,
+    z: targetZ + compensatedZ
+  };
 };
 
 // Calculate optimal Z distance for focused book to fill 75% of viewport height
