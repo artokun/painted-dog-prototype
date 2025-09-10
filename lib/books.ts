@@ -1,93 +1,175 @@
-import { Entry } from "contentful";
+import type { Entry } from "contentful";
 import { getEntries, getEntry } from "./contentful";
 import { ContentfulBook } from "@/types/book";
-import {
-  Book,
-  BookSkeleton,
-  AuthorSkeleton,
-  GenreSkeleton,
-  PriceSkeleton,
-  LinkSkeleton,
-} from "@/types/contentful";
+import { TypeBook, TypeGenreSkeleton, TypeLinkSkeleton } from "@/types";
 
-export type ContentfulBookEntry = Book;
+export type ContentfulBookEntry = TypeBook<"WITHOUT_UNRESOLVABLE_LINKS">;
 
-// Transform Contentful entry to our Book type
+// Helper function to get localized field value
+function getLocalizedField<T>(field: T | { [locale: string]: T }): T {
+  if (field === null || field === undefined) {
+    return field as T;
+  }
+
+  if (
+    typeof field === "object" &&
+    field !== null &&
+    !Array.isArray(field) &&
+    "sys" in field
+  ) {
+    // It's a linked entry or asset, return as-is
+    return field as T;
+  }
+
+  if (typeof field === "object" && field !== null && !Array.isArray(field)) {
+    // It's a localized field object
+    const localizedField = field as { [locale: string]: T };
+    // Try to get en-US first, then any available locale
+    return (
+      localizedField["en-US"] ||
+      localizedField[Object.keys(localizedField)[0]] ||
+      (undefined as T)
+    );
+  }
+
+  // It's a direct value
+  return field as T;
+}
+
+// Transform Contentful entry to our TypeBook type
 export function transformContentfulBook(
-  entry: ContentfulBookEntry
+  entry: TypeBook<"WITHOUT_UNRESOLVABLE_LINKS">
 ): ContentfulBook {
   const fields = entry.fields;
 
   return {
     id: entry.sys.id,
-    title: fields.title,
-    featured: fields.featured || false,
-    description: fields.description,
-    publishDate: fields.publishDate,
-    bookSize: fields.bookSize as "XS" | "SM" | "MD" | "LG" | "XL",
+    title: getLocalizedField(fields.title) || "",
+    featured: getLocalizedField(fields.featured) || false,
+    description: getLocalizedField(fields.description) || "",
+    publishDate: getLocalizedField(fields.publishDate) || "",
+    bookSize: (getLocalizedField(fields.bookSize) || "MD") as
+      | "XS"
+      | "SM"
+      | "MD"
+      | "LG"
+      | "XL",
 
     // Transform linked authors
-    authors:
-      fields.authors?.map((authorRef: Entry<AuthorSkeleton>) => ({
-        id: authorRef.sys.id,
-        fullName: authorRef.fields?.fullName || "Unknown Author",
-        biography: authorRef.fields?.biography,
-      })) || [],
+    authors: Array.isArray(fields.authors)
+      ? fields.authors
+          .filter(
+            (authorRef) =>
+              authorRef != null &&
+              typeof authorRef === "object" &&
+              "sys" in authorRef &&
+              "fields" in authorRef
+          )
+          .map((authorRef) => ({
+            id: authorRef.sys.id,
+            fullName:
+              getLocalizedField(authorRef.fields.fullName) || "Unknown Author",
+            biography: getLocalizedField(authorRef.fields.biography),
+          }))
+      : [],
 
     // Transform genre
-    genre: fields.genre
-      ? {
-          id: fields.genre.sys.id,
-          genre:
-            (fields.genre as Entry<GenreSkeleton> | undefined)?.fields?.genre ||
-            "Fiction",
-          subGenre:
-            (fields.genre as Entry<GenreSkeleton> | undefined)?.fields
-              ?.subGenre || "Literary Fiction",
-        }
-      : undefined,
+    genre:
+      fields.genre && "sys" in fields.genre && "fields" in fields.genre
+        ? {
+            id: fields.genre.sys.id || "",
+            genre:
+              getLocalizedField(
+                (fields.genre as Entry<TypeGenreSkeleton>).fields.genre
+              ) || "Fiction",
+            subGenre:
+              getLocalizedField(
+                (fields.genre as Entry<TypeGenreSkeleton>).fields.subGenre
+              ) || "Literary Fiction",
+          }
+        : undefined,
 
     // Transform prices
-    prices:
-      fields.prices?.map((priceRef: Entry<PriceSkeleton>) => ({
-        id: priceRef.sys.id,
-        text: priceRef.fields?.text || "Paperback",
-        price: priceRef.fields?.price || 0,
-        description: priceRef.fields?.description,
-      })) || [],
+    prices: Array.isArray(fields.prices)
+      ? fields.prices
+          .filter(
+            (priceRef) =>
+              priceRef != null &&
+              typeof priceRef === "object" &&
+              "sys" in priceRef &&
+              "fields" in priceRef
+          )
+          .map((priceRef) => ({
+            id: priceRef.sys.id,
+            text: getLocalizedField(priceRef.fields.text) || "Paperback",
+            price: getLocalizedField(priceRef.fields.price) || 0,
+            description: getLocalizedField(priceRef.fields.description),
+          }))
+      : [],
 
     // Transform links
-    linkToFeaturedArticle: fields.linkToFeaturedArticle
-      ? {
-          id: fields.linkToFeaturedArticle.sys.id,
-          text:
-            (fields.linkToFeaturedArticle as Entry<LinkSkeleton> | undefined)
-              ?.fields?.text || "",
-          link:
-            (fields.linkToFeaturedArticle as Entry<LinkSkeleton> | undefined)
-              ?.fields?.link || "",
-        }
-      : undefined,
+    linkToFeaturedArticle:
+      fields.linkToFeaturedArticle &&
+      "sys" in fields.linkToFeaturedArticle &&
+      "fields" in fields.linkToFeaturedArticle
+        ? {
+            id: fields.linkToFeaturedArticle.sys.id || "",
+            text:
+              getLocalizedField(
+                (fields.linkToFeaturedArticle as Entry<TypeLinkSkeleton>).fields
+                  .text
+              ) || "",
+            link:
+              getLocalizedField(
+                (fields.linkToFeaturedArticle as Entry<TypeLinkSkeleton>).fields
+                  .link
+              ) || "",
+          }
+        : undefined,
 
-    linkToPodcastEpisode: fields.linkToPodcastEpisode
-      ? {
-          id: fields.linkToPodcastEpisode.sys.id,
-          text:
-            (fields.linkToPodcastEpisode as Entry<LinkSkeleton> | undefined)
-              ?.fields?.text || "",
-          link:
-            (fields.linkToPodcastEpisode as Entry<LinkSkeleton> | undefined)
-              ?.fields?.link || "",
-        }
-      : undefined,
+    linkToPodcastEpisode:
+      fields.linkToPodcastEpisode &&
+      "sys" in fields.linkToPodcastEpisode &&
+      "fields" in fields.linkToPodcastEpisode
+        ? {
+            id: fields.linkToPodcastEpisode.sys.id || "",
+            text:
+              getLocalizedField(
+                (fields.linkToPodcastEpisode as Entry<TypeLinkSkeleton>).fields
+                  .text
+              ) || "",
+            link:
+              getLocalizedField(
+                (fields.linkToPodcastEpisode as Entry<TypeLinkSkeleton>).fields
+                  .link
+              ) || "",
+          }
+        : undefined,
 
     // Rich content
-    criticalReceptionText: fields.criticalReceptionText,
-    podcastText: fields.podcastText,
+    criticalReceptionText: getLocalizedField(fields.criticalReceptionText),
+    podcastText: getLocalizedField(fields.podcastText),
+
+    // Transform textures (using individual texture fields for now)
+    textures: {
+      front:
+        fields.bookCoverTextureFront &&
+        "fields" in fields.bookCoverTextureFront &&
+        fields.bookCoverTextureFront.fields?.file?.url
+          ? getLocalizedField(fields.bookCoverTextureFront.fields.file.url) ||
+            ""
+          : "",
+      side:
+        fields.bookCoverTextureSide &&
+        "fields" in fields.bookCoverTextureSide &&
+        fields.bookCoverTextureSide.fields?.file?.url
+          ? getLocalizedField(fields.bookCoverTextureSide.fields.file.url) || ""
+          : "",
+    },
 
     // For 3D rendering compatibility
     hidden: false,
-    isFeatured: fields.featured || false,
+    isFeatured: getLocalizedField(fields.featured) || false,
   };
 }
 
@@ -98,12 +180,17 @@ export async function getAllBooks(): Promise<ContentfulBook[]> {
   }
 
   try {
-    const response = await getEntries<Book>("book", {
-      include: 3, // Include linked entries up to 3 levels deep
-      order: "fields.publishDate", // Order by publish date
-    });
+    const response = await getEntries<TypeBook<"WITHOUT_UNRESOLVABLE_LINKS">>(
+      "book",
+      {
+        include: 3, // Include linked entries up to 3 levels deep
+        order: "fields.publishDate", // Order by publish date
+      }
+    );
 
-    return response.items.map(transformContentfulBook);
+    return response.items.map((item) =>
+      transformContentfulBook(item as unknown as ContentfulBookEntry)
+    );
   } catch (error) {
     console.error("Error fetching books from Contentful:", error);
     return [];
@@ -117,7 +204,10 @@ export async function getBookById(id: string): Promise<ContentfulBook | null> {
   }
 
   try {
-    const response = await getEntry<Book>(id, { include: 3 });
+    const response = await getEntry<TypeBook<"WITHOUT_UNRESOLVABLE_LINKS">>(
+      id,
+      { include: 3 }
+    );
     return transformContentfulBook(response as unknown as ContentfulBookEntry);
   } catch (error) {
     console.error(`Error fetching book ${id} from Contentful:`, error);
@@ -132,13 +222,18 @@ export async function getFeaturedBooks(): Promise<ContentfulBook[]> {
   }
 
   try {
-    const response = await getEntries<Book>("book", {
-      "fields.featured": true,
-      include: 3,
-      order: "fields.publishDate",
-    });
+    const response = await getEntries<TypeBook<"WITHOUT_UNRESOLVABLE_LINKS">>(
+      "book",
+      {
+        "fields.featured": true,
+        include: 3,
+        order: "fields.publishDate",
+      }
+    );
 
-    return response.items.map(transformContentfulBook);
+    return response.items.map((item) =>
+      transformContentfulBook(item as unknown as ContentfulBookEntry)
+    );
   } catch (error) {
     console.error("Error fetching featured books from Contentful:", error);
     return [];

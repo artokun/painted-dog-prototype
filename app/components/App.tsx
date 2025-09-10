@@ -150,7 +150,7 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
   });
   return (
     <SpotLight
-      castShadow
+      castShadow={false}
       shadow-mapSize={[4096, 4096]}
       shadow-camera-near={0.001}
       shadow-camera-far={1}

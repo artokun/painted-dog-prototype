@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Center, Text, Text3D, TextProps, useCursor } from "@react-three/drei";
+import { Text, TextProps, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
@@ -20,8 +20,6 @@ import {
   getBookSortYPosition,
   getCurrentBookIndex,
   getDropHeight,
-  getSpineFontSize,
-  wrapText,
 } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
 import { useRouter } from "next/navigation";
@@ -35,38 +33,8 @@ const getOffsets = () => {
   };
 };
 
-// Map size system to model components
-const getBookModel = (size: string) => {
-  switch (size) {
-    case "XS":
-      return BookXS;
-    case "SM":
-      return BookSM;
-    case "MD":
-      return BookMD;
-    case "LG":
-      return BookLG;
-    case "XL":
-      return BookXL;
-    default:
-      return BookMD; // Default fallback
-  }
-};
-
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
-
-const getBookAuthor = (book: BookType) => {
-  // Handle Contentful structure
-  if ("authors" in book && book.authors.length > 0) {
-    return book.authors[0].fullName;
-  }
-  return "Unknown Author";
-};
-
-const getBookSizeForModel = (book: BookType) => {
-  return book.bookSize;
-};
 
 const getBookLinks = (book: BookType) => {
   return {
@@ -380,8 +348,7 @@ function Book(book: BookType) {
     }
   });
 
-  const [width, height, depth] = getContentfulBookSize(book.bookSize);
-  const bookAuthor = getBookAuthor(book);
+  const [width, thickness, height] = getContentfulBookSize(book.bookSize);
   const bookLinks = getBookLinks(book);
 
   return (
@@ -390,8 +357,8 @@ function Book(book: BookType) {
       userData={{
         id: book.id,
         width,
+        thickness,
         height,
-        depth,
         x: bookSpring.posX,
         y: bookSpring.posY,
         z: bookSpring.posZ,
@@ -426,29 +393,7 @@ function Book(book: BookType) {
           rotation-x={bookFocusedTiltGroupSpring.rotX}
           rotation-z={bookFocusedTiltGroupSpring.rotZ}
         >
-          {(() => {
-            const BookModelComponent = getBookModel(getBookSizeForModel(book));
-            return (
-              <>
-                <BookModelComponent castShadow receiveShadow />
-                <group>
-                  <CoverText
-                    title={book.title}
-                    author={bookAuthor}
-                    width={width}
-                    height={height}
-                  />
-                  <SpineText
-                    title={book.title}
-                    hidden={search.length > 1 ? !book.hidden : false}
-                    author={bookAuthor}
-                    width={width}
-                    depth={depth}
-                  />
-                </group>
-              </>
-            );
-          })()}
+          <BookModel book={book} />
         </animated.group>
       </animated.group>
       <group position={[-0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
@@ -483,114 +428,21 @@ function Book(book: BookType) {
   );
 }
 
-const SpineText = ({
-  title,
-  author,
-  width,
-  hidden,
-  depth,
-}: {
-  title: string;
-  author: string;
-  width: number;
-  hidden: boolean;
-  depth: number;
-}) => {
-  return (
-    <group>
-      <Text
-        position={[-width / 2 + 0.006, 0, depth / 2 + 0.0002]}
-        rotation={[0, 0, 0]}
-        fontSize={getSpineFontSize(title)}
-        color="#ffffff"
-        fillOpacity={hidden ? 0.1 : 1}
-        anchorX="left"
-        anchorY="middle"
-        font="/fonts/fields-bold.otf"
-        raycast={() => null}
-      >
-        {title}
-      </Text>
-      );
-      {/* Author - On the spine facing forward, right aligned */}
-      <Text
-        position={[width / 2 - 0.006, 0, depth / 2 + 0.0002]}
-        rotation={[0, 0, 0]}
-        fontSize={0.005}
-        color="#cccccc"
-        fillOpacity={hidden ? 0.1 : 1}
-        anchorX="right"
-        anchorY="middle"
-        fontWeight={300}
-        raycast={() => null}
-      >
-        {author}
-      </Text>
-    </group>
-  );
-};
-
-const CoverText = ({
-  title,
-  author,
-  width,
-  height,
-}: {
-  title: string;
-  author: string;
-  width: number;
-  height: number;
-}) => {
-  const lines = wrapText(title);
-  const lineHeight = 0.012; // Space between lines
-  const totalHeight = (lines.length - 1) * lineHeight;
-  const startY = totalHeight / 2;
-
-  return lines.map((line, index) => (
-    <group key={index}>
-      {/* Adjust the cover title block vertical position (Y axis). Increase to move up, decrease to move down. */}
-      <Center
-        key={index}
-        position={[-0.01 + (index * lineHeight - startY), height / 2, 0]}
-      >
-        <Text3D
-          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-          font="/FSP DEMO - Fields Display_Bold.json"
-          size={0.009}
-          height={0.0001} // Extrusion depth
-          curveSegments={12}
-          bevelEnabled={true}
-          bevelThickness={0.00005}
-          bevelSize={0.00005}
-          bevelOffset={0}
-          bevelSegments={5}
-          letterSpacing={0}
-          raycast={() => null}
-        >
-          {line}
-          <meshStandardMaterial
-            color={new THREE.Color(0.5, 0.5, 0.3)}
-            metalness={0.9}
-            roughness={0.4}
-          />
-        </Text3D>
-      </Center>
-      <Text
-        position={[lines.length > 3 ? 0.02 : 0.01, height / 2 + 0.0002, 0]}
-        rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-        fontSize={0.006}
-        color="#cccccc"
-        anchorX="center"
-        anchorY="middle"
-        fontWeight={300}
-        raycast={() => null}
-        maxWidth={width * 0.8}
-        textAlign="center"
-      >
-        {author}
-      </Text>
-    </group>
-  ));
+const BookModel = ({ book }: { book: BookType }) => {
+  switch (book.bookSize) {
+    case "XS":
+      return <BookXS castShadow receiveShadow textures={book.textures} />;
+    case "SM":
+      return <BookSM castShadow receiveShadow textures={book.textures} />;
+    case "MD":
+      return <BookMD castShadow receiveShadow textures={book.textures} />;
+    case "LG":
+      return <BookLG castShadow receiveShadow textures={book.textures} />;
+    case "XL":
+      return <BookXL castShadow receiveShadow textures={book.textures} />;
+    default:
+      return <BookMD castShadow receiveShadow textures={book.textures} />; // Default fallback
+  }
 };
 
 const Link3d = ({
