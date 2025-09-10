@@ -1,5 +1,5 @@
 // Auto-generated Contentful types
-// Generated on 2025-09-09T23:36:37.752Z
+// Generated on 2025-09-10T01:30:32.012Z
 import { Asset, Entry } from 'contentful'
 
 // Book
@@ -12,13 +12,13 @@ export interface BookFields {
   /** Description */
   description: string
   /** Authors */
-  authors: Entry<AuthorFields>[]
+  authors: Entry<AuthorSkeleton>[]
   /** Publish Date */
   publishDate: string
   /** Genre */
-  genre?: Entry<GenreFields>
+  genre?: Entry<GenreSkeleton>
   /** Prices */
-  prices: Entry<PriceFields>[]
+  prices: Entry<PriceSkeleton>[]
   /** Book Size */
   bookSize: string
   /** Book Cover Front Texture */
@@ -26,20 +26,43 @@ export interface BookFields {
   /** Book Cover Side Texture */
   bookCoverTextureSide: Asset
   /** Link to Featured Article */
-  linkToFeaturedArticle?: Entry<LinkFields>
+  linkToFeaturedArticle?: Entry<LinkSkeleton>
   /** Link to Podcast Episode */
-  linkToPodcastEpisode?: Entry<LinkFields>
+  linkToPodcastEpisode?: Entry<LinkSkeleton>
   /** Critical Reception Text */
   criticalReceptionText: string
   /** Podcast Text */
   podcastText?: string
   /** Podcast Links */
-  podcastLinks?: Entry<LinkFields>[]
+  podcastLinks?: Entry<LinkSkeleton>[]
   /** Excerpt PDF */
   excerpt?: Asset
 }
 
-export type Book = Entry<BookFields>
+export interface BookSkeleton {
+  contentTypeId: 'book'
+  fields: BookFields
+}
+
+export type Book = Entry<BookSkeleton>
+
+// Link
+// Generic Link Type
+export interface LinkFields {
+  /** Text */
+  text: string
+  /** Link */
+  link: string
+  /** Vendor Icon (optional) */
+  vendor?: string
+}
+
+export interface LinkSkeleton {
+  contentTypeId: 'link'
+  fields: LinkFields
+}
+
+export type Link = Entry<LinkSkeleton>
 
 // Price + Product Information
 // Used for showing multiple prices along with their product information
@@ -56,7 +79,12 @@ export interface PriceFields {
   productInformation?: any
 }
 
-export type Price = Entry<PriceFields>
+export interface PriceSkeleton {
+  contentTypeId: 'price'
+  fields: PriceFields
+}
+
+export type Price = Entry<PriceSkeleton>
 
 // Author
 // Book Author
@@ -66,21 +94,15 @@ export interface AuthorFields {
   /** Biography */
   biography: string
   /** links */
-  links?: Entry<LinkFields>[]
+  links?: Entry<LinkSkeleton>[]
 }
 
-export type Author = Entry<AuthorFields>
-
-// Link
-// Generic Link Type
-export interface LinkFields {
-  /** Text */
-  text: string
-  /** Link */
-  link: string
+export interface AuthorSkeleton {
+  contentTypeId: 'author'
+  fields: AuthorFields
 }
 
-export type Link = Entry<LinkFields>
+export type Author = Entry<AuthorSkeleton>
 
 // Genre
 // Fiction or Non-Fiction plus the subgenre
@@ -91,25 +113,30 @@ export interface GenreFields {
   subGenre: string
 }
 
-export type Genre = Entry<GenreFields>
+export interface GenreSkeleton {
+  contentTypeId: 'genre'
+  fields: GenreFields
+}
+
+export type Genre = Entry<GenreSkeleton>
 
 // Union type for all content types
-export type ContentfulEntry = Book | Price | Author | Link | Genre
+export type ContentfulEntry = Book | Link | Price | Author | Genre
 
 // Content type IDs
 export const CONTENT_TYPES = {
   BOOK: 'book',
+  LINK: 'link',
   PRICE: 'price',
   AUTHOR: 'author',
-  LINK: 'link',
   GENRE: 'genre',
 } as const
 
 // Helper type for content type mapping
 export type ContentTypeMap = {
   [CONTENT_TYPES.BOOK]: Book
+  [CONTENT_TYPES.LINK]: Link
   [CONTENT_TYPES.PRICE]: Price
   [CONTENT_TYPES.AUTHOR]: Author
-  [CONTENT_TYPES.LINK]: Link
   [CONTENT_TYPES.GENRE]: Genre
 }

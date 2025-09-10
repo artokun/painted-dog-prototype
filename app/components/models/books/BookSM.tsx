@@ -15,19 +15,18 @@ type GLTFResult = GLTF & {
     BookMesh_3: THREE.Mesh;
   };
   materials: {
-    ["Book Material"]: THREE.MeshStandardMaterial;
+    Front_127x203: THREE.MeshStandardMaterial;
     Pages: THREE.MeshPhysicalMaterial;
-    Back: THREE.MeshStandardMaterial;
-    Side: THREE.MeshStandardMaterial;
+    Back_127x203: THREE.MeshStandardMaterial;
+    Side_127x203: THREE.MeshStandardMaterial;
   };
 };
 
-export function ExtraThickBookModel(
-  props: React.JSX.IntrinsicElements["group"]
-) {
+export function BookSM(props: React.JSX.IntrinsicElements["group"]) {
   const { nodes, materials } = useGLTF(
-    "/Painteddog-hardcover-book-133x203.glb"
+    "/models/Book_SM.gltf"
   ) as unknown as GLTFResult;
+  
   return (
     <group {...props} dispose={null}>
       <group rotation-y={Math.PI / 2}>
@@ -36,7 +35,7 @@ export function ExtraThickBookModel(
           castShadow
           receiveShadow
           geometry={nodes.BookMesh.geometry}
-          material={materials["Book Material"]}
+          material={materials.Front_127x203}
         />
         <mesh
           name="BookMesh_1"
@@ -50,18 +49,18 @@ export function ExtraThickBookModel(
           castShadow
           receiveShadow
           geometry={nodes.BookMesh_2.geometry}
-          material={materials.Back}
+          material={materials.Back_127x203}
         />
         <mesh
           name="BookMesh_3"
           castShadow
           receiveShadow
           geometry={nodes.BookMesh_3.geometry}
-          material={materials.Side}
+          material={materials.Side_127x203}
         />
       </group>
     </group>
   );
 }
 
-useGLTF.preload("/Painteddog-hardcover-book-133x203.glb");
+useGLTF.preload("/models/Book_SM.gltf");

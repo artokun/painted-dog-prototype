@@ -1,20 +1,7 @@
 import { z } from "zod";
 
-// Define the BookLink schema
-export const BookLinkSchema = z.object({
-  content: z.string().min(1, "Content is required"),
-  href: z.string().min(1, "Href is required"),
-  isExternal: z.boolean(),
-});
-
-// Define the book size options
-export const BookSizeSchema = z.enum([
-  "thin",
-  "medium",
-  "thick",
-  "veryThick",
-  "extraThick",
-]);
+// New Contentful-based types
+export const ContentfulBookSizeSchema = z.enum(["XS", "SM", "MD", "LG", "XL"]);
 
 export enum SortBy {
   Title = "title",
@@ -27,51 +14,81 @@ export enum SortOrder {
 
 export type BookId = string;
 
-// Define the book schema
-export const BookSchema = z.object({
+export type LinkFields = {
+  text: string;
+  link: string;
+  vendor: string;
+};
+
+// Contentful-based book schema
+export const ContentfulBookSchema = z.object({
   id: z.string().min(1, "ID is required"),
   title: z.string().min(1, "Title is required"),
-  firstName: z.string().min(1, "First name is required"),
-  surname: z.string().min(1, "Surname is required"),
-  size: BookSizeSchema,
-  hidden: z.boolean().default(false),
-  color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Color must be a valid hex color"),
-  price: z.number().positive("Price must be positive"),
-  description: z.string().min(1, "Description is required"),
+  featured: z.boolean().default(false),
+  description: z.string().min(1, "Description is required"), // Rich markdown content
   publishDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Publish date must be in YYYY-MM-DD format"),
-  genre: z.string().min(1, "Genre is required"),
-  isFeatured: z.boolean(),
-  featuredArticle: BookLinkSchema.optional(),
-  featuredPodcastEpisode: BookLinkSchema.optional(),
+  bookSize: ContentfulBookSizeSchema, // XS/SM/MD/LG/XL from Contentful
+
+  // Linked entries (from Contentful references)
+  authors: z.array(
+    z.object({
+      id: z.string(),
+      fullName: z.string(),
+      biography: z.string().optional(),
+    })
+  ),
+  genre: z
+    .object({
+      id: z.string(),
+      genre: z.string(), // "Fiction"
+      subGenre: z.string(), // "Literary Fiction"
+    })
+    .optional(),
+  prices: z
+    .array(
+      z.object({
+        id: z.string(),
+        text: z.string(), // "Paperback"
+        price: z.number(),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+
+  // Article and podcast links
+  linkToFeaturedArticle: z
+    .object({
+      id: z.string(),
+      text: z.string(),
+      link: z.string(),
+    })
+    .optional(),
+  linkToPodcastEpisode: z
+    .object({
+      id: z.string(),
+      text: z.string(),
+      link: z.string(),
+    })
+    .optional(),
+
+  // Rich content sections
+  criticalReceptionText: z.string().optional(),
+  podcastText: z.string().optional(),
+
+  // For backward compatibility/3D rendering
+  hidden: z.boolean().default(false),
+  isFeatured: z.boolean().default(false), // computed from featured field
 });
 
-// Define the array schema
-export const BooksArraySchema = z.array(BookSchema);
-
 // Export types
-export type BookLink = z.infer<typeof BookLinkSchema>;
-export type Book = z.infer<typeof BookSchema>;
-export type BookSize = z.infer<typeof BookSizeSchema>;
-export type BooksArray = z.infer<typeof BooksArraySchema>;
+export type ContentfulBook = z.infer<typeof ContentfulBookSchema>;
+export type Book = ContentfulBook; // Main type now points to Contentful
+export type BookSize = z.infer<typeof ContentfulBookSizeSchema>;
 export type BookMap = Record<BookId, Book>;
 
-// Validation function
-export function validateBooks(data: unknown): BooksArray {
-  return BooksArraySchema.parse(data);
-}
-
-// Safe validation function that returns an error instead of throwing
-export function validateBooksSafe(
-  data: unknown
-): { success: true; data: BooksArray } | { success: false; error: z.ZodError } {
-  const result = BooksArraySchema.safeParse(data);
-  if (result.success) {
-    return { success: true, data: result.data };
-  } else {
-    return { success: false, error: result.error };
-  }
+// Contentful validation functions
+export function validateContentfulBooks(data: unknown): ContentfulBook[] {
+  return z.array(ContentfulBookSchema).parse(data);
 }

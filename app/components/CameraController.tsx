@@ -6,6 +6,7 @@ import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
 import { getBookStackHeight, getGridHeight } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
+import { BookMap } from "@/types/book";
 import { lerp } from "three/src/math/MathUtils.js";
 
 const CameraController = memo(function CameraController() {
@@ -45,13 +46,13 @@ const CameraController = memo(function CameraController() {
 
   // Calculate height limits based on view mode
   const { topLimit, bottomLimit } = useMemo(() => {
-    const gridLimits = getGridHeight(books);
+    const gridLimits = getGridHeight(books as BookMap);
 
     return {
       gridLimits,
       topLimit: isGridMode
         ? gridLimits.topLimit
-        : getBookStackHeight(books) + 0.1,
+        : getBookStackHeight(books as BookMap) + 0.1,
       bottomLimit: 0.13,
     };
   }, [isGridMode, books]);

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Center, Text, Text3D, TextProps, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { ExtraThickBookModel } from "./models/books/133x203";
+import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
 import {
   animated,
   config,
@@ -12,11 +12,11 @@ import {
 } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
-import { Book as BookType, BookLink } from "@/types/book";
+import { Book as BookType, BookMap, LinkFields } from "@/types/book";
 import {
   calculateOptimalZDistance,
   calculateSortGridPosition,
-  getBookSize,
+  getContentfulBookSize,
   getBookSortYPosition,
   getCurrentBookIndex,
   getDropHeight,
@@ -35,8 +35,55 @@ const getOffsets = () => {
   };
 };
 
+// Map size system to model components
+const getBookModel = (size: string) => {
+  switch (size) {
+    case "XS":
+      return BookXS;
+    case "SM":
+      return BookSM;
+    case "MD":
+      return BookMD;
+    case "LG":
+      return BookLG;
+    case "XL":
+      return BookXL;
+    default:
+      return BookMD; // Default fallback
+  }
+};
+
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
+
+const getBookAuthor = (book: BookType) => {
+  // Handle Contentful structure
+  if ("authors" in book && book.authors.length > 0) {
+    return book.authors[0].fullName;
+  }
+  return "Unknown Author";
+};
+
+const getBookSizeForModel = (book: BookType) => {
+  return book.bookSize;
+};
+
+const getBookLinks = (book: BookType) => {
+  return {
+    featuredArticle: book.linkToFeaturedArticle
+      ? {
+          text: book.linkToFeaturedArticle.text,
+          link: book.linkToFeaturedArticle.link,
+        }
+      : undefined,
+    featuredPodcastEpisode: book.linkToPodcastEpisode
+      ? {
+          text: book.linkToPodcastEpisode.text,
+          link: book.linkToPodcastEpisode.link,
+        }
+      : undefined,
+  };
+};
 
 function Book(book: BookType) {
   const { books, focusedBookId, hoveredBookId } = useSnapshot(bookStore);
@@ -59,15 +106,20 @@ function Book(book: BookType) {
   const bookPosition = useMemo(
     () =>
       !isGridMode
-        ? getBookSortYPosition(book.id, books, sortBy, sortOrder)
-        : calculateSortGridPosition(book.id, books, sortBy, sortOrder),
+        ? getBookSortYPosition(book.id, books as BookMap, sortBy, sortOrder)
+        : calculateSortGridPosition(
+            book.id,
+            books as BookMap,
+            sortBy,
+            sortOrder
+          ),
     [book.id, books, sortBy, sortOrder, isGridMode]
   );
 
   const offsets = useMemo(() => getOffsets(), []);
   const currentBookIndex = getCurrentBookIndex(
     book.id,
-    books,
+    books as BookMap,
     sortBy,
     sortOrder
   );
@@ -80,7 +132,7 @@ function Book(book: BookType) {
         book.isFeatured || isFocused
           ? 0
           : isSorting
-            ? getBookSize(book.size)[0] *
+            ? getContentfulBookSize(book.bookSize)[0] *
               2 *
               (currentBookIndex % 2 === 0 ? 1 : -1)
             : search.length > 1
@@ -93,7 +145,7 @@ function Book(book: BookType) {
         book.isFeatured || isFocused
           ? 0
           : isSorting
-            ? -getBookSize(book.size)[2] * 2
+            ? -getContentfulBookSize(book.bookSize)[2] * 2
             : search.length > 1
               ? book.hidden
                 ? 0
@@ -181,7 +233,9 @@ function Book(book: BookType) {
             posZ: calculateOptimalZDistance(camera) - bookPosition.posZ,
           }
         : {
-            posZ: isSorting ? -getBookSize(book.size)[2] - 0.001 : 0,
+            posZ: isSorting
+              ? -getContentfulBookSize(book.bookSize)[2] - 0.001
+              : 0,
           },
       onStart: () => {
         isSlidingRef.current = true;
@@ -195,7 +249,14 @@ function Book(book: BookType) {
   );
 
   const dropHeight = useMemo(
-    () => getDropHeight(book.id, focusedBookId, books, sortBy, sortOrder),
+    () =>
+      getDropHeight(
+        book.id,
+        focusedBookId,
+        books as BookMap,
+        sortBy,
+        sortOrder
+      ),
     [book.id, focusedBookId, books, sortBy, sortOrder]
   );
 
@@ -319,8 +380,9 @@ function Book(book: BookType) {
     }
   });
 
-  const [width, height, depth] = getBookSize(book.size);
-  const bookAuthor = `${book.firstName} ${book.surname}`;
+  const [width, height, depth] = getContentfulBookSize(book.bookSize);
+  const bookAuthor = getBookAuthor(book);
+  const bookLinks = getBookLinks(book);
 
   return (
     <animated.group
@@ -364,41 +426,35 @@ function Book(book: BookType) {
           rotation-x={bookFocusedTiltGroupSpring.rotX}
           rotation-z={bookFocusedTiltGroupSpring.rotZ}
         >
-          {book.size === "extraThick" ? (
-            <ExtraThickBookModel castShadow receiveShadow />
-          ) : (
-            <>
-              <mesh castShadow receiveShadow name="book-mesh">
-                <boxGeometry args={[width, height, depth]} />
-                <meshStandardMaterial
-                  color={book.color}
-                  metalness={0.1}
-                  roughness={0.8}
-                />
-              </mesh>
-              <group>
-                <CoverText
-                  title={book.title}
-                  author={bookAuthor}
-                  width={width}
-                  height={height}
-                />
-                <SpineText
-                  title={book.title}
-                  hidden={search.length > 1 ? !book.hidden : false}
-                  author={bookAuthor}
-                  width={width}
-                  depth={depth}
-                />
-              </group>
-            </>
-          )}
+          {(() => {
+            const BookModelComponent = getBookModel(getBookSizeForModel(book));
+            return (
+              <>
+                <BookModelComponent castShadow receiveShadow />
+                <group>
+                  <CoverText
+                    title={book.title}
+                    author={bookAuthor}
+                    width={width}
+                    height={height}
+                  />
+                  <SpineText
+                    title={book.title}
+                    hidden={search.length > 1 ? !book.hidden : false}
+                    author={bookAuthor}
+                    width={width}
+                    depth={depth}
+                  />
+                </group>
+              </>
+            );
+          })()}
         </animated.group>
       </animated.group>
       <group position={[-0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
-        {book.featuredArticle && (
+        {bookLinks.featuredArticle && (
           <Link3d
-            {...book.featuredArticle}
+            {...bookLinks.featuredArticle}
             align="left"
             visible={
               hoveredBookId === book.id &&
@@ -410,9 +466,9 @@ function Book(book: BookType) {
         )}
       </group>
       <group position={[0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
-        {book.featuredPodcastEpisode && (
+        {bookLinks.featuredPodcastEpisode && (
           <Link3d
-            {...book.featuredPodcastEpisode}
+            {...bookLinks.featuredPodcastEpisode}
             align="right"
             visible={
               hoveredBookId === book.id &&
@@ -538,12 +594,14 @@ const CoverText = ({
 };
 
 const Link3d = ({
-  content,
-  href,
-  isExternal,
+  text,
+  link,
   align,
   visible,
-}: BookLink & { align: "left" | "right"; visible: boolean }) => {
+}: Omit<LinkFields, "vendor"> & {
+  align: "left" | "right";
+  visible: boolean;
+}) => {
   const [hovered, setHovered] = useState(false);
   const router = useRouter();
   const ref = useRef<TextProps>(null);
@@ -559,6 +617,8 @@ const Link3d = ({
   });
   useCursor(hovered, "pointer");
 
+  const isExternal = link.includes("http");
+
   return (
     <Text
       ref={ref}
@@ -572,18 +632,14 @@ const Link3d = ({
       onPointerLeave={() => setHovered(false)}
       onClick={(e) => {
         e.stopPropagation();
-
-        alert("clicked link, needs setting up");
-        return;
-
         if (isExternal) {
-          window.open(href, "_blank");
+          window.open(link, "_blank");
         } else {
-          router.push(href);
+          router.push(link);
         }
       }}
     >
-      {content}
+      {text}
     </Text>
   );
 };
