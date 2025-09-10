@@ -33,7 +33,7 @@ export default function Backdrop() {
 
   // Position the backdrop between the stack and featured book
   // Using a Z position that's closer than the featured book but further than the stack
-  const zPosition = isGridMode ? -0.45 : 0.075; // Halfway between stack (0) and featured book (~0.3)
+  const zPosition = isGridMode ? -0.45 : 0.09; // Halfway between stack (0) and featured book (~0.3)
 
   // Only render the mesh when it should be interactive
   if (!isVisible && spring.opacity.get() <= 0.01) {

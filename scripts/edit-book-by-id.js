@@ -61,6 +61,8 @@ Available fields:
       console.log(`   Authors: ${details.authors?.join(', ') || 'None'}`);
       console.log(`   Genre: ${details.genre || 'None'}`);
       console.log(`   Prices: ${details.prices?.join(', ') || 'None'}`);
+      console.log(`   Featured Article Link: ${details.linkToFeaturedArticle || 'None'}`);
+      console.log(`   Podcast Episode Link: ${details.linkToPodcastEpisode || 'None'}`);
       console.log(`   Version: ${details.version} (Published: ${details.publishedVersion || 'Draft'})`);
       return;
     }

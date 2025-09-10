@@ -80,6 +80,27 @@ async function updateBook(bookId, updates, options = {}) {
       changelog.push(`prices: updated to ${updates.prices.length} entries`);
     }
     
+    // Handle single link references
+    if (updates.linkToFeaturedArticle) {
+      book.fields.linkToFeaturedArticle = {
+        'en-US': {
+          sys: { type: 'Link', linkType: 'Entry', id: updates.linkToFeaturedArticle }
+        }
+      };
+      hasChanges = true;
+      changelog.push(`featured article link: updated to ${updates.linkToFeaturedArticle}`);
+    }
+    
+    if (updates.linkToPodcastEpisode) {
+      book.fields.linkToPodcastEpisode = {
+        'en-US': {
+          sys: { type: 'Link', linkType: 'Entry', id: updates.linkToPodcastEpisode }
+        }
+      };
+      hasChanges = true;
+      changelog.push(`podcast episode link: updated to ${updates.linkToPodcastEpisode}`);
+    }
+
     // Handle asset references
     if (updates.bookCoverTextureFront) {
       book.fields.bookCoverTextureFront = {

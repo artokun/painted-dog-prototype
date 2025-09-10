@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 export const Middle = () => {
   return (
-    <div className="absolute inset-0 top-0 left-0 z-10">
+    <div id="middle" className="absolute inset-0 top-0 left-0 z-10">
       <Canvas
         camera={{ position: [0, 0.01, 0.3], fov: 45 }}
         shadows
@@ -18,7 +18,7 @@ export const Middle = () => {
         }}
       >
         <Suspense fallback={null}>
-          <ScrollControls pages={3} damping={0.2}>
+          <ScrollControls pages={3} damping={0.1}>
             <App />
           </ScrollControls>
         </Suspense>

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Text, TextProps, useCursor } from "@react-three/drei";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BBAnchor, Html, Text, TextProps, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
@@ -20,10 +20,13 @@ import {
   getBookSortYPosition,
   getCurrentBookIndex,
   getDropHeight,
+  calculateXFromCameraDepthOnRotation,
 } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
 import { useRouter } from "next/navigation";
 import { lerp } from "three/src/math/MathUtils.js";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const getOffsets = () => {
   return {
@@ -62,7 +65,7 @@ function Book(book: BookType) {
   const isSlidingRef = useRef(false);
   const { view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
-  
+
   // Use local state for hover to avoid global state rerenders
   const [isHovered, setIsHovered] = useState(false);
   const wasFocusedRef = useRef(false);
@@ -350,7 +353,12 @@ function Book(book: BookType) {
   });
 
   const [width, thickness, height] = getContentfulBookSize(book.bookSize);
-  const bookLinks = getBookLinks(book);
+
+  const middleDivRef = useRef<HTMLDivElement>(
+    document.getElementById("middle") as HTMLDivElement
+  );
+
+  const textVisible = isHovered && !isFocused && !isGridMode && !isSorting;
 
   return (
     <animated.group
@@ -396,7 +404,7 @@ function Book(book: BookType) {
           <BookModel book={book} />
         </animated.group>
       </animated.group>
-      <group position={[-0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
+      {/* <group position={[-0.17 - offsets.posX, 0, 0.065 - offsets.posZ]}>
         {bookLinks.featuredArticle && (
           <Link3d
             {...bookLinks.featuredArticle}
@@ -423,7 +431,70 @@ function Book(book: BookType) {
             }
           />
         )}
-      </group>
+      </group> */}
+      {/* {book.linkToFeaturedArticle && (
+        <Html
+          className="border border-red-500"
+          center
+          position={[
+            0.12 - offsets.posX,
+            getContentfulBookSize(book.bookSize)[1] * 0.25,
+            0.065 - offsets.posZ,
+          ]}
+          portal={{ current: document.body }}
+        >
+          <span className="whitespace-nowrap text-black">
+            {book.linkToFeaturedArticle.text}
+          </span>
+        </Html>
+      )} */}
+      <Html
+        center
+        className={cn(
+          "text-sm opacity-50 border border-red-500 transition-all duration-100 ease-in-out w-dvw px-12",
+          textVisible && "opacity-100"
+        )}
+        position={[
+          calculateXFromCameraDepthOnRotation(
+            camera as THREE.PerspectiveCamera,
+            -offsets.posX
+          ),
+          0,
+          getContentfulBookSize(book.bookSize)[0] * 0.5 + offsets.posZ,
+        ]}
+        portal={middleDivRef}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setIsHovered(true);
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation();
+          setIsHovered(false);
+        }}
+      >
+        <div className="text-black flex justify-between w-full">
+          {book.linkToFeaturedArticle && (
+            <Link
+              href={book.linkToFeaturedArticle.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto text-ellipsis"
+            >
+              {book.linkToFeaturedArticle.text}
+            </Link>
+          )}
+          {book.linkToPodcastEpisode && (
+            <Link
+              href={book.linkToPodcastEpisode.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto text-ellipsis"
+            >
+              {book.linkToPodcastEpisode.text}
+            </Link>
+          )}
+        </div>
+      </Html>
     </animated.group>
   );
 }
@@ -443,57 +514,6 @@ const BookModel = ({ book }: { book: BookType }) => {
     default:
       return <BookMD castShadow receiveShadow textures={book.textures} />; // Default fallback
   }
-};
-
-const Link3d = ({
-  text,
-  link,
-  align,
-  visible,
-}: Omit<LinkFields, "vendor"> & {
-  align: "left" | "right";
-  visible: boolean;
-}) => {
-  const [hovered, setHovered] = useState(false);
-  const router = useRouter();
-  const ref = useRef<TextProps>(null);
-
-  useFrame(() => {
-    if (ref.current) {
-      ref.current.fillOpacity = lerp(
-        ref.current.fillOpacity || 0,
-        visible ? 1 : 0,
-        0.2
-      );
-    }
-  });
-  useCursor(hovered, "pointer");
-
-  const isExternal = link.includes("http");
-
-  return (
-    <Text
-      ref={ref}
-      fontSize={0.003}
-      color="#000000"
-      anchorX={align}
-      castShadow={visible}
-      textAlign={align}
-      anchorY="middle"
-      onPointerEnter={() => setHovered(true)}
-      onPointerLeave={() => setHovered(false)}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (isExternal) {
-          window.open(link, "_blank");
-        } else {
-          router.push(link);
-        }
-      }}
-    >
-      {text}
-    </Text>
-  );
 };
 
 export default Book;

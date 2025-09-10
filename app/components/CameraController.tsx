@@ -25,7 +25,7 @@ const CameraController = memo(function CameraController() {
   // Calculate camera distance (fixed distance, no responsive behavior)
   const distance = useMemo(() => {
     const bookWidth = 0.25;
-    const desiredScreenPercentage = 0.7;
+    const desiredScreenPercentage = 0.6;
     const fov = 45; // From page.tsx
     const calculatedDistance =
       bookWidth /

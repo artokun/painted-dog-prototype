@@ -45,6 +45,19 @@ export const wrapText = (text: string, maxLength: number = 12): string[] => {
   return lines;
 };
 
+export const calculateXFromCameraDepthOnRotation = (
+  camera: THREE.PerspectiveCamera,
+  x: number
+) => {
+  const cameraRotation = -camera.rotation.y;
+  return (
+    x *
+    camera.position.z *
+    Math.tan((camera.fov * Math.PI) / 180 / 2) *
+    Math.cos(cameraRotation)
+  );
+};
+
 // Calculate optimal Z distance for focused book to fill 75% of viewport height
 export const calculateOptimalZDistance = (camera: THREE.Camera) => {
   // Use a fixed reference book height so all books appear the same size on screen
