@@ -396,71 +396,76 @@ function Book(book: BookType) {
           <BookModel book={book} />
         </animated.group>
       </animated.group>
-      <Html
-        zIndexRange={[-0.1, 0]}
-        center
-        visible={!someBookIsFocused}
-        className={cn(
-          "text-sm opacity-0 w-dvw px-12 pointer-events-none",
-          textVisible && "opacity-100"
-        )}
-        style={{
-          height:
-            getContentfulBookSize(book.bookSize)[book.isFeatured ? 2 : 1] *
-            3400,
-          transition: "opacity ease-in-out",
-          transitionDuration: isHovered ? "0ms" : "0.3s",
-        }}
-        position={[
-          -offsets.posX,
-          0,
-          getContentfulBookSize(book.bookSize)[0] * 0.5 - offsets.posZ,
-        ]}
-        portal={middleDivRef}
-      >
-        <div
-          className="text-black flex justify-between h-full w-full"
-          onWheel={(e) => {
-            e.preventDefault();
-            scroll.el.scrollTop += e.deltaY;
+      {!someBookIsFocused && (
+        <Html
+          zIndexRange={[-0.1, 0]}
+          center
+          className={cn(
+            "text-sm opacity-50 w-dvw px-12 pointer-events-none",
+            textVisible && "opacity-100"
+          )}
+          style={{
+            height:
+              getContentfulBookSize(book.bookSize)[book.isFeatured ? 2 : 1] *
+              3400,
+            transition: "opacity ease-in-out",
+            transitionDuration: isHovered ? "0ms" : "0.3s",
           }}
+          position={[
+            -offsets.posX,
+            0,
+            getContentfulBookSize(book.bookSize)[0] * 0.5 - offsets.posZ,
+          ]}
+          portal={middleDivRef}
         >
-          {book.linkToFeaturedArticle && (
-            <Link
-              href={book.linkToFeaturedArticle.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ellipsis hover:underline flex items-center justify-start h-full pointer-events-auto w-[28dvw]"
-              onPointerOver={(e) => {
-                e.preventDefault();
-                setIsHovered(true);
-              }}
-              onPointerLeave={(e) => {
-                e.preventDefault();
-                setIsHovered(false);
-              }}
-            >
-              {book.linkToFeaturedArticle.text}
-            </Link>
-          )}
-          {book.linkToPodcastEpisode && (
-            <Link
-              href={book.linkToPodcastEpisode.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ellipsis hover:underline flex justify-end items-center h-full pointer-events-auto w-[28dvw] text-right"
-              onPointerOver={(e) => {
-                setIsHovered(true);
-              }}
-              onPointerLeave={(e) => {
-                setIsHovered(false);
-              }}
-            >
-              {book.linkToPodcastEpisode.text}
-            </Link>
-          )}
-        </div>
-      </Html>
+          <div
+            className="text-black flex justify-between h-full w-full"
+            onWheel={(e) => {
+              e.preventDefault();
+              scroll.el.scrollTop += e.deltaY;
+            }}
+          >
+            {book.linkToFeaturedArticle && (
+              <div
+                className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
+                onPointerOver={(e) => {
+                  e.preventDefault();
+                  setIsHovered(true);
+                }}
+                onPointerLeave={(e) => {
+                  e.preventDefault();
+                  setIsHovered(false);
+                }}
+              >
+                <Link
+                  href={book.linkToFeaturedArticle.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  {book.linkToFeaturedArticle.text}
+                </Link>
+              </div>
+            )}
+            {book.linkToPodcastEpisode && (
+              <Link
+                href={book.linkToPodcastEpisode.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ellipsis hover:underline flex justify-end items-center h-full pointer-events-auto w-[28dvw] text-right"
+                onPointerOver={(e) => {
+                  setIsHovered(true);
+                }}
+                onPointerLeave={(e) => {
+                  setIsHovered(false);
+                }}
+              >
+                {book.linkToPodcastEpisode.text}
+              </Link>
+            )}
+          </div>
+        </Html>
+      )}
     </animated.group>
   );
 }

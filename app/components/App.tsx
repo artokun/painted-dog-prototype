@@ -70,6 +70,16 @@ export default function App() {
     },
   });
 
+  const { ambientLightIntensity } = useControls("Ambient Light", {
+    ambientLightIntensity: {
+      value: 1,
+      min: 0,
+      max: 5,
+      step: 0.01,
+      label: "Ambient Light Intensity",
+    },
+  });
+
   const environmentIntensity = useMemo(() => {
     return search.length > 1 ? 0 : 0;
   }, [search]);
@@ -96,8 +106,7 @@ export default function App() {
           scale: groundScale,
         }}
       />
-      <fog attach="fog" args={["#202020", 5, 10]} />
-      <ambientLight intensity={1} />
+      <ambientLight intensity={ambientLightIntensity} />
       {/* sun light */}
       <animated.directionalLight
         position={spring.position}
