@@ -1,4 +1,4 @@
-import { useSnapshot, subscribe } from "valtio";
+import { useSnapshot } from "valtio";
 import Book from "./Book";
 import { useEffect } from "react";
 import { bookStore, loadBooks } from "../store/bookStore";
@@ -18,7 +18,10 @@ export default function BookStack() {
       filterStore,
       FilterKey.Search,
       (search) => {
-        const filteredBooks = filterBooksByFuzzySearch(books as BookMap, search);
+        const filteredBooks = filterBooksByFuzzySearch(
+          books as BookMap,
+          search
+        );
         bookStore.books = filteredBooks;
       }
     );
@@ -35,9 +38,11 @@ export default function BookStack() {
 
   // Show error state
   if (error) {
-    console.error('Error loading books:', error);
+    console.error("Error loading books:", error);
     return null; // Could add error display here
   }
 
-  return Object.entries(books).map(([id, book]) => <Book key={id} {...(book as any)} />);
+  return Object.entries(books).map(([id, book]) => (
+    <Book key={id} {...(book as any)} />
+  ));
 }

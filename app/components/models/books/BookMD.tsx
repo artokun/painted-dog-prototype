@@ -36,7 +36,7 @@ export function BookMD(
   useBookTextures(props.textures, materials, {
     front: "Front_133x203",
     side: "Side_133x203",
-    back: "Back_133x203"
+    back: "Back_133x203",
   });
 
   return (

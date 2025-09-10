@@ -54,7 +54,7 @@ const getBookLinks = (book: BookType) => {
 };
 
 function Book(book: BookType) {
-  const { books, focusedBookId, hoveredBookId } = useSnapshot(bookStore);
+  const { books, focusedBookId } = useSnapshot(bookStore);
   const { search } = useSnapshot(filterStore);
   const { sortBy, sortOrder, isSorting } = useSnapshot(filterStore);
   const { camera } = useThree();
@@ -62,7 +62,9 @@ function Book(book: BookType) {
   const isSlidingRef = useRef(false);
   const { view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
-  const isHovered = hoveredBookId === book.id;
+  
+  // Use local state for hover to avoid global state rerenders
+  const [isHovered, setIsHovered] = useState(false);
   const wasFocusedRef = useRef(false);
 
   useEffect(() => {
@@ -295,7 +297,6 @@ function Book(book: BookType) {
 
     if (isFocused) {
       bookStore.focusedBookId = null;
-      bookStore.hoveredBookId = null;
     } else {
       bookStore.focusedBookId = book.id;
     }
@@ -372,12 +373,11 @@ function Book(book: BookType) {
       onClick={handleClick}
       onPointerEnter={(e) => {
         e.stopPropagation();
-        bookStore.hoveredBookId = book.id;
+        setIsHovered(true);
       }}
       onPointerLeave={(e) => {
         e.stopPropagation();
-        if (!isGridMode) return;
-        bookStore.hoveredBookId = null;
+        setIsHovered(false);
       }}
     >
       <animated.group
@@ -402,7 +402,7 @@ function Book(book: BookType) {
             {...bookLinks.featuredArticle}
             align="left"
             visible={
-              hoveredBookId === book.id &&
+              isHovered &&
               !isFocused &&
               !isGridMode &&
               !isSorting
@@ -416,7 +416,7 @@ function Book(book: BookType) {
             {...bookLinks.featuredPodcastEpisode}
             align="right"
             visible={
-              hoveredBookId === book.id &&
+              isHovered &&
               !isFocused &&
               !isGridMode &&
               !isSorting

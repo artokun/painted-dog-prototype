@@ -49,7 +49,7 @@ export const wrapText = (text: string, maxLength: number = 12): string[] => {
 export const calculateOptimalZDistance = (camera: THREE.Camera) => {
   // Use a fixed reference book height so all books appear the same size on screen
   // Using medium book width (0.185) as the reference since it's in the middle of the range
-  const referenceBookHeight = 0.22;
+  const referenceBookHeight = 0.23;
 
   // VIEWPORT_PERCENTAGE: Adjust this value to change how much of the screen the featured book fills
   const targetScreenPercentage = 0.8;
