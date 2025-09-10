@@ -1,12 +1,8 @@
-import {
-  BookId,
-  BookMap,
-  SortBy,
-  SortOrder,
-  ContentfulBook,
-} from "@/types/book";
+import { BookId, BookMap, SortBy, SortOrder } from "@/types/book";
 import Fuse from "fuse.js";
 import * as THREE from "three";
+import { bookStore } from "../store/bookStore";
+import { filterStore } from "../store/filterStore";
 
 // Dynamic font sizing for spine based on title length
 export const getSpineFontSize = (text: string) => {
@@ -52,21 +48,22 @@ export const calculateXFromCameraDepthOnRotation = (
 ) => {
   const cameraRotation = camera.rotation.y;
   const fovRadians = (camera.fov * Math.PI) / 180;
-  
+
   // Calculate the world width at the target Z distance
   const distanceToTarget = camera.position.z - targetZ;
-  const worldWidth = 2 * Math.tan(fovRadians / 2) * distanceToTarget * camera.aspect;
-  
+  const worldWidth =
+    2 * Math.tan(fovRadians / 2) * distanceToTarget * camera.aspect;
+
   // Convert normalized screen X to world X
   const worldX = normalizedX * (worldWidth / 2);
-  
+
   // Compensate for camera rotation
   const compensatedX = worldX * Math.cos(cameraRotation);
   const compensatedZ = worldX * Math.sin(cameraRotation);
-  
+
   return {
     x: compensatedX,
-    z: targetZ + compensatedZ
+    z: targetZ + compensatedZ,
   };
 };
 
@@ -119,11 +116,9 @@ export const getContentfulBookSize = (
   );
 };
 
-export const getSortedBooks = (
-  books: BookMap,
-  sortBy: SortBy,
-  sortOrder: SortOrder
-) => {
+export const getSortedBooks = () => {
+  const books = bookStore.books;
+  const { sortBy, sortOrder } = filterStore;
   return (
     Object.values(books)
       .sort((a, b) => {
@@ -172,8 +167,8 @@ export const getSortedBooks = (
   );
 };
 
-export const getBookStackHeight = (books: BookMap): number => {
-  const sortedBooks = getSortedBooks(books, SortBy.Title, SortOrder.Desc);
+export const getBookStackHeight = (): number => {
+  const sortedBooks = getSortedBooks();
   const filteredBooks = sortedBooks.filter((book) => {
     return "featured" in book
       ? !book.featured
@@ -185,15 +180,11 @@ export const getBookStackHeight = (books: BookMap): number => {
   }, 0);
 };
 
-export const getDropHeight = (
-  bookId: BookId,
-  focusedBookId: BookId | null,
-  books: BookMap,
-  sortBy: SortBy,
-  sortOrder: SortOrder
-): number => {
+export const getDropHeight = (bookId: BookId): number => {
+  const focusedBookId = bookStore.focusedBookId;
+  const books = bookStore.books;
   if (focusedBookId !== null && focusedBookId !== bookId) {
-    const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
+    const sortedBooks = getSortedBooks();
     const bookIndex = sortedBooks.findIndex((book) => book.id === bookId);
     const focusedBookIndex = sortedBooks.findIndex(
       (book) => book.id === focusedBookId
@@ -207,22 +198,20 @@ export const getDropHeight = (
 };
 
 export const getBookSortYPosition = (
-  bookId: BookId,
-  books: BookMap,
-  sortBy: SortBy,
-  sortOrder: SortOrder
+  bookId: BookId
 ): { posX: number; posY: number; posZ: number } => {
+  const books = bookStore.books;
   const book = books[bookId];
   const isFeatured = book.featured;
   const [, ownThickness, ownLength] = getContentfulBookSize(book.bookSize);
 
   if (isFeatured) {
-    const stackHeight = getBookStackHeight(books);
+    const stackHeight = getBookStackHeight();
     const featuredY = stackHeight + ownLength / 2;
     return { posX: 0, posY: featuredY, posZ: 0 };
   }
 
-  const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
+  const sortedBooks = getSortedBooks();
 
   //remove featured books
   const filteredBooks = sortedBooks.filter((book) => {
@@ -241,19 +230,16 @@ export const getBookSortYPosition = (
 };
 
 export const calculateSortGridPosition = (
-  bookId: BookId,
-  books: BookMap,
-  sortBy: SortBy,
-  sortOrder: SortOrder
+  bookId: BookId
 ): { posX: number; posY: number; posZ: number } => {
   const columns = 4;
-  const bookIndex = getCurrentBookIndex(bookId, books, sortBy, sortOrder);
+  const bookIndex = getCurrentBookIndex(bookId);
   const gridItemWidth = 0.2;
   const gridItemHeight = 0.24;
   const columnSpacing = 0.01;
   const rowSpacing = 0.02;
 
-  const totalBooks = Object.keys(books).length;
+  const totalBooks = Object.keys(bookStore.books).length;
   const totalRows = Math.ceil(totalBooks / columns);
   const bottomRowY = 0; // Bottom of the last row
 
@@ -272,15 +258,13 @@ export const calculateSortGridPosition = (
   return { posX: x, posY: y, posZ: z };
 };
 
-export const getGridHeight = (
-  books: BookMap
-): { topLimit: number; bottomLimit: number } => {
+export const getGridHeight = (): { topLimit: number; bottomLimit: number } => {
   const columns = 4;
   const gridItemHeight = 0.24;
   const rowSpacing = 0.02;
   const bottomRowY = -0.13; // Bottom of the last row
 
-  const totalBooks = Object.keys(books).length;
+  const totalBooks = Object.keys(bookStore.books).length;
   const totalRows = Math.ceil(totalBooks / columns);
 
   // Bottom limit is the bottom of the bottom row
@@ -293,13 +277,8 @@ export const getGridHeight = (
   return { topLimit, bottomLimit };
 };
 
-export const getCurrentBookIndex = (
-  bookId: BookId,
-  books: BookMap,
-  sortBy: SortBy,
-  sortOrder: SortOrder
-) => {
-  const sortedBooks = getSortedBooks(books, sortBy, sortOrder);
+export const getCurrentBookIndex = (bookId: BookId) => {
+  const sortedBooks = getSortedBooks();
   return sortedBooks.findIndex((book) => book.id === bookId);
 };
 
@@ -307,8 +286,7 @@ export const getCurrentBookIndex = (
 const fuseOptions = {
   keys: [
     { name: "title", weight: 0.7 },
-    { name: "firstName", weight: 0.15 },
-    { name: "surname", weight: 0.15 },
+    { name: "authors.fullName", weight: 0.3 }, // Search in authors array
   ],
   threshold: 0.3, // Balance between strict and fuzzy (0 = exact, 1 = match anything)
   includeScore: true,
@@ -317,7 +295,8 @@ const fuseOptions = {
   shouldSort: true, // Sort by best match
 };
 
-export const filterBooksByFuzzySearch = (books: BookMap, search: string) => {
+export const filterBooksByFuzzySearch = (search: string) => {
+  const books = bookStore.books;
   // If no search term, return all books
   if (!search || search.trim() === "") {
     return books;
@@ -325,6 +304,7 @@ export const filterBooksByFuzzySearch = (books: BookMap, search: string) => {
 
   // Create Fuse instance with the books
   const bookArray = Object.values(books);
+
   const fuse = new Fuse(bookArray, fuseOptions);
 
   // Perform the search
@@ -334,12 +314,13 @@ export const filterBooksByFuzzySearch = (books: BookMap, search: string) => {
   const filteredBooks: BookMap = Object.values(books).reduce((acc, book) => {
     acc[book.id] = {
       ...book,
-      hidden: false,
+      hidden: true,
     };
     return acc;
   }, {} as BookMap);
+
   results.forEach((result) => {
-    filteredBooks[result.item.id].hidden = true;
+    filteredBooks[result.item.id].hidden = false;
   });
 
   return search.length > 1 ? filteredBooks : books;

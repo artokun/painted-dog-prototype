@@ -82,12 +82,17 @@ export const ContentfulBookSchema = z.object({
   // Textures for 3D models
   textures: z.object({
     front: z.string(), // Asset URL
-    side: z.string(),  // Asset URL
+    side: z.string(), // Asset URL
+  }),
+
+  offset: z.object({
+    posX: z.number(),
+    rotY: z.number(),
+    posZ: z.number(),
   }),
 
   // For backward compatibility/3D rendering
   hidden: z.boolean().default(false),
-  isFeatured: z.boolean().default(false),
 });
 
 // Export types

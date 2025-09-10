@@ -48,6 +48,11 @@ export function transformContentfulBook(
     featured: getLocalizedField(fields.featured) || false,
     description: getLocalizedField(fields.description) || "",
     publishDate: getLocalizedField(fields.publishDate) || "",
+    offset: {
+      posX: Math.random() * 0.012 - 0.006,
+      rotY: Math.random() * 0.012 - 0.006,
+      posZ: Math.random() * 0.012 - 0.006,
+    },
     bookSize: (getLocalizedField(fields.bookSize) || "MD") as
       | "XS"
       | "SM"
@@ -169,7 +174,6 @@ export function transformContentfulBook(
 
     // For 3D rendering compatibility
     hidden: false,
-    isFeatured: getLocalizedField(fields.featured) || false,
   };
 }
 

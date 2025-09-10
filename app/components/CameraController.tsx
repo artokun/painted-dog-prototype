@@ -46,13 +46,11 @@ const CameraController = memo(function CameraController() {
 
   // Calculate height limits based on view mode
   const { topLimit, bottomLimit } = useMemo(() => {
-    const gridLimits = getGridHeight(books as BookMap);
+    const gridLimits = getGridHeight();
 
     return {
       gridLimits,
-      topLimit: isGridMode
-        ? gridLimits.topLimit
-        : getBookStackHeight(books as BookMap) + 0.1,
+      topLimit: isGridMode ? gridLimits.topLimit : getBookStackHeight() + 0.1,
       bottomLimit: 0.13,
     };
   }, [isGridMode, books]);

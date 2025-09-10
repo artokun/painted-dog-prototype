@@ -41,6 +41,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     <div className="fixed inset-0 bg-black flex items-center justify-center">
       <div className="p-8 max-w-md w-full mx-4 flex flex-col items-center">
         <Image
+          priority
           src="/logo-dog.png"
           alt="Logo"
           className="w-50 mb-10"

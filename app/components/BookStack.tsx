@@ -18,10 +18,7 @@ export default function BookStack() {
       filterStore,
       FilterKey.Search,
       (search) => {
-        const filteredBooks = filterBooksByFuzzySearch(
-          books as BookMap,
-          search
-        );
+        const filteredBooks = filterBooksByFuzzySearch(search);
         bookStore.books = filteredBooks;
       }
     );

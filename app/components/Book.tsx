@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  BBAnchor,
-  Html,
-  Text,
-  TextProps,
-  useCursor,
-  useScroll,
-} from "@react-three/drei";
+import { Html, useCursor, useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
@@ -31,91 +24,95 @@ import {
 import { filterStore, FilterView } from "../store/filterStore";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-
-const getOffsets = () => {
-  return {
-    posX: Math.random() * 0.012 - 0.006,
-    rotY: Math.random() * 0.012 - 0.006,
-    posZ: Math.random() * 0.012 - 0.006,
-  };
-};
+import { subscribeKey } from "valtio/utils";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
 
 function Book(book: BookType) {
-  const { books, focusedBookId } = useSnapshot(bookStore);
-  const { search } = useSnapshot(filterStore);
-  const { sortBy, sortOrder, isSorting } = useSnapshot(filterStore);
   const { camera } = useThree();
-  const isFocused = focusedBookId === book.id;
-  const isSlidingRef = useRef(false);
+  const { books } = useSnapshot(bookStore);
+  const { search } = useSnapshot(filterStore);
+  const { isSorting } = useSnapshot(filterStore);
   const { view } = useSnapshot(filterStore);
-  const isGridMode = view === FilterView.Grid;
-
-  // Use local state for hover to avoid global state rerenders
+  const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const someBookIsFocused = focusedBookId !== null;
+  const [someBookIsFocused, setSomeBookIsFocused] = useState(false);
+  const isGridMode = view === FilterView.Grid;
+  const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
+
+  useEffect(() => {
+    const unsubscribeFocusedBookId = subscribeKey(
+      bookStore,
+      "focusedBookId",
+      (focusedBookId) => {
+        if (wasFocusedRef.current !== Boolean(focusedBookId === book.id)) {
+          wasFocusedRef.current = Boolean(focusedBookId === book.id);
+        }
+        setIsFocused(focusedBookId === book.id);
+        setSomeBookIsFocused(focusedBookId !== null);
+      }
+    );
+
+    const unsubscribeHoveredBookId = subscribeKey(
+      bookStore,
+      "hoveredBookId",
+      (hoveredBookId) => {
+        setIsHovered(hoveredBookId === book.id);
+      }
+    );
+
+    return () => {
+      unsubscribeFocusedBookId();
+      unsubscribeHoveredBookId();
+    };
+  }, []);
+
+  useEffect(() => {
+    // Remove featured status if any filter is applied (search or sorting)
+    if (isSorting || search.length > 1) {
+      if (bookStore.books[book.id].featured) {
+        bookStore.books[book.id].featured = false;
+      }
+    }
+  }, [book.id, isSorting, search.length]);
 
   useCursor(isHovered, "pointer", "auto");
 
-  useEffect(() => {
-    if (wasFocusedRef.current !== Boolean(focusedBookId === book.id)) {
-      wasFocusedRef.current = Boolean(focusedBookId === book.id);
-    }
-  }, [focusedBookId]);
+  const bookPosition = !isGridMode
+    ? getBookSortYPosition(book.id)
+    : calculateSortGridPosition(book.id);
 
-  const bookPosition = useMemo(
-    () =>
-      !isGridMode
-        ? getBookSortYPosition(book.id, books as BookMap, sortBy, sortOrder)
-        : calculateSortGridPosition(
-            book.id,
-            books as BookMap,
-            sortBy,
-            sortOrder
-          ),
-    [book.id, books, sortBy, sortOrder, isGridMode]
-  );
-
-  const offsets = useMemo(() => getOffsets(), []);
-  const currentBookIndex = getCurrentBookIndex(
-    book.id,
-    books as BookMap,
-    sortBy,
-    sortOrder
-  );
-
+  const currentBookIndex = getCurrentBookIndex(book.id);
   const reverseBookIndex = Object.keys(books).length - 1 - currentBookIndex;
 
   const stackAnimation = useMemo(
     () => ({
       posX:
-        book.isFeatured || isFocused
+        book.featured || isFocused
           ? 0
           : isSorting
             ? getContentfulBookSize(book.bookSize)[0] *
               2 *
               (currentBookIndex % 2 === 0 ? 1 : -1)
             : search.length > 1
-              ? book.hidden
+              ? !book.hidden
                 ? 0
-                : offsets.posX
-              : offsets.posX,
+                : book.offset.posX
+              : book.offset.posX,
       posY: bookPosition.posY,
-      posZ:
-        book.isFeatured || isFocused
-          ? 0
-          : isSorting
-            ? -getContentfulBookSize(book.bookSize)[2] * 2
-            : search.length > 1
-              ? book.hidden
-                ? 0
-                : -0.5
-              : offsets.posZ,
+      posZ: isFocused
+        ? 0
+        : isSorting
+          ? -getContentfulBookSize(book.bookSize)[2] * 2
+          : search.length > 1
+            ? !book.hidden
+              ? 0
+              : -0.5
+            : book.offset.posZ,
       rotX: 0,
-      rotY: book.isFeatured ? 0 : offsets.rotY,
+      rotY: book.featured ? 0 : book.offset.rotY,
       rotZ: 0,
       onRest: () => {
         // Reset isSorting when animation completes
@@ -136,13 +133,13 @@ function Book(book: BookType) {
       delay: (_key: string) => (isFocused ? 0 : currentBookIndex * STACK_DELAY),
     }),
     [
-      book.isFeatured,
+      book.featured,
       isFocused,
       isGridMode,
       isSorting,
       search.length,
       currentBookIndex,
-      offsets,
+      book.offset,
       bookPosition,
       reverseBookIndex,
     ]
@@ -192,12 +189,11 @@ function Book(book: BookType) {
       ref: bookFocusedSlideRef,
       to: isFocused
         ? {
-            // posZ: calculateOptimalZDistance(camera),
             posZ: calculateOptimalZDistance(camera) - bookPosition.posZ,
           }
         : {
             posZ: isSorting
-              ? -getContentfulBookSize(book.bookSize)[2] - 0.001
+              ? -getContentfulBookSize(book.bookSize)[2] * 2 - 0.001
               : 0,
           },
       onStart: () => {
@@ -211,17 +207,7 @@ function Book(book: BookType) {
     [isFocused, isGridMode]
   );
 
-  const dropHeight = useMemo(
-    () =>
-      getDropHeight(
-        book.id,
-        focusedBookId,
-        books as BookMap,
-        sortBy,
-        sortOrder
-      ),
-    [book.id, focusedBookId, books, sortBy, sortOrder]
-  );
+  const dropHeight = getDropHeight(book.id);
 
   const bookFocusedLiftRef = useSpringRef();
   const [bookFocusedLiftSpring, liftApi] = useSpring(
@@ -247,8 +233,8 @@ function Book(book: BookType) {
               }
           : {
               posY: -dropHeight,
-              rotX: book.isFeatured ? Math.PI / 2 : 0,
-              rotY: book.isFeatured ? -Math.PI / 2 : 0,
+              rotX: book.featured ? Math.PI / 2 : 0,
+              rotY: book.featured ? -Math.PI / 2 : 0,
             },
       config: config.default,
       delay: (key: string) => {
@@ -275,7 +261,7 @@ function Book(book: BookType) {
         }
       },
     },
-    [isFocused, dropHeight, isGridMode]
+    [isFocused, dropHeight, isGridMode, book.featured]
   );
 
   useChain(
@@ -288,7 +274,7 @@ function Book(book: BookType) {
   const handleClick = (e: React.MouseEvent<THREE.Mesh>) => {
     e.stopPropagation();
 
-    if (isFocused) {
+    if (isFocused || book.hidden) {
       bookStore.focusedBookId = null;
     } else {
       bookStore.focusedBookId = book.id;
@@ -336,21 +322,13 @@ function Book(book: BookType) {
         bookFocusedTiltGroupApi.start({
           rotX: 0,
           rotZ: 0,
-          posY: isHovered && !isFocused && !book.isFeatured ? 0.01 : 0,
+          posY: isHovered && !isFocused && !book.featured ? 0.01 : 0,
         });
       }
     }
   });
 
   const [width, thickness, height] = getContentfulBookSize(book.bookSize);
-  const scroll = useScroll();
-
-  const middleDivRef = useRef<HTMLDivElement>(
-    document.getElementById("middle") as HTMLDivElement
-  );
-
-  const textVisible =
-    isHovered && !someBookIsFocused && !isGridMode && !isSorting;
 
   return (
     <animated.group
@@ -373,11 +351,15 @@ function Book(book: BookType) {
       onClick={handleClick}
       onPointerEnter={(e) => {
         e.stopPropagation();
-        setIsHovered(true);
+        if (!book.hidden) {
+          bookStore.hoveredBookId = book.id;
+        }
       }}
       onPointerLeave={(e) => {
         e.stopPropagation();
-        setIsHovered(false);
+        if (!book.hidden) {
+          bookStore.hoveredBookId = null;
+        }
       }}
     >
       <animated.group
@@ -396,85 +378,105 @@ function Book(book: BookType) {
           <BookModel book={book} />
         </animated.group>
       </animated.group>
-      {!someBookIsFocused && (
-        <Html
-          zIndexRange={[-0.1, 0]}
-          center
-          className={cn(
-            "text-sm opacity-0 w-dvw px-12 pointer-events-none",
-            textVisible && "opacity-100"
-          )}
-          style={{
-            height:
-              getContentfulBookSize(book.bookSize)[book.isFeatured ? 2 : 1] *
-              3400,
-            transition: "opacity ease-in-out",
-            transitionDuration: isHovered ? "0ms" : "0.3s",
-          }}
-          position={[
-            -offsets.posX,
-            0,
-            getContentfulBookSize(book.bookSize)[0] * 0.5 - offsets.posZ,
-          ]}
-          portal={middleDivRef}
-        >
-          <div
-            className="text-black flex justify-between h-full w-full"
-            onWheel={(e) => {
-              e.preventDefault();
-              scroll.el.scrollTop += e.deltaY;
-            }}
-          >
-            {book.linkToFeaturedArticle && (
-              <div
-                className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
-                onPointerOver={(e) => {
-                  e.preventDefault();
-                  setIsHovered(true);
-                }}
-                onPointerLeave={(e) => {
-                  e.preventDefault();
-                  setIsHovered(false);
-                }}
-              >
-                <Link
-                  href={book.linkToFeaturedArticle.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  {book.linkToFeaturedArticle.text}
-                </Link>
-              </div>
-            )}
-            {book.linkToPodcastEpisode && (
-              <div
-                className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
-                onPointerOver={(e) => {
-                  e.preventDefault();
-                  setIsHovered(true);
-                }}
-                onPointerLeave={(e) => {
-                  e.preventDefault();
-                  setIsHovered(false);
-                }}
-              >
-                <Link
-                  href={book.linkToPodcastEpisode.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  {book.linkToPodcastEpisode.text}
-                </Link>
-              </div>
-            )}
-          </div>
-        </Html>
+      {!isGridMode && !someBookIsFocused && !book.hidden && (
+        <FeaturedLinks book={book} isHovered={isHovered} />
       )}
     </animated.group>
   );
 }
+
+const FeaturedLinks = ({
+  book,
+  isHovered,
+}: {
+  book: BookType;
+  isHovered: boolean;
+}) => {
+  const scroll = useScroll();
+  const { view, isSorting } = useSnapshot(filterStore);
+  const isGridMode = view === FilterView.Grid;
+
+  const middleDivRef = useRef<HTMLDivElement>(
+    document.getElementById("middle") as HTMLDivElement
+  );
+
+  const textVisible = isHovered && !isGridMode && !isSorting;
+
+  return (
+    <Html
+      zIndexRange={[-0.1, 0]}
+      center
+      className={cn(
+        "text-sm opacity-0 w-dvw px-12 pointer-events-none",
+        textVisible && "opacity-100"
+      )}
+      style={{
+        height:
+          getContentfulBookSize(book.bookSize)[book.featured ? 2 : 1] * 3400,
+        transition: "opacity ease-in-out",
+        transitionDuration: isHovered ? "0ms" : "0.3s",
+      }}
+      position={[
+        -book.offset.posX,
+        0,
+        getContentfulBookSize(book.bookSize)[0] * 0.5 - book.offset.posZ,
+      ]}
+      portal={middleDivRef}
+    >
+      <div
+        className="text-black flex justify-between h-full w-full"
+        onWheel={(e) => {
+          scroll.el.scrollTop += e.deltaY;
+        }}
+      >
+        {book.linkToFeaturedArticle && (
+          <div
+            className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
+            onPointerOver={(e) => {
+              e.preventDefault();
+              bookStore.hoveredBookId = book.id;
+            }}
+            onPointerLeave={(e) => {
+              e.preventDefault();
+              bookStore.hoveredBookId = null;
+            }}
+          >
+            <Link
+              href={book.linkToFeaturedArticle.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              {book.linkToFeaturedArticle.text}
+            </Link>
+          </div>
+        )}
+        {book.linkToPodcastEpisode && (
+          <div
+            className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
+            onPointerOver={(e) => {
+              e.preventDefault();
+              bookStore.hoveredBookId = book.id;
+            }}
+            onPointerLeave={(e) => {
+              e.preventDefault();
+              bookStore.hoveredBookId = null;
+            }}
+          >
+            <Link
+              href={book.linkToPodcastEpisode.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              {book.linkToPodcastEpisode.text}
+            </Link>
+          </div>
+        )}
+      </div>
+    </Html>
+  );
+};
 
 const BookModel = ({ book }: { book: BookType }) => {
   switch (book.bookSize) {
