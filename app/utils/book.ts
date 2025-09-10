@@ -72,16 +72,16 @@ export const calculateOptimalZDistance = (camera: THREE.Camera) => {
   return camera.position.z - distance;
 };
 
-// Direct Contentful size mapping (more efficient)
+// Precise GLTF model dimensions from vertex geometry analysis
 const contentfulSizeMap: Record<
   string,
   [width: number, height: number, depth: number]
 > = {
-  XS: [0.113, 0.0347, 0.1793], // Book_108x175
-  SM: [0.1317, 0.0187, 0.2072], // Book_127x203
-  MD: [0.138, 0.0195, 0.2075], // Book_133x203
-  LG: [0.1452, 0.0297, 0.2204], // Book_140x216
-  XL: [0.1572, 0.0226, 0.2333], // Book_152x229
+  XS: [0.1130, 0.0347, 0.1793], // 113.0mm × 34.7mm × 179.3mm
+  SM: [0.1317, 0.0187, 0.2072], // 131.7mm × 18.7mm × 207.2mm
+  MD: [0.1380, 0.0195, 0.2075], // 138.0mm × 19.5mm × 207.5mm
+  LG: [0.1452, 0.0297, 0.2204], // 145.2mm × 29.7mm × 220.4mm
+  XL: [0.1572, 0.0226, 0.2333], // 157.2mm × 22.6mm × 233.3mm
 };
 
 // Helper to get size from Contentful book
@@ -162,11 +162,9 @@ export const getBookStackHeight = (books: BookMap): number => {
       : !("isFeatured" in book ? (book as any).isFeatured : false);
   });
   return filteredBooks.reduce((acc, book) => {
-    const size =
-      "bookSize" in book
-        ? getContentfulBookSize(book.bookSize)
-        : (book as any).size;
-    const [, height] = getBookSizeFromContentful(size);
+    const [, height] = "bookSize" in book
+      ? getContentfulBookSize(book.bookSize)
+      : getBookSizeFromContentful(book as any);
     return acc + height;
   }, 0);
 };
@@ -186,11 +184,9 @@ export const getDropHeight = (
     );
     if (bookIndex <= focusedBookIndex) return 0;
     const focusedBook = books[focusedBookId];
-    const size =
-      "bookSize" in focusedBook
-        ? getContentfulBookSize(focusedBook.bookSize)
-        : (focusedBook as any).size;
-    const [, height] = getBookSizeFromContentful(size);
+    const [, height] = "bookSize" in focusedBook
+      ? getContentfulBookSize(focusedBook.bookSize)
+      : getBookSizeFromContentful(focusedBook as any);
     return height;
   }
   return 0;
@@ -203,17 +199,15 @@ export const getBookSortYPosition = (
   sortOrder: SortOrder
 ): { posX: number; posY: number; posZ: number } => {
   const book = books[bookId];
-  const size =
-    "bookSize" in book
-      ? getContentfulBookSize(book.bookSize)
-      : (book as any).size;
   const isFeatured =
     "featured" in book
       ? book.featured
       : "isFeatured" in book
         ? (book as any).isFeatured
         : false;
-  const [ownWidth, ownHeight] = getBookSizeFromContentful(size);
+  const [ownWidth, ownHeight] = "bookSize" in book
+    ? getContentfulBookSize(book.bookSize)
+    : getBookSizeFromContentful(book as any);
 
   if (isFeatured) {
     return { posX: 0, posY: getBookStackHeight(books) + ownWidth / 2, posZ: 0 };
@@ -232,11 +226,9 @@ export const getBookSortYPosition = (
   const slicedBooks = filteredBooks.slice(0, bookIndex);
 
   const y = slicedBooks.reduce((acc, book) => {
-    const size =
-      "bookSize" in book
-        ? getContentfulBookSize(book.bookSize)
-        : (book as any).size;
-    const [, height] = getBookSizeFromContentful(size);
+    const [, height] = "bookSize" in book
+      ? getContentfulBookSize(book.bookSize)
+      : getBookSizeFromContentful(book as any);
     return acc + height;
   }, ownHeight / 2);
 
