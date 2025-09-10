@@ -19,7 +19,7 @@ import {
 } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
-import { Book as BookType, BookMap, LinkFields } from "@/types/book";
+import { Book as BookType, BookMap } from "@/types/book";
 import {
   calculateOptimalZDistance,
   calculateSortGridPosition,
@@ -29,8 +29,6 @@ import {
   getDropHeight,
 } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
-import { useRouter } from "next/navigation";
-import { lerp } from "three/src/math/MathUtils.js";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -45,23 +43,6 @@ const getOffsets = () => {
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
 
-const getBookLinks = (book: BookType) => {
-  return {
-    featuredArticle: book.linkToFeaturedArticle
-      ? {
-          text: book.linkToFeaturedArticle.text,
-          link: book.linkToFeaturedArticle.link,
-        }
-      : undefined,
-    featuredPodcastEpisode: book.linkToPodcastEpisode
-      ? {
-          text: book.linkToPodcastEpisode.text,
-          link: book.linkToPodcastEpisode.link,
-        }
-      : undefined,
-  };
-};
-
 function Book(book: BookType) {
   const { books, focusedBookId } = useSnapshot(bookStore);
   const { search } = useSnapshot(filterStore);
@@ -74,6 +55,7 @@ function Book(book: BookType) {
 
   // Use local state for hover to avoid global state rerenders
   const [isHovered, setIsHovered] = useState(false);
+  const someBookIsFocused = focusedBookId !== null;
   const wasFocusedRef = useRef(false);
 
   useCursor(isHovered, "pointer", "auto");
@@ -367,7 +349,8 @@ function Book(book: BookType) {
     document.getElementById("middle") as HTMLDivElement
   );
 
-  const textVisible = isHovered && !isFocused && !isGridMode && !isSorting;
+  const textVisible =
+    isHovered && !someBookIsFocused && !isGridMode && !isSorting;
 
   return (
     <animated.group
@@ -416,6 +399,7 @@ function Book(book: BookType) {
       <Html
         zIndexRange={[-0.1, 0]}
         center
+        visible={!someBookIsFocused}
         className={cn(
           "text-sm opacity-0 w-dvw px-12 pointer-events-none",
           textVisible && "opacity-100"
