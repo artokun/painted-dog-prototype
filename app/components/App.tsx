@@ -10,14 +10,10 @@ import { filterStore, FilterView } from "../store/filterStore";
 import { animated, config, useSpring } from "@react-spring/three";
 import { Vector3 } from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useBookMaterialControls } from "../hooks/useBookTextures";
 
 export default function App() {
   const { search, view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
-
-  // Global book material controls - created once here to avoid performance issues
-  useBookMaterialControls();
 
   const { groundHeight, groundRadius, groundScale } = useControls(
     "Environment Ground",

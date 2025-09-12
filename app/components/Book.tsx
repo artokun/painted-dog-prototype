@@ -1,6 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Html, useCursor, useScroll } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
 import {
@@ -25,11 +32,29 @@ import { filterStore, FilterView } from "../store/filterStore";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { subscribeKey } from "valtio/utils";
+import { MaterialProperties } from "three";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
 
-function Book(book: BookType) {
+const getTextureUrlBySize = (bookSize?: string) => {
+  const sizeMap = {
+    XS: "/models/textures/template-combined-xs.jpg",
+    SM: "/models/textures/template-combined-sm.jpg",
+    MD: "/models/textures/template-combined-md.jpg",
+    LG: "/models/textures/template-combined-lg.jpg",
+    XL: "/models/textures/template-combined-xl.jpg",
+  };
+  return sizeMap[bookSize as keyof typeof sizeMap] || sizeMap.MD;
+};
+
+function Book({
+  book,
+  materialControls,
+}: {
+  book: BookType;
+  materialControls: Partial<MaterialProperties>;
+}) {
   const { camera } = useThree();
   const { books } = useSnapshot(bookStore);
   const { search } = useSnapshot(filterStore);
@@ -375,7 +400,7 @@ function Book(book: BookType) {
           rotation-x={bookFocusedTiltGroupSpring.rotX}
           rotation-z={bookFocusedTiltGroupSpring.rotZ}
         >
-          <BookModel book={book} />
+          <BookModel book={book} materialControls={materialControls} />
         </animated.group>
       </animated.group>
       {!isGridMode && !someBookIsFocused && !book.hidden && (
@@ -478,21 +503,38 @@ const FeaturedLinks = ({
   );
 };
 
-const BookModel = ({ book }: { book: BookType }) => {
-  switch (book.bookSize) {
-    case "XS":
-      return <BookXS castShadow receiveShadow textures={book.textures} />;
-    case "SM":
-      return <BookSM castShadow receiveShadow textures={book.textures} />;
-    case "MD":
-      return <BookMD castShadow receiveShadow textures={book.textures} />;
-    case "LG":
-      return <BookLG castShadow receiveShadow textures={book.textures} />;
-    case "XL":
-      return <BookXL castShadow receiveShadow textures={book.textures} />;
-    default:
-      return <BookMD castShadow receiveShadow textures={book.textures} />; // Default fallback
-  }
+const BookModel = ({
+  book,
+  materialControls,
+}: {
+  book: BookType;
+  materialControls: Partial<MaterialProperties>;
+}) => {
+  const SelectedBookModel = useMemo(() => {
+    switch (book.bookSize) {
+      case "XS":
+        return BookXS;
+      case "SM":
+        return BookSM;
+      case "MD":
+        return BookMD;
+      case "LG":
+        return BookLG;
+      case "XL":
+        return BookXL;
+      default:
+        return BookMD;
+    }
+  }, [book.bookSize]);
+
+  return (
+    <Suspense fallback={null}>
+      <SelectedBookModel
+        bookTexture={book.bookTexture}
+        materialControls={materialControls}
+      />
+    </Suspense>
+  );
 };
 
 export default Book;

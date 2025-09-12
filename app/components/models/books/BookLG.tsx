@@ -6,49 +6,59 @@ import * as THREE from "three";
 import React from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
-import { useBookTextures } from "@/app/hooks/useBookTextures";
+import { MaterialProperties } from "three";
+import { useLoader } from "@react-three/fiber";
 
 type GLTFResult = GLTF & {
   nodes: {
     BookMesh003: THREE.Mesh;
     BookMesh003_1: THREE.Mesh;
-    BookMesh003_2: THREE.Mesh;
-    BookMesh003_3: THREE.Mesh;
   };
   materials: {
-    Front_140x216: THREE.MeshStandardMaterial;
+    Template_140x216: THREE.MeshStandardMaterial;
     Pages: THREE.MeshPhysicalMaterial;
-    Back_140x216: THREE.MeshStandardMaterial;
-    Side_140x216: THREE.MeshStandardMaterial;
   };
 };
 
 export function BookLG(
   props: React.JSX.IntrinsicElements["group"] & {
-    textures: { front: string; side: string };
+    bookTexture?: string;
+    materialControls: Partial<MaterialProperties>;
   }
 ) {
   const { nodes, materials } = useGLTF(
-    "/models/Book_LG.gltf"
+    "/models/BookLG.glb"
   ) as unknown as GLTFResult;
 
-  // Load and configure textures using the reusable hook
-  useBookTextures(props.textures, materials, {
-    front: "Front_140x216",
-    side: "Side_140x216",
-    back: "Back_140x216"
-  });
+  const texture = useLoader(
+    THREE.TextureLoader,
+    props.bookTexture || "/models/textures/template-combined-lg.jpg"
+  );
+  texture.flipY = false;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+
+  const roughnessMap = useLoader(
+    THREE.TextureLoader,
+    "/models/textures/roughness_map.jpg"
+  );
 
   return (
     <group {...props} dispose={null}>
       <group rotation-y={Math.PI / 2}>
         <mesh
-          name="BookMesh003"
+          name="BookMeshLG"
           castShadow
           receiveShadow
           geometry={nodes.BookMesh003.geometry}
-          material={materials.Front_140x216}
-        />
+        >
+          <meshStandardMaterial
+            map={texture}
+            roughnessMap={roughnessMap}
+            toneMapped
+            {...props.materialControls}
+          />
+        </mesh>
         <mesh
           name="BookMesh003_1"
           castShadow
@@ -56,23 +66,9 @@ export function BookLG(
           geometry={nodes.BookMesh003_1.geometry}
           material={materials.Pages}
         />
-        <mesh
-          name="BookMesh003_2"
-          castShadow
-          receiveShadow
-          geometry={nodes.BookMesh003_2.geometry}
-          material={materials.Back_140x216}
-        />
-        <mesh
-          name="BookMesh003_3"
-          castShadow
-          receiveShadow
-          geometry={nodes.BookMesh003_3.geometry}
-          material={materials.Side_140x216}
-        />
       </group>
     </group>
   );
 }
 
-useGLTF.preload("/models/Book_LG.gltf");
+useGLTF.preload("/models/BookLG.glb");

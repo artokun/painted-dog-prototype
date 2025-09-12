@@ -19,8 +19,7 @@ export interface TypeBookFields {
   genre?: EntryFieldTypes.EntryLink<TypeGenreSkeleton>;
   prices: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypePriceSkeleton>>;
   bookSize: EntryFieldTypes.Symbol<"LG" | "MD" | "SM" | "XL" | "XS">;
-  bookCoverTextureFront: EntryFieldTypes.AssetLink;
-  bookCoverTextureSide: EntryFieldTypes.AssetLink;
+  bookTexture?: EntryFieldTypes.AssetLink;
   linkToFeaturedArticle?: EntryFieldTypes.EntryLink<TypeLinkSkeleton>;
   linkToPodcastEpisode?: EntryFieldTypes.EntryLink<TypeLinkSkeleton>;
   criticalReceptionText: EntryFieldTypes.Text;
@@ -28,10 +27,6 @@ export interface TypeBookFields {
   podcastLinks?: EntryFieldTypes.Array<
     EntryFieldTypes.EntryLink<TypeLinkSkeleton>
   >;
-  textures: {
-    front: EntryFieldTypes.AssetLink;
-    side: EntryFieldTypes.AssetLink;
-  };
   excerpt?: EntryFieldTypes.AssetLink;
 }
 

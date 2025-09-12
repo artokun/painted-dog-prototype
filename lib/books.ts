@@ -155,22 +155,17 @@ export function transformContentfulBook(
     criticalReceptionText: getLocalizedField(fields.criticalReceptionText),
     podcastText: getLocalizedField(fields.podcastText),
 
-    // Transform textures (using individual texture fields for now)
-    textures: {
-      front:
-        fields.bookCoverTextureFront &&
-        "fields" in fields.bookCoverTextureFront &&
-        fields.bookCoverTextureFront.fields?.file?.url
-          ? getLocalizedField(fields.bookCoverTextureFront.fields.file.url) ||
-            ""
-          : "",
-      side:
-        fields.bookCoverTextureSide &&
-        "fields" in fields.bookCoverTextureSide &&
-        fields.bookCoverTextureSide.fields?.file?.url
-          ? getLocalizedField(fields.bookCoverTextureSide.fields.file.url) || ""
-          : "",
-    },
+    // Transform unified texture (fallback to GLB embedded if not provided)
+    bookTexture:
+      fields.bookTexture &&
+      "fields" in fields.bookTexture &&
+      fields.bookTexture.fields?.file?.url
+        ? (() => {
+            const url = getLocalizedField(fields.bookTexture.fields.file.url);
+            // Ensure URL has protocol (Contentful sometimes returns protocol-relative URLs)
+            return url ? (url.startsWith('//') ? `https:${url}` : url) : undefined;
+          })()
+        : undefined,
 
     // For 3D rendering compatibility
     hidden: false,

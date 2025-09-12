@@ -79,11 +79,8 @@ export const ContentfulBookSchema = z.object({
   criticalReceptionText: z.string().optional(),
   podcastText: z.string().optional(),
 
-  // Textures for 3D models
-  textures: z.object({
-    front: z.string(), // Asset URL
-    side: z.string(), // Asset URL
-  }),
+  // Unified texture for 3D models (optional - falls back to GLB embedded)
+  bookTexture: z.string().optional(), // Asset URL
 
   offset: z.object({
     posX: z.number(),

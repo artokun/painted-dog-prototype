@@ -1,14 +1,18 @@
 import { useSnapshot } from "valtio";
 import Book from "./Book";
 import { useEffect } from "react";
-import { bookStore, loadBooks } from "../store/bookStore";
+import { bookStore, type BookState, loadBooks } from "../store/bookStore";
 import { FilterKey, filterStore } from "../store/filterStore";
 import { filterBooksByFuzzySearch } from "../utils/book";
 import { subscribeKey } from "valtio/utils";
+import { useBookMaterialControls } from "../hooks/useBookMaterialControls";
 import { BookMap } from "@/types/book";
 
 export default function BookStack() {
-  const { books, isLoading, error } = useSnapshot(bookStore);
+  const { books, isLoading, error } = useSnapshot(bookStore) as BookState & {
+    books: BookMap;
+  };
+  const materialControls = useBookMaterialControls();
 
   useEffect(() => {
     // Load books from Contentful
@@ -40,6 +44,6 @@ export default function BookStack() {
   }
 
   return Object.entries(books).map(([id, book]) => (
-    <Book key={id} {...(book as any)} />
+    <Book key={id} book={book} materialControls={materialControls} />
   ));
 }

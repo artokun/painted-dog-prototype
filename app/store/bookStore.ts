@@ -1,7 +1,7 @@
 import { proxy } from "valtio";
 import { BookId, BookMap, ContentfulBook } from "../../types/book";
 
-interface BookState {
+export interface BookState {
   focusedBookId: BookId | null;
   hoveredBookId: BookId | null;
   books: BookMap;
