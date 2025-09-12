@@ -11,7 +11,7 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "generate-types": "contentful space export --space-id $CONTENTFUL_SPACE_ID --environment-id $CONTENTFUL_ENVIRONMENT --management-token $CONTENTFUL_MANAGEMENT_TOKEN --export-dir ./contentful-export && cf-content-types-generator contentful-export/contentful-export-*.json -o types -X --response",
+    "generate-types": "mkdir -p contentful-export && contentful space export --space-id $CONTENTFUL_SPACE_ID --environment-id $CONTENTFUL_ENVIRONMENT --management-token $CONTENTFUL_MANAGEMENT_TOKEN --export-dir ./contentful-export && cf-content-types-generator contentful-export/contentful-export-*.json -o types -X --response && rm -rf contentful-export",
     "create-book": "tsx scripts/create-book-in-contentful.ts"
   },
   "dependencies": {

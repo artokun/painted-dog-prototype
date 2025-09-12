@@ -21,7 +21,14 @@ export type LinkFields = {
 };
 
 // Contentful-based book schema (using the generated types as the source of truth)
-export const ContentfulBookSizeSchema = z.enum(["XS", "SM", "MD", "LG", "XL"]);
+export const ContentfulBookSizeSchema = z.enum([
+  "XS",
+  "SM",
+  "MD",
+  "LG",
+  "XL",
+  "280x260",
+]);
 
 export const ContentfulBookSchema = z.object({
   id: z.string().min(1, "ID is required"),

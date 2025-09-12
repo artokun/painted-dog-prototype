@@ -1,5 +1,5 @@
 import { proxy } from "valtio";
-import { BookId, BookMap, ContentfulBook } from "../../types/book";
+import { BookId, BookMap, ContentfulBook } from "../../types/app";
 
 export interface BookState {
   focusedBookId: BookId | null;

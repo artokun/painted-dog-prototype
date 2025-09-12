@@ -1,6 +1,6 @@
 import { createClient, type Entry } from "contentful";
-import type { ContentfulEntry } from "@/types/contentful";
-export { CONTENT_TYPES } from "@/types/contentful";
+import type { ContentfulEntry } from "../types/contentful";
+export { CONTENT_TYPES } from "../types/contentful";
 
 // Only initialize Contentful clients server-side
 let contentfulClient: ReturnType<typeof createClient> | null = null;

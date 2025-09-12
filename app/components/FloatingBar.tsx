@@ -4,7 +4,7 @@ import { SortBy as SortByIcon } from "./icons/SortBy";
 import { Search } from "./icons/Search";
 import { useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { SortBy, SortOrder } from "@/types/book";
+import { SortBy, SortOrder } from "@/types/app";
 import { useSnapshot } from "valtio";
 import { FilterKey, filterStore, FilterView } from "../store/filterStore";
 import { X } from "lucide-react";

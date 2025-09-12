@@ -1,4 +1,4 @@
-import { BookId, BookMap, SortBy, SortOrder } from "@/types/book";
+import { BookId, BookMap, SortBy, SortOrder } from "@/types/app";
 import Fuse from "fuse.js";
 import * as THREE from "three";
 import { bookStore } from "../store/bookStore";
@@ -71,7 +71,7 @@ export const calculateXFromCameraDepthOnRotation = (
 export const calculateOptimalZDistance = (camera: THREE.Camera) => {
   // Use a fixed reference book height so all books appear the same size on screen
   // Using medium book width (0.185) as the reference since it's in the middle of the range
-  const referenceBookHeight = 0.23;
+  const referenceBookHeight = 0.28;
 
   // VIEWPORT_PERCENTAGE: Adjust this value to change how much of the screen the featured book fills
   const targetScreenPercentage = 0.8;
@@ -104,6 +104,7 @@ const contentfulSizeMap: Record<
   MD: [0.138, 0.0195, 0.2075], // 138.0mm × 19.5mm × 207.5mm
   LG: [0.1452, 0.0297, 0.2204], // 145.2mm × 29.7mm × 220.4mm
   XL: [0.1572, 0.0226, 0.2333], // 157.2mm × 22.6mm × 233.3mm
+  "280x260": [0.26, 0.026, 0.285], // 280.0mm × 26.0mm × 260.0mm
 };
 
 // Direct Contentful size getter (more efficient)
@@ -230,18 +231,28 @@ export const getBookSortYPosition = (
 };
 
 export const calculateSortGridPosition = (
-  bookId: BookId
+  bookId: BookId,
+  overrides?: {
+    gridItemWidth?: number;
+    gridItemHeight?: number;
+    columnSpacing?: number;
+    rowSpacing?: number;
+    yOffset?: number;
+    zOffset?: number;
+    columns?: number;
+  }
 ): { posX: number; posY: number; posZ: number } => {
-  const columns = 4;
+  const columns = overrides?.columns || 4;
   const bookIndex = getCurrentBookIndex(bookId);
-  const gridItemWidth = 0.2;
-  const gridItemHeight = 0.24;
-  const columnSpacing = 0.01;
-  const rowSpacing = 0.02;
-
+  const gridItemWidth = overrides?.gridItemWidth || 0.24;
+  const gridItemHeight = overrides?.gridItemHeight || 0.24;
+  const columnSpacing = overrides?.columnSpacing || 0.0;
+  const rowSpacing = overrides?.rowSpacing || 0.03;
+  const yOffset = overrides?.yOffset || 0.1;
+  const zOffset = overrides?.zOffset || 0;
   const totalBooks = Object.keys(bookStore.books).length;
   const totalRows = Math.ceil(totalBooks / columns);
-  const bottomRowY = 0; // Bottom of the last row
+  const bottomRowY = -yOffset; // Bottom of the last row
 
   const reversedIndex = totalBooks - 1 - bookIndex;
   const row = Math.floor(reversedIndex / columns);
@@ -253,16 +264,20 @@ export const calculateSortGridPosition = (
   // Center columns around 0 on X and calculate Y from bottom row up
   const x = (col - (columns - 1) / 2) * xStep;
   const y = bottomRowY + (totalRows - 1 - row) * yStep + gridItemHeight / 2;
-  const z = -0.5;
+  const z = -0.3 + zOffset;
 
   return { posX: x, posY: y, posZ: z };
 };
 
-export const getGridHeight = (): { topLimit: number; bottomLimit: number } => {
-  const columns = 4;
-  const gridItemHeight = 0.24;
-  const rowSpacing = 0.02;
-  const bottomRowY = -0.13; // Bottom of the last row
+export const getGridHeight = (overrides?: {
+  columns?: number;
+  gridItemHeight?: number;
+  rowSpacing?: number;
+}): { topLimit: number; bottomLimit: number } => {
+  const columns = overrides?.columns || 4;
+  const gridItemHeight = overrides?.gridItemHeight || 0.24;
+  const rowSpacing = overrides?.rowSpacing || 0.02;
+  const bottomRowY = -0.3; // Bottom of the last row
 
   const totalBooks = Object.keys(bookStore.books).length;
   const totalRows = Math.ceil(totalBooks / columns);

@@ -1,6 +1,6 @@
 import type { Entry } from "contentful";
 import { getEntries, getEntry } from "./contentful";
-import { ContentfulBook } from "@/types/book";
+import { ContentfulBook } from "@/types/app";
 import { TypeBook, TypeGenreSkeleton, TypeLinkSkeleton } from "@/types";
 
 export type ContentfulBookEntry = TypeBook<"WITHOUT_UNRESOLVABLE_LINKS">;
@@ -49,9 +49,9 @@ export function transformContentfulBook(
     description: getLocalizedField(fields.description) || "",
     publishDate: getLocalizedField(fields.publishDate) || "",
     offset: {
-      posX: Math.random() * 0.012 - 0.006,
-      rotY: Math.random() * 0.012 - 0.006,
-      posZ: Math.random() * 0.012 - 0.006,
+      posX: Math.random() * 0.014 - 0.007,
+      rotY: Math.random() * 0.014 - 0.007,
+      posZ: Math.random() * 0.014 - 0.007,
     },
     bookSize: (getLocalizedField(fields.bookSize) || "MD") as
       | "XS"
@@ -152,8 +152,8 @@ export function transformContentfulBook(
         : undefined,
 
     // Rich content
-    criticalReceptionText: getLocalizedField(fields.criticalReceptionText),
-    podcastText: getLocalizedField(fields.podcastText),
+    // criticalReceptionText: getLocalizedField(fields.criticalReceptionText),
+    // podcastText: getLocalizedField(fields.podcastText),
 
     // Transform unified texture (fallback to GLB embedded if not provided)
     bookTexture:
@@ -163,7 +163,11 @@ export function transformContentfulBook(
         ? (() => {
             const url = getLocalizedField(fields.bookTexture.fields.file.url);
             // Ensure URL has protocol (Contentful sometimes returns protocol-relative URLs)
-            return url ? (url.startsWith('//') ? `https:${url}` : url) : undefined;
+            return url
+              ? url.startsWith("//")
+                ? `https:${url}`
+                : url
+              : undefined;
           })()
         : undefined,
 

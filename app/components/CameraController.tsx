@@ -6,8 +6,9 @@ import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
 import { getBookStackHeight, getGridHeight } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
-import { BookMap } from "@/types/book";
+import { BookMap } from "@/types/app";
 import { lerp } from "three/src/math/MathUtils.js";
+import { useGridOverrideControls } from "../hooks/useGridOverrideControls";
 
 const CameraController = memo(function CameraController() {
   const { camera } = useThree();
@@ -21,10 +22,11 @@ const CameraController = memo(function CameraController() {
 
   // Drei scroll hook
   const scroll = useScroll();
+  const gridOverrideControls = useGridOverrideControls();
 
   // Calculate camera distance (fixed distance, no responsive behavior)
   const distance = useMemo(() => {
-    const bookWidth = 0.25;
+    const bookWidth = 0.28;
     const desiredScreenPercentage = 0.6;
     const fov = 45; // From page.tsx
     const calculatedDistance =
@@ -46,14 +48,14 @@ const CameraController = memo(function CameraController() {
 
   // Calculate height limits based on view mode
   const { topLimit, bottomLimit } = useMemo(() => {
-    const gridLimits = getGridHeight();
+    const gridLimits = getGridHeight(gridOverrideControls);
 
     return {
       gridLimits,
-      topLimit: isGridMode ? gridLimits.topLimit : getBookStackHeight() + 0.1,
+      topLimit: isGridMode ? gridLimits.topLimit : getBookStackHeight() + 0.12,
       bottomLimit: 0.13,
     };
-  }, [isGridMode, books]);
+  }, [isGridMode, books, gridOverrideControls]);
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({

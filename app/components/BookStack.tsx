@@ -6,13 +6,15 @@ import { FilterKey, filterStore } from "../store/filterStore";
 import { filterBooksByFuzzySearch } from "../utils/book";
 import { subscribeKey } from "valtio/utils";
 import { useBookMaterialControls } from "../hooks/useBookMaterialControls";
-import { BookMap } from "@/types/book";
+import { BookMap } from "@/types/app";
+import { useGridOverrideControls } from "../hooks/useGridOverrideControls";
 
 export default function BookStack() {
   const { books, isLoading, error } = useSnapshot(bookStore) as BookState & {
     books: BookMap;
   };
   const materialControls = useBookMaterialControls();
+  const gridOverrideControls = useGridOverrideControls();
 
   useEffect(() => {
     // Load books from Contentful
@@ -44,6 +46,11 @@ export default function BookStack() {
   }
 
   return Object.entries(books).map(([id, book]) => (
-    <Book key={id} book={book} materialControls={materialControls} />
+    <Book
+      key={id}
+      book={book}
+      materialControls={materialControls}
+      gridOverrideControls={gridOverrideControls}
+    />
   ));
 }

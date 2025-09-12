@@ -1,5 +1,5 @@
 import { proxy } from "valtio";
-import { SortBy, SortOrder } from "../../types/book";
+import { SortBy, SortOrder } from "../../types/app";
 
 export enum FilterKey {
   SortBy = "sortBy",

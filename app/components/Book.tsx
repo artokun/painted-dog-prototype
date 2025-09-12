@@ -1,13 +1,6 @@
-import {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Html, useCursor, useScroll } from "@react-three/drei";
-import { useFrame, useLoader, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
 import {
@@ -19,7 +12,7 @@ import {
 } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
-import { Book as BookType, BookMap } from "@/types/book";
+import { Book as BookType } from "@/types/app";
 import {
   calculateOptimalZDistance,
   calculateSortGridPosition,
@@ -33,27 +26,24 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { subscribeKey } from "valtio/utils";
 import { MaterialProperties } from "three";
+import { Book280x260 } from "./models/books/Book280x260";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
 
-const getTextureUrlBySize = (bookSize?: string) => {
-  const sizeMap = {
-    XS: "/models/textures/template-combined-xs.jpg",
-    SM: "/models/textures/template-combined-sm.jpg",
-    MD: "/models/textures/template-combined-md.jpg",
-    LG: "/models/textures/template-combined-lg.jpg",
-    XL: "/models/textures/template-combined-xl.jpg",
-  };
-  return sizeMap[bookSize as keyof typeof sizeMap] || sizeMap.MD;
-};
-
 function Book({
   book,
   materialControls,
+  gridOverrideControls,
 }: {
   book: BookType;
   materialControls: Partial<MaterialProperties>;
+  gridOverrideControls?: {
+    gridItemWidth: number;
+    gridItemHeight: number;
+    columnSpacing: number;
+    rowSpacing: number;
+  };
 }) {
   const { camera } = useThree();
   const { books } = useSnapshot(bookStore);
@@ -72,9 +62,6 @@ function Book({
       bookStore,
       "focusedBookId",
       (focusedBookId) => {
-        if (wasFocusedRef.current !== Boolean(focusedBookId === book.id)) {
-          wasFocusedRef.current = Boolean(focusedBookId === book.id);
-        }
         setIsFocused(focusedBookId === book.id);
         setSomeBookIsFocused(focusedBookId !== null);
       }
@@ -103,11 +90,19 @@ function Book({
     }
   }, [book.id, isSorting, search.length]);
 
+  useEffect(() => {
+    if (wasFocusedRef.current && isFocused) {
+      wasFocusedRef.current = false;
+    } else if (!wasFocusedRef.current && isFocused) {
+      wasFocusedRef.current = true;
+    }
+  }, [isFocused]);
+
   useCursor(isHovered, "pointer", "auto");
 
   const bookPosition = !isGridMode
     ? getBookSortYPosition(book.id)
-    : calculateSortGridPosition(book.id);
+    : calculateSortGridPosition(book.id, gridOverrideControls);
 
   const currentBookIndex = getCurrentBookIndex(book.id);
   const reverseBookIndex = Object.keys(books).length - 1 - currentBookIndex;
@@ -135,7 +130,9 @@ function Book({
             ? !book.hidden
               ? 0
               : -0.5
-            : book.offset.posZ,
+            : book.featured
+              ? -getContentfulBookSize("MD")[0] / 2 + book.offset.posZ
+              : -getContentfulBookSize(book.bookSize)[0] / 2 + book.offset.posZ,
       rotX: 0,
       rotY: book.featured ? 0 : book.offset.rotY,
       rotZ: 0,
@@ -219,7 +216,7 @@ function Book({
         : {
             posZ: isSorting
               ? -getContentfulBookSize(book.bookSize)[2] * 2 - 0.001
-              : 0,
+              : bookPosition.posZ,
           },
       onStart: () => {
         isSlidingRef.current = true;
@@ -522,6 +519,8 @@ const BookModel = ({
         return BookLG;
       case "XL":
         return BookXL;
+      case "280x260":
+        return Book280x260;
       default:
         return BookMD;
     }

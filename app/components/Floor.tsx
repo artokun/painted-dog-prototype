@@ -16,7 +16,7 @@ export default function Floor() {
 
   const [floorSpring] = useSpring(
     () => ({
-      opacity: hideFloor ? 0 : 0.2,
+      opacity: hideFloor || isGridMode ? 0 : 0.2,
       config: config.default,
       yPos: isGridMode ? -0.11 : 0,
       delay: hideFloor || isGridMode ? 600 : 0,
