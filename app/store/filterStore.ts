@@ -16,6 +16,7 @@ interface FilterState {
   open: FilterKey | null;
   isSorting: boolean;
   isChangingView: boolean;
+  isHidden: boolean;
   view: FilterView;
   sortBy: SortBy;
   sortOrder: SortOrder;
@@ -26,6 +27,7 @@ export const filterStore = proxy<FilterState>({
   open: null,
   isSorting: false,
   isChangingView: false,
+  isHidden: false,
   view: FilterView.Stack,
   sortBy: SortBy.Title,
   sortOrder: SortOrder.Desc,

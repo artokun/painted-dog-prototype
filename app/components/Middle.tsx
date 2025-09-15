@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import App from "./App";
 import * as THREE from "three";
 import { Suspense } from "react";
+import { Footer } from "./Footer";
 
 export const Middle = () => {
   return (
@@ -20,6 +21,7 @@ export const Middle = () => {
         <Suspense fallback={null}>
           <ScrollControls pages={3} damping={0.1}>
             <App />
+            <Footer />
           </ScrollControls>
         </Suspense>
       </Canvas>

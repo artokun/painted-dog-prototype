@@ -429,7 +429,7 @@ const FeaturedLinks = ({
       zIndexRange={[-0.1, 0]}
       center
       className={cn(
-        "text-sm opacity-0 w-dvw px-12 pointer-events-none",
+        "text-sm opacity-0 w-dvw px-12",
         textVisible && "opacity-100"
       )}
       style={{

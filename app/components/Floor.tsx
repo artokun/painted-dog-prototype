@@ -3,6 +3,7 @@ import { useSnapshot } from "valtio";
 import { useControls } from "leva";
 import { bookStore } from "../store/bookStore";
 import { filterStore, FilterView } from "../store/filterStore";
+import * as THREE from "three";
 
 export default function Floor() {
   const { focusedBookId } = useSnapshot(bookStore);

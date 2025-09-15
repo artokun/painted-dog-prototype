@@ -42,17 +42,17 @@ const FilterBarToggle = ({
           <button
             onClick={() => {
               if (isSorting || isChangingView) return;
-              
+
               // Start transition
               if (filterStore.view !== filterView) {
                 filterStore.isChangingView = true;
-                
+
                 // Clear any focused book when changing views
                 bookStore.focusedBookId = null;
-                
+
                 // Change the view
                 filterStore.view = filterView;
-                
+
                 // End transition after animations complete
                 setTimeout(() => {
                   filterStore.isChangingView = false;
@@ -223,7 +223,7 @@ const FloatingBarButton = ({
 };
 
 export const FloatingBar = () => {
-  const { sortOrder, sortBy, view } = useSnapshot(filterStore);
+  const { sortOrder, sortBy, view, isHidden } = useSnapshot(filterStore);
   const { focusedBookId } = useSnapshot(bookStore);
 
   const currentSortBy = useRef(sortBy);
@@ -246,7 +246,7 @@ export const FloatingBar = () => {
   }, [sortBy, sortOrder, view]);
 
   const styles = useSpring({
-    opacity: focusedBookId ? 0 : 1,
+    opacity: focusedBookId || isHidden ? 0 : 1,
     y: focusedBookId ? 100 : 0,
     delay: focusedBookId ? 0 : 100,
     config: {
@@ -259,11 +259,14 @@ export const FloatingBar = () => {
   return (
     <animated.div
       style={styles}
-      className={cn(
-        "flex justify-center fixed bottom-4 left-0 w-full h-18 gap-2"
-      )}
+      className="flex justify-center fixed bottom-4 left-0 w-full h-18 gap-2 pointer-events-none"
     >
-      <div className="flex flex-row gap-4 justify-center items-end m-4 pointer-events-auto">
+      <div
+        className={cn(
+          "flex flex-row gap-4 justify-center items-end m-4 pointer-events-auto",
+          isHidden && "pointer-events-none"
+        )}
+      >
         <div className="p-1 flex rounded-xs items-end">
           <FilterBarToggle filterView={FilterView.Stack}>Stack</FilterBarToggle>
           <FilterBarToggle filterView={FilterView.Grid}>Grid</FilterBarToggle>

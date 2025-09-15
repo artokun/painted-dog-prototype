@@ -53,7 +53,7 @@ const CameraController = memo(function CameraController() {
     return {
       gridLimits,
       topLimit: isGridMode ? gridLimits.topLimit : getBookStackHeight() + 0.12,
-      bottomLimit: 0.13,
+      bottomLimit: 0.03,
     };
   }, [isGridMode, books, gridOverrideControls]);
 
