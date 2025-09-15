@@ -1,3 +1,5 @@
+"use client";
+
 import { useSnapshot } from "valtio";
 import { filterStore, FilterView } from "../store/filterStore";
 import { animated, useSpring } from "@react-spring/web";

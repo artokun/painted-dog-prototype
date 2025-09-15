@@ -31,16 +31,15 @@ export const Header = () => {
     >
       <div className="flex items-center justify-between max-w-screen-lg mx-auto gap-4 px-4 h-18 w-full">
         <div className="flex gap-2 items-center flex-1">
-          <Link href="/reviews">Reviews</Link>
-          <span>&middot;</span>
-          <Link href="/newsletter">Newsletter</Link>
+          <Link href="/about">About</Link>
+          <span>•</span>
+          <Link href="/about/#who-we-are">Who We Are</Link>
         </div>
         <h1 className="text-4xl flex justify-center whitespace-nowrap items-center text-center font-fields font-[600] flex-1">
-          painted dog
+          <Link href="/">painted dog</Link>
         </h1>
         <div className="gap-2 items-center flex-1 flex justify-end">
-          <Link href="/podcast">Podcast</Link>
-          <button>Menu</button>
+          <Link href="/contact">Contact</Link>
         </div>
       </div>
       <div

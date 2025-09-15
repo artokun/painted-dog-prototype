@@ -3,7 +3,6 @@ import { Html, useScroll } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import { filterStore } from "@/app/store/filterStore";
 import Image from "next/image";
-import Link from "next/link";
 import {
   Instagram,
   Facebook,
@@ -14,6 +13,7 @@ import {
 } from "./icons/social";
 import { ChainSwitch } from "./icons/ChainSwitch";
 import { animated, useSpring } from "@react-spring/web";
+import { ThreeLink } from "./ThreeLink";
 
 export const Footer = () => {
   const middleDivRef = useRef<HTMLDivElement>(
@@ -99,33 +99,33 @@ export const FooterContent = () => {
           </animated.div>
         </div>
       </div>
-      <div className="flex justify-center items-center gap-5 text-[16px] mt-4 hover:text-white transition-colors">
-        <Link href="/about">About</Link>
-        <Link href="/contact">Contact</Link>
-        <Link href="/newsletter">Newsletter</Link>
+      <div className="flex justify-center items-center gap-5 text-[16px] mt-4 [&>button]:hover:text-white [&>button]:transition-colors">
+        <ThreeLink href="/about">About</ThreeLink>
+        <ThreeLink href="/contact">Contact</ThreeLink>
+        <ThreeLink href="/newsletter">Newsletter</ThreeLink>
       </div>
-      <div className="flex text-xs justify-center items-center hover:text-white transition-colors">
-        <Link href="/legal">Legal</Link>
+      <div className="flex text-xs justify-center items-center">
+        <ThreeLink href="/legal" className="hover:text-white transition-colors">Legal</ThreeLink>
       </div>
-      <div className="flex justify-center items-center gap-2 mt-4 [&>a]:hover:text-white transition-colors">
-        <Link href="#">
+      <div className="flex justify-center items-center gap-2 mt-4 [&>button]:hover:text-white [&>button]:transition-colors">
+        <ThreeLink href="#">
           <Instagram />
-        </Link>
-        <Link href="#">
+        </ThreeLink>
+        <ThreeLink href="#">
           <Facebook />
-        </Link>
-        <Link href="#">
+        </ThreeLink>
+        <ThreeLink href="#">
           <YouTube />
-        </Link>
-        <Link href="#">
+        </ThreeLink>
+        <ThreeLink href="#">
           <TikTok />
-        </Link>
-        <Link href="#">
+        </ThreeLink>
+        <ThreeLink href="#">
           <XTwitter />
-        </Link>
-        <Link href="#">
+        </ThreeLink>
+        <ThreeLink href="#">
           <Bluesky />
-        </Link>
+        </ThreeLink>
       </div>
     </div>
   );

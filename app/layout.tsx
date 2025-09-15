@@ -3,6 +3,9 @@ import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
+import { Background } from "./components/Background";
+import { Middle } from "./components/Middle";
+import { Foreground } from "./components/Foreground";
 
 const fieldsFont = localFont({
   src: [
@@ -59,7 +62,12 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${fieldsFont.variable} antialiased overflow-hidden h-dvh w-full`}
       >
-        {children}
+        <main className="h-dvh w-screen relative">
+          <Background />
+          <Middle />
+          {children}
+          <Foreground />
+        </main>
         <Script id="prevent-navigation" strategy="beforeInteractive">
           {`
             // Prevent browser back/forward navigation
