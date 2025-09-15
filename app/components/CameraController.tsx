@@ -6,7 +6,6 @@ import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
 import { getBookStackHeight, getGridHeight } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
-import { BookMap } from "@/types/app";
 import { lerp } from "three/src/math/MathUtils.js";
 import { useGridOverrideControls } from "../hooks/useGridOverrideControls";
 
