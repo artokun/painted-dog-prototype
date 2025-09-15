@@ -315,13 +315,13 @@ function Book({
 
   useFrame(({ pointer }) => {
     // tilt the book when focused
-    if (isFocused && !isSlidingRef.current) {
+    if (isFocused) {
       const targetOffset = camera.position.y - bookSpring.posY.get();
       liftApi.start({
         posY: targetOffset,
         config: config.stiff,
       });
-      const maxTilt = 0.15;
+      const maxTilt = 0.25;
       const tiltX = pointer.x * maxTilt;
       const tiltY = pointer.y * maxTilt;
       bookFocusedTiltGroupApi.start({

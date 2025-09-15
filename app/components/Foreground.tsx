@@ -7,15 +7,38 @@ import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
 import { useEffect } from "react";
 import { subscribeKey } from "valtio/utils";
+import { bookStore } from "../store/bookStore";
+import { useSnapshot } from "valtio";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { isRendered } = useSnapshot(bookStore);
+
+  useEffect(() => {
+    if (!pathname.startsWith("/books/")) {
+      bookStore.focusedBookId = null;
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (isRendered) {
+      setTimeout(() => {
+        document
+          .getElementById("loading-overlay")
+          ?.classList.remove("opacity-100");
+        document.getElementById("loading-overlay")?.classList.add("opacity-0");
+        setTimeout(() => {
+          document.getElementById("loading-overlay")?.remove();
+        }, 300);
+      }, 300);
+    }
+  }, [isRendered]);
 
   // This allows us to navigate to the current route when the url changes from
   // inside of the react three fiber app
   useEffect(() => {
-    const unsubscribe = subscribeKey(
+    const unsubscribeCurrentRoute = subscribeKey(
       globalStore,
       "currentRoute",
       (currentRoute) => {
@@ -25,8 +48,21 @@ export const Foreground = () => {
       }
     );
 
+    const unsubscribeFocusedBookId = subscribeKey(
+      bookStore,
+      "focusedBookId",
+      (focusedBookId) => {
+        if (focusedBookId) {
+          router.push(`/books/${focusedBookId}`);
+        } else {
+          router.push("/");
+        }
+      }
+    );
+
     return () => {
-      unsubscribe();
+      unsubscribeCurrentRoute();
+      unsubscribeFocusedBookId();
     };
   }, []);
 

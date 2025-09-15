@@ -1,6 +1,6 @@
 import { useSnapshot } from "valtio";
 import Book from "./Book";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { bookStore, type BookState, loadBooks } from "../store/bookStore";
 import { FilterKey, filterStore } from "../store/filterStore";
 import { filterBooksByFuzzySearch } from "../utils/book";
@@ -35,7 +35,7 @@ export default function BookStack() {
   }, []);
 
   // Show loading state
-  if (isLoading) {
+  if (isLoading || Object.keys(books).length === 0) {
     return null; // Could add a loading indicator here
   }
 
@@ -45,12 +45,29 @@ export default function BookStack() {
     return null; // Could add error display here
   }
 
-  return Object.entries(books).map(([id, book]) => (
-    <Book
-      key={id}
-      book={book}
-      materialControls={materialControls}
-      gridOverrideControls={gridOverrideControls}
-    />
-  ));
+  return (
+    <Suspense fallback={null}>
+      {Object.entries(books).map(([id, book]) => (
+        <Book
+          key={id}
+          book={book}
+          materialControls={materialControls}
+          gridOverrideControls={gridOverrideControls}
+        />
+      ))}
+      <Rendered />
+    </Suspense>
+  );
 }
+
+const Rendered = () => {
+  useEffect(() => {
+    bookStore.isRendered = true;
+
+    return () => {
+      bookStore.isRendered = false;
+    };
+  }, []);
+
+  return null;
+};

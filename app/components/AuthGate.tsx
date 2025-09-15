@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { authStore } from "@/app/store/authStore";
 import Image from "next/image";
+import { Background } from "./Background";
+import { Middle } from "./Middle";
+import { Foreground } from "./Foreground";
 
 const CORRECT_PASSWORD = "The-Quick-Spotted-Dog";
 const AUTH_STORAGE_KEY = "painted-dog-auth";
@@ -34,11 +37,18 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   };
 
   if (isAuthenticated) {
-    return <>{children}</>;
+    return (
+      <>
+        <Background />
+        <Middle />
+        {children}
+        <Foreground />
+      </>
+    );
   }
 
   return (
-    <div className="fixed inset-0 bg-black flex items-center justify-center">
+    <div className="fixed inset-0 bg-black flex items-center justify-center z-100">
       <div className="p-8 max-w-md w-full mx-4 flex flex-col items-center">
         <Image
           priority

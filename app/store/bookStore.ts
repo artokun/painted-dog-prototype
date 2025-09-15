@@ -6,6 +6,7 @@ export interface BookState {
   hoveredBookId: BookId | null;
   books: BookMap;
   isLoading: boolean;
+  isRendered: boolean;
   error: string | null;
 }
 
@@ -14,6 +15,7 @@ export const bookStore = proxy<BookState>({
   hoveredBookId: null,
   books: {},
   isLoading: false,
+  isRendered: false,
   error: null,
 });
 

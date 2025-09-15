@@ -89,7 +89,13 @@ export const FooterContent = () => {
     <div className="flex flex-col align-center w-full h-full overflow-hidden bg-[#2F2F2F] p-16 gap-4 font-secondary">
       <div className="flex justify-center items-center">
         <div className="relative">
-          <Image src="/logo-dog.png" alt="Logo" width={200} height={200} />
+          <Image
+            src="/logo-dog.png"
+            priority
+            alt="Logo"
+            width={200}
+            height={200}
+          />
           <animated.div
             className="absolute -right-6 -top-16 cursor-pointer"
             style={spring}
@@ -105,7 +111,9 @@ export const FooterContent = () => {
         <ThreeLink href="/newsletter">Newsletter</ThreeLink>
       </div>
       <div className="flex text-xs justify-center items-center">
-        <ThreeLink href="/legal" className="hover:text-white transition-colors">Legal</ThreeLink>
+        <ThreeLink href="/legal" className="hover:text-white transition-colors">
+          Legal
+        </ThreeLink>
       </div>
       <div className="flex justify-center items-center gap-2 mt-4 [&>button]:hover:text-white [&>button]:transition-colors">
         <ThreeLink href="#">

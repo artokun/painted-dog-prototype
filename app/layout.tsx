@@ -3,9 +3,9 @@ import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
-import { Background } from "./components/Background";
-import { Middle } from "./components/Middle";
-import { Foreground } from "./components/Foreground";
+import AuthGate from "./components/AuthGate";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const fieldsFont = localFont({
   src: [
@@ -63,10 +63,16 @@ export default function RootLayout({
         className={`${montserrat.variable} ${fieldsFont.variable} antialiased overflow-hidden h-dvh w-full`}
       >
         <main className="h-dvh w-screen relative">
-          <Background />
-          <Middle />
-          {children}
-          <Foreground />
+          <AuthGate>{children}</AuthGate>
+          <div
+            id="loading-overlay"
+            className={cn(
+              "absolute opacity-100 transition-opacity duration-600",
+              "inset-0 bg-[#2F2F2F] flex items-center justify-center z-50"
+            )}
+          >
+            <Image src="/logo-dog.png" alt="Logo" width={200} height={200} />
+          </div>
         </main>
         <Script id="prevent-navigation" strategy="beforeInteractive">
           {`

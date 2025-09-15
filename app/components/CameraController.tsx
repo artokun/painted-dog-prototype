@@ -68,6 +68,12 @@ const CameraController = memo(function CameraController() {
     config: { mass: 1, tension: 280, friction: 60 },
   }));
 
+  useEffect(() => {
+    if (focusedBookId !== null && scroll.offset > 0.7) {
+      scroll.el.scrollTop = scroll.el.scrollTop * 0.7;
+    }
+  }, [focusedBookId]);
+
   // Handle mouse movement for rotation
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
