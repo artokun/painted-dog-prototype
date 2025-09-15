@@ -9,11 +9,15 @@ export default function Client({ slug }: { slug: string }) {
   const { books, isRendered } = useSnapshot(bookStore);
 
   useEffect(() => {
-    if (
-      isRendered &&
-      Object.keys(books).findIndex((key) => key === slug) !== -1
-    ) {
-      bookStore.focusedBookId = slug;
+    if (isRendered) {
+      // Find the book by its slug property
+      const bookId = Object.keys(books).find(
+        (id) => books[id].slug === slug
+      );
+
+      if (bookId) {
+        bookStore.focusedBookId = bookId;
+      }
     }
   }, [isRendered, slug, books]);
 

@@ -1,5 +1,5 @@
 import Client from "./client";
-import { getBookById } from "@/lib/books";
+import { getBookBySlug } from "@/lib/books";
 
 export async function generateMetadata({
   params,
@@ -7,7 +7,7 @@ export async function generateMetadata({
   params: { slug: string };
 }) {
   const { slug } = await params;
-  const book = await getBookById(slug);
+  const book = await getBookBySlug(slug);
   return {
     title: `${book?.title} | Painted Dog`,
     description: book?.description,
@@ -16,7 +16,7 @@ export async function generateMetadata({
 
 export default async function BookPage(props: PageProps<"/books/[slug]">) {
   const { slug } = await props.params;
-  const book = await getBookById(slug);
+  const book = await getBookBySlug(slug);
 
   return (
     <>

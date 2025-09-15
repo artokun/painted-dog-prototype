@@ -52,8 +52,9 @@ export const Foreground = () => {
       bookStore,
       "focusedBookId",
       (focusedBookId) => {
-        if (focusedBookId) {
-          router.push(`/books/${focusedBookId}`);
+        const book = focusedBookId ? bookStore.books[focusedBookId] : null;
+        if (focusedBookId && book?.slug) {
+          router.push(`/books/${book.slug}`);
         } else {
           router.push("/");
         }
