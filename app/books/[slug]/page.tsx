@@ -4,7 +4,7 @@ import { getBookBySlug } from "@/lib/books";
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const book = await getBookBySlug(slug);

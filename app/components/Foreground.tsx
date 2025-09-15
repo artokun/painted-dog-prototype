@@ -65,7 +65,7 @@ export const Foreground = () => {
       unsubscribeCurrentRoute();
       unsubscribeFocusedBookId();
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <div className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20 pointer-events-none">
