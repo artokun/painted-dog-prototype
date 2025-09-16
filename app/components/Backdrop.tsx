@@ -15,7 +15,7 @@ export default function Backdrop() {
   const meshRef = useRef<Mesh>(null);
 
   const { backdropColor } = useControls("Backdrop", {
-    backdropColor: { value: "#fffee9", label: "Backdrop Color" },
+    backdropColor: { value: "#ebdfd1", label: "Backdrop Color" },
   });
 
   // Show backdrop when a book is focused

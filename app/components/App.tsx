@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Environment, SpotLight, useDepthBuffer } from "@react-three/drei";
 import { useControls } from "leva";
 import CameraController from "./CameraController";
@@ -8,39 +8,47 @@ import BookStack from "./BookStack";
 import { useSnapshot } from "valtio";
 import { filterStore, FilterView } from "../store/filterStore";
 import { animated, config, useSpring } from "@react-spring/three";
-import { Vector3 } from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import {
+  EquirectangularReflectionMapping,
+  TextureLoader,
+  Vector3,
+} from "three";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
+import { GroundedSkybox, UltraHDRLoader } from "three/examples/jsm/Addons.js";
 
 export default function App() {
   const { search, view } = useSnapshot(filterStore);
   const isGridMode = view === FilterView.Grid;
 
-  const { groundHeight, groundRadius, groundScale } = useControls(
-    "Environment Ground",
-    {
+  const { groundHeight, groundRadius, groundScale, groundRotation } =
+    useControls("Environment Ground", {
       groundHeight: {
-        value: 20,
+        value: 1.4,
         min: 0,
-        max: 50,
+        max: 10,
         step: 0.01,
         label: "Ground Height",
       },
       groundRadius: {
-        value: 20,
+        value: 2,
         min: 0,
         max: 50,
         step: 0.01,
         label: "Ground Radius",
       },
       groundScale: {
-        value: 2,
+        value: 1.2,
         min: 0,
-        max: 10,
+        max: 5,
         step: 0.01,
         label: "Ground Scale",
       },
-    }
-  );
+      groundRotation: {
+        value: [-0.06, 1.26, 0],
+        step: 0.01,
+        label: "Ground Rotation",
+      },
+    });
 
   const { lightX, lightY, lightZ } = useControls("Directional Light", {
     lightX: {
@@ -88,21 +96,43 @@ export default function App() {
   });
 
   const depthBuffer = useDepthBuffer({ frames: 1 });
+  const envMap = useLoader(UltraHDRLoader, "/painted-dog-scene_5.jpg");
+
+  const skybox = useMemo(() => {
+    if (!envMap) return null;
+    envMap.mapping = EquirectangularReflectionMapping;
+    const skybox = new GroundedSkybox(envMap, groundHeight, groundRadius, 2048);
+    skybox.position.y = groundHeight - 0.5;
+    skybox.scale.setScalar(2);
+    return skybox;
+  }, [envMap, groundRadius]);
 
   return (
     <>
-      <CameraController />
-      <Environment
-        files="/painted-dog-2k.hdr"
+      {skybox && (
+        <primitive
+          object={skybox}
+          position={[0, groundHeight, 0]}
+          receiveShadow
+          scale={groundScale}
+          rotation={groundRotation}
+        />
+      )}
+      {/* <Environment
+        ref={environmentRef as any}
+        files="/painted-dog-scene_5.hdr"
         resolution={2048}
-        environmentIntensity={environmentIntensity}
+        environmentIntensity={0}
+        background="only"
+        // backgroundRotation={[Math.PI / 0.48, Math.PI / 0.42, 0.2]}
         ground={{
           height: groundHeight,
           radius: groundRadius,
           scale: groundScale,
         }}
-      />
+      /> */}
       <ambientLight intensity={ambientLightIntensity} />
+      <CameraController />
       {/* sun light */}
       <animated.directionalLight
         position={spring.position}
