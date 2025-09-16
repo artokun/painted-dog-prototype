@@ -52,14 +52,14 @@ export default function App() {
 
   const { lightX, lightY, lightZ } = useControls("Directional Light", {
     lightX: {
-      value: 2,
+      value: -3.3,
       min: -10,
       max: 10,
       step: 0.01,
       label: "Light X Position",
     },
     lightY: {
-      value: 4,
+      value: 6.25,
       min: -10,
       max: 10,
       step: 0.01,
