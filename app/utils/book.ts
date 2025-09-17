@@ -67,31 +67,46 @@ export const calculateXFromCameraDepthOnRotation = (
   };
 };
 
-// Calculate optimal Z distance for focused book to fill 75% of viewport height
-export const calculateOptimalZDistance = (camera: THREE.Camera) => {
-  // Use a fixed reference book height so all books appear the same size on screen
-  // Using medium book width (0.185) as the reference since it's in the middle of the range
-  const referenceBookHeight = 0.28;
+// Calculate optimal Z distance for focused book with viewport constraints
+export const calculateOptimalZDistance = (camera: THREE.Camera, bookSize?: string) => {
+  // If no book size provided, use the old fixed reference behavior
+  if (!bookSize) {
+    const referenceBookHeight = 0.28;
+    const targetScreenPercentage = 0.8;
+    const fov = 45;
+    const fovRadians = (fov * Math.PI) / 180;
+    const halfFov = fovRadians / 2;
+    const viewportHeightAtUnitDistance = 2 * Math.tan(halfFov);
+    const distance =
+      referenceBookHeight /
+      (targetScreenPercentage * viewportHeightAtUnitDistance);
+    return camera.position.z - distance;
+  }
 
-  // VIEWPORT_PERCENTAGE: Adjust this value to change how much of the screen the featured book fills
-  const targetScreenPercentage = 0.8;
+  // Get actual book dimensions
+  const [width, thickness, height] = getContentfulBookSize(bookSize);
 
-  // Camera FOV (from page.tsx)
+  // Camera FOV and aspect ratio
   const fov = 45;
   const fovRadians = (fov * Math.PI) / 180;
-
-  // Calculate distance needed for book to fill target percentage of viewport
-  // Using: tan(fov/2) = (height/2) / distance
-  // Rearranged: distance = (height/2) / tan(fov/2)
   const halfFov = fovRadians / 2;
+
+  // Get viewport dimensions at unit distance
   const viewportHeightAtUnitDistance = 2 * Math.tan(halfFov);
+  const viewportWidthAtUnitDistance = viewportHeightAtUnitDistance * (camera as THREE.PerspectiveCamera).aspect;
 
-  // Same distance for all books so they appear the same size on screen
-  const distance =
-    referenceBookHeight /
-    (targetScreenPercentage * viewportHeightAtUnitDistance);
+  // Target constraints
+  const heightConstraintPercentage = 0.8; // 80% of viewport height
+  const widthConstraintPercentage = 0.4;  // 40% of viewport width
 
-  return camera.position.z - distance;
+  // Calculate required distances for each constraint
+  const distanceForHeightConstraint = height / (heightConstraintPercentage * viewportHeightAtUnitDistance);
+  const distanceForWidthConstraint = width / (widthConstraintPercentage * viewportWidthAtUnitDistance);
+
+  // Use the more restrictive constraint (further distance)
+  const optimalDistance = Math.max(distanceForHeightConstraint, distanceForWidthConstraint);
+
+  return camera.position.z - optimalDistance;
 };
 
 // Precise GLTF model dimensions from vertex geometry analysis

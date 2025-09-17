@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { Environment, SpotLight, useDepthBuffer } from "@react-three/drei";
+import { Environment, SpotLight, useDepthBuffer, Stats } from "@react-three/drei";
 import { useControls } from "leva";
 import CameraController from "./CameraController";
 import Backdrop from "./Backdrop";
@@ -44,7 +44,7 @@ export default function App() {
         label: "Ground Scale",
       },
       groundRotation: {
-        value: [-0.06, 1.26, 0],
+        value: [0.0, 1.26, 0],
         step: 0.01,
         label: "Ground Rotation",
       },
@@ -109,6 +109,7 @@ export default function App() {
 
   return (
     <>
+      <Stats />
       {skybox && (
         <primitive
           object={skybox}
@@ -163,7 +164,7 @@ export default function App() {
         position={[0, 1.3, 0.6]}
       />
       <Floor />
-      <Backdrop />
+      {/* <Backdrop /> */}
       <BookStack />
     </>
   );

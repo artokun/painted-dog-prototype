@@ -2,7 +2,14 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Html, useCursor, useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { BookXS, BookSM, BookMD, BookLG, BookXL } from "./models/books";
+import {
+  BookXS,
+  BookSM,
+  BookMD,
+  BookLG,
+  BookXL,
+  Book280x260,
+} from "./models/books";
 import {
   animated,
   config,
@@ -25,8 +32,7 @@ import { filterStore, FilterView } from "../store/filterStore";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { subscribeKey } from "valtio/utils";
-import { MaterialProperties } from "three";
-import { Book280x260 } from "./models/books/Book280x260";
+import { MeshStandardMaterialProperties } from "three";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
@@ -37,7 +43,7 @@ function Book({
   gridOverrideControls,
 }: {
   book: BookType;
-  materialControls: Partial<MaterialProperties>;
+  materialControls: Partial<MeshStandardMaterialProperties>;
   gridOverrideControls?: {
     gridItemWidth: number;
     gridItemHeight: number;
@@ -211,7 +217,9 @@ function Book({
       ref: bookFocusedSlideRef,
       to: isFocused
         ? {
-            posZ: calculateOptimalZDistance(camera) - bookPosition.posZ,
+            posZ:
+              calculateOptimalZDistance(camera, book.bookSize) -
+              bookPosition.posZ,
           }
         : {
             posZ: isSorting
@@ -226,7 +234,7 @@ function Book({
       },
       config: isGridMode ? config.default : config.gentle,
     },
-    [isFocused, isGridMode]
+    [isFocused, isGridMode, book.bookSize]
   );
 
   const dropHeight = getDropHeight(book.id);
@@ -505,7 +513,7 @@ const BookModel = ({
   materialControls,
 }: {
   book: BookType;
-  materialControls: Partial<MaterialProperties>;
+  materialControls: Partial<MeshStandardMaterialProperties>;
 }) => {
   const SelectedBookModel = useMemo(() => {
     switch (book.bookSize) {
@@ -528,10 +536,7 @@ const BookModel = ({
 
   return (
     <Suspense fallback={null}>
-      <SelectedBookModel
-        bookTexture={book.bookTexture}
-        materialControls={materialControls}
-      />
+      <SelectedBookModel book={book} materialControls={materialControls} />
     </Suspense>
   );
 };
