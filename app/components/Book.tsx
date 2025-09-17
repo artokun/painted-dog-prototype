@@ -27,6 +27,7 @@ import {
   getBookSortYPosition,
   getCurrentBookIndex,
   getDropHeight,
+  calculateFocusedBookCenterOffset,
 } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
 import { cn } from "@/lib/utils";
@@ -117,7 +118,13 @@ function Book({
     () => ({
       posX:
         book.featured || isFocused
-          ? 0
+          ? isFocused
+            ? calculateFocusedBookCenterOffset(
+                camera,
+                book.bookSize,
+                book.offset.posZ
+              )
+            : -book.offset.posZ // Keep featured books spine-aligned
           : isSorting
             ? getContentfulBookSize(book.bookSize)[0] *
               2 *
@@ -130,15 +137,18 @@ function Book({
       posY: bookPosition.posY,
       posZ: isFocused
         ? 0
-        : isSorting
-          ? -getContentfulBookSize(book.bookSize)[2] * 2
-          : search.length > 1
-            ? !book.hidden
-              ? 0
-              : -0.5
-            : book.featured
-              ? -getContentfulBookSize("MD")[0] / 2 + book.offset.posZ
-              : -getContentfulBookSize(book.bookSize)[0] / 2 + book.offset.posZ,
+        : someBookIsFocused
+          ? -0.15
+          : isSorting
+            ? -getContentfulBookSize(book.bookSize)[2] * 2
+            : search.length > 1
+              ? !book.hidden
+                ? 0
+                : -0.5
+              : book.featured
+                ? -getContentfulBookSize("MD")[0] / 2 + book.offset.posZ
+                : -getContentfulBookSize(book.bookSize)[0] / 2 +
+                  book.offset.posZ,
       rotX: 0,
       rotY: book.featured ? 0 : book.offset.rotY,
       rotZ: 0,
@@ -158,17 +168,25 @@ function Book({
             return isGridMode ? config.gentle : config.default;
         }
       },
-      delay: (_key: string) => (isFocused ? 0 : currentBookIndex * STACK_DELAY),
+      delay: (_key: string) =>
+        isFocused || someBookIsFocused ? 0 : currentBookIndex * STACK_DELAY,
     }),
     [
       book.featured,
+      book.bookSize,
       isFocused,
+      someBookIsFocused,
       isGridMode,
       isSorting,
+      camera,
       search.length,
       currentBookIndex,
-      book.offset,
-      bookPosition,
+      book.offset.posZ,
+      book.offset.posX,
+      book.offset.rotY,
+      bookPosition.posX,
+      bookPosition.posY,
+      bookPosition.posZ,
       reverseBookIndex,
     ]
   );

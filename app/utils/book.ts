@@ -68,7 +68,66 @@ export const calculateXFromCameraDepthOnRotation = (
 };
 
 // Calculate optimal Z distance for focused book with viewport constraints
-export const calculateOptimalZDistance = (camera: THREE.Camera, bookSize?: string) => {
+// Calculate world units for a percentage of screen width at a given Z position
+export const calculateScreenPercentageInWorldUnits = (
+  camera: THREE.PerspectiveCamera,
+  screenPercentage: number, // 0.4 for 40%
+  zPosition: number = 0
+): number => {
+  const fov = 45; // From your setup
+  const fovRadians = (fov * Math.PI) / 180;
+  const halfFov = fovRadians / 2;
+
+  // Distance from camera to the Z position
+  const distanceToPosition = Math.abs(camera.position.z - zPosition);
+
+  // Calculate viewport width at this Z position
+  const viewportHeightAtPosition = 2 * Math.tan(halfFov) * distanceToPosition;
+  const viewportWidthAtPosition = viewportHeightAtPosition * camera.aspect;
+
+  // Return the world units for the given screen percentage
+  return viewportWidthAtPosition * screenPercentage;
+};
+
+// Calculate precise centering offset for focused books using screen percentage
+export const calculateFocusedBookCenterOffset = (
+  camera: THREE.Camera,
+  bookSize: string,
+  zPosition: number = 0
+): number => {
+  // Get the 40% screen width constraint used in calculateOptimalZDistance
+  const fortyPercentWidth = calculateScreenPercentageInWorldUnits(
+    camera as THREE.PerspectiveCamera,
+    0.4,
+    zPosition
+  );
+
+  const [width, , height] = getContentfulBookSize(bookSize);
+
+  // Special handling for the 280x260 book which has unique proportions
+  if (bookSize === "280x260") {
+    // This book might need a different centering calculation
+    const rightAlignOffset = (fortyPercentWidth * width) / 2;
+    return fortyPercentWidth / 2 - rightAlignOffset * 4;
+  }
+
+  // Check if book is portrait (height > width)
+  const isPortrait = height > width;
+
+  if (!isPortrait) {
+    // For portrait books, use geometric center
+    return 0;
+  } else {
+    // For landscape books, use the centering offset calculation
+    const rightAlignOffset = (fortyPercentWidth * width) / 2;
+    return rightAlignOffset / 2;
+  }
+};
+
+export const calculateOptimalZDistance = (
+  camera: THREE.Camera,
+  bookSize?: string
+) => {
   // If no book size provided, use the old fixed reference behavior
   if (!bookSize) {
     const referenceBookHeight = 0.28;
@@ -93,18 +152,38 @@ export const calculateOptimalZDistance = (camera: THREE.Camera, bookSize?: strin
 
   // Get viewport dimensions at unit distance
   const viewportHeightAtUnitDistance = 2 * Math.tan(halfFov);
-  const viewportWidthAtUnitDistance = viewportHeightAtUnitDistance * (camera as THREE.PerspectiveCamera).aspect;
+  const viewportWidthAtUnitDistance =
+    viewportHeightAtUnitDistance * (camera as THREE.PerspectiveCamera).aspect;
 
   // Target constraints
   const heightConstraintPercentage = 0.8; // 80% of viewport height
-  const widthConstraintPercentage = 0.4;  // 40% of viewport width
+  const widthConstraintPercentage = 0.4; // 40% of viewport width
 
-  // Calculate required distances for each constraint
-  const distanceForHeightConstraint = height / (heightConstraintPercentage * viewportHeightAtUnitDistance);
-  const distanceForWidthConstraint = width / (widthConstraintPercentage * viewportWidthAtUnitDistance);
+  let optimalDistance = 0;
 
-  // Use the more restrictive constraint (further distance)
-  const optimalDistance = Math.max(distanceForHeightConstraint, distanceForWidthConstraint);
+  if (bookSize === "280x260") {
+    const distanceForHeightConstraint =
+      width / (heightConstraintPercentage * viewportHeightAtUnitDistance);
+    const distanceForWidthConstraint =
+      height / (widthConstraintPercentage * viewportWidthAtUnitDistance);
+
+    // Use the more restrictive constraint (further distance)
+    optimalDistance = Math.max(
+      distanceForHeightConstraint,
+      distanceForWidthConstraint + 0.05
+    );
+  } else {
+    const distanceForHeightConstraint =
+      height / (heightConstraintPercentage * viewportHeightAtUnitDistance);
+    const distanceForWidthConstraint =
+      width / (widthConstraintPercentage * viewportWidthAtUnitDistance);
+
+    // Use the more restrictive constraint (further distance)
+    optimalDistance = Math.max(
+      distanceForHeightConstraint,
+      distanceForWidthConstraint
+    );
+  }
 
   return camera.position.z - optimalDistance;
 };

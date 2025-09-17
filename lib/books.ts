@@ -10,9 +10,9 @@ function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '') // Remove special characters
-    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
 }
 
 // Helper function to get localized field value
@@ -232,7 +232,9 @@ export async function getBookById(id: string): Promise<ContentfulBook | null> {
 }
 
 // Fetch a single book by slug (server-side only)
-export async function getBookBySlug(slug: string): Promise<ContentfulBook | null> {
+export async function getBookBySlug(
+  slug: string
+): Promise<ContentfulBook | null> {
   if (typeof window !== "undefined") {
     throw new Error("getBookBySlug should only be called server-side");
   }
@@ -240,9 +242,12 @@ export async function getBookBySlug(slug: string): Promise<ContentfulBook | null
   try {
     // Get all books and find the one with matching slug
     const books = await getAllBooks();
-    return books.find(book => book.slug === slug) || null;
+    return books.find((book) => book.slug === slug) || null;
   } catch (error) {
-    console.error(`Error fetching book with slug ${slug} from Contentful:`, error);
+    console.error(
+      `Error fetching book with slug ${slug} from Contentful:`,
+      error
+    );
     return null;
   }
 }
