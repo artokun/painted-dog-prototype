@@ -1,5 +1,10 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { Environment, SpotLight, useDepthBuffer, Stats } from "@react-three/drei";
+import {
+  Environment,
+  SpotLight,
+  useDepthBuffer,
+  Stats,
+} from "@react-three/drei";
 import { useControls } from "leva";
 import CameraController from "./CameraController";
 import Backdrop from "./Backdrop";
@@ -23,7 +28,7 @@ export default function App() {
   const { groundHeight, groundRadius, groundScale, groundRotation } =
     useControls("Environment Ground", {
       groundHeight: {
-        value: 1.4,
+        value: 0.95,
         min: 0,
         max: 10,
         step: 0.01,
@@ -37,14 +42,14 @@ export default function App() {
         label: "Ground Radius",
       },
       groundScale: {
-        value: 1.2,
+        value: 1,
         min: 0,
         max: 5,
         step: 0.01,
         label: "Ground Scale",
       },
       groundRotation: {
-        value: [0.0, 1.26, 0],
+        value: [0.0, 1.35, 0],
         step: 0.01,
         label: "Ground Rotation",
       },
@@ -52,21 +57,21 @@ export default function App() {
 
   const { lightX, lightY, lightZ } = useControls("Directional Light", {
     lightX: {
-      value: -3.3,
+      value: -3.4,
       min: -10,
       max: 10,
       step: 0.01,
       label: "Light X Position",
     },
     lightY: {
-      value: 6.25,
+      value: 4.19,
       min: -10,
       max: 10,
       step: 0.01,
       label: "Light Y Position",
     },
     lightZ: {
-      value: 2,
+      value: -0.9,
       min: -10,
       max: 10,
       step: 0.01,
@@ -76,7 +81,7 @@ export default function App() {
 
   const { ambientLightIntensity } = useControls("Ambient Light", {
     ambientLightIntensity: {
-      value: 1,
+      value: 0.5,
       min: 0,
       max: 5,
       step: 0.01,

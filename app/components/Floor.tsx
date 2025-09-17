@@ -12,7 +12,7 @@ export default function Floor() {
   const isGridMode = view === FilterView.Grid;
 
   const { floorColor } = useControls("Floor", {
-    floorColor: { value: "#d1c5b8", label: "Floor Color" },
+    floorColor: { value: "#e8e3de", label: "Floor Color" },
   });
 
   const [floorSpring] = useSpring(
