@@ -1,30 +1,19 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import {
-  Environment,
-  SpotLight,
-  useDepthBuffer,
-  Stats,
-} from "@react-three/drei";
+import React, { useMemo, useRef } from "react";
+import { SpotLight, useDepthBuffer, Stats } from "@react-three/drei";
 import { useControls } from "leva";
 import CameraController from "./CameraController";
-import Backdrop from "./Backdrop";
 import Floor from "./Floor";
 import BookStack from "./BookStack";
 import { useSnapshot } from "valtio";
 import { filterStore, FilterView } from "../store/filterStore";
 import { animated, config, useSpring } from "@react-spring/three";
-import {
-  EquirectangularReflectionMapping,
-  TextureLoader,
-  Vector3,
-} from "three";
+import { EquirectangularReflectionMapping, Vector3 } from "three";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { GroundedSkybox, UltraHDRLoader } from "three/examples/jsm/Addons.js";
 
-export default function App() {
-  const { search, view } = useSnapshot(filterStore);
-  const isGridMode = view === FilterView.Grid;
+import Effects from "./Effects";
 
+export default function App() {
   const { groundHeight, groundRadius, groundScale, groundRotation } =
     useControls("Environment Ground", {
       groundHeight: {
@@ -55,52 +44,43 @@ export default function App() {
       },
     });
 
-  const { lightX, lightY, lightZ } = useControls("Directional Light", {
-    lightX: {
-      value: -3.4,
-      min: -10,
-      max: 10,
-      step: 0.01,
-      label: "Light X Position",
-    },
-    lightY: {
-      value: 4.19,
-      min: -10,
-      max: 10,
-      step: 0.01,
-      label: "Light Y Position",
-    },
-    lightZ: {
-      value: -0.9,
-      min: -10,
-      max: 10,
-      step: 0.01,
-      label: "Light Z Position",
-    },
-  });
+  const { lightPosition, lightIntensity, lightColor } = useControls(
+    "Camera Light",
+    {
+      lightPosition: {
+        value: [-1, 0, 2],
+        min: -10,
+        max: 10,
+        step: 0.01,
+      },
+      lightIntensity: {
+        value: 1.0,
+        min: 0,
+        max: 5,
+        step: 0.01,
+      },
+      lightColor: {
+        value: "#FFFFFF",
+      },
+    }
+  );
 
   const { ambientLightIntensity } = useControls("Ambient Light", {
     ambientLightIntensity: {
-      value: 0.5,
+      value: 1.5,
       min: 0,
       max: 5,
       step: 0.01,
-      label: "Ambient Light Intensity",
+      label: "Intensity",
     },
   });
 
-  const environmentIntensity = useMemo(() => {
-    return search.length > 1 ? 0 : 0;
-  }, [search]);
-
-  const spring = useSpring({
-    environmentIntensity,
-    directionalLightIntensity: isGridMode ? 3 : search.length > 1 ? 0 : 3,
-    position: new Vector3(lightX, lightY, lightZ),
-    config: isGridMode ? config.default : config.gentle,
+  const { enabled: effectsEnabled } = useControls("Effects", {
+    enabled: {
+      value: false,
+    },
   });
 
-  const depthBuffer = useDepthBuffer({ frames: 1 });
   const envMap = useLoader(UltraHDRLoader, "/painted-dog-scene_5.jpg");
 
   const skybox = useMemo(() => {
@@ -115,6 +95,7 @@ export default function App() {
   return (
     <>
       <Stats />
+      <Effects enabled={effectsEnabled} />
       {skybox && (
         <primitive
           object={skybox}
@@ -124,52 +105,16 @@ export default function App() {
           rotation={groundRotation}
         />
       )}
-      {/* <Environment
-        ref={environmentRef as any}
-        files="/painted-dog-scene_5.hdr"
-        resolution={2048}
-        environmentIntensity={0}
-        background="only"
-        // backgroundRotation={[Math.PI / 0.48, Math.PI / 0.42, 0.2]}
-        ground={{
-          height: groundHeight,
-          radius: groundRadius,
-          scale: groundScale,
-        }}
-      /> */}
       <ambientLight intensity={ambientLightIntensity} />
       <CameraController />
-      {/* sun light */}
-      <animated.directionalLight
-        position={spring.position}
-        lookAt={[0, 0, 0]}
-        intensity={spring.directionalLightIntensity}
-        color="#FFFFFF"
-        castShadow
-        shadow-mapSize={[4096, 4096]}
-        shadow-camera-near={0.001}
-        shadow-camera-far={10}
-        shadow-camera-left={-1}
-        shadow-camera-right={1}
-        shadow-camera-top={1}
-        shadow-camera-bottom={-1}
-        shadow-bias={-0.0002}
-        shadow-normalBias={0.0002}
-      />
       {/* camera light */}
       <animated.directionalLight
-        position={[-1, 0, 2]}
+        position={lightPosition}
         rotation={[0, 0, 0]}
-        intensity={spring.directionalLightIntensity}
-        color="#FFFFFF"
-      />
-      <MovingSpot
-        depthBuffer={depthBuffer}
-        color="#ffffff"
-        position={[0, 1.3, 0.6]}
+        intensity={lightIntensity}
+        color={lightColor}
       />
       <Floor />
-      {/* <Backdrop /> */}
       <BookStack />
     </>
   );

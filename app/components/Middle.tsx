@@ -18,6 +18,9 @@ export const Middle = () => {
           toneMapping: THREE.LinearToneMapping,
           outputColorSpace: THREE.SRGBColorSpace,
           toneMappingExposure: 1.0,
+          powerPreference: "high-performance",
+          // depth: false,
+          alpha: false,
         }}
       >
         <Suspense fallback={null}>

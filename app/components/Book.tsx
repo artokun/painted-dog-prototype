@@ -63,7 +63,7 @@ function Book({
   const isGridMode = view === FilterView.Grid;
   const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
-
+  const [bookFlipped, setBookFlipped] = useState(false);
   useEffect(() => {
     const unsubscribeFocusedBookId = subscribeKey(
       bookStore,
@@ -138,7 +138,7 @@ function Book({
       posZ: isFocused
         ? 0
         : someBookIsFocused
-          ? -0.15
+          ? -0.2
           : isSorting
             ? -getContentfulBookSize(book.bookSize)[2] * 2
             : search.length > 1
@@ -319,16 +319,6 @@ function Book({
     isGridMode ? [0, 0] : isFocused ? [0, 0.3] : [0, 0.5]
   );
 
-  const handleClick = (e: React.MouseEvent<THREE.Mesh>) => {
-    e.stopPropagation();
-
-    if (isFocused || book.hidden) {
-      bookStore.focusedBookId = null;
-    } else {
-      bookStore.focusedBookId = book.id;
-    }
-  };
-
   const bookFocusedTiltGroupRef = useSpringRef();
   const [bookFocusedTiltGroupSpring, bookFocusedTiltGroupApi] = useSpring(
     {
@@ -336,23 +326,34 @@ function Book({
       to: { rotX: 0, rotZ: 0, posY: 0 },
       config: { mass: 1, tension: 350, friction: 40 },
     },
-    [isFocused, isHovered]
+    [isFocused, isHovered, bookFlipped]
   );
 
-  useFrame(({ pointer }) => {
+  const handleClick = (e: React.MouseEvent<THREE.Mesh>) => {
+    e.stopPropagation();
+
+    if (book.hidden) return;
+
+    if (isFocused) {
+      setBookFlipped(!bookFlipped);
+      bookFocusedTiltGroupApi.start({
+        rotX:
+          bookFocusedTiltGroupSpring.rotX.get() +
+          (bookFlipped ? Math.PI : -Math.PI),
+        rotZ: -bookFocusedTiltGroupSpring.rotZ.get(),
+      });
+    } else {
+      bookStore.focusedBookId = book.id;
+    }
+  };
+
+  useFrame(() => {
     // tilt the book when focused
     if (isFocused) {
       const targetOffset = camera.position.y - bookSpring.posY.get();
       liftApi.start({
         posY: targetOffset,
         config: config.stiff,
-      });
-      const maxTilt = 0.25;
-      const tiltX = pointer.x * maxTilt;
-      const tiltY = pointer.y * maxTilt;
-      bookFocusedTiltGroupApi.start({
-        rotX: -tiltX,
-        rotZ: tiltY,
       });
     } else {
       if (isGridMode) {
@@ -375,6 +376,25 @@ function Book({
       }
     }
   });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
+      const normalizedY = (e.clientY / window.innerHeight) * 2 - 1;
+      if (isFocused) {
+        const maxTilt = -0.45;
+        const tiltX = normalizedX * maxTilt;
+        const tiltY = normalizedY * maxTilt * 0.5;
+        bookFocusedTiltGroupApi.start({
+          rotX: bookFlipped ? tiltX - Math.PI : tiltX,
+          rotZ: bookFlipped ? -tiltY : tiltY,
+        });
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isFocused, bookFocusedTiltGroupApi, bookFlipped]);
 
   const [width, thickness, height] = getContentfulBookSize(book.bookSize);
 

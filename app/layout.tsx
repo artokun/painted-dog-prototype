@@ -45,8 +45,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  bookContent,
 }: {
   children: React.ReactNode;
+  bookContent: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -63,7 +65,10 @@ export default function RootLayout({
         className={`${montserrat.variable} ${fieldsFont.variable} antialiased overflow-hidden h-dvh w-full`}
       >
         <main className="h-dvh w-screen relative">
-          <AuthGate>{children}</AuthGate>
+          <AuthGate>
+            {children}
+            {bookContent}
+          </AuthGate>
           <div
             id="loading-overlay"
             className={cn(
