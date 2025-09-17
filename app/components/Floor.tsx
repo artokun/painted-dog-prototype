@@ -4,6 +4,8 @@ import { useControls } from "leva";
 import { bookStore } from "../store/bookStore";
 import { filterStore, FilterView } from "../store/filterStore";
 import * as THREE from "three";
+import { useMemo, useRef } from "react";
+import { useLoader, useFrame } from "@react-three/fiber";
 
 export default function Floor() {
   const { focusedBookId } = useSnapshot(bookStore);
@@ -25,17 +27,44 @@ export default function Floor() {
     [focusedBookId, isGridMode]
   );
 
+  // Load the radial alpha map texture
+  const alphaMap = useLoader(
+    THREE.TextureLoader,
+    "/models/textures/radial_1.jpg"
+  );
+
+  // Configure the texture
+  useMemo(() => {
+    if (alphaMap) {
+      alphaMap.flipY = false;
+      alphaMap.wrapS = alphaMap.wrapT = THREE.ClampToEdgeWrapping;
+    }
+  }, [alphaMap]);
+
+  // Reference to the material for opacity updates
+  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
+
+  // Update material opacity based on spring
+  useFrame(() => {
+    if (materialRef.current) {
+      materialRef.current.opacity = floorSpring.opacity.get();
+    }
+  });
+
   return (
     <animated.mesh
       position-y={floorSpring.yPos}
       receiveShadow
       rotation={[-Math.PI / 2, 0, 0]}
     >
-      <circleGeometry args={[0.6, 128]} />
-      <animated.meshStandardMaterial
+      <planeGeometry args={[1.2, 1.2, 32, 32]} />
+      <meshStandardMaterial
+        ref={materialRef}
         color={floorColor}
         transparent
-        opacity={floorSpring.opacity}
+        alphaMap={alphaMap}
+        depthWrite={false}
+        side={THREE.DoubleSide}
       />
     </animated.mesh>
   );

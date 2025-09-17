@@ -3,7 +3,9 @@ import type { TypeAuthorSkeleton } from "./TypeAuthor";
 import type { TypeEditorsSkeleton } from "./TypeEditors";
 import type { TypeGenreSkeleton } from "./TypeGenre";
 import type { TypeLinkSkeleton } from "./TypeLink";
+import type { TypePodcastEpisodeSkeleton } from "./TypePodcastEpisode";
 import type { TypePriceSkeleton } from "./TypePrice";
+import type { TypeReviewSkeleton } from "./TypeReview";
 
 export interface TypeBookFields {
     title: EntryFieldTypes.Symbol;
@@ -19,6 +21,8 @@ export interface TypeBookFields {
     linkToFeaturedArticle?: EntryFieldTypes.EntryLink<TypeLinkSkeleton>;
     linkToPodcastEpisode?: EntryFieldTypes.EntryLink<TypeLinkSkeleton>;
     excerpt?: EntryFieldTypes.AssetLink;
+    reviews?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeReviewSkeleton>>;
+    podcastEpisodes?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypePodcastEpisodeSkeleton>>;
 }
 
 export type TypeBookSkeleton = EntrySkeletonType<TypeBookFields, "book">;

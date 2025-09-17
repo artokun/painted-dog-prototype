@@ -1,6 +1,82 @@
-import { z } from "zod";
+// Application types for the painted-dog book catalog
 
-// Sorting and filtering enums
+export type BookId = string;
+
+export interface Author {
+  id: string;
+  fullName: string;
+  biography?: string;
+}
+
+export interface Genre {
+  id: string;
+  genre: string;
+  subGenre: string;
+}
+
+export interface Price {
+  id: string;
+  text: string;
+  price: number;
+  description?: string;
+}
+
+export interface Link {
+  id: string;
+  text: string;
+  link: string;
+}
+
+export interface Review {
+  id: string;
+  title: string;
+  excerpt: string;
+  criticName: string;
+  publishDate: string;
+  externalLink: string;
+  isFeatured: boolean;
+}
+
+export interface PodcastEpisode {
+  id: string;
+  title: string;
+  excerpt: string;
+  hostName: string;
+  publishDate: string;
+  externalLink: string;
+  isFeatured: boolean;
+}
+
+export interface ContentfulBook {
+  id: BookId;
+  title: string;
+  slug: string;
+  featured: boolean;
+  description: string;
+  publishDate: string;
+  offset: {
+    posX: number;
+    rotY: number;
+    posZ: number;
+  };
+  bookSize: "XS" | "SM" | "MD" | "LG" | "XL" | "280x260";
+  authors: Author[];
+  genre?: Genre;
+  prices: Price[];
+  reviews: Review[];
+  podcastEpisodes: PodcastEpisode[];
+  linkToFeaturedArticle?: Link;
+  linkToPodcastEpisode?: Link;
+  bookTexture?: string;
+  hidden: boolean;
+}
+
+// Alias for backward compatibility
+export type Book = ContentfulBook;
+
+export type BookMap = Record<BookId, ContentfulBook>;
+
+// Filter and sort types
 export enum SortBy {
   Title = "title",
   Author = "author",
@@ -9,104 +85,4 @@ export enum SortBy {
 export enum SortOrder {
   Asc = "asc",
   Desc = "desc",
-}
-
-// Basic types that are still needed by the application
-export type BookId = string;
-
-export type LinkFields = {
-  text: string;
-  link: string;
-  vendor: string;
-};
-
-// Contentful-based book schema (using the generated types as the source of truth)
-export const ContentfulBookSizeSchema = z.enum([
-  "XS",
-  "SM",
-  "MD",
-  "LG",
-  "XL",
-  "280x260",
-]);
-
-export const ContentfulBookSchema = z.object({
-  id: z.string().min(1, "ID is required"),
-  title: z.string().min(1, "Title is required"),
-  slug: z.string().min(1, "Slug is required"),
-  featured: z.boolean().default(false),
-  description: z.string().min(1, "Description is required"),
-  publishDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Publish date must be in YYYY-MM-DD format"),
-  bookSize: ContentfulBookSizeSchema,
-
-  // Linked entries (transformed from Contentful references)
-  authors: z.array(
-    z.object({
-      id: z.string(),
-      fullName: z.string(),
-      biography: z.string().optional(),
-    })
-  ),
-  genre: z
-    .object({
-      id: z.string(),
-      genre: z.string(),
-      subGenre: z.string(),
-    })
-    .optional(),
-  prices: z
-    .array(
-      z.object({
-        id: z.string(),
-        text: z.string(),
-        price: z.number(),
-        description: z.string().optional(),
-      })
-    )
-    .optional(),
-
-  // Article and podcast links
-  linkToFeaturedArticle: z
-    .object({
-      id: z.string(),
-      text: z.string(),
-      link: z.string(),
-    })
-    .optional(),
-  linkToPodcastEpisode: z
-    .object({
-      id: z.string(),
-      text: z.string(),
-      link: z.string(),
-    })
-    .optional(),
-
-  // Rich content sections
-  criticalReceptionText: z.string().optional(),
-  podcastText: z.string().optional(),
-
-  // Unified texture for 3D models (optional - falls back to GLB embedded)
-  bookTexture: z.string().optional(), // Asset URL
-
-  offset: z.object({
-    posX: z.number(),
-    rotY: z.number(),
-    posZ: z.number(),
-  }),
-
-  // For backward compatibility/3D rendering
-  hidden: z.boolean().default(false),
-});
-
-// Export types
-export type ContentfulBook = z.infer<typeof ContentfulBookSchema>;
-export type Book = ContentfulBook; // Main type now points to Contentful
-export type BookSize = z.infer<typeof ContentfulBookSizeSchema>;
-export type BookMap = Record<BookId, Book>;
-
-// Validation functions
-export function validateContentfulBooks(data: unknown): ContentfulBook[] {
-  return z.array(ContentfulBookSchema).parse(data);
 }
