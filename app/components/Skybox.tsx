@@ -1,7 +1,7 @@
 import { useLoader } from "@react-three/fiber";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { UltraHDRLoader } from "three/examples/jsm/Addons.js";
-import { EquirectangularReflectionMapping, Vector3 } from "three";
+import { EquirectangularReflectionMapping } from "three";
 import { GroundedSkybox } from "three/examples/jsm/Addons.js";
 import { useControls } from "leva";
 import { Select } from "@react-three/postprocessing";
@@ -44,7 +44,10 @@ export default function Skybox() {
       label: "Scale",
     },
     groundRotation: {
-      value: { x: 0.0, y: 1.2, z: 0 },
+      value: [0.0, 1.2, 0.0],
+      min: -Math.PI,
+      max: Math.PI,
+      step: 0.01,
       label: "Rot X,Y,Z",
     },
     // https://gainmap-creator.monogrid.com/ to convert .hdr to .jpg
@@ -72,11 +75,7 @@ export default function Skybox() {
           object={skybox}
           position={[0, yOffset, 0]}
           scale={groundScale}
-          rotation={new Vector3(
-            groundRotation.x,
-            groundRotation.y,
-            groundRotation.z
-          ).toArray()}
+          rotation={groundRotation}
         />
       )}
     </Select>

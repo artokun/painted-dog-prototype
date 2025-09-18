@@ -42,7 +42,7 @@ const Sun = forwardRef(function Sun(
         intensity={props.lightIntensity}
         color={props.color}
         castShadow
-        shadow-mapSize={[4096, 4096]}
+        shadow-mapSize={[2048, 2048]}
         shadow-camera-near={0.001}
         shadow-camera-far={10}
         shadow-camera-left={-1}
