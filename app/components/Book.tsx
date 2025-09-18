@@ -64,6 +64,7 @@ function Book({
   const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
   const [bookFlipped, setBookFlipped] = useState(false);
+
   useEffect(() => {
     const unsubscribeFocusedBookId = subscribeKey(
       bookStore,
@@ -174,6 +175,7 @@ function Book({
     [
       book.featured,
       book.bookSize,
+      book.hidden,
       isFocused,
       someBookIsFocused,
       isGridMode,
@@ -184,10 +186,7 @@ function Book({
       book.offset.posZ,
       book.offset.posX,
       book.offset.rotY,
-      bookPosition.posX,
       bookPosition.posY,
-      bookPosition.posZ,
-      reverseBookIndex,
     ]
   );
 
@@ -332,7 +331,11 @@ function Book({
   const handleClick = (e: React.MouseEvent<THREE.Mesh>) => {
     e.stopPropagation();
 
-    if (book.hidden) return;
+    if (
+      book.hidden ||
+      (someBookIsFocused && book.id !== bookStore.focusedBookId)
+    )
+      return;
 
     if (isFocused) {
       setBookFlipped(!bookFlipped);

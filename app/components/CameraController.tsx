@@ -34,16 +34,7 @@ const CameraController = memo(function CameraController() {
       (2 * Math.tan((fov * Math.PI) / 360));
 
     return calculatedDistance;
-  }, []); // No dependencies - fixed distance
-
-  // Stack height calculations
-  // Use actual book positions if available
-  // Add offset to prevent featured books from clipping through table
-  // const bottomLimit = bookPositions.length > 0 ? bookPositions[0] + 0.1 : 0.2;
-  // const topLimit =
-  //   bookPositions.length > 0
-  //     ? bookPositions[bookPositions.length - 1] + 0.0
-  //     : stackTop;
+  }, []);
 
   // Calculate height limits based on view mode
   const { topLimit, bottomLimit } = useMemo(() => {
@@ -54,7 +45,7 @@ const CameraController = memo(function CameraController() {
       topLimit: isGridMode ? gridLimits.topLimit : getBookStackHeight() + 0.12,
       bottomLimit: 0.03,
     };
-  }, [isGridMode, books, gridOverrideControls]);
+  }, [isGridMode, gridOverrideControls]);
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({
@@ -72,7 +63,7 @@ const CameraController = memo(function CameraController() {
     if (focusedBookId !== null && scroll.offset > 0.7) {
       scroll.el.scrollTop = scroll.el.scrollTop * 0.7;
     }
-  }, [focusedBookId]);
+  }, [focusedBookId, scroll.el, scroll.offset]);
 
   // Handle mouse movement for rotation
   useEffect(() => {

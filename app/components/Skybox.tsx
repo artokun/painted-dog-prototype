@@ -46,7 +46,7 @@ export default function Skybox() {
     skybox.position.y = groundHeight - 0.5;
     skybox.scale.setScalar(2);
     return skybox;
-  }, [envMap, groundRadius]);
+  }, [envMap, groundRadius, groundHeight]);
 
   return (
     <Select enabled={false}>
