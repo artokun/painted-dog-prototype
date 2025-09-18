@@ -16,7 +16,7 @@ const CameraController = memo(function CameraController() {
   const isGridMode = view === FilterView.Grid;
   // Get book state
 
-  const { focusedBookId, books } = useSnapshot(bookStore);
+  const { focusedBookId, isRendered } = useSnapshot(bookStore);
   const hasFocusedBook = focusedBookId !== null;
 
   // Drei scroll hook
@@ -45,7 +45,7 @@ const CameraController = memo(function CameraController() {
       topLimit: isGridMode ? gridLimits.topLimit : getBookStackHeight() + 0.12,
       bottomLimit: 0.03,
     };
-  }, [isGridMode, gridOverrideControls]);
+  }, [isGridMode, isRendered, gridOverrideControls]);
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({
