@@ -7,37 +7,51 @@ import { useControls } from "leva";
 import { Select } from "@react-three/postprocessing";
 
 export default function Skybox() {
-  const { groundHeight, groundRadius, groundScale, groundRotation, texture } =
-    useControls("Environment Ground", {
-      groundHeight: {
-        value: 4,
-        min: 0.01,
-        max: 10,
-        step: 0.01,
-        label: "Ground Height",
-      },
-      groundRadius: {
-        value: 10.8,
-        min: 0,
-        max: 50,
-        step: 0.01,
-        label: "Ground Radius",
-      },
-      groundScale: {
-        value: 1.02,
-        min: 0,
-        max: 5,
-        step: 0.01,
-        label: "Ground Scale",
-      },
-      groundRotation: {
-        value: { x: 0.0, y: 1.2, z: 0 },
-      },
-      // https://gainmap-creator.monogrid.com/ to convert .hdr to .jpg
-      texture: {
-        image: "/painted-dog-scene_5.jpg",
-      },
-    });
+  const {
+    domeHeight,
+    yOffset,
+    groundRadius,
+    groundScale,
+    groundRotation,
+    texture,
+  } = useControls("Environment Ground", {
+    domeHeight: {
+      value: 2,
+      min: 0.01,
+      max: 10,
+      step: 0.01,
+      label: "Dome Height",
+    },
+    yOffset: {
+      value: 2.92,
+      min: -1,
+      max: 10,
+      step: 0.01,
+      label: "Floor Offset",
+    },
+    groundRadius: {
+      value: 5,
+      min: 0,
+      max: 50,
+      step: 0.01,
+      label: "Radius",
+    },
+    groundScale: {
+      value: 1.5,
+      min: 0,
+      max: 5,
+      step: 0.01,
+      label: "Scale",
+    },
+    groundRotation: {
+      value: { x: 0.0, y: 1.2, z: 0 },
+      label: "Rot X,Y,Z",
+    },
+    // https://gainmap-creator.monogrid.com/ to convert .hdr to .jpg
+    texture: {
+      image: "/painted-dog-scene_5.jpg",
+    },
+  });
 
   const envMap = useLoader(
     UltraHDRLoader,
@@ -47,18 +61,16 @@ export default function Skybox() {
   const skybox = useMemo(() => {
     if (!envMap) return null;
     envMap.mapping = EquirectangularReflectionMapping;
-    const skybox = new GroundedSkybox(envMap, groundHeight, groundRadius, 2048);
-    // skybox.position.y = groundHeight - 0.5;
-    // skybox.scale.setScalar(2);
+    const skybox = new GroundedSkybox(envMap, domeHeight, groundRadius, 2048);
     return skybox;
-  }, [envMap, groundRadius, groundHeight, texture]);
+  }, [envMap, groundRadius, domeHeight, texture]);
 
   return (
     <Select enabled={false}>
       {skybox && (
         <primitive
           object={skybox}
-          position={[0, groundHeight, 0]}
+          position={[0, yOffset, 0]}
           scale={groundScale}
           rotation={new Vector3(
             groundRotation.x,
