@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
+import BookPageContent from "./BookPageContent";
 
 export const Foreground = () => {
   const router = useRouter();
@@ -74,6 +75,7 @@ export const Foreground = () => {
     >
       <Header />
       <FloatingBar />
+      <BookPageContent />
       <Loader />
     </div>
   );

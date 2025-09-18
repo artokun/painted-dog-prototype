@@ -344,7 +344,7 @@ function Book({
           bookFocusedTiltGroupSpring.rotX.get() +
           (bookFlipped ? Math.PI : -Math.PI),
         rotZ: -bookFocusedTiltGroupSpring.rotZ.get(),
-        posY: 0,
+        posY: bookSpring.posX.get(),
       });
     } else {
       bookStore.focusedBookId = book.id;
@@ -375,7 +375,12 @@ function Book({
         bookFocusedTiltGroupApi.start({
           rotX: 0,
           rotZ: 0,
-          posY: isHovered && !isFocused && !book.featured ? 0.01 : 0,
+          posY:
+            isHovered && !isFocused && !book.featured
+              ? 0.01
+              : isFocused
+                ? bookSpring.posX.get()
+                : 0,
         });
       }
     }
