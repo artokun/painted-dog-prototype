@@ -139,7 +139,7 @@ function Book({
       posZ: isFocused
         ? 0
         : someBookIsFocused
-          ? -0.2
+          ? -0.3 //distance the other books jump back when a book is focused
           : isSorting
             ? -getContentfulBookSize(book.bookSize)[2] * 2
             : search.length > 1
@@ -344,6 +344,7 @@ function Book({
           bookFocusedTiltGroupSpring.rotX.get() +
           (bookFlipped ? Math.PI : -Math.PI),
         rotZ: -bookFocusedTiltGroupSpring.rotZ.get(),
+        posY: 0,
       });
     } else {
       bookStore.focusedBookId = book.id;

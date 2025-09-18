@@ -70,6 +70,7 @@ export default function BookPageContent() {
 
   return (
     <div
+      id="book-page-content"
       className={cn(
         "absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-none gap-4 pt-20",
         "grid grid-cols-3 grid-rows-1 place-items-center [&>section]:h-full [&>section]:w-full text-black"

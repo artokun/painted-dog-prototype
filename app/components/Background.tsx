@@ -14,6 +14,7 @@ export const Background = () => {
 
   return (
     <animated.div
+      id="background"
       className="h-full w-full flex items-center justify-center flex-col flex-wrap text-9xl font-fields text-black pointer-events-none bg-[#F5E9DC]"
       style={{ backgroundColor: spring.color }}
     >
