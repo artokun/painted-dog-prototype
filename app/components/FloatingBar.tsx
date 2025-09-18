@@ -259,7 +259,7 @@ export const FloatingBar = () => {
   return (
     <animated.div
       style={styles}
-      className="flex justify-center fixed bottom-4 left-0 w-full h-18 gap-2 pointer-events-none"
+      className="flex justify-center fixed -bottom-2 md:bottom-4 left-0 w-full h-18 gap-2 pointer-events-none"
     >
       <div
         className={cn(

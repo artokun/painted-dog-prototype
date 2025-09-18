@@ -1,8 +1,8 @@
 import { animated, config, useSpring } from "@react-spring/three";
 import { useSnapshot } from "valtio";
 import { useControls } from "leva";
-import { bookStore } from "../store/bookStore";
-import { filterStore, FilterView } from "../store/filterStore";
+import { bookStore } from "../../store/bookStore";
+import { filterStore, FilterView } from "../../store/filterStore";
 import * as THREE from "three";
 import { useMemo, useRef } from "react";
 import { useLoader, useFrame } from "@react-three/fiber";

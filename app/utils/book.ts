@@ -324,6 +324,27 @@ export const getBookSortYPosition = (
   return { posX: 0, posY: y, posZ: 0 };
 };
 
+// In Mobile book stack mode, the books are on their sides, spine forward
+// like on a bookshelf. So we stack with thickness going left to right, with the
+// leftmost book being the first in the stack.
+export const getBookSortXPostition = (
+  bookId: BookId
+): { posX: number; posY: number; posZ: number } => {
+  const books = bookStore.books;
+  const book = books[bookId];
+  const [, ownThickness] = getContentfulBookSize(book.bookSize);
+  const sortedBooks = getSortedBooks().reverse();
+  const bookIndex = sortedBooks.findIndex((book) => book.id === bookId);
+  const slicedBooks = sortedBooks.slice(0, bookIndex);
+  const x = slicedBooks.reduce((acc, book) => {
+    const [, thickness] = getContentfulBookSize(book.bookSize);
+    return acc + thickness;
+  }, ownThickness / 2);
+  const halfOfFirstBookThickness =
+    getContentfulBookSize(sortedBooks[0].bookSize)[1] / 2;
+  return { posX: x - halfOfFirstBookThickness, posY: 0, posZ: 0 };
+};
+
 export const calculateSortGridPosition = (
   bookId: BookId,
   overrides?: {

@@ -6,8 +6,8 @@ import { Select, Selection } from "@react-three/postprocessing";
 import BookStack from "./BookStack";
 import Effects from "./Effects";
 import Floor from "./Floor";
-import Skybox from "./Skybox";
-import Lights from "./Lights";
+import Skybox from "../Skybox";
+import Lights from "../Lights";
 
 export default function App() {
   const { enabled: effectsEnabled } = useControls("Effects", {

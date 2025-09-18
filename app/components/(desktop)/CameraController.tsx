@@ -1,13 +1,13 @@
 import { useRef, useEffect, memo, useMemo } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { useSnapshot } from "valtio";
-import { bookStore } from "../store/bookStore";
+import { bookStore } from "../../store/bookStore";
 import { useScroll } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
-import { getBookStackHeight, getGridHeight } from "../utils/book";
-import { filterStore, FilterView } from "../store/filterStore";
+import { getBookStackHeight, getGridHeight } from "../../utils/book";
+import { filterStore, FilterView } from "../../store/filterStore";
 import { lerp } from "three/src/math/MathUtils.js";
-import { useGridOverrideControls } from "../hooks/useGridOverrideControls";
+import { useGridOverrideControls } from "../../hooks/useGridOverrideControls";
 
 const CameraController = memo(function CameraController() {
   const { camera } = useThree();

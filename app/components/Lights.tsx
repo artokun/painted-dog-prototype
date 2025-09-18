@@ -42,48 +42,6 @@ export default function Lights() {
         intensity={lightIntensity}
         color={lightColor}
       />
-      {/* <MovingSpot /> */}
     </>
   );
 }
-
-// function MovingSpot({ vec = new Vector3(), ...props }) {
-//   const light = useRef<any>(null);
-//   const { search, view } = useSnapshot(filterStore);
-//   const isGridMode = view === FilterView.Grid;
-//   const viewport = useThree((state) => state.viewport);
-
-//   useFrame((state) => {
-//     light.current.target.position.lerp(
-//       vec.set(
-//         (state.pointer.x * viewport.width) / 2,
-//         (state.pointer.y * viewport.height) / 2,
-//         0
-//       ),
-//       0.1
-//     );
-//     light.current.intensity = !isGridMode && search.length > 1 ? 4 : 0;
-//     light.current.target.updateMatrixWorld();
-//   });
-//   return (
-//     <SpotLight
-//       castShadow={false}
-//       shadow-mapSize={[4096, 4096]}
-//       shadow-camera-near={0.001}
-//       shadow-camera-far={1}
-//       shadow-camera-left={-0.5}
-//       shadow-camera-right={0.5}
-//       shadow-camera-top={0.5}
-//       shadow-camera-bottom={-0.5}
-//       shadow-bias={-0.0001}
-//       shadow-normalBias={0.0001}
-//       ref={light}
-//       penumbra={0.5}
-//       distance={2}
-//       angle={0.2}
-//       attenuation={20}
-//       anglePower={10}
-//       {...props}
-//     />
-//   );
-// }

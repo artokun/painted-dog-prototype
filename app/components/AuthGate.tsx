@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { authStore } from "@/app/store/authStore";
 import Image from "next/image";
-import { Background } from "./Background";
-import { Middle } from "./Middle";
+import { Middle } from "./(desktop)/Middle";
+import { MiddleMobile } from "./(mobile)/Middle";
+import { useMediaQuery } from "usehooks-ts";
 import { Foreground } from "./Foreground";
 
 const CORRECT_PASSWORD = "The-Quick-Spotted-Dog";
@@ -13,6 +14,7 @@ const AUTH_STORAGE_KEY = "painted-dog-auth";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useSnapshot(authStore);
+  const isMobile = useMediaQuery("(max-width: 1024px)");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
 
@@ -39,8 +41,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   if (isAuthenticated) {
     return (
       <>
-        <Background />
-        <Middle />
+        {isMobile ? <MiddleMobile /> : <Middle />}
         {children}
         <Foreground />
       </>
@@ -59,9 +60,14 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
           height={200}
         />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+          suppressHydrationWarning
+        >
           <div>
             <input
+              suppressHydrationWarning
               type="password"
               value={password}
               onChange={(e) => {
