@@ -152,7 +152,7 @@ export default function Effects({ enabled }: { enabled: boolean }) {
       {/* sun light */}
       <Sun
         ref={setMaterial}
-        scale={10}
+        scale={20}
         position={position}
         color={color}
         rayIntensity={raysIntensity}
