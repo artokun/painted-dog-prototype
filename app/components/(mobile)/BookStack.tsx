@@ -3,7 +3,10 @@ import Book from "./Book";
 import { Suspense, useEffect } from "react";
 import { bookStore, type BookState, loadBooks } from "../../store/bookStore";
 import { FilterKey, filterStore } from "../../store/filterStore";
-import { filterBooksByFuzzySearch } from "../../utils/book";
+import {
+  filterBooksByFuzzySearch,
+  getContentfulBookSize,
+} from "../../utils/book";
 import { subscribeKey } from "valtio/utils";
 import { useBookMaterialControls } from "../../hooks/useBookMaterialControls";
 import { BookMap } from "@/types/app";
@@ -15,6 +18,7 @@ export default function BookStack() {
   };
   const materialControls = useBookMaterialControls();
   const gridOverrideControls = useGridOverrideControls();
+  const [height] = getContentfulBookSize("280x260");
 
   useEffect(() => {
     // Load books from Contentful
@@ -47,14 +51,16 @@ export default function BookStack() {
 
   return (
     <Suspense fallback={null}>
-      {Object.entries(books).map(([id, book]) => (
-        <Book
-          key={id}
-          book={book}
-          materialControls={materialControls}
-          gridOverrideControls={gridOverrideControls}
-        />
-      ))}
+      <group position-y={-height / 2 - 0.015}>
+        {Object.entries(books).map(([id, book]) => (
+          <Book
+            key={id}
+            book={book}
+            materialControls={materialControls}
+            gridOverrideControls={gridOverrideControls}
+          />
+        ))}
+      </group>
       <Rendered />
     </Suspense>
   );

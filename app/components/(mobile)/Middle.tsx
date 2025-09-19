@@ -5,12 +5,15 @@ import * as THREE from "three";
 import { Suspense, useMemo } from "react";
 import BookStack from "./BookStack";
 import Lights from "../Lights";
-import { getContentfulBookSize } from "@/app/utils/book";
+import { getBookStackHeight, getContentfulBookSize } from "@/app/utils/book";
 import { Leva, useControls } from "leva";
+import { DragControls, ScrollControls, useScroll } from "@react-three/drei";
+import { lerp } from "three/src/math/MathUtils.js";
+import { useSpring } from "@react-spring/three";
+import { bookStore } from "@/app/store/bookStore";
+import { useSnapshot } from "valtio";
 
 export const MiddleMobile = () => {
-  const [width, thickness, height] = getContentfulBookSize("280x260");
-
   return (
     <div
       id="middle"
@@ -32,12 +35,12 @@ export const MiddleMobile = () => {
         }}
       >
         <Suspense fallback={null}>
-          <Lights />
-          <group position={[0, -height / 2, 0]}>
+          <ScrollControls pages={2} damping={0} horizontal>
+            <Lights />
             <BookStack />
-          </group>
+            <MobileCameraController />
+          </ScrollControls>
         </Suspense>
-        <MobileCameraController />
       </Canvas>
     </div>
   );
@@ -45,50 +48,57 @@ export const MiddleMobile = () => {
 
 const MobileCameraController = () => {
   const { camera } = useThree();
+  const scroll = useScroll();
+  const { isRendered } = useSnapshot(bookStore);
   const [width, thickness, height] = getContentfulBookSize("280x260");
 
-  // Camera FOV and aspect ratio
-  const fov = 45;
-  const fovRadians = (fov * Math.PI) / 180;
-  const halfFov = fovRadians / 2;
-  const viewportHeightAtUnitDistance = 2 * Math.tan(halfFov);
-  const viewportWidthAtUnitDistance =
-    viewportHeightAtUnitDistance * (camera as THREE.PerspectiveCamera).aspect;
+  const distance = useMemo(() => {
+    const bookWidth = 0.28;
+    const desiredScreenPercentage = 0.7;
+    const fov = (camera as THREE.PerspectiveCamera).fov;
+    const calculatedDistance =
+      bookWidth /
+      desiredScreenPercentage /
+      (2 * Math.tan((fov * Math.PI) / 360));
 
-  // Target constraints
-  const heightConstraintPercentage = 0.9; // 80% of viewport height
-  const widthConstraintPercentage = 0.9; // 90% of viewport width
+    return calculatedDistance;
+  }, [camera]);
 
-  // When book cover faces camera: book height fits in viewport height, book width fits in viewport width
-  const distanceForHeightConstraint =
-    height / (heightConstraintPercentage * viewportHeightAtUnitDistance);
-  const distanceForWidthConstraint =
-    width / (widthConstraintPercentage * viewportWidthAtUnitDistance);
+  const stackHeight = useMemo(() => {
+    return getBookStackHeight();
+  }, [isRendered]);
 
-  // Use the more restrictive constraint (further distance)
-  const optimalZDistance = Math.max(
-    distanceForHeightConstraint,
-    distanceForWidthConstraint
-  );
+  const { leftLimit, rightLimit } = useMemo(() => {
+    return {
+      leftLimit: -0.01,
+      rightLimit: stackHeight + 0.01,
+    };
+  }, [stackHeight]);
 
-  const { cameraPosition, cameraLookAt } = useControls({
-    cameraPosition: {
-      value: [0, 0, optimalZDistance],
-      min: -10,
-      max: 10,
-      step: 0.01,
-    },
-    cameraLookAt: {
-      value: [0, 0, 0],
-      min: -10,
-      max: 10,
-      step: 0.01,
-    },
-  });
+  const [{ cameraX }, api] = useSpring(() => ({
+    cameraX: lerp(leftLimit, rightLimit, scroll.offset),
+    immediate: true,
+  }));
 
   useFrame(() => {
-    camera.position.set(...cameraPosition);
-    camera.lookAt(...cameraLookAt);
+    const scrollValue = scroll.offset;
+    const scrollBasedX = leftLimit + (rightLimit - leftLimit) * scrollValue;
+
+    api.start({
+      cameraX: scrollBasedX,
+    });
+
+    const currentX = cameraX.get();
+
+    camera.position.x = currentX;
+    camera.position.y = 0;
+    camera.position.z = distance;
+
+    camera.lookAt(
+      currentX < 0 ? 0 : currentX > stackHeight ? stackHeight : currentX,
+      0,
+      0
+    );
   });
 
   return null;
