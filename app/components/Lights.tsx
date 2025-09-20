@@ -1,37 +1,45 @@
-import { useControls } from "leva";
+import { folder, useControls } from "leva";
 import { animated } from "@react-spring/three";
 
 export default function Lights() {
-  const { lightPosition, lightIntensity, lightColor } = useControls(
-    "Camera Light",
-    {
-      lightPosition: {
-        value: [-1, 0, 2],
-        min: -10,
-        max: 10,
-        step: 0.01,
+  const { lightPosition, lightIntensity, lightColor, ambientLightIntensity } =
+    useControls(
+      "Lights",
+      {
+        cameraLight: folder(
+          {
+            lightPosition: {
+              value: [-1, 0, 2],
+              min: -10,
+              max: 10,
+              step: 0.01,
+            },
+            lightIntensity: {
+              value: 4.0,
+              min: 0,
+              max: 10,
+              step: 0.01,
+            },
+            lightColor: {
+              value: "#FFFFFF",
+            },
+          },
+          { collapsed: true }
+        ),
+        ambientLight: folder(
+          {
+            ambientLightIntensity: {
+              value: 0.5,
+              min: 0,
+              max: 5,
+              step: 0.01,
+            },
+          },
+          { collapsed: true }
+        ),
       },
-      lightIntensity: {
-        value: 4.0,
-        min: 0,
-        max: 10,
-        step: 0.01,
-      },
-      lightColor: {
-        value: "#FFFFFF",
-      },
-    }
-  );
-
-  const { ambientLightIntensity } = useControls("Ambient Light", {
-    ambientLightIntensity: {
-      value: 0.5,
-      min: 0,
-      max: 5,
-      step: 0.01,
-      label: "Intensity",
-    },
-  });
+      { collapsed: true }
+    );
 
   return (
     <>

@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { globalStore } from "../store/globalStore";
 import { LinkProps } from "next/link";
+import { cn } from "@/lib/utils";
 
 export const ThreeLink = ({
   href,
@@ -23,14 +24,7 @@ export const ThreeLink = ({
   return (
     <button
       onClick={handleClick}
-      className={className}
-      style={{
-        background: "none",
-        border: "none",
-        padding: 0,
-        font: "inherit",
-        cursor: "pointer",
-      }}
+      className={cn("appearance-none cursor-pointer", className)}
     >
       {children}
     </button>

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Html, useScroll } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import { filterStore } from "@/app/store/filterStore";
-import { FooterContent } from "../FooterContent";
+import { FooterContent } from "../Footer";
 
 export const Footer = () => {
   const middleDivRef = useRef<HTMLDivElement>(

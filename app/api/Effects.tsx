@@ -69,12 +69,12 @@ export default function Effects({ enabled }: { enabled: boolean }) {
     decay,
     blur,
     samples,
-  } = useControls("Effects - GodRays", {
-    godRaysEnabled: {
-      value: true,
-    },
-    advanced: folder(
+  } = useControls("Effects", {
+    godRays: folder(
       {
+        godRaysEnabled: {
+          value: true,
+        },
         exposure: {
           value: 0.34,
           min: 0.33,
@@ -117,18 +117,16 @@ export default function Effects({ enabled }: { enabled: boolean }) {
           step: 1,
         },
       },
-      {
-        collapsed: !enabled,
-      }
+      { collapsed: true }
     ),
   });
 
-  const { bloomIntensity, bloomEnabled } = useControls("Effects - Bloom", {
-    bloomEnabled: {
-      value: true,
-    },
-    advanced: folder(
+  const { bloomIntensity, bloomEnabled } = useControls("Effects", {
+    bloom: folder(
       {
+        bloomEnabled: {
+          value: true,
+        },
         bloomIntensity: {
           value: 1.0,
           min: 0,
@@ -136,15 +134,18 @@ export default function Effects({ enabled }: { enabled: boolean }) {
           step: 0.01,
         },
       },
-      {
-        collapsed: !enabled,
-      }
+      { collapsed: true }
     ),
   });
-  const { vignetteEnabled } = useControls("Effects - Vignette", {
-    vignetteEnabled: {
-      value: true,
-    },
+  const { vignetteEnabled } = useControls("Effects", {
+    vignette: folder(
+      {
+        vignetteEnabled: {
+          value: true,
+        },
+      },
+      { collapsed: true }
+    ),
   });
 
   return (

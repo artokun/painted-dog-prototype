@@ -29,12 +29,13 @@ export const Header = () => {
 
   return (
     <animated.div
-      style={spring}
-      className="fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] border-b-1 backdrop-blur-sm pointer-events-auto"
+      // style={spring}
+      className="fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto"
     >
-      <div className="flex items-center justify-between max-w-screen-lg mx-auto gap-4 px-4 h-18 w-full">
+      <div className="flex items-center justify-between max-w-7xl mx-auto gap-4 px-4 h-20 w-full">
         <div className="flex-1">
-          <div className="hidden lg:flex gap-2 items-center">
+          {/* TODO: Restore after accelerated launch */}
+          {/* <div className="hidden lg:flex gap-2 items-center">
             <Link href="/about">About</Link>
             <span>•</span>
             <Link href="/about/#who-we-are">Who We Are</Link>
@@ -43,22 +44,21 @@ export const Header = () => {
             <Link href="/">
               <ShoppingCartIcon />
             </Link>
-          </div>
+          </div> */}
         </div>
         <h1 className="text-4xl flex justify-center whitespace-nowrap items-center text-center font-fields font-[600] flex-1">
           <Link href="/">
             <Image
-              className="lg:hidden object-contain"
+              className="object-contain w-[140px]"
               src="/logo-dog-stacked.png"
               alt="Logo"
-              height={60}
-              width={120}
+              height={6120}
+              width={240}
             />
-            <span className="hidden lg:block text-4xl">painted dog</span>
           </Link>
         </h1>
         <div className="gap-2 items-center flex-1 flex justify-end">
-          <div className="hidden lg:flex gap-2 items-center">
+          <div className="hidden lg:flex gap-2 items-center text-black">
             <Link href="/contact">Contact</Link>
           </div>
           <div className="lg:hidden flex gap-2 items-center">

@@ -10,11 +10,23 @@ import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
 import BookPageContent from "./BookPageContent";
+import { useControls } from "leva";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
+
+  const { showFloatingBar } = useControls(
+    "UI",
+    {
+      showFloatingBar: {
+        value: false,
+        label: "Filters",
+      },
+    },
+    { collapsed: true }
+  );
 
   useEffect(() => {
     if (!pathname.startsWith("/books/")) {
@@ -74,7 +86,7 @@ export const Foreground = () => {
       className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20 pointer-events-none"
     >
       <Header />
-      <FloatingBar />
+      {showFloatingBar && <FloatingBar />}
       <BookPageContent />
       <Loader />
     </div>

@@ -1,6 +1,6 @@
 import { animated, config, useSpring } from "@react-spring/three";
 import { useSnapshot } from "valtio";
-import { useControls } from "leva";
+import { folder, useControls } from "leva";
 import { bookStore } from "../../store/bookStore";
 import { filterStore, FilterView } from "../../store/filterStore";
 import * as THREE from "three";
@@ -13,8 +13,13 @@ export default function Floor() {
   const hideFloor = focusedBookId !== null;
   const isGridMode = view === FilterView.Grid;
 
-  const { floorColor } = useControls("Floor", {
-    floorColor: { value: "#e8e3de", label: "Floor Color" },
+  const { floorColor } = useControls("UI", {
+    floor: folder(
+      {
+        floorColor: { value: "#e8e3de", label: "Floor Color" },
+      },
+      { collapsed: true }
+    ),
   });
 
   const [floorSpring] = useSpring(

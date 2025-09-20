@@ -34,11 +34,18 @@ const CameraController = memo(function CameraController() {
       (2 * Math.tan((fov * Math.PI) / 360));
 
     return calculatedDistance;
-  }, []);
+  }, [isRendered]);
 
   // Calculate height limits based on view mode
   const { topLimit, bottomLimit } = useMemo(() => {
     const gridLimits = getGridHeight(gridOverrideControls);
+
+    // restore this after accelerated launch
+    return {
+      gridLimits,
+      topLimit: 0.1,
+      bottomLimit: -0.3,
+    };
 
     return {
       gridLimits,
@@ -59,9 +66,14 @@ const CameraController = memo(function CameraController() {
     config: { mass: 1, tension: 280, friction: 60 },
   }));
 
+  // TODO: Restore this after accelerated launch
   useEffect(() => {
-    if (focusedBookId !== null && scroll.offset > 0.7) {
-      scroll.el.scrollTop = scroll.el.scrollTop * 0.7;
+    // if (focusedBookId !== null && scroll.offset > 0.7) {
+    //   scroll.el.scrollTop = scroll.el.scrollTop * 0.7;
+    // }
+    // Accelerated launch ONLY
+    if (focusedBookId !== null) {
+      scroll.el.scrollTop = 0;
     }
   }, [focusedBookId, scroll.el, scroll.offset]);
 
