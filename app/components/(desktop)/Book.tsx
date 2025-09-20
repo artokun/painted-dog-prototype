@@ -481,6 +481,7 @@ const FeaturedLinks = ({
 
   return (
     <Html
+      pixelPerfect
       zIndexRange={[-0.1, 0]}
       center
       className={cn(
