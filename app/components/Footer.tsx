@@ -28,17 +28,10 @@ export const Footer = () => {
       <footer className="relative flex flex-col justify-center items-center h-[256px] bg-[#F9F6F0] overflow-hidden pointer-events-auto p-[5px] text-black w-full max-w-7xl">
         <div className="flex justify-center items-center border border-black p-1 w-full h-full">
           <div className="flex justify-center gap-13 items-center relative border-2 border-r-1 border-black flex-1 h-full">
-            <Image
-              src="/logo-dog.png?w=160&h=160"
-              priority
-              alt="Logo"
-              width={160}
-              height={160}
-            />
+            <Image src="/logo-dog.png" alt="Logo" width={160} height={160} />
             <div className="flex flex-col justify-center gap-6 items-center">
               <Image
-                src="/logo-dog-stacked.png?w=233&h=104"
-                priority
+                src="/logo-dog-stacked.png"
                 alt="Logo"
                 width={233}
                 height={104}

@@ -32,7 +32,7 @@ export const Middle = () => {
         <Suspense fallback={null}>
           <ScrollControls pages={1.75} damping={0.1}>
             <App />
-            <Scroll html>
+            <Scroll html pixelPerfect>
               <TempAcceleratedContent />
               <Footer />
             </Scroll>
