@@ -9,9 +9,9 @@ import { Footer } from "../Footer";
 import { cn } from "@/lib/utils";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
-import { PDButton } from "../ui/PDButton";
 import { AddToCalendarButton } from "../ui/AddToCalendarButton";
 import { NewsletterForm } from "../ui/NewsletterForm";
+import { PDButton } from "../ui/PDButton";
 
 export const Middle = () => {
   return (
@@ -63,9 +63,11 @@ const TempAcceleratedContent = () => {
             creators of the biting satirical comic Bitterkomix.
           </p>
           <div className="flex flex-wrap gap-3">
-            <PDButton primary>Buy the book</PDButton>
-            <PDButton>Buy: Takealot</PDButton>
-            <PDButton>Buy: Exclusive Books</PDButton>
+            <PDButton href="/contact" primary>
+              Buy the book
+            </PDButton>
+            <PDButton href="/contact">Buy: Takealot</PDButton>
+            <PDButton href="/contact">Buy: Exclusive Books</PDButton>
           </div>
         </div>
         <div className="flex-1 gap-3 flex flex-col">

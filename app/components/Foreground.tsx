@@ -32,6 +32,7 @@ export const Foreground = () => {
     if (!pathname.startsWith("/books/")) {
       bookStore.focusedBookId = null;
     }
+    globalStore.currentRoute = pathname;
   }, [pathname]);
 
   useEffect(() => {

@@ -7,11 +7,12 @@ import { ContentfulBook } from "@/types/app";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
 import { PlusIcon } from "lucide-react";
+import { PDButton } from "./ui/PDButton";
 
 const menuItems = [
   "Authors",
   "Critical Reception",
-  "Podcast Episode",
+  // "Podcast Episode",
   "Excerpt",
   "Product Information",
 ];
@@ -97,6 +98,13 @@ export default function BookPageContent() {
             </animated.li>
           ))}
         </ul>
+        <div className="flex flex-wrap gap-3 mt-14 pointer-events-auto">
+          <PDButton href="/contact" primary>
+            Buy the book
+          </PDButton>
+          <PDButton href="/contact">Buy: Takealot</PDButton>
+          <PDButton href="/contact">Buy: Exclusive Books</PDButton>
+        </div>
       </animated.section>
 
       {/* Middle empty div */}
