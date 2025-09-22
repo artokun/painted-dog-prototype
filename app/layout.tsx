@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
@@ -33,11 +32,6 @@ const fieldsFont = localFont({
   variable: "--font-fields",
 });
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "Painted Dog",
   description: "A book stacking visualization",
@@ -60,7 +54,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body
-        className={`${montserrat.variable} ${fieldsFont.variable} antialiased overflow-hidden h-dvh w-full`}
+        className={`${fieldsFont.variable} antialiased overflow-hidden h-dvh w-full`}
       >
         <main className="h-dvh w-screen relative">
           <AuthGate>{children}</AuthGate>

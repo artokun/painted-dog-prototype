@@ -9,9 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         fields: ["var(--font-fields)", "sans-serif"],
-        montserrat: ["var(--font-montserrat)", "sans-serif"],
-        primary: ["var(--font-fields)", "var(--font-montserrat)", "sans-serif"],
-        secondary: ["var(--font-montserrat)", "sans-serif"],
+        primary: ["var(--font-fields)", "sans-serif"],
       },
       colors: {
         background: "var(--background)",
