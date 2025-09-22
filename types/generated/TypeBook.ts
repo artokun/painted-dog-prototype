@@ -9,6 +9,7 @@ import type { TypePriceSkeleton } from "./TypePrice";
 
 export interface TypeBookFields {
     title: EntryFieldTypes.Symbol;
+    isbn: EntryFieldTypes.Symbol;
     featured?: EntryFieldTypes.Boolean;
     description: EntryFieldTypes.Text;
     authors: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeAuthorSkeleton>>;

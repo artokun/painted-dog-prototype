@@ -50,6 +50,7 @@ export interface PodcastEpisode {
 export interface ContentfulBook {
   id: BookId;
   title: string;
+  isbn: string;
   slug: string;
   featured: boolean;
   description: string;

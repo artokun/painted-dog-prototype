@@ -109,7 +109,12 @@ export default function BookPageContent() {
         style={rightContentSpring}
         className="flex flex-col gap-4 justify-center pointer-events-auto h-full px-20 py-4"
       >
-        <h2 className="text-2xl font-bold">{book?.title}</h2>
+        <h2 className="text-2xl font-medium">{book?.title}</h2>
+        {book?.isbn && (
+          <p className="text-sm text-gray-800 -mt-3">
+            ISBN-13&nbsp;: {book.isbn}
+          </p>
+        )}
         <p className="whitespace-pre-wrap overflow-y-auto">
           {book?.description}
         </p>

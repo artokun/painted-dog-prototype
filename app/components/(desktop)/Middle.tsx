@@ -1,6 +1,6 @@
 "use client";
 
-import { Scroll, ScrollControls } from "@react-three/drei";
+import { AdaptiveDpr, Scroll, ScrollControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import App from "./App";
 import * as THREE from "three";
@@ -38,6 +38,7 @@ export const Middle = () => {
             </Scroll>
           </ScrollControls>
         </Suspense>
+        <AdaptiveDpr pixelated />
       </Canvas>
     </div>
   );

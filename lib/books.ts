@@ -1,7 +1,13 @@
 import type { Entry } from "contentful";
 import { getEntries, getEntry } from "./contentful";
 import { ContentfulBook } from "@/types/app";
-import { TypeBook, TypeGenreSkeleton, TypeLinkSkeleton, TypeReviewSkeleton, TypePodcastEpisodeSkeleton } from "@/types";
+import {
+  TypeBook,
+  TypeGenreSkeleton,
+  TypeLinkSkeleton,
+  TypeReviewSkeleton,
+  TypePodcastEpisodeSkeleton,
+} from "@/types";
 
 export type ContentfulBookEntry = TypeBook<"WITHOUT_UNRESOLVABLE_LINKS">;
 
@@ -57,6 +63,7 @@ export function transformContentfulBook(
   return {
     id: entry.sys.id,
     title,
+    isbn: getLocalizedField(fields.isbn) || "",
     slug: slugify(title),
     featured: getLocalizedField(fields.featured) || false,
     description: getLocalizedField(fields.description) || "",
@@ -141,7 +148,8 @@ export function transformContentfulBook(
             excerpt: getLocalizedField(reviewRef.fields.excerpt) || "",
             criticName: getLocalizedField(reviewRef.fields.criticName) || "",
             publishDate: getLocalizedField(reviewRef.fields.publishDate) || "",
-            externalLink: getLocalizedField(reviewRef.fields.externalLink) || "",
+            externalLink:
+              getLocalizedField(reviewRef.fields.externalLink) || "",
             isFeatured: getLocalizedField(reviewRef.fields.isFeatured) || false,
           }))
       : [],
@@ -162,95 +170,95 @@ export function transformContentfulBook(
             excerpt: getLocalizedField(episodeRef.fields.excerpt) || "",
             hostName: getLocalizedField(episodeRef.fields.hostName) || "",
             publishDate: getLocalizedField(episodeRef.fields.publishDate) || "",
-            externalLink: getLocalizedField(episodeRef.fields.externalLink) || "",
-            isFeatured: getLocalizedField(episodeRef.fields.isFeatured) || false,
+            externalLink:
+              getLocalizedField(episodeRef.fields.externalLink) || "",
+            isFeatured:
+              getLocalizedField(episodeRef.fields.isFeatured) || false,
           }))
       : [],
 
     // Legacy link fields - populate from featured review/episode or fall back to direct links
-    linkToFeaturedArticle:
-      (() => {
-        // First try to find a featured review
-        const featuredReview = Array.isArray(fields.reviews)
-          ? fields.reviews.find(
-              (reviewRef) =>
-                reviewRef != null &&
-                typeof reviewRef === "object" &&
-                "sys" in reviewRef &&
-                "fields" in reviewRef &&
-                getLocalizedField(reviewRef.fields.isFeatured)
-            )
-          : undefined;
+    linkToFeaturedArticle: (() => {
+      // First try to find a featured review
+      const featuredReview = Array.isArray(fields.reviews)
+        ? fields.reviews.find(
+            (reviewRef) =>
+              reviewRef != null &&
+              typeof reviewRef === "object" &&
+              "sys" in reviewRef &&
+              "fields" in reviewRef &&
+              getLocalizedField(reviewRef.fields.isFeatured)
+          )
+        : undefined;
 
-        if (featuredReview) {
-          return {
-            id: featuredReview.sys.id || "",
-            text: getLocalizedField(featuredReview.fields.title) || "",
-            link: getLocalizedField(featuredReview.fields.externalLink) || "",
-          };
-        }
+      if (featuredReview) {
+        return {
+          id: featuredReview.sys.id || "",
+          text: getLocalizedField(featuredReview.fields.title) || "",
+          link: getLocalizedField(featuredReview.fields.externalLink) || "",
+        };
+      }
 
-        // Fall back to direct link field
-        return fields.linkToFeaturedArticle &&
-          "sys" in fields.linkToFeaturedArticle &&
-          "fields" in fields.linkToFeaturedArticle
-          ? {
-              id: fields.linkToFeaturedArticle.sys.id || "",
-              text:
-                getLocalizedField(
-                  (fields.linkToFeaturedArticle as Entry<TypeLinkSkeleton>).fields
-                    .text
-                ) || "",
-              link:
-                getLocalizedField(
-                  (fields.linkToFeaturedArticle as Entry<TypeLinkSkeleton>).fields
-                    .link
-                ) || "",
-            }
-          : undefined;
-      })(),
+      // Fall back to direct link field
+      return fields.linkToFeaturedArticle &&
+        "sys" in fields.linkToFeaturedArticle &&
+        "fields" in fields.linkToFeaturedArticle
+        ? {
+            id: fields.linkToFeaturedArticle.sys.id || "",
+            text:
+              getLocalizedField(
+                (fields.linkToFeaturedArticle as Entry<TypeLinkSkeleton>).fields
+                  .text
+              ) || "",
+            link:
+              getLocalizedField(
+                (fields.linkToFeaturedArticle as Entry<TypeLinkSkeleton>).fields
+                  .link
+              ) || "",
+          }
+        : undefined;
+    })(),
 
-    linkToPodcastEpisode:
-      (() => {
-        // First try to find a featured podcast episode
-        const featuredEpisode = Array.isArray(fields.podcastEpisodes)
-          ? fields.podcastEpisodes.find(
-              (episodeRef) =>
-                episodeRef != null &&
-                typeof episodeRef === "object" &&
-                "sys" in episodeRef &&
-                "fields" in episodeRef &&
-                getLocalizedField(episodeRef.fields.isFeatured)
-            )
-          : undefined;
+    linkToPodcastEpisode: (() => {
+      // First try to find a featured podcast episode
+      const featuredEpisode = Array.isArray(fields.podcastEpisodes)
+        ? fields.podcastEpisodes.find(
+            (episodeRef) =>
+              episodeRef != null &&
+              typeof episodeRef === "object" &&
+              "sys" in episodeRef &&
+              "fields" in episodeRef &&
+              getLocalizedField(episodeRef.fields.isFeatured)
+          )
+        : undefined;
 
-        if (featuredEpisode) {
-          return {
-            id: featuredEpisode.sys.id || "",
-            text: getLocalizedField(featuredEpisode.fields.title) || "",
-            link: getLocalizedField(featuredEpisode.fields.externalLink) || "",
-          };
-        }
+      if (featuredEpisode) {
+        return {
+          id: featuredEpisode.sys.id || "",
+          text: getLocalizedField(featuredEpisode.fields.title) || "",
+          link: getLocalizedField(featuredEpisode.fields.externalLink) || "",
+        };
+      }
 
-        // Fall back to direct link field
-        return fields.linkToPodcastEpisode &&
-          "sys" in fields.linkToPodcastEpisode &&
-          "fields" in fields.linkToPodcastEpisode
-          ? {
-              id: fields.linkToPodcastEpisode.sys.id || "",
-              text:
-                getLocalizedField(
-                  (fields.linkToPodcastEpisode as Entry<TypeLinkSkeleton>).fields
-                    .text
-                ) || "",
-              link:
-                getLocalizedField(
-                  (fields.linkToPodcastEpisode as Entry<TypeLinkSkeleton>).fields
-                    .link
-                ) || "",
-            }
-          : undefined;
-      })(),
+      // Fall back to direct link field
+      return fields.linkToPodcastEpisode &&
+        "sys" in fields.linkToPodcastEpisode &&
+        "fields" in fields.linkToPodcastEpisode
+        ? {
+            id: fields.linkToPodcastEpisode.sys.id || "",
+            text:
+              getLocalizedField(
+                (fields.linkToPodcastEpisode as Entry<TypeLinkSkeleton>).fields
+                  .text
+              ) || "",
+            link:
+              getLocalizedField(
+                (fields.linkToPodcastEpisode as Entry<TypeLinkSkeleton>).fields
+                  .link
+              ) || "",
+          }
+        : undefined;
+    })(),
 
     // Rich content
     // criticalReceptionText: getLocalizedField(fields.criticalReceptionText),
