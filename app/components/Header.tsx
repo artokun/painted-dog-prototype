@@ -1,37 +1,35 @@
 import Link from "next/link";
 import { useSnapshot } from "valtio";
-import { filterStore } from "../store/filterStore";
-import { animated, useSpring } from "@react-spring/web";
+import { filterStore, FilterView } from "../store/filterStore";
 import { Leva } from "leva";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useMediaQuery } from "usehooks-ts";
 import Image from "next/image";
-import { MenuIcon, ShoppingCartIcon } from "lucide-react";
+import { MenuIcon } from "lucide-react";
+import { bookStore } from "../store/bookStore";
+import { BackIcon } from "./icons/Back";
 
 export const Header = () => {
-  const { search } = useSnapshot(filterStore);
-  const isSearching = search.length > 1;
-  const spring = useSpring({
-    color: !isSearching ? "#000000" : "#ffffff",
-    borderColor: !isSearching ? "#00000000" : "#dadada66",
-    backgroundColor: !isSearching ? "#fffee922" : "#00000000",
-  });
+  const { view } = useSnapshot(filterStore);
+  const { focusedBookId } = useSnapshot(bookStore);
+  const isGridMode = view === FilterView.Grid;
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [levaLoaded, setLevaLoaded] = useState(false);
 
   useEffect(() => {
+    // TODO: remove this after accelerated launch
     setTimeout(() => {
       setLevaLoaded(true);
     }, 1000);
   }, []);
 
+  const handleBackButtonClick = () => {
+    bookStore.focusedBookId = null;
+  };
+
   return (
-    <animated.div
-      // style={spring}
-      className="fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto"
-    >
+    <div className="fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto">
       <div className="flex items-center justify-between max-w-7xl mx-auto gap-4 px-4 h-20 w-full">
         <div className="flex-1">
           {/* TODO: Restore after accelerated launch */}
@@ -45,6 +43,21 @@ export const Header = () => {
               <ShoppingCartIcon />
             </Link>
           </div> */}
+          <button
+            className={cn(
+              "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none",
+              focusedBookId &&
+                "opacity-100 translate-x-0 delay-400 pointer-events-auto"
+            )}
+            onClick={handleBackButtonClick}
+          >
+            <span className="relative w-[24px] h-[18px] [svg]:w-full [svg]:h-full">
+              <BackIcon />
+            </span>
+            <span className="text-[19px] font-medium">
+              back to {isGridMode ? "grid" : "stack"}
+            </span>
+          </button>
         </div>
         <h1 className="text-4xl flex justify-center whitespace-nowrap items-center text-center font-fields font-[600] flex-1">
           <Link href="/">
@@ -57,7 +70,12 @@ export const Header = () => {
             />
           </Link>
         </h1>
-        <div className="gap-2 items-center flex-1 flex justify-end">
+        <div
+          className={cn(
+            "gap-2 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
+            focusedBookId && "opacity-0 delay-600 pointer-events-none"
+          )}
+        >
           <div className="hidden lg:flex gap-2 items-center text-black">
             <Link href="/contact">Contact</Link>
           </div>
@@ -81,6 +99,6 @@ export const Header = () => {
           isRoot
         />
       </div>
-    </animated.div>
+    </div>
   );
 };

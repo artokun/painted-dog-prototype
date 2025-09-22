@@ -1,14 +1,12 @@
 "use client";
 
 import { animated, useSpring, config, useTrail } from "@react-spring/web";
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Book, BookMap, ContentfulBook } from "@/types/app";
-import { BookState, bookStore } from "@/app/store/bookStore";
+import { ContentfulBook } from "@/types/app";
+import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
-import { useRouter } from "next/navigation";
-import { ArrowLeftIcon, PlusIcon } from "lucide-react";
-import { filterStore, FilterView } from "../store/filterStore";
+import { PlusIcon } from "lucide-react";
 
 const menuItems = [
   "Authors",
@@ -20,8 +18,6 @@ const menuItems = [
 
 export default function BookPageContent() {
   const { focusedBookId } = useSnapshot(bookStore);
-  const { view } = useSnapshot(filterStore);
-  const isGridMode = view === FilterView.Grid;
   const [book, setBook] = useState<ContentfulBook | null>(null);
   const ENTRY = 300;
   const EXIT = 0;
@@ -35,11 +31,19 @@ export default function BookPageContent() {
         setBook(null);
       }, ENTRY);
     }
-  }, [focusedBookId]);
 
-  const handleBackButtonClick = () => {
-    bookStore.focusedBookId = null;
-  };
+    // ESC handler
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        bookStore.focusedBookId = null;
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [focusedBookId]);
 
   // Left menu trail animation - each item slides in with stagger
   const menuTrail = useTrail(menuItems.length, {
@@ -59,12 +63,6 @@ export default function BookPageContent() {
   const leftContentSpring = useSpring({
     opacity: focusedBookId ? 1 : 0,
     x: focusedBookId ? "0%" : "-100%",
-    delay: focusedBookId ? ENTRY : EXIT,
-  });
-
-  const bottomContentSpring = useSpring({
-    opacity: focusedBookId ? 1 : 0,
-    y: focusedBookId ? "0%" : "100%",
     delay: focusedBookId ? ENTRY : EXIT,
   });
 
@@ -119,21 +117,6 @@ export default function BookPageContent() {
           {book?.description}
         </p>
       </animated.section>
-      {/* Bottom Content */}
-      <animated.div
-        style={bottomContentSpring}
-        className="absolute bottom-10 left-0 h-10 flex align-center justify-center pointer-events-auto w-full px-20"
-      >
-        <button
-          className="bg-white border-right border-black text-black pl-3 pr-5 font-medium flex items-center gap-2 cursor-pointer hover:bg-black hover:text-white transition-all duration-300"
-          onClick={handleBackButtonClick}
-        >
-          <span>
-            <ArrowLeftIcon size={20} />
-          </span>
-          <span>Back to {isGridMode ? "Grid" : "Stack"}</span>
-        </button>
-      </animated.div>
     </div>
   );
 }

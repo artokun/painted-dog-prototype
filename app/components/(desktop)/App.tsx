@@ -8,6 +8,8 @@ import Effects from "../../api/Effects";
 import Floor from "./Floor";
 import Skybox from "../Skybox";
 import Lights from "../Lights";
+import { bookStore } from "@/app/store/bookStore";
+import { useSnapshot } from "valtio";
 
 export default function App() {
   const { enabled: effectsEnabled } = useControls(
@@ -42,6 +44,7 @@ export default function App() {
       <Skybox />
       <Lights />
       <Select>
+        <Background />
         {showFloor && <Floor />}
         <BookStack />
       </Select>
@@ -49,3 +52,20 @@ export default function App() {
     </Selection>
   );
 }
+
+const Background = () => {
+  // Used to capture clicks on the background
+  const { focusedBookId } = useSnapshot(bookStore);
+  const visible = focusedBookId !== null;
+
+  const handleMissedClick = () => {
+    bookStore.focusedBookId = null;
+  };
+
+  return (
+    <mesh position={[0, 0, -5]} visible={visible} onClick={handleMissedClick}>
+      <planeGeometry args={[10, 10]} />
+      <meshBasicMaterial color="red" transparent opacity={0} />
+    </mesh>
+  );
+};
