@@ -56,11 +56,18 @@ const TempAcceleratedContent = () => {
       )}
     >
       <div className="flex gap-10 justify-around max-w-3xl mx-auto">
-        <p className="flex-1 text-lg font-medium">
-          An expansive publication in full colour showcasing decades' worth of
-          illustration done in hundreds of sketchbooks and journals by the
-          creators of the biting satirical comic Bitterkomix.
-        </p>
+        <div className="flex-1 flex flex-col gap-3">
+          <p className="text-lg font-medium">
+            An expansive publication in full colour showcasing decades' worth of
+            illustration done in hundreds of sketchbooks and journals by the
+            creators of the biting satirical comic Bitterkomix.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <PDButton primary>Buy the book</PDButton>
+            <PDButton>Buy: Takealot</PDButton>
+            <PDButton>Buy: Exclusive Books</PDButton>
+          </div>
+        </div>
         <div className="flex-1 gap-3 flex flex-col">
           <h3 className="text-2xl font-bold">Stellenbosch Woordfees</h3>
           <p className="text-md">
@@ -80,11 +87,6 @@ const TempAcceleratedContent = () => {
             >
               Add to calendar
             </AddToCalendarButton>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <PDButton primary>Buy the book</PDButton>
-            <PDButton>Buy: Takealot</PDButton>
-            <PDButton>Buy: Exclusive Books</PDButton>
           </div>
         </div>
       </div>

@@ -8,8 +8,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        fields: ["var(--font-fields)", "sans-serif"],
-        primary: ["var(--font-fields)", "sans-serif"],
+        fields: ["fields", "sans-serif"],
+        "fields-display": ["fields-display", "sans-serif"],
+        primary: ["fields", "sans-serif"],
       },
       colors: {
         background: "var(--background)",

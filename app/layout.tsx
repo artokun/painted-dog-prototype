@@ -1,36 +1,9 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import AuthGate from "./components/AuthGate";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-
-const fieldsFont = localFont({
-  src: [
-    {
-      path: "./fonts/FieldsDisplayRegular.woff2",
-      weight: "normal",
-      style: "normal",
-    },
-    {
-      path: "./fonts/FieldsDisplaySemiBoldRegular.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "./fonts/FieldsDisplayBold.woff2",
-      weight: "bold",
-      style: "normal",
-    },
-    {
-      path: "./fonts/FieldsDisplayMediumRegular.woff2",
-      weight: "500",
-      style: "normal",
-    },
-  ],
-  variable: "--font-fields",
-});
 
 export const metadata: Metadata = {
   title: "Painted Dog",
@@ -52,10 +25,9 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="stylesheet" href="https://use.typekit.net/jnv8asg.css" />
       </head>
-      <body
-        className={`${fieldsFont.variable} antialiased overflow-hidden h-dvh w-full`}
-      >
+      <body className={`font-fields antialiased overflow-hidden h-dvh w-full`}>
         <main className="h-dvh w-screen relative">
           <AuthGate>{children}</AuthGate>
           <div

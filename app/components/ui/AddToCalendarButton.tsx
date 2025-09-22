@@ -122,7 +122,7 @@ END:VCALENDAR`;
       </PDButton>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 bg-white border border-black rounded-sm shadow-lg z-50 min-w-full">
+        <div className="absolute top-full left-0 mt-1 bg-[#F9F6F0] border border-black rounded-sm shadow-lg z-50 min-w-full">
           <button
             onClick={handleGoogleCalendar}
             className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 cursor-pointer rounded-sm whitespace-nowrap"
