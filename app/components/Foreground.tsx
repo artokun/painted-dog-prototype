@@ -28,6 +28,7 @@ export const Foreground = () => {
     { collapsed: true }
   );
 
+  // This sets the current route to the pathname when the pathname changes
   useEffect(() => {
     if (!pathname.startsWith("/books/")) {
       bookStore.focusedBookId = null;
@@ -35,6 +36,7 @@ export const Foreground = () => {
     globalStore.currentRoute = pathname;
   }, [pathname]);
 
+  // This removes the loading overlay when the scene is rendered
   useEffect(() => {
     if (isRendered) {
       setTimeout(() => {
@@ -52,6 +54,7 @@ export const Foreground = () => {
   // This allows us to navigate to the current route when the url changes from
   // inside of the react three fiber app
   useEffect(() => {
+    // This allows us to navigate to the current route when the current route changes
     const unsubscribeCurrentRoute = subscribeKey(
       globalStore,
       "currentRoute",
@@ -62,6 +65,7 @@ export const Foreground = () => {
       }
     );
 
+    // This allows us to navigate to the current route when the focused book id changes
     const unsubscribeFocusedBookId = subscribeKey(
       bookStore,
       "focusedBookId",

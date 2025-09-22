@@ -5,6 +5,10 @@ import { globalStore } from "../store/globalStore";
 import { LinkProps } from "next/link";
 import { cn } from "@/lib/utils";
 
+/*
+This is a wrapper around the next/link component that allows us to navigate to the current route when the url changes from
+inside of the react three fiber app. See Foreground.tsx for more details.
+*/
 export const ThreeLink = ({
   href,
   children,
