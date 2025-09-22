@@ -2,15 +2,17 @@
 
 import { Header } from "./Header";
 import { FloatingBar } from "./FloatingBar";
-import { Loader } from "@react-three/drei";
+import { Loader, useScroll } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
 import BookPageContent from "./BookPageContent";
 import { useControls } from "leva";
+import { useSpring, animated } from "@react-spring/web";
+import { cn } from "@/lib/utils";
 
 export const Foreground = () => {
   const router = useRouter();
@@ -93,7 +95,66 @@ export const Foreground = () => {
       <Header />
       {showFloatingBar && <FloatingBar />}
       <BookPageContent />
+      <Cursor />
       <Loader />
     </div>
+  );
+};
+
+const Cursor = () => {
+  const [mousePosition, setMousePosition] = useState({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+  });
+  const { hoveredBookId, focusedBookId } = useSnapshot(bookStore);
+  const [pressed, setPressed] = useState(false);
+  const [text, setText] = useState("Focus Book");
+
+  const style = useSpring({
+    x: mousePosition.x,
+    y: mousePosition.y,
+    immediate: true,
+  });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: e.clientX,
+        y: e.clientY,
+      });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    const TIME = 200;
+    setPressed(true);
+    setTimeout(() => {
+      setText(!focusedBookId ? "Flip Book" : "Focus Book");
+    }, TIME / 2);
+    setTimeout(() => {
+      setText(focusedBookId ? "Flip Book" : "Focus Book");
+      setPressed(false);
+    }, TIME);
+  }, [focusedBookId]);
+
+  return (
+    <animated.div
+      style={style}
+      className="absolute top-0 left-0 h-20 w-20 translate-x-[-50%] translate-y-[-50%]"
+    >
+      <div
+        className={cn(
+          "flex items-center justify-center bg-black rounded-full text-white w-full h-full text-center leading-none p-2 transition-all duration-200",
+          hoveredBookId ? "opacity-100" : "opacity-0",
+          pressed ? "scale-50" : hoveredBookId ? "scale-100" : "scale-0"
+        )}
+      >
+        <span className={cn(pressed ? "opacity-0" : "opacity-100")}>
+          {text}
+        </span>
+      </div>
+    </animated.div>
   );
 };

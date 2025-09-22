@@ -106,7 +106,7 @@ function Book({
     }
   }, [isFocused]);
 
-  useCursor(isHovered, "pointer", "auto");
+  useCursor(isHovered, book.featured || isFocused ? "none" : "pointer", "auto");
 
   const bookPosition = !isGridMode
     ? getBookSortYPosition(book.id)
