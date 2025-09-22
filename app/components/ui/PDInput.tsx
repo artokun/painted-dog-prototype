@@ -41,7 +41,7 @@ export const PDInput = forwardRef<HTMLInputElement, PDInputProps>(
             <label className="flex gap-4 items-start" htmlFor={props.id}>
               <span
                 className={cn(
-                  "mt-0.5 min-w-[18px] min-h-[18px] max-w-[18px] max-h-[18px] border border-black flex items-center justify-center cursor-pointer background-transparent focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2",
+                  "mt-0.5 min-w-[18px] min-h-[18px] max-w-[18px] max-h-[18px] border border-black flex items-center justify-center cursor-pointer background-transparent",
                   checked && "bg-black"
                 )}
                 tabIndex={0}
