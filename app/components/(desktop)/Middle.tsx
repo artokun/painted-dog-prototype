@@ -89,9 +89,6 @@ const TempAcceleratedContent = () => {
         </div>
       </div>
       <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] py-3" />
-      <h1 className="text-5xl font-medium text-center pt-6">
-        Painted Dog Press Launch
-      </h1>
       <div className="flex gap-10">
         <article className="flex-1 flex flex-col gap-3">
           <h3 className="text-xl font-medium">New Publisher, New Tricks</h3>
