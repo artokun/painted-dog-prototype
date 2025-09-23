@@ -13,7 +13,6 @@ import {
   useCallback,
   useMemo,
   useRef,
-  MutableRefObject,
   RefObject,
 } from "react";
 import { cn } from "@/lib/utils";
@@ -33,7 +32,64 @@ const menuItems = [
   // "Podcast Episodes",
   "Excerpt",
   "Product Information",
+  "Full Description",
 ] as const;
+
+// Utility function to truncate text at specified word count
+// Extends to the end of the sentence/paragraph after the word limit
+function truncateWords(
+  text: string,
+  maxWords: number
+): { truncated: string; isTruncated: boolean } {
+  if (!text) return { truncated: "", isTruncated: false };
+
+  // Match words while preserving whitespace
+  const words = text.match(/\S+|\s+/g) || [];
+  const wordCount = words.filter((w) => /\S/.test(w)).length;
+
+  if (wordCount <= maxWords) {
+    return { truncated: text, isTruncated: false };
+  }
+
+  let count = 0;
+  let minIndex = 0;
+
+  // Find the position after the minimum word count
+  for (let i = 0; i < words.length; i++) {
+    if (/\S/.test(words[i])) {
+      count++;
+      if (count === maxWords) {
+        minIndex = i;
+        break;
+      }
+    }
+  }
+
+  // Now look for the next sentence ending or paragraph break
+  let bestIndex = minIndex;
+  for (let i = minIndex; i < words.length; i++) {
+    const word = words[i];
+
+    // Check if this word ends with sentence-ending punctuation
+    if (/\S/.test(word) && /[.!?]$/.test(word)) {
+      bestIndex = i + 1;
+      // Include any trailing whitespace after the sentence
+      while (bestIndex < words.length && /\s/.test(words[bestIndex])) {
+        bestIndex++;
+      }
+      break;
+    }
+
+    // Check for paragraph break (double newline)
+    if (/\n\s*\n/.test(word)) {
+      bestIndex = i;
+      break;
+    }
+  }
+
+  const truncated = words.slice(0, bestIndex).join("").trimEnd();
+  return { truncated, isTruncated: true };
+}
 
 const ENTRY = 300;
 const EXIT = 0;
@@ -90,8 +146,6 @@ export default function BookPageContent() {
   const rightContentSpring = useSpring({
     opacity: focusedBookId ? 1 : 0,
     perspective: 1000,
-    // transformStyle: "preserve-3d",
-    // origin: "right",
     x: focusedBookId ? "0%" : "100%",
     delay: focusedBookId ? ENTRY : EXIT,
   });
@@ -118,7 +172,8 @@ export default function BookPageContent() {
         <ul className="flex flex-col gap-3 w-full font-medium [&>li]:pt-2">
           {menuTrail.map(
             (style, index) =>
-              index > 0 && (
+              index > 0 &&
+              index < menuItems.length - 1 && (
                 <animated.li
                   key={menuItems[index]}
                   style={style}
@@ -207,7 +262,7 @@ const Leaflet = ({
   const content = useMemo(() => {
     switch (index) {
       case 0:
-        return <BookSection />;
+        return <BookSection setSelectedIndex={setSelectedIndex} />;
       case 1:
         return <AuthorsSection />;
       case 2:
@@ -216,8 +271,10 @@ const Leaflet = ({
         return <PodcastEpisodesSection />;
       case 4:
         return <ExcerptSection />;
+      // case 5:
+      //   return <ProductInformationSection />;
       case 5:
-        return <ProductInformationSection />;
+        return <FullDescriptionSection />;
       default:
         return null;
     }
@@ -287,11 +344,20 @@ const Leaflet = ({
   );
 };
 
-const BookSection = () => {
+const BookSection = ({
+  setSelectedIndex,
+}: {
+  setSelectedIndex?: (index: number) => void;
+}) => {
   const { books, focusedBookId } = useSnapshot(bookStore);
   const book = focusedBookId ? books[focusedBookId] : null;
 
   if (!book) return null;
+
+  const { truncated, isTruncated } = truncateWords(
+    book?.description || "",
+    145
+  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -301,7 +367,17 @@ const BookSection = () => {
           ISBN&nbsp;: {book.isbn}
         </p>
       )}
-      <p className="whitespace-pre-wrap">{book?.description}</p>
+      <p className="whitespace-pre-wrap">
+        {truncated}
+        {isTruncated && setSelectedIndex && (
+          <button
+            onClick={() => setSelectedIndex(5)}
+            className="ml-1 font-medium underline cursor-pointer"
+          >
+            Read More
+          </button>
+        )}
+      </p>
     </div>
   );
 };
@@ -339,4 +415,18 @@ const ExcerptSection = () => {
 
 const ProductInformationSection = () => {
   return <div>Product Information Section Coming Soon</div>;
+};
+
+const FullDescriptionSection = () => {
+  const { books, focusedBookId } = useSnapshot(bookStore);
+  const book = focusedBookId ? books[focusedBookId] : null;
+
+  if (!book) return null;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="text-2xl font-medium mb-4">{book?.title}</h2>
+      <p className="whitespace-pre-wrap">{book?.description}</p>
+    </div>
+  );
 };
