@@ -31,7 +31,7 @@ export const CheckboxIcon = ({
         height="16"
         rx="0.888889"
         stroke="currentColor"
-        stroke-width="2"
+        strokeWidth="2"
         mask="url(#path-1-inside-1_7065_31839)"
       />
     </svg>

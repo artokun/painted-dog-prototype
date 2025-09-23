@@ -1,7 +1,21 @@
 "use client";
 
-import { animated, useSpring, config, useTrail } from "@react-spring/web";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  animated,
+  useSpring,
+  config,
+  useTrail,
+  useScroll,
+} from "@react-spring/web";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  MutableRefObject,
+  RefObject,
+} from "react";
 import { cn } from "@/lib/utils";
 import { ContentfulBook } from "@/types/app";
 import { bookStore } from "@/app/store/bookStore";
@@ -10,6 +24,7 @@ import { PDButton } from "./ui/PDButton";
 import { PlusIcon } from "./icons/Plus";
 import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { CloseIcon } from "./icons/Close";
+import { ArrowDownIcon } from "./icons/ArrowDown";
 
 const menuItems = [
   "book",
@@ -208,6 +223,11 @@ const Leaflet = ({
     }
   }, [index]);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    container: scrollContainerRef as RefObject<HTMLElement>,
+  });
+
   return (
     <animated.div
       style={style}
@@ -218,20 +238,49 @@ const Leaflet = ({
     >
       <div
         className={cn(
-          "w-full h-full pr-10 overflow-y-auto scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent",
-          index > 0 && "bg-[#F9F6F0] border-1 border-black px-10"
+          "relative w-full h-full p-1",
+          index > 0 && "bg-[#F9F6F0]"
         )}
       >
-        <div className="min-h-full flex flex-col justify-center py-10">
-          {content}
+        <div
+          ref={scrollContainerRef}
+          className={cn(
+            "px-10 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent",
+            index > 0 && "pt-40 border border-black pb-20"
+          )}
+        >
+          <div className="min-h-full flex flex-col justify-center">
+            {content}
+          </div>
         </div>
+        {index > 0 && (
+          <>
+            <div className="pointer-events-none absolute top-[5px] left-[5px] right-5 h-30 bg-linear-to-b from-[#F9F6F0] to-transparent" />
+            <div className="pointer-events-none absolute bottom-[53px] left-[5px] right-5 h-15 bg-linear-to-t from-[#F9F6F0] to-transparent" />
+            <button
+              onClick={() =>
+                scrollContainerRef.current?.scrollTo({
+                  top: scrollContainerRef.current.scrollHeight,
+                  behavior: "smooth",
+                })
+              }
+              className="absolute cursor-pointer bottom-[5px] left-[5px] right-[5px] h-12 flex items-center justify-center bg-[#F9F6F0]"
+            >
+              <animated.span
+                style={{ opacity: scrollYProgress.to([0.9, 1], [1, 0]) }}
+              >
+                <ArrowDownIcon className="w-5 h-5 -mt-2" />
+              </animated.span>
+            </button>
+          </>
+        )}
       </div>
       {index > 0 && (
         <button
           className="absolute top-0 right-0 z-10 px-7 py-5 cursor-pointer"
           onClick={() => setSelectedIndex(0)}
         >
-          <CloseIcon className="w-4 h-5" />
+          <CloseIcon className="w-6 h-6" />
         </button>
       )}
     </animated.div>
@@ -265,12 +314,11 @@ const AuthorsSection = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      {book.authors.map((author, index) => (
+      {book.authors.map((author) => (
         <div key={author.id}>
           <h6 className="text-sm">Author</h6>
-          <h2 className="text-2xl font-medium">{author.fullName}</h2>
+          <h2 className="text-2xl font-medium mb-8">{author.fullName}</h2>
           <p className="whitespace-pre-wrap">{author.biography}</p>
-          {index < book.authors.length - 1 && <hr className="mt-8" />}
         </div>
       ))}
     </div>
