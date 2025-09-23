@@ -49,7 +49,7 @@ export const NewsletterForm = () => {
         <div className="text-green-600 text-2xl">✓</div>
         <h3 className="text-xl font-medium text-green-800">Thank you!</h3>
         <p className="text-green-700">
-          You've been subscribed to our newsletter and are now in the running to
+          You&apos;ve been subscribed to our newsletter and are now in the running to
           win a copy of Bitterkomix Sketchbooks and Journals.
         </p>
         <PDButton
