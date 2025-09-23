@@ -1,8 +1,9 @@
 "use client";
 
-import { PDButton } from "./PDButton";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { animated, useSpring } from "@react-spring/web";
+import { CalendarIcon } from "../icons/Calendar";
 
 interface CalendarEvent {
   title: string;
@@ -14,13 +15,11 @@ interface CalendarEvent {
 
 interface AddToCalendarButtonProps {
   event: CalendarEvent;
-  children?: React.ReactNode;
   className?: string;
 }
 
 export const AddToCalendarButton = ({
   event,
-  children = "Add to calendar",
   className,
 }: AddToCalendarButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -99,44 +98,42 @@ END:VCALENDAR`;
     setIsOpen(false);
   };
 
+  const styles = useSpring({
+    height: isOpen ? 4 * 9 * 3 : 4 * 9,
+    config: { duration: 100 },
+  });
+
   return (
     <div className="relative" ref={dropdownRef}>
-      <PDButton
+      <animated.div
+        style={styles}
         onClick={() => setIsOpen(!isOpen)}
-        className={cn("flex items-center gap-1", className)}
+        className={cn(
+          "flex flex-col items-center justify-start rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100",
+          "hover:translate-y-[-2px] hover:shadow-md active:bg-[#F2EFE9] overflow-hidden",
+          isOpen && "shadow-md bg-[#F2EFE9] translate-y-[-2px]",
+          className
+        )}
       >
-        {children}
-        <svg
-          className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </PDButton>
-
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-1 bg-[#F9F6F0] border border-black rounded-sm shadow-lg z-50 min-w-full">
+        <div className="flex items-center justify-center w-full min-h-9 gap-2 px-3">
+          <CalendarIcon checked={isOpen} className="w-5 h-5 -mt-0.5" /> Add to
+          calendar
+        </div>
+        <div className="flex flex-col font-normal w-full pt-0.5">
           <button
             onClick={handleGoogleCalendar}
-            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 cursor-pointer rounded-sm whitespace-nowrap"
+            className="w-full px-3 py-1 text-center cursor-pointer whitespace-nowrap hover:font-medium active:text-neutral-900"
           >
             Add to Google Calendar
           </button>
           <button
             onClick={handleDownloadICS}
-            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 cursor-pointer rounded-sm whitespace-nowrap border-t border-gray-200"
+            className="w-full px-3 py-1 text-center cursor-pointer whitespace-nowrap hover:font-medium active:text-neutral-900"
           >
             Download .ics file
           </button>
         </div>
-      )}
+      </animated.div>
     </div>
   );
 };

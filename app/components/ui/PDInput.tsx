@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
+import { CheckboxIcon } from "../icons/Checkbox";
 
 interface PDInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -28,7 +29,7 @@ export const PDInput = forwardRef<HTMLInputElement, PDInputProps>(
             {label && <span>{label}</span>}
             <input
               ref={ref}
-              className="border-b border-black p-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end"
+              className="border-b border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end"
               type={type}
               onChange={onChange}
               {...props}
@@ -39,11 +40,7 @@ export const PDInput = forwardRef<HTMLInputElement, PDInputProps>(
         return (
           <div>
             <label className="flex gap-4 items-start" htmlFor={props.id}>
-              <span
-                className={cn(
-                  "mt-0.5 min-w-[18px] min-h-[18px] max-w-[18px] max-h-[18px] border border-black flex items-center justify-center cursor-pointer background-transparent",
-                  checked && "bg-black"
-                )}
+              <CheckboxIcon
                 tabIndex={0}
                 role="checkbox"
                 aria-checked={checked}
@@ -57,14 +54,9 @@ export const PDInput = forwardRef<HTMLInputElement, PDInputProps>(
                     handleChange(syntheticEvent);
                   }
                 }}
-              >
-                <CheckIcon
-                  className={cn(
-                    "opacity-0 text-black transition-opacity duration-100",
-                    checked && "opacity-100 text-white"
-                  )}
-                />
-              </span>
+                checked={checked}
+                className="min-w-5 min-h-5 max-w-5 max-h-5 focus:outline-none focus:ring-0 cursor-pointer"
+              />
               <input
                 tabIndex={-1}
                 ref={ref}

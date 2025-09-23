@@ -25,7 +25,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="stylesheet" href="https://use.typekit.net/jnv8asg.css" />
+        <link rel="stylesheet" href="https://use.typekit.net/uww8yjt.css" />
       </head>
       <body className={`font-fields antialiased overflow-hidden h-dvh w-full`}>
         <main className="h-dvh w-screen relative">

@@ -49,8 +49,8 @@ export const NewsletterForm = () => {
         <div className="text-green-600 text-2xl">✓</div>
         <h3 className="text-xl font-medium text-green-800">Thank you!</h3>
         <p className="text-green-700">
-          You&apos;ve been subscribed to our newsletter and are now in the running to
-          win a copy of Bitterkomix Sketchbooks and Journals.
+          You&apos;ve been subscribed to our newsletter and are now in the
+          running to win a copy of Bitterkomix Sketchbooks and Journals.
         </p>
         <PDButton
           onClick={() => setIsSuccess(false)}
@@ -132,6 +132,7 @@ export const NewsletterForm = () => {
         </PDInput>
         <PDButton
           type="submit"
+          primary
           disabled={isPending}
           className={cn("mt-2", isPending && "opacity-50 cursor-not-allowed")}
         >

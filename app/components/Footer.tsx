@@ -1,6 +1,4 @@
-import { animated, useSpring } from "@react-spring/web";
 import Image from "next/image";
-import { ChainSwitch } from "./icons/ChainSwitch";
 import {
   Instagram,
   Facebook,
@@ -59,11 +57,11 @@ export const Footer = () => {
             </div>
           </div>
           <div className="flex flex-col justify-center items-center gap-6 [&>button]:transition-colors flex-1 border-2 border-l-0 border-black h-full">
-            <ThreeLink className="text-3xl font-bold" href="/contact">
+            <ThreeLink className="text-2xl font-medium" href="/contact">
               Contact
             </ThreeLink>
             <ThreeLink href="/legal" className="text-lg">
-              Terms &amp; conditions
+              Privacy &amp; Legal Policy
             </ThreeLink>
           </div>
         </div>

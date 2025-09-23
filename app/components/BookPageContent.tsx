@@ -7,14 +7,15 @@ import { ContentfulBook } from "@/types/app";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
 import { PDButton } from "./ui/PDButton";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon } from "./icons/Plus";
+import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { CloseIcon } from "./icons/Close";
 
 const menuItems = [
   "book",
   "authors",
   "Reviews",
-  "Podcast Episodes",
+  // "Podcast Episodes",
   "Excerpt",
   "Product Information",
 ] as const;
@@ -99,7 +100,7 @@ export default function BookPageContent() {
         style={leftContentSpring}
         className="flex flex-col gap-4 p-20 justify-center"
       >
-        <ul className="flex flex-col gap-2 w-full font-medium [&>li]:pt-2">
+        <ul className="flex flex-col gap-3 w-full font-medium [&>li]:pt-2">
           {menuTrail.map(
             (style, index) =>
               index > 0 && (
@@ -108,7 +109,7 @@ export default function BookPageContent() {
                   style={style}
                   data-index={index}
                   className={
-                    "flex group gap-2 border-b border-current w-full justify-between items-center pointer-events-auto cursor-pointer"
+                    "flex group gap-2 border-b border-current w-full justify-between items-center pointer-events-auto cursor-pointer pr-2"
                   }
                   onClick={handleMenuItemClick}
                 >
@@ -132,18 +133,22 @@ export default function BookPageContent() {
                         "opacity-100 rotate-135 group-hover:rotate-135 "
                     )}
                   >
-                    <PlusIcon size={20} />
+                    <PlusIcon className="w-2.5 h-2.5" />
                   </span>
                 </animated.li>
               )
           )}
         </ul>
-        <div className="flex flex-wrap gap-3 mt-14 pointer-events-auto">
-          <PDButton href="/contact" primary>
-            Buy the book
+        <div className="flex flex-wrap gap-3 mt-10">
+          <PDButton href="/contact" className="w-full" primary tall>
+            <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
           </PDButton>
-          <PDButton href="/contact">Buy: Takealot</PDButton>
-          <PDButton href="/contact">Buy: Exclusive Books</PDButton>
+          <PDButton href="/contact" className="flex-1" tall>
+            Takealot
+          </PDButton>
+          <PDButton className="flex-1" href="/contact" tall>
+            Exclusive Books
+          </PDButton>
         </div>
       </animated.section>
 
@@ -244,7 +249,7 @@ const BookSection = () => {
       <h2 className="text-2xl font-medium">{book?.title}</h2>
       {book?.isbn && (
         <p className="relative text-sm text-gray-800 -translate-y-2">
-          ISBN-13&nbsp;: {book.isbn}
+          ISBN&nbsp;: {book.isbn}
         </p>
       )}
       <p className="whitespace-pre-wrap">{book?.description}</p>
