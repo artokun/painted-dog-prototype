@@ -216,18 +216,8 @@ export async function createBookInContentful(params: CreateBookParams) {
     ...(params.podcastMarkdown
       ? { podcastText: { "en-US": params.podcastMarkdown } }
       : {}),
-    ...(params.featuredArticle
-      ? {
-          linkToFeaturedArticle: {
-            "en-US": linkToEntry(links.article!.sys.id),
-          },
-        }
-      : {}),
-    ...(params.podcastEpisode
-      ? {
-          linkToPodcastEpisode: { "en-US": linkToEntry(links.podcast!.sys.id) },
-        }
-      : {}),
+    // Note: linkToFeaturedArticle and linkToPodcastEpisode have been deprecated
+    // Reviews and podcast episodes now use isFeatured property instead
     ...(genre ? { genre: { "en-US": linkToEntry(genre.sys.id) } } : {}),
     bookCoverTextureFront: { "en-US": textures.front },
     bookCoverTextureSide: { "en-US": textures.side },

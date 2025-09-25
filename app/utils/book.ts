@@ -455,3 +455,59 @@ export const filterBooksByFuzzySearch = (search: string) => {
 
   return search.length > 1 ? filteredBooks : books;
 };
+
+// Utility function to truncate text at specified word count
+// Extends to the end of the sentence/paragraph after the word limit
+export const truncateWords = (
+  text: string,
+  maxWords: number
+): { truncated: string; isTruncated: boolean } => {
+  if (!text) return { truncated: "", isTruncated: false };
+
+  // Match words while preserving whitespace
+  const words = text.match(/\S+|\s+/g) || [];
+  const wordCount = words.filter((w) => /\S/.test(w)).length;
+
+  if (wordCount <= maxWords) {
+    return { truncated: text, isTruncated: false };
+  }
+
+  let count = 0;
+  let minIndex = 0;
+
+  // Find the position after the minimum word count
+  for (let i = 0; i < words.length; i++) {
+    if (/\S/.test(words[i])) {
+      count++;
+      if (count === maxWords) {
+        minIndex = i;
+        break;
+      }
+    }
+  }
+
+  // Now look for the next sentence ending or paragraph break
+  let bestIndex = minIndex;
+  for (let i = minIndex; i < words.length; i++) {
+    const word = words[i];
+
+    // Check if this word ends with sentence-ending punctuation
+    if (/\S/.test(word) && /[.!?]$/.test(word)) {
+      bestIndex = i + 1;
+      // Include any trailing whitespace after the sentence
+      while (bestIndex < words.length && /\s/.test(words[bestIndex])) {
+        bestIndex++;
+      }
+      break;
+    }
+
+    // Check for paragraph break (double newline)
+    if (/\n\s*\n/.test(word)) {
+      bestIndex = i;
+      break;
+    }
+  }
+
+  const truncated = words.slice(0, bestIndex).join("").trimEnd();
+  return { truncated, isTruncated: true };
+};

@@ -2,12 +2,16 @@ import { cn } from "@/lib/utils";
 import { ThreeLink } from "../ThreeLink";
 import { LinkProps } from "next/link";
 import { ButtonHTMLAttributes } from "react";
+import NextLink from "next/link";
 
 interface PDButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   primary?: boolean;
   wide?: boolean;
+  download?: string;
   tall?: boolean;
   href?: string;
+  target?: string;
+  rel?: string;
 }
 
 export const PDButton = ({
@@ -17,13 +21,18 @@ export const PDButton = ({
   tall = false,
   className,
   href,
+  download,
+  target,
+  rel,
   ...props
 }: PDButtonProps) => {
-  const Component = (href ? ThreeLink : "button") as React.ComponentType<
+  const Component = (
+    target || download ? NextLink : href ? ThreeLink : "button"
+  ) as React.ComponentType<
     LinkProps<"a"> | ButtonHTMLAttributes<HTMLButtonElement>
   >;
   const componentProps = href
-    ? ({ href } as LinkProps<"a">)
+    ? ({ href, download, target, rel, ...props } as LinkProps<"a">)
     : (props as ButtonHTMLAttributes<HTMLButtonElement>);
 
   return (

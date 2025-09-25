@@ -507,7 +507,7 @@ const FeaturedLinks = ({
           scroll.el.scrollTop += e.deltaY;
         }}
       >
-        {book.linkToFeaturedArticle && (
+        {book.reviews?.find(r => r.isFeatured) && (
           <div
             className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
             onPointerOver={(e) => {
@@ -520,16 +520,16 @@ const FeaturedLinks = ({
             }}
           >
             <Link
-              href={book.linkToFeaturedArticle.link}
+              href={book.reviews.find(r => r.isFeatured)!.externalLink}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline"
             >
-              {book.linkToFeaturedArticle.text}
+              {book.reviews.find(r => r.isFeatured)!.title}
             </Link>
           </div>
         )}
-        {book.linkToPodcastEpisode && (
+        {book.podcastEpisodes?.find(p => p.isFeatured) && (
           <div
             className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
             onPointerOver={(e) => {
@@ -542,12 +542,12 @@ const FeaturedLinks = ({
             }}
           >
             <Link
-              href={book.linkToPodcastEpisode.link}
+              href={book.podcastEpisodes.find(p => p.isFeatured)!.externalLink}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline"
             >
-              {book.linkToPodcastEpisode.text}
+              {book.podcastEpisodes.find(p => p.isFeatured)!.title}
             </Link>
           </div>
         )}

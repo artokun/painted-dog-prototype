@@ -1,5 +1,5 @@
+import { JsonObject, JsonArray } from "type-fest";
 // Application types for the painted-dog book catalog
-
 export type BookId = string;
 
 export interface Author {
@@ -19,6 +19,7 @@ export interface Price {
   text: string;
   price: number;
   description?: string;
+  productInformation?: JsonObject | JsonArray | null;
 }
 
 export interface Link {
@@ -37,6 +38,14 @@ export interface Review {
   isFeatured: boolean;
 }
 
+export interface Asset {
+  id: string;
+  url: string;
+  title: string;
+  description: string;
+  contentType: string;
+}
+
 export interface PodcastEpisode {
   id: string;
   title: string;
@@ -53,6 +62,7 @@ export interface ContentfulBook {
   isbn: string;
   slug: string;
   featured: boolean;
+  excerpt?: Asset;
   description: string;
   publishDate: string;
   offset: {
@@ -66,8 +76,6 @@ export interface ContentfulBook {
   prices: Price[];
   reviews: Review[];
   podcastEpisodes: PodcastEpisode[];
-  linkToFeaturedArticle?: Link;
-  linkToPodcastEpisode?: Link;
   bookTexture?: string;
   hidden: boolean;
 }
