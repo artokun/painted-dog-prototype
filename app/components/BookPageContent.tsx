@@ -241,7 +241,7 @@ const Leaflet = ({
     <animated.div
       style={style}
       className={cn(
-        "absolute inset-0 h-full w-full pl-20 pr-2 transform-style-preserve-3d origin-right pb-20 pointer-events-none",
+        "absolute inset-0 h-full w-full pl-20 pr-5 transform-style-preserve-3d origin-right pb-20 pointer-events-none",
         index === selectedIndex && "pointer-events-auto"
       )}
     >
@@ -265,7 +265,7 @@ const Leaflet = ({
         {index > 0 && (
           <>
             <div className="pointer-events-none absolute top-[5px] left-[5px] right-5 h-30 bg-linear-to-b from-[#F9F6F0] to-transparent" />
-            <div className="pointer-events-none absolute bottom-[53px] left-[5px] right-5 h-15 bg-linear-to-t from-[#F9F6F0] to-transparent" />
+            <div className="pointer-events-none absolute bottom-[53px] left-[5px] right-5 h-12 bg-linear-to-t from-[#F9F6F0] to-transparent" />
             <button
               onClick={() =>
                 scrollContainerRef.current?.scrollTo({
@@ -286,7 +286,7 @@ const Leaflet = ({
       </div>
       {index > 0 && (
         <button
-          className="absolute top-0 right-0 z-10 px-7 py-5 cursor-pointer"
+          className="absolute top-0 right-2 z-10 px-7 py-5 cursor-pointer"
           onClick={() => setSelectedIndex(0)}
         >
           <CloseIcon className="w-6 h-6" />

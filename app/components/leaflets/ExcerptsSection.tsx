@@ -22,7 +22,7 @@ export const ExcerptsSection = () => {
             </p>
             <p>Hit the download link below to take a look.</p>
           </div>
-          <div className="flex justify-center">
+          <div className="flex">
             <PDButton
               title={book?.excerpt?.title}
               href={book?.excerpt?.url}

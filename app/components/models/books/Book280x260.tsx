@@ -12,6 +12,8 @@ import { lerp } from "three/src/math/MathUtils.js";
 import { Book } from "@/types/app";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
+// import { getContentfulBookSize } from "@/app/utils/book";
+// import { useHLSVideoTexture } from "@/app/hooks/useHLSVideoTexture";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -38,6 +40,11 @@ export function Book280x260(
     THREE.TextureLoader,
     props.book?.bookTexture || "/models/textures/template-combined-280x260.jpg"
   );
+
+  // const [width, thickness, height] = useMemo(
+  //   () => getContentfulBookSize(props.book.bookSize),
+  //   [props.book.bookSize]
+  // );
 
   texture.flipY = false;
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -76,6 +83,22 @@ export function Book280x260(
     meshMaterials.length = 0;
   });
 
+  // Video configuration
+  // const { videoGeometry, videoMaterial, videoPosition, isReady } =
+  //   useHLSVideoTexture({
+  //     url: "/dog-loop.mp4",
+  //     bookWidth: width,
+  //     bookHeight: height,
+  //     scale: 0.2, // 0 to 1, where 1 fits the video inside the book bounds
+  //     coverMode: false, // true for cover mode, false for fit mode
+  //     offsetX: 0.9, // -1 to 1, where 0 is centered
+  //     offsetY: 0.9, // -1 to 1, where 0 is centered
+  //     materialProps: {
+  //       roughnessMap: roughnessMap,
+  //       ...props.materialControls,
+  //     },
+  //   });
+
   return (
     <group {...props} dispose={null}>
       <group rotation-y={Math.PI / 2} ref={ref}>
@@ -89,7 +112,6 @@ export function Book280x260(
             map={texture}
             roughnessMap={roughnessMap}
             toneMapped
-            {...props.materialControls}
           />
         </mesh>
         <mesh
@@ -98,11 +120,23 @@ export function Book280x260(
           receiveShadow
           geometry={nodes.BookMesh004_1.geometry}
         >
-          <meshPhysicalMaterial
+          <meshStandardMaterial
             {...materials["Pages.001"]}
             {...props.materialControls}
           />
         </mesh>
+        {/* {isReady && (
+          <mesh
+            rotation-x={-Math.PI / 2}
+            rotation-z={0}
+            position-x={videoPosition.x}
+            position-y={thickness / 2}
+            position-z={videoPosition.y}
+          >
+            <circleGeometry args={[videoGeometry.args[0] / 2, 64]} />
+            <meshStandardMaterial {...videoMaterial} />
+          </mesh>
+        )} */}
       </group>
     </group>
   );

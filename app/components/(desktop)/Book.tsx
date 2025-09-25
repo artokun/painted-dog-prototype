@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Html, useCursor, useScroll } from "@react-three/drei";
+import { BBAnchor, Html, useCursor, useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import {

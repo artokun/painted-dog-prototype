@@ -97,7 +97,7 @@ export function BookMD(
           receiveShadow
           geometry={nodes.BookMesh001_1.geometry}
         >
-          <meshPhysicalMaterial
+          <meshStandardMaterial
             {...materials.Pages}
             {...props.materialControls}
           />

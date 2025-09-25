@@ -97,7 +97,7 @@ export function BookLG(
           receiveShadow
           geometry={nodes.BookMesh003_1.geometry}
         >
-          <meshPhysicalMaterial
+          <meshStandardMaterial
             {...materials.Pages}
             {...props.materialControls}
           />

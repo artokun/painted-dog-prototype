@@ -99,7 +99,7 @@ export function BookXS(
           receiveShadow
           geometry={nodes.BookMesh005_1.geometry}
         >
-          <meshPhysicalMaterial
+          <meshStandardMaterial
             {...materials.Pages}
             {...props.materialControls}
           />

@@ -984,7 +984,7 @@ const BookStackAnimation = ({ books }: { books: Book[] }) => {
       rotation={[spring.rotX, 0, 0]}
     >
       <bookGeometry args={getBookSize(books[index].size)} />
-      <animated.meshPhysicalMaterial
+      <animated.meshStandardMaterial
         transparent
         opacity={spring.opacity}
       />
@@ -1034,7 +1034,7 @@ const MouseInteractiveElement = () => {
       onPointerLeave={() => setHovered(false)}
     >
       <boxGeometry />
-      <animated.meshPhysicalMaterial
+      <animated.meshStandardMaterial
         emissive={hoverSpring.emissive}
       />
     </animated.mesh>

@@ -13,7 +13,6 @@ import { AddToCalendarButton } from "../ui/AddToCalendarButton";
 import { NewsletterForm } from "../ui/NewsletterForm";
 import { PDButton } from "../ui/PDButton";
 import { ShoppingCartIcon } from "../icons/ShoppingCart";
-import { CalendarIcon } from "../icons/Calendar";
 
 export const Middle = () => {
   return (
@@ -53,7 +52,7 @@ const TempAcceleratedContent = () => {
   return (
     <section
       className={cn(
-        "relative max-w-6xl mx-auto top-[calc(75vh)] h-[100dvh] text-black flex flex-col gap-10 p-4 transition-opacity duration-300",
+        "relative max-w-4xl mx-auto top-[calc(75vh)] h-[100dvh] text-black flex flex-col gap-10 p-4 transition-opacity duration-300",
         someBookIsFocused && "opacity-0 pointer-events-none"
       )}
     >
@@ -97,7 +96,7 @@ const TempAcceleratedContent = () => {
           </div>
         </div>
       </div>
-      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] py-3" />
+      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pb-3" />
       <div className="flex gap-10">
         <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">New Publisher, New Tricks</h3>
@@ -111,7 +110,7 @@ const TempAcceleratedContent = () => {
             and human-first technology.
           </p>
         </article>
-        <article className="flex-1 flex flex-col gap-4">
+        {/* <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">&nbsp;</h3>
           <p>
             The launch of Bitterkomix at Stellenbosch Woordfees, simultaneously
@@ -122,7 +121,7 @@ const TempAcceleratedContent = () => {
             <strong>and</strong> meet the team that has brought Painted Dog to
             life.
           </p>
-        </article>
+        </article> */}
         <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">Win a copy, be in the know</h3>
           <p className="text-md">
