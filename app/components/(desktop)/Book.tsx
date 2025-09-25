@@ -456,7 +456,8 @@ function Book({
         </animated.group>
       </animated.group>
       {!isGridMode && !someBookIsFocused && !book.hidden && (
-        <FeaturedLinks book={book} isHovered={isHovered} />
+        <></>
+        // <FeaturedLinks book={book} isHovered={isHovered} />
       )}
     </animated.group>
   );
@@ -507,7 +508,7 @@ const FeaturedLinks = ({
           scroll.el.scrollTop += e.deltaY;
         }}
       >
-        {book.reviews?.find(r => r.isFeatured) && (
+        {book.reviews?.find((r) => r.isFeatured) && (
           <div
             className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
             onPointerOver={(e) => {
@@ -520,16 +521,16 @@ const FeaturedLinks = ({
             }}
           >
             <Link
-              href={book.reviews.find(r => r.isFeatured)!.externalLink}
+              href={book.reviews.find((r) => r.isFeatured)!.externalLink}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline"
             >
-              {book.reviews.find(r => r.isFeatured)!.title}
+              {book.reviews.find((r) => r.isFeatured)!.title}
             </Link>
           </div>
         )}
-        {book.podcastEpisodes?.find(p => p.isFeatured) && (
+        {book.podcastEpisodes?.find((p) => p.isFeatured) && (
           <div
             className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
             onPointerOver={(e) => {
@@ -542,12 +543,14 @@ const FeaturedLinks = ({
             }}
           >
             <Link
-              href={book.podcastEpisodes.find(p => p.isFeatured)!.externalLink}
+              href={
+                book.podcastEpisodes.find((p) => p.isFeatured)!.externalLink
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline"
             >
-              {book.podcastEpisodes.find(p => p.isFeatured)!.title}
+              {book.podcastEpisodes.find((p) => p.isFeatured)!.title}
             </Link>
           </div>
         )}
