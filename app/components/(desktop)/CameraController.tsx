@@ -23,6 +23,10 @@ const CameraController = memo(function CameraController() {
   const scroll = useScroll();
   const gridOverrideControls = useGridOverrideControls();
 
+  useEffect(() => {
+    scroll.el.id = "scroll-el";
+  }, []);
+
   // Calculate camera distance (fixed distance, no responsive behavior)
   const distance = useMemo(() => {
     const bookWidth = 0.28;

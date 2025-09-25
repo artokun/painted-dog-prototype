@@ -8,6 +8,7 @@ import Image from "next/image";
 import { MenuIcon } from "lucide-react";
 import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
+import { ThreeLink } from "./ThreeLink";
 
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
@@ -45,13 +46,13 @@ export const Header = () => {
           </div> */}
           <button
             className={cn(
-              "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none",
+              "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
               focusedBookId &&
                 "opacity-100 translate-x-0 delay-400 pointer-events-auto"
             )}
             onClick={handleBackButtonClick}
           >
-            <span className="relative w-[24px] h-[18px] [svg]:w-full [svg]:h-full">
+            <span className="relative w-[24px] h-[18px] [svg]:w-full [svg]:h-full group-hover:animate-[arrow-bounce_1s_ease-in-out_infinite]">
               <BackIcon />
             </span>
             <span className="text-[19px] font-medium">
@@ -77,7 +78,9 @@ export const Header = () => {
           )}
         >
           <div className="hidden lg:flex gap-2 items-center text-black">
-            <Link href="/contact">Contact</Link>
+            <ThreeLink animatedUnderline href="/contact">
+              Contact
+            </ThreeLink>
           </div>
           <div className="lg:hidden flex gap-2 items-center">
             <MenuIcon />

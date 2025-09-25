@@ -52,16 +52,16 @@ const TempAcceleratedContent = () => {
   return (
     <section
       className={cn(
-        "relative max-w-4xl mx-auto top-[calc(75vh)] h-[100dvh] text-black flex flex-col gap-10 p-4 transition-opacity duration-300",
+        "relative max-w-3xl mx-auto top-[calc(75vh)] h-[100dvh] text-black flex flex-col gap-10 p-4 transition-opacity duration-300",
         someBookIsFocused && "opacity-0 pointer-events-none"
       )}
     >
-      <div className="flex gap-12 justify-around max-w-3xl mx-auto">
+      <div className="flex gap-12 justify-around mx-auto">
         <div className="flex-1 flex flex-col gap-3">
           <p className="text-lg font-medium">
             An expansive publication in full colour showcasing decades&apos;
             worth of illustration done in hundreds of sketchbooks and journals
-            by the creators of the biting satirical comic Bitterkomix.
+            by the creators of the biting satirical comic <i>Bitterkomix</i>.
           </p>
           <div className="flex flex-wrap gap-2">
             <PDButton href="/contact" className="w-full" primary>
@@ -113,7 +113,7 @@ const TempAcceleratedContent = () => {
         {/* <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">&nbsp;</h3>
           <p>
-            The launch of Bitterkomix at Stellenbosch Woordfees, simultaneously
+            The launch of <i>Bitterkomix</i>. at Stellenbosch Woordfees, simultaneously
             launches Painted Dog Press.
           </p>
           <p>
@@ -126,8 +126,8 @@ const TempAcceleratedContent = () => {
           <h3 className="text-xl font-medium">Win a copy, be in the know</h3>
           <p className="text-md">
             Receive updates on page-turning developments and future publications
-            in our newsletter and stand a chance to win a copy of Bitterkomix
-            Sketchbooks and Journals.
+            in our newsletter and stand a chance to win a copy of{" "}
+            <i>Bitterkomix</i> Sketchbooks and Journals.
           </p>
           <NewsletterForm />
         </article>

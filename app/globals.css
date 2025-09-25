@@ -17,6 +17,24 @@
   }
 }
 
+/* Arrow bounce animation */
+@keyframes arrow-bounce {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-4px);
+  }
+}
+
+.arrow-bounce-hover {
+  transition: transform 0.2s ease;
+}
+
+.arrow-bounce-hover:hover {
+  animation: arrow-bounce 1s ease-in-out infinite;
+}
+
 /* Prevent browser back/forward navigation gestures */
 html,
 body {
