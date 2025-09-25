@@ -10,7 +10,7 @@ import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
 import BookPageContent from "./BookPageContent";
-import { useControls } from "leva";
+import { folder, useControls } from "leva";
 import { useSpring, animated } from "@react-spring/web";
 import { cn } from "@/lib/utils";
 
@@ -112,6 +112,7 @@ const Cursor = () => {
   const [pressed, setPressed] = useState(false);
   const [text, setText] = useState("Focus Book");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isBlinking, setIsBlinking] = useState(false);
 
   const style = useSpring({
     x: mousePosition.x,
@@ -146,6 +147,51 @@ const Cursor = () => {
     }, TIME);
   }, [focusedBookId]);
 
+  // Periodic blinking
+  useEffect(() => {
+    const blink = () => {
+      const doubleBlinkChance = Math.random() > 0.7; // 30% chance for double blink
+
+      setIsBlinking(true);
+      setTimeout(() => {
+        setIsBlinking(false);
+
+        if (doubleBlinkChance) {
+          // Second blink after a short pause
+          setTimeout(() => {
+            setIsBlinking(true);
+            setTimeout(() => {
+              setIsBlinking(false);
+            }, 120);
+          }, 150);
+        }
+      }, 120);
+    };
+
+    // Start blinking after random initial delay
+    const initialDelay = 2000 + Math.random() * 3000;
+    const timeoutId = setTimeout(() => {
+      blink();
+      // Set up recurring blinks
+      const intervalId = setInterval(
+        () => {
+          blink();
+        },
+        3000 + Math.random() * 4000
+      ); // Blink every 3-7 seconds
+
+      // Store interval ID for cleanup
+      (window as any).blinkIntervalId = intervalId;
+    }, initialDelay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if ((window as any).blinkIntervalId) {
+        clearInterval((window as any).blinkIntervalId);
+      }
+    };
+  }, []);
+
   const eyeSpring = useSpring({
     // Invert X so eyes look back towards center horizontally
     x: Math.max(Math.min(1 - mousePosition.nx, 1), 0),
@@ -175,20 +221,28 @@ const Cursor = () => {
       // Apply Y distance scaling (full effect at edges, none at center)
       return (baseRotation * yFromCenter) / 2;
     })(),
-    // Scale irises based on distance from center (0.3 at center, 1 at edges)
-    scale: (() => {
-      const xFromCenter = Math.abs(mousePosition.nx - 0.5) * 2;
-      const yFromCenter = Math.abs(mousePosition.ny - 0.5) * 2;
-      // Use the maximum distance from center (circular distance)
-      const distanceFromCenter = Math.min(
-        Math.sqrt(xFromCenter * xFromCenter + yFromCenter * yFromCenter) /
-          Math.sqrt(2),
-        1
-      );
-      // Scale from 0.3 at center to 1 at edges
-      return distanceFromCenter;
-    })(),
     config: { tension: 400, friction: 25, mass: 1 },
+  });
+
+  const irisSpring = useSpring({
+    scale: isBlinking ? 0.05 : 1,
+    config: { tension: 400, friction: 25, mass: 1 },
+  });
+
+  const { enableBlinking, enableIris } = useControls("UI", {
+    cursor: folder(
+      {
+        enableIris: {
+          label: "Eyes",
+          value: true,
+        },
+        enableBlinking: {
+          label: "Blinking",
+          value: true,
+        },
+      },
+      { collapsed: true }
+    ),
   });
 
   return (
@@ -246,19 +300,19 @@ const Cursor = () => {
             }}
             transform="translate(46.6 49)"
           >
-            <animated.ellipse
-              cx="0"
-              cy="0"
-              rx="2"
-              ry="2.5"
-              fill="#F2EFE9"
-              style={{
-                rotateZ: eyeSpring.rot.to([-1, 1], [-45, 45]),
-                scaleY: eyeSpring.scale
-                  .to([0, 0.5], [0.7, 1])
-                  .to((scale) => Math.min(scale, 1)),
-              }}
-            />
+            {enableIris && (
+              <animated.ellipse
+                cx="0"
+                cy="0"
+                rx="2"
+                ry="2.5"
+                fill="#F2EFE9"
+                style={{
+                  rotateZ: eyeSpring.rot.to([-1, 1], [-45, 45]),
+                  scaleY: enableBlinking ? irisSpring.scale : 1,
+                }}
+              />
+            )}
           </animated.g>
           <animated.g
             style={{
@@ -271,19 +325,19 @@ const Cursor = () => {
             }}
             transform="translate(35.6 49)"
           >
-            <animated.ellipse
-              cx="0"
-              cy="0"
-              rx="2"
-              ry="2.5"
-              style={{
-                rotateZ: eyeSpring.rot.to([-1, 1], [-45, 45]),
-                scaleY: eyeSpring.scale
-                  .to([0, 0.5], [0.7, 1])
-                  .to((scale) => Math.min(scale, 1)),
-              }}
-              fill="#F2EFE9"
-            />
+            {enableIris && (
+              <animated.ellipse
+                cx="0"
+                cy="0"
+                rx="2"
+                ry="2.5"
+                style={{
+                  rotateZ: eyeSpring.rot.to([-1, 1], [-45, 45]),
+                  scaleY: enableBlinking ? irisSpring.scale : 1,
+                }}
+                fill="#F2EFE9"
+              />
+            )}
           </animated.g>
         </svg>
       </div>
