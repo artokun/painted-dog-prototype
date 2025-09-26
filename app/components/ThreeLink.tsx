@@ -62,6 +62,7 @@ export const ThreeLink = ({
       onMouseDown={handleMouseDown}
       className={cn(
         "appearance-none cursor-pointer relative inline-block overflow-hidden",
+        href && !animatedUnderline && "underline",
         animatedUnderline && "pb-1",
         className
       )}
