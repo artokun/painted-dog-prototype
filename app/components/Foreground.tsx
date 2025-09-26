@@ -5,7 +5,7 @@ import { FloatingBar } from "./FloatingBar";
 import { Loader } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
@@ -139,6 +139,7 @@ const Cursor = () => {
         setFlipPressed(true);
         setTimeout(() => setFlipPressed(false), 200);
       }
+      blink(true);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -161,27 +162,27 @@ const Cursor = () => {
     }, TIME);
   }, [focusedBookId]);
 
+  const blink = useCallback((blinkOnce = false) => {
+    const doubleBlinkChance = Math.random() > 0.7; // 30% chance for double blink
+
+    setIsBlinking(true);
+    setTimeout(() => {
+      setIsBlinking(false);
+
+      if (doubleBlinkChance && !blinkOnce) {
+        // Second blink after a short pause
+        setTimeout(() => {
+          setIsBlinking(true);
+          setTimeout(() => {
+            setIsBlinking(false);
+          }, 120);
+        }, 150);
+      }
+    }, 120);
+  }, []);
+
   // Periodic blinking
   useEffect(() => {
-    const blink = () => {
-      const doubleBlinkChance = Math.random() > 0.7; // 30% chance for double blink
-
-      setIsBlinking(true);
-      setTimeout(() => {
-        setIsBlinking(false);
-
-        if (doubleBlinkChance) {
-          // Second blink after a short pause
-          setTimeout(() => {
-            setIsBlinking(true);
-            setTimeout(() => {
-              setIsBlinking(false);
-            }, 120);
-          }, 150);
-        }
-      }, 120);
-    };
-
     // Start blinking after random initial delay
     const initialDelay = 2000 + Math.random() * 3000;
     const timeoutId = setTimeout(() => {
@@ -191,8 +192,8 @@ const Cursor = () => {
         () => {
           blink();
         },
-        3000 + Math.random() * 4000
-      ); // Blink every 3-7 seconds
+        10000 + Math.random() * 10000
+      ); // Blink every 10-17 seconds
 
       // Store interval ID for cleanup
       (window as any).blinkIntervalId = intervalId;
