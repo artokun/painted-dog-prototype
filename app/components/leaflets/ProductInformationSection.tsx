@@ -1,6 +1,7 @@
 import { useSnapshot } from "valtio";
 import { bookStore } from "@/app/store/bookStore";
 import { Fragment } from "react";
+import { MarkdownParagraph } from "@/app/components/Markdown";
 
 export const ProductInformationSection = () => {
   const { books, focusedBookId } = useSnapshot(bookStore);
@@ -16,7 +17,7 @@ export const ProductInformationSection = () => {
       {book.prices.map((price) => (
         <div key={price.id}>
           <h2 className="text-2xl font-medium mb-4">{price.text}</h2>
-          <p className="whitespace-pre-wrap">{price.description}</p>
+          <MarkdownParagraph content={price.description || ""} />
 
           {price.productInformation && (
             <div

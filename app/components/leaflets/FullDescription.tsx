@@ -1,5 +1,6 @@
 import { useSnapshot } from "valtio";
 import { bookStore } from "@/app/store/bookStore";
+import { MarkdownParagraph } from "@/app/components/Markdown";
 
 export const FullDescriptionSection = () => {
   const { books, focusedBookId } = useSnapshot(bookStore);
@@ -10,7 +11,7 @@ export const FullDescriptionSection = () => {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-2xl font-medium mb-4">{book?.title}</h2>
-      <p className="whitespace-pre-wrap">{book?.description}</p>
+      <MarkdownParagraph content={book?.description || ""} />
     </div>
   );
 };

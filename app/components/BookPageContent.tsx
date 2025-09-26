@@ -45,6 +45,19 @@ const menuItems = [
 const ENTRY = 300;
 const EXIT = 0;
 
+// Format author names with proper comma and ampersand usage
+function formatAuthorNames(authors: { fullName: string }[]): string {
+  if (!authors || authors.length === 0) return "";
+  if (authors.length === 1) return authors[0].fullName;
+  if (authors.length === 2) {
+    return `${authors[0].fullName} & ${authors[1].fullName}`;
+  }
+  // More than 2 authors: use commas and ampersand before the last one
+  const allButLast = authors.slice(0, -1).map(a => a.fullName).join(", ");
+  const last = authors[authors.length - 1].fullName;
+  return `${allButLast} & ${last}`;
+}
+
 export default function BookPageContent() {
   const { focusedBookId } = useSnapshot(bookStore);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -143,9 +156,7 @@ export default function BookPageContent() {
                     )}
                   >
                     {index === 1
-                      ? book?.authors
-                          .map((author) => author.fullName)
-                          .join(", ")
+                      ? formatAuthorNames(book?.authors || [])
                       : menuItems[index]}
                   </span>
                   <span

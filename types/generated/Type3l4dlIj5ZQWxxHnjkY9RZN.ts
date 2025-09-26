@@ -1,12 +1,13 @@
 import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleCode } from "contentful";
 
 export interface Type3l4dlIj5ZQWxxHnjkY9RZNFields {
-    title: EntryFieldTypes.Symbol;
+    title?: EntryFieldTypes.Symbol;
     excerpt: EntryFieldTypes.Text;
     criticName: EntryFieldTypes.Symbol;
     publishDate: EntryFieldTypes.Date;
-    externalLink: EntryFieldTypes.Symbol;
+    externalLink?: EntryFieldTypes.Symbol;
     isFeatured?: EntryFieldTypes.Boolean;
+    outletName?: EntryFieldTypes.EntryLink<EntrySkeletonType>;
 }
 
 export type Type3l4dlIj5ZQWxxHnjkY9RZNSkeleton = EntrySkeletonType<Type3l4dlIj5ZQWxxHnjkY9RZNFields, "3l4dlIj5ZQWxxHnjkY9RZN">;

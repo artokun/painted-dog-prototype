@@ -1,5 +1,6 @@
 import { useSnapshot } from "valtio";
 import { bookStore } from "@/app/store/bookStore";
+import { Markdown } from "@/app/components/Markdown";
 
 export const AuthorsSection = () => {
   const { books, focusedBookId } = useSnapshot(bookStore);
@@ -13,7 +14,7 @@ export const AuthorsSection = () => {
         <div key={author.id}>
           <h6 className="text-sm">Author</h6>
           <h2 className="text-2xl font-medium mb-8">{author.fullName}</h2>
-          <p className="whitespace-pre-wrap">{author.biography}</p>
+          <Markdown content={author.biography || ""} className="text-base" />
         </div>
       ))}
     </div>

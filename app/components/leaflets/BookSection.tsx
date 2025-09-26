@@ -1,6 +1,6 @@
 import { useSnapshot } from "valtio";
 import { bookStore } from "@/app/store/bookStore";
-import { truncateWords } from "@/app/utils/book";
+import { MarkdownParagraph } from "@/app/components/Markdown";
 
 export const BookSection = ({
   setSelectedIndex,
@@ -12,11 +12,6 @@ export const BookSection = ({
 
   if (!book) return null;
 
-  const { truncated, isTruncated } = truncateWords(
-    book?.description || "",
-    145
-  );
-
   return (
     <div className="flex flex-col gap-2">
       <h2 className="text-2xl font-medium">{book?.title}</h2>
@@ -25,17 +20,13 @@ export const BookSection = ({
           ISBN&nbsp;: {book.isbn}
         </p>
       )}
-      <p className="whitespace-pre-wrap">
-        {truncated}
-        {isTruncated && setSelectedIndex && (
-          <button
-            onClick={() => setSelectedIndex(6)}
-            className="ml-1 font-medium underline cursor-pointer"
-          >
-            Read More
-          </button>
-        )}
-      </p>
+      <MarkdownParagraph
+        content={book?.description || ""}
+        truncate={true}
+        truncateLength={145}
+        truncateBy="words"
+        onReadMore={setSelectedIndex ? () => setSelectedIndex(6) : undefined}
+      />
     </div>
   );
 };

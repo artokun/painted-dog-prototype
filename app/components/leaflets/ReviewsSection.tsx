@@ -2,6 +2,7 @@ import { useSnapshot } from "valtio";
 import { bookStore } from "@/app/store/bookStore";
 import Link from "next/link";
 import { PDButton } from "../ui/PDButton";
+import { MarkdownParagraph } from "@/app/components/Markdown";
 
 export const ReviewsSection = () => {
   const { books, focusedBookId } = useSnapshot(bookStore);
@@ -17,16 +18,28 @@ export const ReviewsSection = () => {
         {book?.reviews.length > 0 ? (
           book?.reviews.map((review) => (
             <div className="flex flex-col gap-2" key={review.id}>
-              <p className="whitespace-pre-wrap">{review.excerpt}</p>
-              <div className="flex justify-end">
-                <Link
-                  href={review.externalLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="uppercase text-sm"
-                >
+              <MarkdownParagraph content={review.excerpt || ""} />
+              <div className="flex flex-col items-end">
+                <span className="uppercase text-sm">
                   {review.criticName}
-                </Link>
+                  {review.externalLink ? ", " : ""}
+                </span>
+                {review.externalLink && (
+                  <span className="flex items-center gap-1">
+                    <Link
+                      href={review.externalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-sm"
+                    >
+                      {review.title
+                        ? review.title
+                        : (new URL(review.externalLink).hostname ??
+                          "Link to review")}
+                    </Link>
+                    , {new Date(review.publishDate).getFullYear()}
+                  </span>
+                )}
               </div>
             </div>
           ))

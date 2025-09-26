@@ -1,0 +1,256 @@
+"use client";
+
+import React from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { cn } from "@/lib/utils";
+
+interface MarkdownProps {
+  content: string;
+  className?: string;
+  truncate?: boolean;
+  truncateLength?: number;
+  truncateBy?: "words" | "characters";
+  onReadMore?: () => void;
+  components?: Record<string, React.ComponentType<any>>;
+}
+
+function truncateText(
+  text: string,
+  length: number,
+  by: "words" | "characters" = "words"
+): { truncated: string; isTruncated: boolean } {
+  if (by === "characters") {
+    const isTruncated = text.length > length;
+    return {
+      truncated: isTruncated ? text.slice(0, length) + "..." : text,
+      isTruncated,
+    };
+  }
+
+  // Truncate by words while preserving all whitespace patterns
+  // Match sequences of non-whitespace (words) and capture everything between them
+  const wordRegex = /\S+/g;
+  const words: RegExpExecArray[] = [];
+  let match: RegExpExecArray | null;
+
+  while ((match = wordRegex.exec(text)) !== null) {
+    words.push(match);
+    if (words.length >= length) {
+      // We have enough words, truncate here
+      const lastWordEnd = match.index + match[0].length;
+      return {
+        truncated: text.slice(0, lastWordEnd) + "...",
+        isTruncated: true,
+      };
+    }
+  }
+
+  // Text has fewer words than the limit
+  return {
+    truncated: text,
+    isTruncated: false,
+  };
+}
+
+export function Markdown({
+  content,
+  className = "",
+  truncate = false,
+  truncateLength = 50,
+  truncateBy = "words",
+  onReadMore,
+  components = {},
+}: MarkdownProps) {
+  // Convert straight quotes to curly quotes
+  const processedContent = content
+    .replace(/"([^"]*)"/g, '"$1"') // Replace "quoted text" with curly quotes
+    .replace(/'([^']*)'/g, "'$1'"); // Replace 'quoted text' with curly single quotes
+
+  const { truncated: displayContent, isTruncated } = truncate
+    ? truncateText(processedContent, truncateLength, truncateBy)
+    : { truncated: processedContent, isTruncated: false };
+
+  const defaultComponents: Components = {
+    // Paragraphs with proper spacing
+    p: (props) => <p className="mb-4 last:mb-0">{props.children}</p>,
+    // Headers with appropriate sizing
+    h1: (props) => (
+      <h1 className="text-2xl font-bold mb-4 mt-6 first:mt-0">
+        {props.children}
+      </h1>
+    ),
+    h2: (props) => (
+      <h2 className="text-xl font-bold mb-3 mt-5 first:mt-0">
+        {props.children}
+      </h2>
+    ),
+    h3: (props) => (
+      <h3 className="text-lg font-bold mb-2 mt-4 first:mt-0">
+        {props.children}
+      </h3>
+    ),
+    h4: (props) => (
+      <h4 className="text-base font-bold mb-2 mt-3 first:mt-0">
+        {props.children}
+      </h4>
+    ),
+    // Lists with proper indentation
+    ul: (props) => (
+      <ul className="list-disc pl-6 mb-4 space-y-1">{props.children}</ul>
+    ),
+    ol: (props) => (
+      <ol className="list-decimal pl-6 mb-4 space-y-1">{props.children}</ol>
+    ),
+    li: (props) => <li className="leading-relaxed">{props.children}</li>,
+    // Links with styling
+    a: (props) => (
+      <a
+        {...props}
+        target={props.target ?? "_blank"}
+        rel={props.rel ?? "noopener noreferrer"}
+        className={cn(
+          "underline hover:opacity-70 transition-opacity",
+          props.className
+        )}
+      />
+    ),
+    // Code blocks
+    pre: (props) => (
+      <pre className="bg-gray-100 dark:bg-gray-800 rounded p-3 mb-4 overflow-x-auto">
+        {props.children}
+      </pre>
+    ),
+    code: (props) => (
+      <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm">
+        {props.children}
+      </code>
+    ),
+    // Blockquotes with curly quotes - inline style without border
+    blockquote: (props) => {
+      // The children will be a <p> element from the markdown parser
+      // We need to extract its content and render it inline
+      const childArray = React.Children.toArray(props.children);
+      const content = childArray.map((child) => {
+        if (
+          React.isValidElement<{ children?: React.ReactNode }>(child) &&
+          child.type === "p"
+        ) {
+          // Return just the content of the p tag, not the p tag itself
+          return child.props.children;
+        }
+        return child;
+      });
+
+      return <span className="italic">&lquot;{content}&rquot;</span>;
+    },
+    // Horizontal rules
+    hr: () => <hr className="my-6 border-gray-300 dark:border-gray-700" />,
+    // Strong and emphasis
+    strong: (props) => <strong className="font-bold">{props.children}</strong>,
+    em: (props) => <em className="italic">{props.children}</em>,
+    // Tables (GitHub-flavored markdown)
+    table: (props) => (
+      <div className="overflow-x-auto mb-4">
+        <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+          {props.children}
+        </table>
+      </div>
+    ),
+    thead: (props) => (
+      <thead className="bg-gray-50 dark:bg-gray-800">{props.children}</thead>
+    ),
+    tbody: (props) => (
+      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+        {props.children}
+      </tbody>
+    ),
+    tr: (props) => <tr>{props.children}</tr>,
+    th: (props) => (
+      <th className="px-3 py-2 text-left text-sm font-semibold">
+        {props.children}
+      </th>
+    ),
+    td: (props) => <td className="px-3 py-2 text-sm">{props.children}</td>,
+    // Images with responsive sizing
+    img: (props) => (
+      <img
+        {...props}
+        alt={props.alt ?? ""}
+        className={cn("max-w-full h-auto rounded my-4", props.className)}
+      />
+    ),
+  };
+
+  const mergedComponents = { ...defaultComponents, ...components };
+
+  return (
+    <div className={cn("prose prose-black max-w-none", className)}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mergedComponents}>
+        {displayContent}
+      </ReactMarkdown>
+      {isTruncated && onReadMore && (
+        <button
+          onClick={onReadMore}
+          className="ml-1 font-medium underline cursor-pointer inline-block"
+        >
+          Read More
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Export a variant specifically for preserving whitespace (like the original paragraph)
+export function MarkdownParagraph({
+  content,
+  className = "",
+  truncate = false,
+  truncateLength = 50,
+  truncateBy = "words",
+  onReadMore,
+}: Omit<MarkdownProps, "components">) {
+  // We want to parse markdown but preserve whitespace
+  return (
+    <Markdown
+      content={content}
+      className={cn("whitespace-pre-wrap", className)}
+      truncate={truncate}
+      truncateLength={truncateLength}
+      truncateBy={truncateBy}
+      onReadMore={onReadMore}
+      components={{
+        // Override paragraph to preserve whitespace and paragraph breaks
+        p: ({ children }: { children: React.ReactNode }) => (
+          <p className="whitespace-pre-wrap">{children}</p>
+        ),
+        // Blockquotes with curly quotes - inline for reviews
+        blockquote: (props) => {
+          // Extract text content from nested elements
+          const extractText = (node: React.ReactNode): string => {
+            if (typeof node === "string") {
+              return node;
+            }
+            if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+              const childArray = React.Children.toArray(node.props.children);
+              return childArray.map((child) => extractText(child)).join("");
+            }
+            if (Array.isArray(node)) {
+              return node.map((child) => extractText(child)).join("");
+            }
+            return "";
+          };
+
+          const textContent = extractText(props.children).trim();
+
+          return <span className="italic">"{textContent}"</span>;
+        },
+        // Ensure emphasis and strong work properly
+        em: (props) => <em className="italic">{props.children}</em>,
+        strong: (props) => (
+          <strong className="font-bold">{props.children}</strong>
+        ),
+      }}
+    />
+  );
+}
