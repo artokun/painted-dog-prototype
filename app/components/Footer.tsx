@@ -19,7 +19,7 @@ export const Footer = () => {
   return (
     <section
       className={cn(
-        "flex flex-col items-center justify-end relative w-dvw h-[50dvh] top-[25dvh] pointer-events-none p-6 transition-opacity duration-300",
+        "flex flex-col w-full items-center justify-end pointer-events-none p-6 mt-15 transition-opacity duration-300",
         someBookIsFocused ? "opacity-0" : "opacity-100"
       )}
     >

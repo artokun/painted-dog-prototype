@@ -4,7 +4,7 @@ import { AdaptiveDpr, Scroll, ScrollControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import App from "./App";
 import * as THREE from "three";
-import { Suspense } from "react";
+import { forwardRef, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Footer } from "../Footer";
 import { cn } from "@/lib/utils";
 import { bookStore } from "@/app/store/bookStore";
@@ -13,8 +13,66 @@ import { AddToCalendarButton } from "../ui/AddToCalendarButton";
 import { NewsletterForm } from "../ui/NewsletterForm";
 import { PDButton } from "../ui/PDButton";
 import { ShoppingCartIcon } from "../icons/ShoppingCart";
+import { animated, config, useSpring } from "@react-spring/web";
+import { globalStore } from "@/app/store/globalStore";
+import debounce from "lodash.debounce";
 
 export const Middle = () => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [windowHeight, setWindowHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const { isRendered } = useSnapshot(bookStore);
+
+  // Update window height on resize with debouncing
+  useEffect(() => {
+    const updateHeights = () => {
+      setWindowHeight(window.innerHeight);
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.scrollHeight);
+      }
+    };
+
+    // Create debounced version with 150ms delay
+    const debouncedUpdateHeights = debounce(updateHeights, 150);
+
+    // Calculate heights when isRendered changes or on mount
+    if (isRendered) {
+      updateHeights();
+    }
+
+    // Window resize with debounce
+    window.addEventListener('resize', debouncedUpdateHeights);
+
+    // Also observe content changes with debounce
+    const observer = new ResizeObserver(debouncedUpdateHeights);
+    if (contentRef.current) {
+      observer.observe(contentRef.current);
+    }
+
+    return () => {
+      debouncedUpdateHeights.cancel(); // Cancel any pending debounced calls
+      window.removeEventListener('resize', debouncedUpdateHeights);
+      observer.disconnect();
+    };
+  }, [isRendered]);
+
+  // Calculate pages based on actual content height and viewport
+  const pages = useMemo(() => {
+    if (!windowHeight || !contentHeight) return 1.75;
+
+    // Account for the 75vh offset (content starts at 75vh)
+    // Total scrollable distance = 75vh (to reach content) + content height
+    const totalScrollDistance = (windowHeight * 0.75) + contentHeight;
+    const calculatedPages = totalScrollDistance / windowHeight;
+
+    return Math.max(calculatedPages, 1.5); // Minimum 1.5 pages
+  }, [windowHeight, contentHeight]);
+
+  // Update global store with pages value
+  useEffect(() => {
+    globalStore.scrollPages = pages;
+  }, [pages]);
+
   return (
     <div id="middle" className="absolute inset-0 top-0 left-0 z-10">
       <Canvas
@@ -31,11 +89,10 @@ export const Middle = () => {
         }}
       >
         <Suspense fallback={null}>
-          <ScrollControls pages={1.75} damping={0.1}>
+          <ScrollControls pages={pages} damping={0.1}>
             <App />
             <Scroll html pixelPerfect>
-              <TempAcceleratedContent />
-              <Footer />
+              <TempAcceleratedContent ref={contentRef} />
             </Scroll>
           </ScrollControls>
         </Suspense>
@@ -45,18 +102,24 @@ export const Middle = () => {
   );
 };
 
-const TempAcceleratedContent = () => {
-  const { focusedBookId } = useSnapshot(bookStore);
-  const someBookIsFocused = focusedBookId !== null;
+const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
+  const { currentRoute } = useSnapshot(globalStore);
+  const isHomePage = currentRoute === "/";
+
+  const styles = useSpring({
+    opacity: !isHomePage ? 0 : 1,
+  });
 
   return (
-    <section
+    <animated.section
+      ref={ref}
+      style={styles}
       className={cn(
-        "relative max-w-3xl mx-auto top-[calc(75vh)] h-[100dvh] text-black flex flex-col gap-10 p-4 transition-opacity duration-300",
-        someBookIsFocused && "opacity-0 pointer-events-none"
+        "relative w-dvw top-[75vh] text-black flex flex-col gap-10",
+        !isHomePage && "pointer-events-none"
       )}
     >
-      <div className="flex gap-12 justify-around mx-auto">
+      <div className="flex gap-12 justify-around mx-auto max-w-3xl">
         <div className="flex-1 flex flex-col gap-3">
           <p className="text-lg font-medium">
             An expansive publication in full colour showcasing decades&apos;
@@ -97,7 +160,7 @@ const TempAcceleratedContent = () => {
         </div>
       </div>
       <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pb-3" />
-      <div className="flex gap-10">
+      <div className="flex gap-10 max-w-3xl mx-auto">
         <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">New Publisher, New Tricks</h3>
           <p>
@@ -132,6 +195,7 @@ const TempAcceleratedContent = () => {
           <NewsletterForm />
         </article>
       </div>
-    </section>
+      <Footer />
+    </animated.section>
   );
-};
+});
