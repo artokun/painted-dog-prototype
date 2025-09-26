@@ -113,6 +113,7 @@ const Cursor = () => {
   const [text, setText] = useState("Focus Book");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isBlinking, setIsBlinking] = useState(false);
+  const [flipPressed, setFlipPressed] = useState(false);
 
   const style = useSpring({
     x: mousePosition.x,
@@ -131,9 +132,22 @@ const Cursor = () => {
         ny: e.clientY / window.innerHeight,
       });
     };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      // Only trigger flip animation if a book is focused and cursor is hovering
+      if (focusedBookId && hoveredBookId === focusedBookId) {
+        setFlipPressed(true);
+        setTimeout(() => setFlipPressed(false), 200);
+      }
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [isRendered]);
+    window.addEventListener("mousedown", handleMouseDown);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousedown", handleMouseDown);
+    };
+  }, [isRendered, focusedBookId, hoveredBookId]);
 
   useEffect(() => {
     const TIME = 200;
@@ -254,7 +268,13 @@ const Cursor = () => {
         className={cn(
           "flex items-center justify-cente rounded-full text-white w-full h-full text-center leading-none transition-all duration-200",
           hoveredBookId ? "opacity-100" : "opacity-0",
-          pressed ? "scale-50" : hoveredBookId ? "scale-100" : "scale-0"
+          hoveredBookId
+            ? pressed
+              ? "scale-50"
+              : flipPressed
+                ? "scale-90"
+                : "scale-100"
+            : "scale-0"
         )}
       >
         <svg
