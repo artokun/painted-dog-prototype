@@ -13,6 +13,8 @@ import BookPageContent from "./BookPageContent";
 import { folder, useControls } from "leva";
 import { useSpring, animated } from "@react-spring/web";
 import { cn } from "@/lib/utils";
+import { ContactPageContent } from "./ContactPageContent";
+import { Footer } from "./Footer";
 
 export const Foreground = () => {
   const router = useRouter();
@@ -96,6 +98,7 @@ export const Foreground = () => {
       {showFloatingBar && <FloatingBar />}
       <BookPageContent />
       <Cursor />
+      <ContactPageContent />
       <Loader />
     </div>
   );

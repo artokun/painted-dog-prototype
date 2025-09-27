@@ -15,10 +15,12 @@ export const ThreeLink = ({
   children,
   className,
   animatedUnderline = false,
+  noUnderline = false,
 }: LinkProps<"a"> & {
   children: ReactNode;
   className?: string;
   animatedUnderline?: boolean;
+  noUnderline?: boolean;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -62,7 +64,7 @@ export const ThreeLink = ({
       onMouseDown={handleMouseDown}
       className={cn(
         "appearance-none cursor-pointer relative inline-block overflow-hidden",
-        href && !animatedUnderline && "underline",
+        href && !animatedUnderline && !noUnderline && "underline",
         animatedUnderline && "pb-1",
         className
       )}

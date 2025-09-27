@@ -4,7 +4,14 @@ import { AdaptiveDpr, Scroll, ScrollControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import App from "./App";
 import * as THREE from "three";
-import { forwardRef, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Footer } from "../Footer";
 import { cn } from "@/lib/utils";
 import { bookStore } from "@/app/store/bookStore";
@@ -16,6 +23,7 @@ import { ShoppingCartIcon } from "../icons/ShoppingCart";
 import { animated, config, useSpring } from "@react-spring/web";
 import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";
+import { ContactPageContent } from "../ContactPageContent";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -41,7 +49,7 @@ export const Middle = () => {
     }
 
     // Window resize with debounce
-    window.addEventListener('resize', debouncedUpdateHeights);
+    window.addEventListener("resize", debouncedUpdateHeights);
 
     // Also observe content changes with debounce
     const observer = new ResizeObserver(debouncedUpdateHeights);
@@ -51,7 +59,7 @@ export const Middle = () => {
 
     return () => {
       debouncedUpdateHeights.cancel(); // Cancel any pending debounced calls
-      window.removeEventListener('resize', debouncedUpdateHeights);
+      window.removeEventListener("resize", debouncedUpdateHeights);
       observer.disconnect();
     };
   }, [isRendered]);
@@ -62,7 +70,7 @@ export const Middle = () => {
 
     // Account for the 75vh offset (content starts at 75vh)
     // Total scrollable distance = 75vh (to reach content) + content height
-    const totalScrollDistance = (windowHeight * 0.75) + contentHeight;
+    const totalScrollDistance = windowHeight * 0.75 + contentHeight;
     const calculatedPages = totalScrollDistance / windowHeight;
 
     return Math.max(calculatedPages, 1.5); // Minimum 1.5 pages
