@@ -1,5 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { getLegalPageData } from "@/lib/legal";
+import { LegalPageInitializer } from "@/app/components/LegalPageInitializer";
 
 export const revalidate = 300;
 
@@ -26,8 +27,26 @@ export async function generateMetadata(
 }
 
 const Page = async () => {
-  await getLegalPageData();
-  return null;
+  const legalPage = await getLegalPageData();
+
+  if (!legalPage) {
+    return (
+      <LegalPageInitializer
+        data={{
+          title: "Privacy & Legal Policy",
+          policies: [],
+        }}
+      />
+    );
+  }
+
+  const formattedData = {
+    title: legalPage.title || "Privacy & Legal Policy",
+    slug: legalPage.slug || undefined,
+    policies: legalPage.policies || [],
+  };
+
+  return <LegalPageInitializer data={formattedData} />;
 };
 
 export default Page;

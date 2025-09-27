@@ -8,31 +8,15 @@ import { ThreeLink } from "./ThreeLink";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useSnapshot } from "valtio";
+import { legalStore } from "@/app/store/legalStore";
 
-interface Policy {
+interface SectionAnchor {
   id: string;
   navTitle: string;
   title: string;
   content: string;
-}
-
-interface SectionAnchor extends Policy {
   anchor: string;
-}
-
-interface LegalPageState {
-  title: string;
-  slug?: string;
-  policies: Policy[];
-}
-
-interface LegalApiResponse {
-  success: boolean;
-  data: {
-    title?: string;
-    slug?: string;
-    policies?: Policy[];
-  } | null;
 }
 
 const SectionLink = ({
@@ -64,8 +48,7 @@ const SectionLink = ({
 );
 
 export const LegalPageContent = ({ visible }: { visible: boolean }) => {
-  const [legalPage, setLegalPage] = useState<LegalPageState | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { legalPage, isLoading } = useSnapshot(legalStore);
   const [activeAnchor, setActiveAnchor] = useState<string | null>(null);
   const [showContent, setShowContent] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -117,55 +100,6 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
       }
     },
   });
-
-  useEffect(() => {
-    let isMounted = true;
-    const controller = new AbortController();
-
-    const loadLegalPage = async () => {
-      try {
-        const response = await fetch("/api/legal", {
-          signal: controller.signal,
-        });
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
-        }
-
-        const payload = (await response.json()) as LegalApiResponse;
-        if (!isMounted || !payload.success || !payload.data) {
-          return;
-        }
-
-        const policies = Array.isArray(payload.data.policies)
-          ? payload.data.policies.filter(
-              (policy): policy is Policy =>
-                Boolean(policy) && typeof policy.id === "string"
-            )
-          : [];
-
-        setLegalPage({
-          title: payload.data.title ?? "Privacy & Legal Policy",
-          slug: payload.data.slug ?? undefined,
-          policies,
-        });
-      } catch (error) {
-        if ((error as Error)?.name !== "AbortError") {
-          console.error("Failed to load legal page data:", error);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadLegalPage();
-
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, []);
 
   const policies = useMemo(
     () => legalPage?.policies ?? [],
