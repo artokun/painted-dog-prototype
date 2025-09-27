@@ -14,12 +14,15 @@ import { folder, useControls } from "leva";
 import { useSpring, animated } from "@react-spring/web";
 import { cn } from "@/lib/utils";
 import { ContactPageContent } from "./ContactPageContent";
-import { Footer } from "./Footer";
+import { LegalPageContent } from "./LegalPageContent";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
+  const { currentRoute } = useSnapshot(globalStore);
+  const isContactPage = currentRoute === "/contact";
+  const isLegalPage = currentRoute === "/legal";
 
   const { showFloatingBar } = useControls(
     "UI",
@@ -98,7 +101,8 @@ export const Foreground = () => {
       {showFloatingBar && <FloatingBar />}
       <BookPageContent />
       <Cursor />
-      <ContactPageContent />
+      <ContactPageContent visible={isContactPage} />
+      <LegalPageContent visible={isLegalPage} />
       <Loader />
     </div>
   );

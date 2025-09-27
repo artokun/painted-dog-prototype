@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ThreeLink } from "../ThreeLink";
-import { LinkProps } from "next/link";
-import { ButtonHTMLAttributes, forwardRef, useRef } from "react";
+import { forwardRef, useRef } from "react";
 import NextLink from "next/link";
 
 interface PDButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -87,33 +86,27 @@ export const PDButton = forwardRef<HTMLInputElement | HTMLButtonElement, PDButto
     );
   }
 
-  const Component = (
-    target || download ? NextLink : href ? ThreeLink : "button"
-  ) as React.ComponentType<
-    LinkProps<"a"> | ButtonHTMLAttributes<HTMLButtonElement>
-  >;
+  const Component: any = target || download ? NextLink : href ? ThreeLink : "button";
 
-  let componentProps;
+  let componentProps: Record<string, unknown>;
   if (target || download) {
-    // NextLink renders as <a>, don't pass noUnderline
-    const { noUnderline: _, ...restProps } = props;
     componentProps = {
-      href,
+      href: href ?? "#",
       download,
       target,
       rel,
-      ...restProps,
-    } as LinkProps<"a">;
+      ...props,
+    };
   } else if (href) {
     // ThreeLink can handle noUnderline
     componentProps = {
       href,
       noUnderline,
       ...props,
-    } as LinkProps<"a">;
+    };
   } else {
     // Button element
-    componentProps = props as ButtonHTMLAttributes<HTMLButtonElement>;
+    componentProps = props;
   }
 
   return (

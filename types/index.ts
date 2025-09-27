@@ -72,6 +72,26 @@ export type {
   TypeLinkWithoutUnresolvableLinksResponse,
 } from "./generated/TypeLink";
 export type {
+  TypeLegalPage,
+  TypeLegalPageFields,
+  TypeLegalPageSkeleton,
+  TypeLegalPageWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypeLegalPageWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypeLegalPageWithAllLocalesResponse,
+  TypeLegalPageWithoutLinkResolutionResponse,
+  TypeLegalPageWithoutUnresolvableLinksResponse,
+} from "./generated/TypeLegalPage";
+export type {
+  TypePolicy,
+  TypePolicyFields,
+  TypePolicySkeleton,
+  TypePolicyWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypePolicyWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypePolicyWithAllLocalesResponse,
+  TypePolicyWithoutLinkResolutionResponse,
+  TypePolicyWithoutUnresolvableLinksResponse,
+} from "./generated/TypePolicy";
+export type {
   TypePrice,
   TypePriceFields,
   TypePriceSkeleton,

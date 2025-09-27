@@ -23,7 +23,6 @@ import { ShoppingCartIcon } from "../icons/ShoppingCart";
 import { animated, config, useSpring } from "@react-spring/web";
 import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";
-import { ContactPageContent } from "../ContactPageContent";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -113,9 +112,11 @@ export const Middle = () => {
 const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   const { currentRoute } = useSnapshot(globalStore);
   const isHomePage = currentRoute === "/";
+  const isContactPage = currentRoute === "/contact";
+  const isLegalPage = currentRoute === "/legal";
 
   const styles = useSpring({
-    opacity: !isHomePage ? 0 : 1,
+    opacity: isHomePage ? 1 : 0,
   });
 
   return (
@@ -124,7 +125,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
       style={styles}
       className={cn(
         "relative w-dvw top-[75vh] text-black flex flex-col gap-10",
-        !isHomePage && "pointer-events-none"
+        !isHomePage && !isContactPage && !isLegalPage && "pointer-events-none"
       )}
     >
       <div className="flex gap-12 justify-around mx-auto max-w-3xl">
@@ -207,3 +208,5 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
     </animated.section>
   );
 });
+
+TempAcceleratedContent.displayName = "TempAcceleratedContent";

@@ -178,6 +178,17 @@ const CameraController = memo(function CameraController() {
         lookAtTarget.current.set(distance, currentY, distance);
         break;
       }
+      case "/legal": {
+        // Rotate camera to the left for legal page
+
+        camera.position.x = lerp(camera.position.x, 0, 0.1);
+        camera.position.y = currentY;
+        camera.position.z = lerp(camera.position.z, distance, 0.1);
+
+        // Look towards the left side
+        lookAtTarget.current.set(-distance, currentY, distance);
+        break;
+      }
       default: {
         // Calculate camera position with rotation
 

@@ -5,14 +5,12 @@ import { PDButton } from "./ui/PDButton";
 import { PDInput } from "./ui/PDInput";
 import { PDTextarea } from "./ui/PDTextarea";
 import { useForm } from "react-hook-form";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { submitContactForm } from "@/app/actions/contact";
 import { submitSubmissionForm } from "@/app/actions/submission";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "./icons/ArrowRight";
 import { animated, useSpring } from "@react-spring/web";
-import { globalStore } from "../store/globalStore";
-import { useSnapshot } from "valtio";
 import { Footer } from "./Footer";
 
 enum Tab {
@@ -20,22 +18,20 @@ enum Tab {
   Submission = "submission",
 }
 
-export const ContactPageContent = () => {
-  const { currentRoute } = useSnapshot(globalStore);
+export const ContactPageContent = ({ visible }: { visible: boolean }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [tab, setTab] = useState(Tab.General);
-  const isContactPage = currentRoute === "/contact";
-  const wasContactPageRef = useRef(false);
+  const [showContent, setShowContent] = useState(false);
 
   const style = useSpring({
-    opacity: isContactPage ? 1 : 0,
-    x: isContactPage ? 0 : wasContactPageRef.current ? 100 : -100,
-    delay: !wasContactPageRef.current ? 300 : 0,
+    opacity: visible ? 1 : 0,
+    x: visible ? 0 : 100,
+    delay: visible ? 300 : 50,
     onStart: () => {
-      wasContactPageRef.current = true;
+      setShowContent(true);
     },
     onRest: () => {
-      wasContactPageRef.current = isContactPage;
+      setShowContent(visible);
     },
   });
 
@@ -43,26 +39,30 @@ export const ContactPageContent = () => {
     <animated.div
       style={style}
       className={cn(
-        "absolute inset-0 h-dvh w-dvw pointer-events-none text-black z-10 overflow-y-auto overflow-x-hidden",
-        isContactPage && "pointer-events-auto"
+        "absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden",
+        visible && "pointer-events-auto"
       )}
     >
-      <div
-        className={cn(
-          "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 px-2"
-        )}
-      >
-        {isSuccess ? (
-          <SuccessMessage onReset={() => setIsSuccess(false)} />
-        ) : (
-          <ContactPage
-            onSuccess={() => setIsSuccess(true)}
-            tab={tab}
-            setTab={setTab}
-          />
-        )}
-      </div>
-      <Footer />
+      {showContent && (
+        <>
+          <div
+            className={cn(
+              "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 px-2"
+            )}
+          >
+            {isSuccess ? (
+              <SuccessMessage onReset={() => setIsSuccess(false)} />
+            ) : (
+              <ContactPage
+                onSuccess={() => setIsSuccess(true)}
+                tab={tab}
+                setTab={setTab}
+              />
+            )}
+          </div>
+          <Footer />
+        </>
+      )}
     </animated.div>
   );
 };
@@ -405,7 +405,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
           >
             <span>
               I consent to the{" "}
-              <ThreeLink href="/terms">terms of submission</ThreeLink>.
+              <ThreeLink href="/legal#use-of-personal-information">terms of submission</ThreeLink>.
             </span>
           </PDInput>
           {errors.consent && (
@@ -424,7 +424,10 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
               <small className="text-sm block leading-tight mt-1">
                 By ticking this box, you agree to our POPI policy.
                 <br />
-                <ThreeLink href="/legal">Read it here</ThreeLink>.
+                <ThreeLink href="/legal#privacy-data-collection">
+                  Read it here
+                </ThreeLink>
+                .
               </small>
             </span>
           </PDInput>
@@ -604,7 +607,7 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         >
           <span>
             I consent to the{" "}
-            <ThreeLink href="/terms">terms of submission</ThreeLink>.
+            <ThreeLink href="/legal#use-of-personal-information">terms of submission</ThreeLink>.
           </span>
         </PDInput>
         {errors.consent && (
@@ -619,7 +622,10 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
             <small className="text-sm block leading-tight mt-1">
               By ticking this box, you agree to our POPI policy.
               <br />
-              <ThreeLink href="/legal">Read it here</ThreeLink>.
+              <ThreeLink href="/legal#privacy-data-collection">
+                Read it here
+              </ThreeLink>
+              .
             </small>
           </span>
         </PDInput>

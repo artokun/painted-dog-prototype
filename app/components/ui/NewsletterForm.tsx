@@ -117,7 +117,7 @@ export const NewsletterForm = () => {
           <span className="text-sm">
             By ticking this box, you agree to our POPI policy.{" "}
             <ThreeLink
-              href="/legal"
+              href="/legal#privacy-data-collection"
               onClick={(e) => e.stopPropagation()}
               className="underline cursor-pointer"
             >

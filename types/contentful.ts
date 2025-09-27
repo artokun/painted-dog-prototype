@@ -8,7 +8,9 @@ import type {
   TypePriceSkeleton,
   TypeLinkSkeleton,
   TypeReviewSkeleton,
-  TypePodcastEpisodeSkeleton
+  TypePodcastEpisodeSkeleton,
+  TypeLegalPageSkeleton,
+  TypePolicySkeleton
 } from "./index";
 
 // Union type for all Contentful entries
@@ -19,7 +21,9 @@ export type ContentfulEntry =
   | Entry<TypePriceSkeleton>
   | Entry<TypeLinkSkeleton>
   | Entry<TypeReviewSkeleton>
-  | Entry<TypePodcastEpisodeSkeleton>;
+  | Entry<TypePodcastEpisodeSkeleton>
+  | Entry<TypeLegalPageSkeleton>
+  | Entry<TypePolicySkeleton>;
 
 // Content type IDs for easy reference
 export const CONTENT_TYPES = {
@@ -30,4 +34,6 @@ export const CONTENT_TYPES = {
   link: "link",
   review: "review",
   podcastEpisode: "podcastEpisode",
+  legalPage: "legalPage",
+  policy: "policy",
 } as const;

@@ -243,7 +243,9 @@ export function MarkdownParagraph({
 
           const textContent = extractText(props.children).trim();
 
-          return <span className="italic">"{textContent}"</span>;
+          return (
+            <span className="italic">&ldquo;{textContent}&rdquo;</span>
+          );
         },
         // Ensure emphasis and strong work properly
         em: (props) => <em className="italic">{props.children}</em>,
