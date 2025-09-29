@@ -4,10 +4,10 @@ import { useControls } from "leva";
 import CameraController from "./CameraController";
 import { Select, Selection } from "@react-three/postprocessing";
 import BookStack from "./BookStack";
-import Effects from "../../api/Effects";
+import Effects from "../api/Effects";
 import Floor from "./Floor";
-import Skybox from "../Skybox";
-import Lights from "../Lights";
+import Skybox from "./Skybox";
+import Lights from "./Lights";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
 

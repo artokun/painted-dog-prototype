@@ -9,7 +9,7 @@ import {
   BookLG,
   BookXL,
   Book280x260,
-} from "../models/books";
+} from "./models/books";
 import {
   animated,
   config,
@@ -18,7 +18,7 @@ import {
   useSpringRef,
 } from "@react-spring/three";
 import { useSnapshot } from "valtio";
-import { bookStore } from "../../store/bookStore";
+import { bookStore } from "../store/bookStore";
 import { Book as BookType } from "@/types/app";
 import {
   calculateOptimalZDistance,
@@ -28,8 +28,8 @@ import {
   getCurrentBookIndex,
   getDropHeight,
   calculateFocusedBookCenterOffset,
-} from "../../utils/book";
-import { filterStore, FilterView } from "../../store/filterStore";
+} from "../utils/book";
+import { filterStore, FilterView } from "../store/filterStore";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { subscribeKey } from "valtio/utils";

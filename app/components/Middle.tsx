@@ -12,14 +12,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { Footer } from "../Footer";
+import { Footer } from "./Footer";
 import { cn } from "@/lib/utils";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
-import { AddToCalendarButton } from "../ui/AddToCalendarButton";
-import { NewsletterForm } from "../ui/NewsletterForm";
-import { PDButton } from "../ui/PDButton";
-import { ShoppingCartIcon } from "../icons/ShoppingCart";
+import { AddToCalendarButton } from "./ui/AddToCalendarButton";
+import { NewsletterForm } from "./ui/NewsletterForm";
+import { PDButton } from "./ui/PDButton";
+import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { animated, config, useSpring } from "@react-spring/web";
 import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";

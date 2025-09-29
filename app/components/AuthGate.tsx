@@ -4,9 +4,7 @@ import { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { authStore } from "@/app/store/authStore";
 import Image from "next/image";
-import { Middle } from "./(desktop)/Middle";
-import { MiddleMobile } from "./(mobile)/Middle";
-import { useMediaQuery } from "usehooks-ts";
+import { Middle } from "./Middle";
 import { Foreground } from "./Foreground";
 
 const CORRECT_PASSWORD = "The-Quick-Spotted-Dog";
@@ -14,7 +12,6 @@ const AUTH_STORAGE_KEY = "painted-dog-auth";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useSnapshot(authStore);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
 
@@ -41,7 +38,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   if (isAuthenticated) {
     return (
       <>
-        {isMobile ? <MiddleMobile /> : <Middle />}
+        <Middle />
         {children}
         <Foreground />
       </>
