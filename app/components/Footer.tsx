@@ -63,10 +63,18 @@ export const Footer = () => {
             </div>
           </div>
           <div className="flex flex-col justify-center items-center gap-6 [&>button]:transition-colors flex-1 border-2 border-l-0 border-black h-full">
-            <ThreeLink className="text-2xl font-medium" href="/contact">
+            <ThreeLink
+              className="text-2xl font-medium"
+              noUnderline
+              href="/contact"
+            >
               Contact
             </ThreeLink>
-            <ThreeLink href="/legal#privacy-data-collection" className="text-lg">
+            <ThreeLink
+              href="/legal#privacy-data-collection"
+              className="text-lg"
+              noUnderline
+            >
               Privacy &amp; Legal Policy
             </ThreeLink>
           </div>

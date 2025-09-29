@@ -1,6 +1,7 @@
 import { animated, useSpring } from "@react-spring/web";
 import { PDButton } from "./ui/PDButton";
 import { Footer } from "./Footer";
+import { cn } from "@/lib/utils";
 
 export const NotFoundContent = ({ visible }: { visible: boolean }) => {
   const style = useSpring({
@@ -10,7 +11,10 @@ export const NotFoundContent = ({ visible }: { visible: boolean }) => {
   return (
     <animated.div
       style={style}
-      className="absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto pointer-events-auto overflow-x-hidden flex flex-col"
+      className={cn(
+        "absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto pointer-events-none overflow-x-hidden flex flex-col",
+        visible && "pointer-events-auto"
+      )}
     >
       <div className="flex flex-col flex-1 gap-5 items-center justify-center max-w-lg text-center mx-auto w-full mt-20 px-2 pt-20">
         <h1 className="text-5xl font-medium">404</h1>
