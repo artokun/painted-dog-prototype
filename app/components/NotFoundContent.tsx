@@ -27,7 +27,7 @@ export const NotFoundContent = ({ visible }: { visible: boolean }) => {
             className="w-full h-full object-cover"
           />
         </div>
-        <p className="text-lg">Whoops! There's a problem with the link.</p>
+        <p className="text-lg">Whoops! There&apos;s a problem with the link.</p>
         <p className="text-lg">
           Not to worry though, you can continue to browse from the homepage.
         </p>
