@@ -112,8 +112,6 @@ export const Middle = () => {
 const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   const { currentRoute } = useSnapshot(globalStore);
   const isHomePage = currentRoute === "/";
-  const isContactPage = currentRoute === "/contact";
-  const isLegalPage = currentRoute === "/legal";
 
   const styles = useSpring({
     opacity: isHomePage ? 1 : 0,
@@ -125,7 +123,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
       style={styles}
       className={cn(
         "relative w-dvw top-[75vh] text-black flex flex-col gap-10",
-        !isHomePage && !isContactPage && !isLegalPage && "pointer-events-none"
+        !isHomePage && "pointer-events-none"
       )}
     >
       <div className="flex gap-12 justify-around mx-auto max-w-3xl">

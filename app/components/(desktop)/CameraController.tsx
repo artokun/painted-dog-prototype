@@ -166,6 +166,7 @@ const CameraController = memo(function CameraController() {
 
     // Set camera position and lookAt target based on route
     switch (currentRoute) {
+      case "/not-found":
       case "/contact": {
         // When on contact page, rotate camera 90 degrees to the right
 

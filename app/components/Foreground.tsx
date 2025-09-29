@@ -15,6 +15,7 @@ import { useSpring, animated } from "@react-spring/web";
 import { cn } from "@/lib/utils";
 import { ContactPageContent } from "./ContactPageContent";
 import { LegalPageContent } from "./LegalPageContent";
+import { NotFoundContent } from "./NotFoundContent";
 
 export const Foreground = () => {
   const router = useRouter();
@@ -23,6 +24,7 @@ export const Foreground = () => {
   const { currentRoute } = useSnapshot(globalStore);
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
+  const isNotFound = currentRoute === "/not-found";
 
   const { showFloatingBar } = useControls(
     "UI",
@@ -103,6 +105,7 @@ export const Foreground = () => {
       <Cursor />
       <ContactPageContent visible={isContactPage} />
       <LegalPageContent visible={isLegalPage} />
+      <NotFoundContent visible={isNotFound} />
       <Loader />
     </div>
   );
