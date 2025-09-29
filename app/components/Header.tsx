@@ -83,7 +83,9 @@ export const Header = () => {
             </ThreeLink>
           </div>
           <div className="lg:hidden flex gap-2 items-center text-black">
-            <MailIcon className="w-8 h-8" />
+            <ThreeLink noUnderline href="/contact">
+              <MailIcon className="w-8 h-8" />
+            </ThreeLink>
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ArrowRight } from "./icons/ArrowRight";
 import { animated, useSpring } from "@react-spring/web";
 import { Footer } from "./Footer";
+import { useMediaQuery } from "usehooks-ts";
 
 enum Tab {
   General = "general",
@@ -47,7 +48,7 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
         <>
           <div
             className={cn(
-              "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 px-2"
+              "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 lg:px-2 px-8"
             )}
           >
             {isSuccess ? (
@@ -110,14 +111,33 @@ const ContactPage = ({
 }) => {
   return (
     <>
-      <h1 className="text-5xl font-medium py-20">Contact</h1>
-      <p className="max-w-md text-center leading-loose px-2">
+      <h1 className="lg:text-5xl text-4xl font-medium lg:py-20 py-12">
+        Contact
+      </h1>
+      <p className="max-w-md text-center lg:leading-loose px-2">
         Whether you are an aspiring writer, a reviewer, an influencer, or you
         have discovered interesting reviews of our works in publications or on
-        BookTok we’d love to hear from you.{" "}
+        BookTok we'd love to hear from you. Select a form type to begin.
       </p>
-      <div className="flex gap-[100px] w-full py-20">
-        <aside className="flex flex-col items-end gap-4 flex-0 min-w-[224px] border-r border-black pr-8 h-fit sticky top-[80px]">
+      <div className="lg:hidden w-full py-12 flex flex-col gap-2">
+        <label className="text-lg font-medium">Select form</label>
+        <select
+          value={tab}
+          onChange={(e) => setTab(e.target.value as Tab)}
+          className="w-full px-4 py-3 border border-black rounded-sm text-black appearance-none cursor-pointer"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='black' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right 1rem center",
+            backgroundSize: "12px",
+          }}
+        >
+          <option value={Tab.General}>General form</option>
+          <option value={Tab.Submission}>Submission form</option>
+        </select>
+      </div>
+      <div className="flex gap-[100px] w-full lg:py-20">
+        <aside className="hidden lg:flex flex-col items-end gap-4 flex-0 min-w-[224px] border-r border-black pr-8 h-fit sticky top-[80px]">
           <h3 className="text-3xl">Form Type</h3>
           <ul className="flex flex-col gap-2">
             <TabButton
@@ -139,12 +159,13 @@ const ContactPage = ({
           {tab === Tab.Submission && <SubmissionForm onSuccess={onSuccess} />}
         </section>
       </div>
-      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pb-3" />
-      <div className="flex gap-[100px] w-full py-20">
-        <aside className="flex flex-col items-end gap-4 flex-0 min-w-[224px] pr-8 h-fit">
+      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pt-20 lg:pt-3" />
+      <div className="flex gap-[100px] w-full lg:py-20 pt-18">
+        <aside className="hidden lg:flex flex-col items-end gap-4 flex-0 min-w-[224px] pr-8 h-fit">
           <h3 className="text-3xl font-medium">Email us</h3>
         </aside>
         <section className="flex-1">
+          <h3 className="text-3xl font-medium mb-6 lg:hidden">Email us</h3>
           If you have any further concerns, please reach out to us at{" "}
           <ThreeLink href="mailto:info@painteddogpress.com">
             info@painteddogpress.com
@@ -405,7 +426,10 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
           >
             <span>
               I consent to the{" "}
-              <ThreeLink href="/legal#use-of-personal-information">terms of submission</ThreeLink>.
+              <ThreeLink href="/legal#use-of-personal-information">
+                terms of submission
+              </ThreeLink>
+              .
             </span>
           </PDInput>
           {errors.consent && (
@@ -483,6 +507,7 @@ interface ContactFormData {
 
 const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isPending, startTransition] = useTransition();
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   const {
     register,
@@ -607,7 +632,10 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         >
           <span>
             I consent to the{" "}
-            <ThreeLink href="/legal#use-of-personal-information">terms of submission</ThreeLink>.
+            <ThreeLink href="/legal#use-of-personal-information">
+              terms of submission
+            </ThreeLink>
+            .
           </span>
         </PDInput>
         {errors.consent && (
@@ -635,8 +663,12 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
           primary
           wide
           type="submit"
+          tall={isMobile}
           disabled={isPending}
-          className={cn(isPending && "opacity-50 cursor-not-allowed")}
+          className={cn(
+            "w-full lg:w-fit",
+            isPending && "opacity-50 cursor-not-allowed"
+          )}
         >
           {isPending ? "Submitting..." : "Submit form"}
         </PDButton>
