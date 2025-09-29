@@ -7,6 +7,7 @@ import { PDInput } from "./PDInput";
 import { ThreeLink } from "../ThreeLink";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "usehooks-ts";
 
 interface FormData {
   firstName: string;
@@ -17,6 +18,7 @@ interface FormData {
 export const NewsletterForm = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   const {
     register,
@@ -106,7 +108,7 @@ export const NewsletterForm = () => {
         )}
       </div>
 
-      <div className="relative flex gap-3 mt-3">
+      <div className="relative flex flex-col lg:flex-row gap-3 mt-3">
         <PDInput
           type="checkbox"
           id="consent"
@@ -133,8 +135,12 @@ export const NewsletterForm = () => {
         <PDButton
           type="submit"
           primary
+          tall={isMobile}
           disabled={isPending}
-          className={cn("mt-2", isPending && "opacity-50 cursor-not-allowed")}
+          className={cn(
+            "mt-2",
+            isPending && "opacity-50 cursor-not-allowed w-full"
+          )}
         >
           {isPending ? "Subscribing..." : "Submit"}
         </PDButton>

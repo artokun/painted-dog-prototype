@@ -20,15 +20,17 @@ import { AddToCalendarButton } from "./ui/AddToCalendarButton";
 import { NewsletterForm } from "./ui/NewsletterForm";
 import { PDButton } from "./ui/PDButton";
 import { ShoppingCartIcon } from "./icons/ShoppingCart";
-import { animated, config, useSpring } from "@react-spring/web";
+import { animated, useSpring } from "@react-spring/web";
 import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";
+import { useMediaQuery } from "usehooks-ts";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [windowHeight, setWindowHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
   const { isRendered } = useSnapshot(bookStore);
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   // Update window height on resize with debouncing
   useEffect(() => {
@@ -90,9 +92,9 @@ export const Middle = () => {
           toneMapping: THREE.LinearToneMapping,
           outputColorSpace: THREE.SRGBColorSpace,
           toneMappingExposure: 1.0,
-          powerPreference: "high-performance",
+          powerPreference: isMobile ? "low-power" : "high-performance",
           // depth: false,
-          alpha: false,
+          alpha: isMobile,
         }}
       >
         <Suspense fallback={null}>
@@ -112,6 +114,7 @@ export const Middle = () => {
 const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   const { currentRoute } = useSnapshot(globalStore);
   const isHomePage = currentRoute === "/";
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   const styles = useSpring({
     opacity: isHomePage ? 1 : 0,
@@ -126,21 +129,26 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
         !isHomePage && "pointer-events-none"
       )}
     >
-      <div className="flex gap-12 justify-around mx-auto max-w-3xl">
+      <div className="flex flex-col lg:flex-row gap-12 justify-around mx-auto max-w-3xl px-8 lg:px-0">
         <div className="flex-1 flex flex-col gap-3">
           <p className="text-lg font-medium">
             An expansive publication in full colour showcasing decades&apos;
             worth of illustration done in hundreds of sketchbooks and journals
             by the creators of the biting satirical comic <i>Bitterkomix</i>.
           </p>
-          <div className="flex flex-wrap gap-2">
-            <PDButton href="/contact" className="w-full" primary>
+          <div className="flex flex-wrap gap-3 lg:gap-2">
+            <PDButton
+              href="/contact"
+              className="w-full"
+              primary
+              tall={isMobile}
+            >
               <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
             </PDButton>
-            <PDButton href="/contact" className="flex-1">
+            <PDButton href="/contact" className="flex-1" tall={isMobile}>
               Takealot
             </PDButton>
-            <PDButton className="flex-1" href="/contact">
+            <PDButton className="flex-1" href="/contact" tall={isMobile}>
               Exclusive Books
             </PDButton>
           </div>
@@ -153,6 +161,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           </p>
           <div className="mt-1">
             <AddToCalendarButton
+              tall={isMobile}
               className="w-full"
               event={{
                 title: "Bitterkomix Launch - Stellenbosch Woordfees",
@@ -166,8 +175,8 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           </div>
         </div>
       </div>
-      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pb-3" />
-      <div className="flex gap-10 max-w-3xl mx-auto">
+      <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-[1px] pt-10 lg:pt-3 mb-10 lg:mb-0" />
+      <div className="flex flex-col lg:flex-row gap-20 lg:gap-10 max-w-3xl mx-auto px-8 lg:px-0">
         <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">New Publisher, New Tricks</h3>
           <p>

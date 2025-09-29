@@ -10,8 +10,10 @@ import Skybox from "./Skybox";
 import Lights from "./Lights";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
+import { useMediaQuery } from "usehooks-ts";
 
 export default function App() {
+  const isMobile = useMediaQuery("(max-width: 1024px)");
   const { enabled: effectsEnabled } = useControls(
     "Effects",
     {
@@ -36,6 +38,17 @@ export default function App() {
     },
     { collapsed: true }
   );
+
+  if (isMobile) {
+    return (
+      <>
+        <Lights />
+        <Background />
+        <BookStack />
+        <CameraController />
+      </>
+    );
+  }
 
   return (
     <Selection>
@@ -65,7 +78,7 @@ const Background = () => {
   return (
     <mesh position={[0, 0, -5]} visible={visible} onClick={handleMissedClick}>
       <planeGeometry args={[10, 10]} />
-      <meshBasicMaterial color="red" transparent opacity={0} />
+      <meshBasicMaterial transparent opacity={0} />
     </mesh>
   );
 };

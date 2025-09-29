@@ -16,11 +16,13 @@ interface CalendarEvent {
 interface AddToCalendarButtonProps {
   event: CalendarEvent;
   className?: string;
+  tall?: boolean;
 }
 
 export const AddToCalendarButton = ({
   event,
   className,
+  tall = false,
 }: AddToCalendarButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -99,27 +101,33 @@ END:VCALENDAR`;
   };
 
   const styles = useSpring({
-    height: isOpen ? 4 * 9 * 3 : 4 * 9,
+    height: isOpen ? (tall ? 4 * 11 * 3 : 4 * 9 * 3) : tall ? 4 * 13 : 4 * 9,
     config: { duration: 100 },
   });
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative min-h-13 lg:min-h-9" ref={dropdownRef}>
       <animated.div
         style={styles}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex flex-col items-center justify-start rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100",
+          "absolute top-0 left-0 flex flex-col items-center justify-start rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100",
           "hover:translate-y-[-2px] hover:shadow-md active:bg-[#F2EFE9] overflow-hidden",
           isOpen && "shadow-md bg-[#F2EFE9] translate-y-[-2px]",
+          tall && "h-13",
           className
         )}
       >
-        <div className="flex items-center justify-center w-full min-h-9 gap-2 px-3">
+        <div
+          className={cn(
+            "flex items-center justify-center w-full min-h-9 gap-2 px-3 py-2",
+            tall && "py-0 min-h-13"
+          )}
+        >
           <CalendarIcon checked={isOpen} className="w-5 h-5 -mt-0.5" /> Add to
           calendar
         </div>
-        <div className="flex flex-col font-normal w-full pt-0.5">
+        <div className="flex flex-col font-normal w-full pt-0.5 py-2">
           <button
             onClick={handleGoogleCalendar}
             className="w-full px-3 py-1 text-center cursor-pointer whitespace-nowrap hover:font-medium active:text-neutral-900"

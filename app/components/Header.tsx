@@ -5,7 +5,7 @@ import { Leva } from "leva";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { MenuIcon } from "lucide-react";
+import { MailIcon } from "./icons/Mail";
 import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
 import { ThreeLink } from "./ThreeLink";
@@ -82,8 +82,8 @@ export const Header = () => {
               Contact
             </ThreeLink>
           </div>
-          <div className="lg:hidden flex gap-2 items-center">
-            <MenuIcon />
+          <div className="lg:hidden flex gap-2 items-center text-black">
+            <MailIcon className="w-8 h-8" />
           </div>
         </div>
       </div>
