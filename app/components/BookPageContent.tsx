@@ -53,7 +53,10 @@ function formatAuthorNames(authors: { fullName: string }[]): string {
     return `${authors[0].fullName} & ${authors[1].fullName}`;
   }
   // More than 2 authors: use commas and ampersand before the last one
-  const allButLast = authors.slice(0, -1).map(a => a.fullName).join(", ");
+  const allButLast = authors
+    .slice(0, -1)
+    .map((a) => a.fullName)
+    .join(", ");
   const last = authors[authors.length - 1].fullName;
   return `${allButLast} & ${last}`;
 }
@@ -252,7 +255,7 @@ const Leaflet = ({
     <animated.div
       style={style}
       className={cn(
-        "absolute inset-0 h-full w-full pl-20 pr-5 transform-style-preserve-3d origin-right pb-20 pointer-events-none",
+        "absolute inset-0 h-full w-full pl-20 pr-5 transform-style-preserve-3d origin-right pb-5 pointer-events-none",
         index === selectedIndex && "pointer-events-auto"
       )}
     >
