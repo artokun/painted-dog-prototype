@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useSnapshot } from "valtio";
 import { filterStore, FilterView } from "../store/filterStore";
 import { Leva } from "leva";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { MailIcon } from "./icons/Mail";
@@ -12,25 +12,48 @@ import { ThreeLink } from "./ThreeLink";
 
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
-  const { focusedBookId } = useSnapshot(bookStore);
+  const { focusedBookId, isRendered } = useSnapshot(bookStore);
   const isGridMode = view === FilterView.Grid;
+  const isBookFocused = focusedBookId !== null;
+  const [showHeader, setShowHeader] = useState(true);
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [levaLoaded, setLevaLoaded] = useState(false);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    if (!isRendered) return;
+    scrollContainerRef.current = document.getElementById(
+      "scroll-el"
+    ) as HTMLDivElement;
+
     // TODO: remove this after accelerated launch
     setTimeout(() => {
       setLevaLoaded(true);
     }, 1000);
-  }, []);
+
+    // hide header after 100px of scroll from top
+    const handleScroll = () => {
+      if (!scrollContainerRef.current) return;
+      setShowHeader(scrollContainerRef.current.scrollTop <= 300);
+    };
+
+    scrollContainerRef.current?.addEventListener("scroll", handleScroll);
+    return () =>
+      scrollContainerRef.current?.removeEventListener("scroll", handleScroll);
+  }, [isRendered]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto">
+    <div
+      className={cn(
+        "fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto"
+      )}
+    >
       <div className="flex items-center justify-between max-w-7xl mx-auto gap-4 px-4 h-20 w-full">
         <div className="flex-1">
           {/* TODO: Restore after accelerated launch */}
@@ -47,7 +70,7 @@ export const Header = () => {
           <button
             className={cn(
               "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
-              focusedBookId &&
+              isBookFocused &&
                 "opacity-100 translate-x-0 delay-400 pointer-events-auto"
             )}
             onClick={handleBackButtonClick}
@@ -60,21 +83,28 @@ export const Header = () => {
             </span>
           </button>
         </div>
-        <h1 className="text-4xl flex justify-center whitespace-nowrap items-center text-center font-fields font-[600] flex-1">
-          <Link href="/">
-            <Image
-              className="object-contain w-[140px]"
-              src="/logo-dog-stacked.png"
-              alt="Logo"
-              height={6120}
-              width={240}
-            />
-          </Link>
-        </h1>
+        {!isBookFocused && (
+          <h1
+            className={cn(
+              "text-4xl flex justify-center whitespace-nowrap items-center text-center font-fields font-[600] flex-1 transition-opacity duration-300",
+              !showHeader && "opacity-0 pointer-events-none"
+            )}
+          >
+            <Link href="/">
+              <Image
+                className="object-contain w-[140px]"
+                src="/logo-dog-stacked.png"
+                alt="Logo"
+                height={6120}
+                width={240}
+              />
+            </Link>
+          </h1>
+        )}
         <div
           className={cn(
             "gap-2 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-            focusedBookId && "opacity-0 delay-600 pointer-events-none"
+            isBookFocused && "opacity-0 delay-600 pointer-events-none"
           )}
         >
           <div className="hidden lg:flex gap-2 items-center text-black">
@@ -92,7 +122,7 @@ export const Header = () => {
       <div
         className={cn(
           "hidden lg:block absolute top-0 right-0 opacity-0 hover:opacity-100 transition-opacity duration-300",
-          levaLoaded
+          levaLoaded && showHeader
             ? isCollapsed
               ? "opacity-30"
               : "opacity-100"

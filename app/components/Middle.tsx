@@ -125,7 +125,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
       ref={ref}
       style={styles}
       className={cn(
-        "relative w-dvw top-[75vh] text-black flex flex-col gap-10",
+        "relative w-dvw top-[75dvh] text-black flex flex-col gap-10",
         !isHomePage && "pointer-events-none"
       )}
     >

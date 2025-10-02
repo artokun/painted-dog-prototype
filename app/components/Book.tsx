@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { subscribeKey } from "valtio/utils";
 import { MeshStandardMaterialProperties } from "three";
+import { useMediaQuery } from "usehooks-ts";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
@@ -60,12 +61,14 @@ function Book({
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [someBookIsFocused, setSomeBookIsFocused] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const isGridMode = view === FilterView.Grid;
   const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
   const [bookFlipped, setBookFlipped] = useState(false);
 
   useEffect(() => {
+    if (isMobile) return;
     const unsubscribeFocusedBookId = subscribeKey(
       bookStore,
       "focusedBookId",
@@ -87,7 +90,7 @@ function Book({
       unsubscribeFocusedBookId();
       unsubscribeHoveredBookId();
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     // Remove featured status if any filter is applied (search or sorting)
