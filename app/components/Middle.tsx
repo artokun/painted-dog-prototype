@@ -115,9 +115,17 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   const { currentRoute } = useSnapshot(globalStore);
   const isHomePage = currentRoute === "/";
   const isMobile = useMediaQuery("(max-width: 1024px)");
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Track if this is the first render
+  useEffect(() => {
+    setHasInitialized(true);
+  }, []);
 
   const styles = useSpring({
     opacity: isHomePage ? 1 : 0,
+    config: { tension: 400, friction: 35 }, // Even faster spring config
+    immediate: !hasInitialized, // Skip animation on initial load if not home
   });
 
   return (

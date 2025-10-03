@@ -8,6 +8,7 @@ export interface BookState {
   isLoading: boolean;
   isRendered: boolean;
   error: string | null;
+  isBookFlipped: boolean;
 }
 
 export const bookStore = proxy<BookState>({
@@ -17,6 +18,7 @@ export const bookStore = proxy<BookState>({
   isLoading: false,
   isRendered: false,
   error: null,
+  isBookFlipped: false,
 });
 
 // Helper function to convert books array to map

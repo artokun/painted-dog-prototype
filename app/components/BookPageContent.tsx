@@ -7,20 +7,12 @@ import {
   useTrail,
   useScroll,
 } from "@react-spring/web";
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-  RefObject,
-} from "react";
+import { useState, useEffect, useMemo, useRef, RefObject } from "react";
 import { cn } from "@/lib/utils";
 import { ContentfulBook } from "@/types/app";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
 import { PDButton } from "./ui/PDButton";
-import { PlusIcon } from "./icons/Plus";
 import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { CloseIcon } from "./icons/Close";
 import { ArrowDownIcon } from "./icons/ArrowDown";
@@ -31,6 +23,10 @@ import { PodcastEpisodesSection } from "./leaflets/PodcastEpisodesSection";
 import { ExcerptsSection } from "./leaflets/ExcerptsSection";
 import { ProductInformationSection } from "./leaflets/ProductInformationSection";
 import { FullDescriptionSection } from "./leaflets/FullDescription";
+import { MenuList } from "./MenuList";
+import { Footer } from "./Footer";
+import { useMediaQuery } from "usehooks-ts";
+import { globalStore } from "../store/globalStore";
 
 const menuItems = [
   "book",
@@ -63,8 +59,11 @@ function formatAuthorNames(authors: { fullName: string }[]): string {
 
 export default function BookPageContent() {
   const { focusedBookId } = useSnapshot(bookStore);
+  const { currentRoute } = useSnapshot(globalStore);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [book, setBook] = useState<ContentfulBook | null>(null);
+  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isBookPage = currentRoute.startsWith("/books/");
 
   useEffect(() => {
     if (!focusedBookId) {
@@ -93,14 +92,6 @@ export default function BookPageContent() {
     };
   }, [focusedBookId]);
 
-  const handleMenuItemClick = useCallback(
-    (e: React.MouseEvent<HTMLLIElement>) => {
-      const index = parseInt(e.currentTarget.dataset.index || "0");
-      setSelectedIndex(selectedIndex === index ? 0 : index);
-    },
-    [selectedIndex]
-  );
-
   // Left menu trail animation - each item slides in with stagger
   const menuTrail = useTrail(menuItems.length, {
     opacity: focusedBookId ? 1 : 0,
@@ -112,70 +103,101 @@ export default function BookPageContent() {
   // Right content animation - slides in from right, exits to right
   const rightContentSpring = useSpring({
     opacity: focusedBookId ? 1 : 0,
-    perspective: 1000,
     x: focusedBookId ? "0%" : "100%",
+    immediate: isMobile && !focusedBookId,
     delay: focusedBookId ? ENTRY : EXIT,
   });
 
   const leftContentSpring = useSpring({
     opacity: focusedBookId ? 1 : 0,
     x: focusedBookId ? "0%" : "-100%",
+    immediate: isMobile && !focusedBookId,
     delay: focusedBookId ? ENTRY : EXIT,
   });
+
+  if (isMobile && focusedBookId && isBookPage) {
+    return (
+      <div
+        id="mobile-book-page-content"
+        className={cn(
+          "absolute inset-0 top-0 left-0 z-10 w-full h-full overflow-y-auto overflow-x-hidden pointer-events-auto",
+          "pb-0 text-black"
+        )}
+      >
+        <button
+          className="appearance-none h-[75dvh] w-full bg-transparent pointer-events-auto"
+          onClick={() => {
+            bookStore.isBookFlipped = !bookStore.isBookFlipped;
+          }}
+        ></button>
+        <div className="w-full backdrop-blur-sm pt-5 bg-[#e1d6bf77] border-t border-black">
+          {/* Leaflets stacked above content */}
+          <section className="relative z-10 w-full">
+            <div className="relative lg:h-full flex flex-col">
+              <Leaflet
+                key={menuItems[0]}
+                index={0}
+                selectedIndex={selectedIndex}
+                setSelectedIndex={setSelectedIndex}
+                isMobile={true}
+              />
+              {/* Buy buttons after Leaflets */}
+              <div className="relative z-10 flex flex-col gap-3 mb-15 px-5">
+                <PDButton href="/contact" className="w-full" primary tall>
+                  <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
+                </PDButton>
+                <div className="flex gap-3">
+                  <PDButton href="/contact" className="flex-1" tall>
+                    Takealot
+                  </PDButton>
+                  <PDButton className="flex-1" href="/contact" tall>
+                    Exclusive Books
+                  </PDButton>
+                </div>
+              </div>
+
+              {menuItems
+                .slice(1, -1)
+                .filter((item) => item !== "Podcast Episodes")
+                .map((item, index) => (
+                  <Leaflet
+                    key={item}
+                    index={index + 1}
+                    selectedIndex={selectedIndex + 1}
+                    setSelectedIndex={setSelectedIndex}
+                    isMobile={true}
+                  />
+                ))}
+            </div>
+          </section>
+          <Footer />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       id="book-page-content"
       className={cn(
-        "absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-none gap-4 pt-20",
-        "grid grid-cols-3 grid-rows-1 place-items-center [&>section]:h-full [&>section]:w-full text-black"
+        "absolute inset-0 top-0 left-0 h-screen w-full z-20 gap-4 pointer-events-none lg:pt-20",
+        "flex flex-col-reverse lg:grid lg:grid-cols-3 lg:grid-rows-1 lg:place-items-center text-black"
       )}
     >
       {/* Left Menu */}
       <animated.section
         style={leftContentSpring}
-        className="flex flex-col gap-4 p-20 justify-center"
+        className="flex flex-col gap-4 p-10 xl:p-20 justify-center h-full w-full pb-[120px] lg:pb-10 xl:lg:pb-20"
       >
-        <ul className="flex flex-col gap-3 w-full font-medium [&>li]:pt-2">
-          {menuTrail.map(
-            (style, index) =>
-              index > 0 &&
-              index < menuItems.length - 1 &&
-              index !== 3 && ( // Podcast Episodes temporarily hidden
-                <animated.li
-                  key={menuItems[index]}
-                  style={style}
-                  data-index={index}
-                  className={
-                    "flex group gap-2 border-b border-current w-full justify-between items-center pointer-events-auto cursor-pointer pr-2"
-                  }
-                  onClick={handleMenuItemClick}
-                >
-                  <span
-                    className={cn(
-                      "group-hover:translate-x-2 transition-all duration-300",
-                      selectedIndex === index &&
-                        "group-hover:translate-x-4 translate-x-4 "
-                    )}
-                  >
-                    {index === 1
-                      ? formatAuthorNames(book?.authors || [])
-                      : menuItems[index]}
-                  </span>
-                  <span
-                    className={cn(
-                      "opacity-0 group-hover:rotate-90 group-hover:opacity-100 transition-all duration-300",
-                      selectedIndex === index &&
-                        "opacity-100 rotate-135 group-hover:rotate-135 "
-                    )}
-                  >
-                    <PlusIcon className="w-2.5 h-2.5" />
-                  </span>
-                </animated.li>
-              )
-          )}
-        </ul>
-        <div className="flex flex-wrap gap-3 mt-10 pointer-events-auto">
+        <MenuList
+          menuItems={menuItems}
+          menuTrail={menuTrail}
+          selectedIndex={selectedIndex}
+          onItemClick={setSelectedIndex}
+          formatAuthorNames={formatAuthorNames}
+          book={book}
+        />
+        <div className="flex flex-wrap flex-col xl:flex-row gap-3 mt-10 pointer-events-auto">
           <PDButton href="/contact" className="w-full" primary tall>
             <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
           </PDButton>
@@ -194,16 +216,21 @@ export default function BookPageContent() {
       {/* Right Content */}
       <animated.section
         style={rightContentSpring}
-        className="relative pointer-events-auto h-full w-full"
+        className="relative pointer-events-auto w-full h-full mt-[75dvh] lg:mt-0 lg:pt-0"
       >
-        {menuItems.map((item, index) => (
-          <Leaflet
-            key={item}
-            index={index}
-            selectedIndex={selectedIndex}
-            setSelectedIndex={setSelectedIndex}
-          />
-        ))}
+        <div
+          className="relative lg:h-full flex flex-col lg:block"
+          style={{ perspective: "1000px" }}
+        >
+          {menuItems.map((item, index) => (
+            <Leaflet
+              key={item}
+              index={index}
+              selectedIndex={selectedIndex}
+              setSelectedIndex={setSelectedIndex}
+            />
+          ))}
+        </div>
       </animated.section>
     </div>
   );
@@ -213,22 +240,36 @@ const Leaflet = ({
   index,
   selectedIndex,
   setSelectedIndex,
+  isMobile = false,
 }: {
   index: number;
   selectedIndex: number;
   setSelectedIndex: (index: number) => void;
+  isMobile?: boolean;
 }) => {
-  const pageArc = 90 / menuItems.length;
-  const degrees = typeof index === "number" ? index * pageArc : 0;
+  const pageArc = 90;
+  const arc = typeof index === "number" ? index * pageArc : 0;
+  const degrees = arc - (selectedIndex ? selectedIndex * pageArc : 0);
+
   const style = useSpring({
-    rotateY: `${degrees - (selectedIndex ? selectedIndex * pageArc : 0)}deg`,
-    opacity: selectedIndex === index ? 1 : selectedIndex > index ? 0.5 : 0,
+    rotateY: `${Math.min(Math.max(degrees, 0), 180)}deg`,
+    // opacity: selectedIndex === index ? 1 : selectedIndex > index ? 0.5 : 0,
+    opacity: 1,
+  });
+
+  const mobileStyle = useSpring({
+    opacity: 1,
+    perspective: 1000,
   });
 
   const content = useMemo(() => {
     switch (index) {
       case 0:
-        return <BookSection setSelectedIndex={setSelectedIndex} />;
+        return isMobile ? (
+          <FullDescriptionSection />
+        ) : (
+          <BookSection setSelectedIndex={setSelectedIndex} />
+        );
       case 1:
         return <AuthorsSection />;
       case 2:
@@ -253,10 +294,11 @@ const Leaflet = ({
 
   return (
     <animated.div
-      style={style}
+      style={isMobile ? mobileStyle : style}
       className={cn(
-        "absolute inset-0 h-full w-full pl-20 pr-5 transform-style-preserve-3d origin-right pb-5 pointer-events-none",
-        index === selectedIndex && "pointer-events-auto"
+        "relative lg:absolute lg:inset-0 h-auto min-h-[75dvh] lg:h-full w-full xl:pl-20 pr-5 pl-5 lg:pl-0 transform-style-preserve-3d origin-right pb-5 pointer-events-none",
+        index === selectedIndex && "pointer-events-auto",
+        isMobile && "min-h-0"
       )}
     >
       <div
@@ -269,14 +311,16 @@ const Leaflet = ({
           ref={scrollContainerRef}
           className={cn(
             "px-9 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent",
-            index > 0 && "pt-40 border border-black pb-20"
+            index > 0 && "pt-40 border border-black pb-20",
+            isMobile && "pb-10 pt-10",
+            isMobile && index === 0 && "px-0"
           )}
         >
           <div className="min-h-full flex flex-col justify-center">
             {content}
           </div>
         </div>
-        {index > 0 && (
+        {index > 0 && !isMobile && (
           <>
             <div className="pointer-events-none absolute top-[5px] left-[5px] right-5 h-30 bg-linear-to-b from-[#F9F6F0] to-transparent" />
             <div className="pointer-events-none absolute bottom-[53px] left-[5px] right-5 h-12 bg-linear-to-t from-[#F9F6F0] to-transparent" />
@@ -297,15 +341,15 @@ const Leaflet = ({
             </button>
           </>
         )}
+        {index > 0 && !isMobile && (
+          <button
+            className="absolute top-0 -right-2 px-7 py-5 cursor-pointer"
+            onClick={() => setSelectedIndex(0)}
+          >
+            <CloseIcon className="w-6 h-6" />
+          </button>
+        )}
       </div>
-      {index > 0 && (
-        <button
-          className="absolute top-0 right-2 z-10 px-7 py-5 cursor-pointer"
-          onClick={() => setSelectedIndex(0)}
-        >
-          <CloseIcon className="w-6 h-6" />
-        </button>
-      )}
     </animated.div>
   );
 };

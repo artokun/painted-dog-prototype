@@ -68,7 +68,19 @@ function Book({
   const [bookFlipped, setBookFlipped] = useState(false);
 
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile) {
+      const unsubscribeBookFlipped = subscribeKey(
+        bookStore,
+        "isBookFlipped",
+        (isBookFlipped) => {
+          setBookFlipped(isBookFlipped);
+        }
+      );
+      return () => {
+        unsubscribeBookFlipped();
+      };
+    }
+
     const unsubscribeFocusedBookId = subscribeKey(
       bookStore,
       "focusedBookId",
@@ -376,7 +388,7 @@ function Book({
         });
       } else {
         bookFocusedTiltGroupApi.start({
-          rotX: 0,
+          rotX: !isMobile ? 0 : bookFlipped ? Math.PI : 0,
           rotZ: 0,
           posY:
             isHovered && !isFocused && !book.featured
@@ -466,101 +478,101 @@ function Book({
   );
 }
 
-const FeaturedLinks = ({
-  book,
-  isHovered,
-}: {
-  book: BookType;
-  isHovered: boolean;
-}) => {
-  const scroll = useScroll();
-  const { view, isSorting } = useSnapshot(filterStore);
-  const isGridMode = view === FilterView.Grid;
+// const FeaturedLinks = ({
+//   book,
+//   isHovered,
+// }: {
+//   book: BookType;
+//   isHovered: boolean;
+// }) => {
+//   const scroll = useScroll();
+//   const { view, isSorting } = useSnapshot(filterStore);
+//   const isGridMode = view === FilterView.Grid;
 
-  const middleDivRef = useRef<HTMLDivElement>(
-    document.getElementById("middle") as HTMLDivElement
-  );
+//   const middleDivRef = useRef<HTMLDivElement>(
+//     document.getElementById("middle") as HTMLDivElement
+//   );
 
-  const textVisible = isHovered && !isGridMode && !isSorting;
+//   const textVisible = isHovered && !isGridMode && !isSorting;
 
-  return (
-    <Html
-      pixelPerfect
-      zIndexRange={[-0.1, 0]}
-      center
-      className={cn(
-        "text-sm opacity-0 w-dvw px-12 pointer-events-none",
-        textVisible && "opacity-100"
-      )}
-      style={{
-        height:
-          getContentfulBookSize(book.bookSize)[book.featured ? 2 : 1] * 3400,
-        transition: "opacity ease-in-out",
-        transitionDuration: isHovered ? "0ms" : "0.3s",
-      }}
-      position={[
-        -book.offset.posX,
-        0,
-        getContentfulBookSize(book.bookSize)[0] * 0.5 - book.offset.posZ,
-      ]}
-      portal={middleDivRef}
-    >
-      <div
-        className="text-black flex justify-between h-full w-full"
-        onWheel={(e) => {
-          scroll.el.scrollTop += e.deltaY;
-        }}
-      >
-        {book.reviews?.find((r) => r.isFeatured) && (
-          <div
-            className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
-            onPointerOver={(e) => {
-              e.preventDefault();
-              bookStore.hoveredBookId = book.id;
-            }}
-            onPointerLeave={(e) => {
-              e.preventDefault();
-              bookStore.hoveredBookId = null;
-            }}
-          >
-            <Link
-              href={book.reviews.find((r) => r.isFeatured)!.externalLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
-            >
-              {book.reviews.find((r) => r.isFeatured)!.title}
-            </Link>
-          </div>
-        )}
-        {book.podcastEpisodes?.find((p) => p.isFeatured) && (
-          <div
-            className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
-            onPointerOver={(e) => {
-              e.preventDefault();
-              bookStore.hoveredBookId = book.id;
-            }}
-            onPointerLeave={(e) => {
-              e.preventDefault();
-              bookStore.hoveredBookId = null;
-            }}
-          >
-            <Link
-              href={
-                book.podcastEpisodes.find((p) => p.isFeatured)!.externalLink
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
-            >
-              {book.podcastEpisodes.find((p) => p.isFeatured)!.title}
-            </Link>
-          </div>
-        )}
-      </div>
-    </Html>
-  );
-};
+//   return (
+//     <Html
+//       pixelPerfect
+//       zIndexRange={[-0.1, 0]}
+//       center
+//       className={cn(
+//         "text-sm opacity-0 w-dvw px-12 pointer-events-none",
+//         textVisible && "opacity-100"
+//       )}
+//       style={{
+//         height:
+//           getContentfulBookSize(book.bookSize)[book.featured ? 2 : 1] * 3400,
+//         transition: "opacity ease-in-out",
+//         transitionDuration: isHovered ? "0ms" : "0.3s",
+//       }}
+//       position={[
+//         -book.offset.posX,
+//         0,
+//         getContentfulBookSize(book.bookSize)[0] * 0.5 - book.offset.posZ,
+//       ]}
+//       portal={middleDivRef}
+//     >
+//       <div
+//         className="text-black flex justify-between h-full w-full"
+//         onWheel={(e) => {
+//           scroll.el.scrollTop += e.deltaY;
+//         }}
+//       >
+//         {book.reviews?.find((r) => r.isFeatured) && (
+//           <div
+//             className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
+//             onPointerOver={(e) => {
+//               e.preventDefault();
+//               bookStore.hoveredBookId = book.id;
+//             }}
+//             onPointerLeave={(e) => {
+//               e.preventDefault();
+//               bookStore.hoveredBookId = null;
+//             }}
+//           >
+//             <Link
+//               href={book.reviews.find((r) => r.isFeatured)!.externalLink}
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className="hover:underline"
+//             >
+//               {book.reviews.find((r) => r.isFeatured)!.title}
+//             </Link>
+//           </div>
+//         )}
+//         {book.podcastEpisodes?.find((p) => p.isFeatured) && (
+//           <div
+//             className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
+//             onPointerOver={(e) => {
+//               e.preventDefault();
+//               bookStore.hoveredBookId = book.id;
+//             }}
+//             onPointerLeave={(e) => {
+//               e.preventDefault();
+//               bookStore.hoveredBookId = null;
+//             }}
+//           >
+//             <Link
+//               href={
+//                 book.podcastEpisodes.find((p) => p.isFeatured)!.externalLink
+//               }
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className="hover:underline"
+//             >
+//               {book.podcastEpisodes.find((p) => p.isFeatured)!.title}
+//             </Link>
+//           </div>
+//         )}
+//       </div>
+//     </Html>
+//   );
+// };
 
 const BookModel = ({
   book,

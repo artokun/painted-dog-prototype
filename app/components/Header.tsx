@@ -9,6 +9,7 @@ import { MailIcon } from "./icons/Mail";
 import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
 import { ThreeLink } from "./ThreeLink";
+import { useMediaQuery } from "usehooks-ts";
 
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
@@ -16,16 +17,21 @@ export const Header = () => {
   const isGridMode = view === FilterView.Grid;
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
-
+  const [showBackButton, setShowBackButton] = useState(true);
+  const isMobile = useMediaQuery("(max-width: 1024px)");
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [levaLoaded, setLevaLoaded] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const mobileBookPageContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isRendered) return;
     scrollContainerRef.current = document.getElementById(
       "scroll-el"
+    ) as HTMLDivElement;
+    mobileBookPageContentRef.current = document.getElementById(
+      "mobile-book-page-content"
     ) as HTMLDivElement;
 
     // TODO: remove this after accelerated launch
@@ -35,14 +41,26 @@ export const Header = () => {
 
     // hide header after 100px of scroll from top
     const handleScroll = () => {
-      if (!scrollContainerRef.current) return;
-      setShowHeader(scrollContainerRef.current.scrollTop <= 300);
+      if (scrollContainerRef.current) {
+        setShowHeader(scrollContainerRef.current.scrollTop <= 300);
+      }
+      if (mobileBookPageContentRef.current) {
+        setShowBackButton(mobileBookPageContentRef.current.scrollTop <= 300);
+      }
     };
 
     scrollContainerRef.current?.addEventListener("scroll", handleScroll);
-    return () =>
+    mobileBookPageContentRef.current?.addEventListener("scroll", handleScroll);
+    return () => {
       scrollContainerRef.current?.removeEventListener("scroll", handleScroll);
-  }, [isRendered]);
+      mobileBookPageContentRef.current?.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+      setShowBackButton(true);
+      setShowHeader(true);
+    };
+  }, [isRendered, isMobile, isBookFocused]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
@@ -71,6 +89,7 @@ export const Header = () => {
             className={cn(
               "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
               isBookFocused &&
+                showBackButton &&
                 "opacity-100 translate-x-0 delay-400 pointer-events-auto"
             )}
             onClick={handleBackButtonClick}
