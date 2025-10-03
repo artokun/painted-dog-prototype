@@ -10,11 +10,14 @@ import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
 import { ThreeLink } from "./ThreeLink";
 import { useMediaQuery } from "usehooks-ts";
+import { globalStore } from "../store/globalStore";
 
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
-  const { focusedBookId, isRendered } = useSnapshot(bookStore);
+  const { isRendered, focusedBookId } = useSnapshot(bookStore);
+  const { currentRoute } = useSnapshot(globalStore);
   const isGridMode = view === FilterView.Grid;
+  const isBookPage = currentRoute.startsWith("/books/");
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
@@ -60,7 +63,7 @@ export const Header = () => {
       setShowBackButton(true);
       setShowHeader(true);
     };
-  }, [isRendered, isMobile, isBookFocused]);
+  }, [isRendered, isMobile, isBookPage, isBookFocused]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
