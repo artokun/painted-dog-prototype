@@ -20,7 +20,7 @@ export default function Skybox() {
       environmentLights: folder(
         {
           domeHeight: {
-            value: 2,
+            value: 3,
             min: 0.01,
             max: 10,
             step: 0.01,
@@ -49,7 +49,7 @@ export default function Skybox() {
             label: "Scale",
           },
           groundRotation: {
-            value: [0.0, 1.2, 0.0],
+            value: [0.0, 1.5, 0.0],
             min: -Math.PI,
             max: Math.PI,
             step: 0.01,
@@ -57,7 +57,7 @@ export default function Skybox() {
           },
           // https://gainmap-creator.monogrid.com/ to convert .hdr to .jpg
           texture: {
-            image: "/painted-dog-scene_5.jpg",
+            image: "/painted-dog-scene_7.jpg",
           },
         },
         { collapsed: true }
@@ -68,7 +68,7 @@ export default function Skybox() {
 
   const envMap = useLoader(
     UltraHDRLoader,
-    texture || "/painted-dog-scene_5.jpg"
+    texture || "/painted-dog-scene_7.jpg"
   );
 
   const skybox = useMemo(() => {

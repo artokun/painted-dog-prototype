@@ -73,7 +73,8 @@ export const Header = () => {
   return (
     <div
       className={cn(
-        "fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto"
+        "fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto",
+        !isHomepage && "backdrop-blur-sm"
       )}
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto gap-4 px-4 h-20 w-full">
@@ -110,7 +111,7 @@ export const Header = () => {
           <h1
             className={cn(
               "text-4xl flex justify-center whitespace-nowrap items-center text-center font-fields font-[600] flex-1 transition-opacity duration-300",
-              !showHeader && "opacity-0 pointer-events-none"
+              !showHeader && isHomepage && "opacity-0 pointer-events-none"
             )}
           >
             <Link href="/">
@@ -142,16 +143,7 @@ export const Header = () => {
           </div>
         </div>
       </div>
-      <div
-        className={cn(
-          "hidden lg:block absolute top-0 right-0 opacity-0 hover:opacity-100 transition-opacity duration-300",
-          levaLoaded && showHeader
-            ? isCollapsed
-              ? "opacity-30"
-              : "opacity-100"
-            : "opacity-0"
-        )}
-      >
+      <div className="hidden">
         <Leva
           collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
           isRoot

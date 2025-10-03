@@ -9,13 +9,13 @@ export default function Lights() {
         cameraLight: folder(
           {
             lightPosition: {
-              value: [-1, 0, 2],
+              value: [4, 1, 4],
               min: -10,
               max: 10,
               step: 0.01,
             },
             lightIntensity: {
-              value: 4.0,
+              value: 2.0,
               min: 0,
               max: 10,
               step: 0.01,
@@ -29,7 +29,7 @@ export default function Lights() {
         ambientLight: folder(
           {
             ambientLightIntensity: {
-              value: 0.5,
+              value: 2,
               min: 0,
               max: 5,
               step: 0.01,
