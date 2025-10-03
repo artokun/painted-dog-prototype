@@ -18,6 +18,7 @@ export const Header = () => {
   const { currentRoute } = useSnapshot(globalStore);
   const isGridMode = view === FilterView.Grid;
   const isBookPage = currentRoute.startsWith("/books/");
+  const isHomepage = currentRoute === "/";
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);

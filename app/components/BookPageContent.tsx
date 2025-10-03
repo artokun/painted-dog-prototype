@@ -116,64 +116,7 @@ export default function BookPageContent() {
   });
 
   if (isMobile && focusedBookId && isBookPage) {
-    return (
-      <div
-        id="mobile-book-page-content"
-        className={cn(
-          "absolute inset-0 top-0 left-0 z-10 w-full h-full overflow-y-auto overflow-x-hidden pointer-events-auto",
-          "pb-0 text-black"
-        )}
-      >
-        <button
-          className="appearance-none h-[75dvh] w-full bg-transparent pointer-events-auto"
-          onClick={() => {
-            bookStore.isBookFlipped = !bookStore.isBookFlipped;
-          }}
-        ></button>
-        <div className="w-full backdrop-blur-sm pt-5 bg-[#e1d6bf77] border-t border-black">
-          {/* Leaflets stacked above content */}
-          <section className="relative z-10 w-full">
-            <div className="relative lg:h-full flex flex-col">
-              <Leaflet
-                key={menuItems[0]}
-                index={0}
-                selectedIndex={selectedIndex}
-                setSelectedIndex={setSelectedIndex}
-                isMobile={true}
-              />
-              {/* Buy buttons after Leaflets */}
-              <div className="relative z-10 flex flex-col gap-3 mb-15 px-5">
-                <PDButton href="/contact" className="w-full" primary tall>
-                  <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
-                </PDButton>
-                <div className="flex gap-3">
-                  <PDButton href="/contact" className="flex-1" tall>
-                    Takealot
-                  </PDButton>
-                  <PDButton className="flex-1" href="/contact" tall>
-                    Exclusive Books
-                  </PDButton>
-                </div>
-              </div>
-
-              {menuItems
-                .slice(1, -1)
-                .filter((item) => item !== "Podcast Episodes")
-                .map((item, index) => (
-                  <Leaflet
-                    key={item}
-                    index={index + 1}
-                    selectedIndex={selectedIndex + 1}
-                    setSelectedIndex={setSelectedIndex}
-                    isMobile={true}
-                  />
-                ))}
-            </div>
-          </section>
-          <Footer />
-        </div>
-      </div>
-    );
+    return <MobileBookPageContent />;
   }
 
   return (
@@ -236,6 +179,140 @@ export default function BookPageContent() {
   );
 }
 
+function MobileBookPageContent() {
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Peek animation - double bounce upward
+  const [peekSpring, peekApi] = useSpring(() => ({
+    y: 0,
+    config: config.default,
+  }));
+
+  // Reset interaction flag when component mounts
+  useEffect(() => {
+    setHasInteracted(false);
+  }, []);
+
+  // Handle user interaction - cancel peek and mark as interacted
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      setHasInteracted(true);
+      peekApi.start({ y: 0, immediate: true });
+    };
+
+    const contentElement = contentRef.current;
+    if (!contentElement) return;
+
+    contentElement.addEventListener("scroll", handleInteraction, {
+      passive: true,
+    });
+    contentElement.addEventListener("touchstart", handleInteraction, {
+      passive: true,
+    });
+    contentElement.addEventListener("touchmove", handleInteraction, {
+      passive: true,
+    });
+
+    return () => {
+      contentElement.removeEventListener("scroll", handleInteraction);
+      contentElement.removeEventListener("touchstart", handleInteraction);
+      contentElement.removeEventListener("touchmove", handleInteraction);
+    };
+  }, [peekApi]);
+
+  // Trigger peek animation after 2s of inactivity (only once per session)
+  useEffect(() => {
+    if (hasInteracted) return;
+
+    timeoutRef.current = setTimeout(() => {
+      // Double peek animation
+      peekApi.start({
+        from: { y: 0 },
+        to: async (next) => {
+          await next({ y: -10 });
+          await next({ y: 0 });
+          await next({ y: -10 });
+          await next({ y: 0 });
+        },
+      });
+    }, 2000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [hasInteracted, peekApi]);
+
+  return (
+    <animated.div
+      id="mobile-book-page-content"
+      ref={contentRef}
+      style={peekSpring}
+      className={cn(
+        "absolute inset-0 top-0 left-0 z-10 w-full h-full overflow-y-auto overflow-x-hidden pointer-events-auto",
+        "pb-0 text-black"
+      )}
+    >
+      <button
+        className="appearance-none h-[75dvh] w-full bg-transparent pointer-events-auto"
+        onClick={() => {
+          bookStore.isBookFlipped = !bookStore.isBookFlipped;
+        }}
+      ></button>
+      <div className="w-full backdrop-blur-sm pt-5 bg-[#e1d6bf77] border-t border-black">
+        {/* Leaflets stacked above content */}
+        <section className="relative z-10 w-full">
+          <div className="relative lg:h-full flex flex-col">
+            <Leaflet
+              key={menuItems[0]}
+              index={0}
+              selectedIndex={selectedIndex}
+              setSelectedIndex={setSelectedIndex}
+              isMobile={true}
+            />
+            {/* Buy buttons after Leaflets */}
+            <div className="relative z-10 flex flex-col gap-3 mb-15 px-5">
+              <PDButton href="/contact" className="w-full" primary tall>
+                <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
+              </PDButton>
+              <div className="flex gap-3">
+                <PDButton href="/contact" className="flex-1" tall>
+                  Takealot
+                </PDButton>
+                <PDButton className="flex-1" href="/contact" tall>
+                  Exclusive Books
+                </PDButton>
+              </div>
+            </div>
+
+            {menuItems
+              .slice(1, -1)
+              .filter((item) => item !== "Podcast Episodes")
+              .map((item, index) => (
+                <Leaflet
+                  key={item}
+                  index={index + 1}
+                  selectedIndex={selectedIndex + 1}
+                  setSelectedIndex={setSelectedIndex}
+                  isMobile={true}
+                />
+              ))}
+          </div>
+        </section>
+        <Footer />
+      </div>
+    </animated.div>
+  );
+}
+
 const Leaflet = ({
   index,
   selectedIndex,
@@ -259,7 +336,6 @@ const Leaflet = ({
 
   const mobileStyle = useSpring({
     opacity: 1,
-    perspective: 1000,
   });
 
   const content = useMemo(() => {
