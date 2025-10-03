@@ -117,7 +117,7 @@ const ContactPage = ({
       <p className="max-w-md text-center lg:leading-loose px-2">
         Whether you are an aspiring writer, a reviewer, an influencer, or you
         have discovered interesting reviews of our works in publications or on
-        BookTok we'd love to hear from you. Select a form type to begin.
+        BookTok we&apos;d love to hear from you. Select a form type to begin.
       </p>
       <div className="lg:hidden w-full py-12 flex flex-col gap-2">
         <label className="text-lg font-medium">Select form</label>
