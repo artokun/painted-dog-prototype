@@ -26,6 +26,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="stylesheet" href="https://use.typekit.net/uww8yjt.css" />
+        <Script
+          id="cookieyes"
+          strategy="beforeInteractive"
+          src={`https://cdn-cookieyes.com/client_data/de39bc09360b5ee9ef438483/script.js`}
+        ></Script>
       </head>
       <body className={`font-fields antialiased overflow-hidden h-dvh w-full`}>
         <main className="h-dvh w-screen relative">

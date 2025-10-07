@@ -167,7 +167,7 @@ const ContactPage = ({
         <section className="flex-1">
           <h3 className="text-3xl font-medium mb-6 lg:hidden">Email us</h3>
           If you have any further concerns, please reach out to us at{" "}
-          <ThreeLink href="mailto:info@painteddogpress.com">
+          <ThreeLink href="mailto:info@painteddogpress.com" target="_blank">
             info@painteddogpress.com
           </ThreeLink>
         </section>
