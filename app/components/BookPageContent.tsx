@@ -141,14 +141,22 @@ export default function BookPageContent() {
           book={book}
         />
         <div className="flex flex-wrap flex-col xl:flex-row gap-3 mt-10 pointer-events-auto">
-          <PDButton href="/contact" className="w-full" primary tall>
+          <PDButton
+            href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
+            className="w-full"
+            target="_blank"
+            primary
+            tall
+          >
             <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
           </PDButton>
-          <PDButton href="/contact" className="flex-1" tall>
-            Takealot
-          </PDButton>
-          <PDButton className="flex-1" href="/contact" tall>
-            Exclusive Books
+          <PDButton
+            href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
+            tall
+            className="w-full"
+            target="_blank"
+          >
+            Wordsworth Books 
           </PDButton>
         </div>
       </animated.section>
@@ -280,15 +288,23 @@ function MobileBookPageContent() {
             />
             {/* Buy buttons after Leaflets */}
             <div className="relative z-10 flex flex-col gap-3 mb-15 px-5">
-              <PDButton href="/contact" className="w-full" primary tall>
+              <PDButton
+                href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
+                className="w-full"
+                target="_blank"
+                primary
+                tall
+              >
                 <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
               </PDButton>
               <div className="flex gap-3">
-                <PDButton href="/contact" className="flex-1" tall>
-                  Takealot
-                </PDButton>
-                <PDButton className="flex-1" href="/contact" tall>
-                  Exclusive Books
+                <PDButton
+                  href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
+                  className="w-full"
+                  tall
+                  target="_blank"
+                >
+                  Wordsworth Books
                 </PDButton>
               </div>
             </div>

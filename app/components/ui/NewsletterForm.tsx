@@ -35,9 +35,14 @@ export const NewsletterForm = () => {
         formData.append("email", data.email);
         formData.append("consent", data.consent ? "on" : "");
 
-        await subscribeToNewsletter(formData);
-        setIsSuccess(true);
-        reset();
+        const response = await subscribeToNewsletter(formData);
+        
+        if (response.success && response.redirectUrl) {
+          // Open Substack subscription in new window
+          window.open(response.redirectUrl, '_blank', 'noopener,noreferrer');
+          setIsSuccess(true);
+          reset();
+        }
       } catch (error) {
         console.error("Form submission error:", error);
         // You could add error state here if needed
@@ -66,27 +71,6 @@ export const NewsletterForm = () => {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-      <div className="w-full">
-        <PDInput
-          label="First Name"
-          type="text"
-          id="firstName"
-          placeholder="Enter first name"
-          {...register("firstName", {
-            required: "First name is required",
-            minLength: {
-              value: 2,
-              message: "First name must be at least 2 characters",
-            },
-          })}
-        />
-        {errors.firstName && (
-          <span className="text-red-500 text-sm mt-1 block">
-            {errors.firstName.message}
-          </span>
-        )}
-      </div>
-
       <div className="w-full">
         <PDInput
           label="Email"

@@ -50,22 +50,46 @@ export const Footer = () => {
                 />
               </ThreeLink>
               <div className="flex gap-2 justify-center items-center [&>button]:hover:text-gray-500 [&>button]:transition-colors [&svg]:w-full [&svg]:h-full">
-                <ThreeLink href="#" className="w-4.5 h-4.5">
+                <ThreeLink
+                  href="https://www.facebook.com/profile.php?id=61581186237434"
+                  className="w-4.5 h-4.5"
+                  target="_blank"
+                >
                   <Facebook />
                 </ThreeLink>
-                <ThreeLink href="#" className="w-4.5 h-4.5">
+                <ThreeLink
+                  href="https://www.instagram.com/painted_dog_press/"
+                  className="w-4.5 h-4.5"
+                  target="_blank"
+                >
                   <Instagram />
                 </ThreeLink>
-                <ThreeLink href="#" className="w-4.5 h-4.5">
+                <ThreeLink
+                  href="https://www.youtube.com/@PaintedDogPress"
+                  className="w-4.5 h-4.5"
+                  target="_blank"
+                >
                   <YouTube />
                 </ThreeLink>
-                <ThreeLink href="#" className="w-4.5 h-4.5">
+                <ThreeLink
+                  href="https://www.tiktok.com/@painteddogpress?lang=en"
+                  className="w-4.5 h-4.5"
+                  target="_blank"
+                >
                   <TikTok />
                 </ThreeLink>
-                <ThreeLink href="#" className="w-4.5 h-4.5">
+                <ThreeLink
+                  href="https://bsky.app/profile/painteddogpress.bsky.social"
+                  className="w-4.5 h-4.5"
+                  target="_blank"
+                >
                   <Bluesky />
                 </ThreeLink>
-                <ThreeLink href="#" className="w-4.5 h-4.5">
+                <ThreeLink
+                  href="https://x.com/painteddogpress"
+                  className="w-4.5 h-4.5"
+                  target="_blank"
+                >
                   <XTwitter />
                 </ThreeLink>
               </div>

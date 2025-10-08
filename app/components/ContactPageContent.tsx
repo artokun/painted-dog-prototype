@@ -5,7 +5,7 @@ import { PDButton } from "./ui/PDButton";
 import { PDInput } from "./ui/PDInput";
 import { PDTextarea } from "./ui/PDTextarea";
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { submitContactForm } from "@/app/actions/contact";
 import { submitSubmissionForm } from "@/app/actions/submission";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,8 @@ import { ArrowRight } from "./icons/ArrowRight";
 import { animated, useSpring } from "@react-spring/web";
 import { Footer } from "./Footer";
 import { useMediaQuery } from "usehooks-ts";
+import ReCaptcha from "./ReCaptcha";
+import ReCAPTCHA from "react-google-recaptcha";
 
 enum Tab {
   General = "general",
@@ -23,6 +25,16 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [tab, setTab] = useState(Tab.General);
   const [showContent, setShowContent] = useState(false);
+  const [wasVisible, setWasVisible] = useState(visible);
+
+  // Reset success state when component becomes visible after being hidden
+  useEffect(() => {
+    if (visible && !wasVisible && isSuccess) {
+      setIsSuccess(false);
+      setTab(Tab.General); // Also reset to general tab
+    }
+    setWasVisible(visible);
+  }, [visible, wasVisible, isSuccess]);
 
   const style = useSpring({
     opacity: visible ? 1 : 0,
@@ -190,6 +202,9 @@ interface SubmissionFormData {
 
 const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isPending, startTransition] = useTransition();
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaError, setRecaptchaError] = useState<string>("");
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const {
     register,
@@ -199,6 +214,15 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   } = useForm<SubmissionFormData>();
 
   const onSubmit = (data: SubmissionFormData) => {
+    // Clear previous reCAPTCHA error
+    setRecaptchaError("");
+    
+    // Check if reCAPTCHA is completed
+    if (!recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA verification");
+      return;
+    }
+
     startTransition(async () => {
       try {
         const formData = new FormData();
@@ -216,14 +240,35 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
         }
         formData.append("consent", data.consent ? "on" : "");
         formData.append("newsletter", data.newsletter ? "on" : "");
+        formData.append("recaptchaToken", recaptchaToken);
 
         await submitSubmissionForm(formData);
         onSuccess();
         reset();
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
+        // Reset reCAPTCHA on error
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       }
     });
+  };
+
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+    setRecaptchaError("");
+  };
+
+  const handleRecaptchaExpired = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA has expired. Please verify again.");
+  };
+
+  const handleRecaptchaError = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA error occurred. Please try again.");
   };
   return (
     <div className="flex flex-col gap-4">
@@ -456,6 +501,21 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
             </span>
           </PDInput>
         </fieldset>
+        <fieldset className="flex flex-col gap-2">
+          <ReCaptcha
+            ref={recaptchaRef}
+            onChange={handleRecaptchaChange}
+            onExpired={handleRecaptchaExpired}
+            onError={handleRecaptchaError}
+            theme="light"
+            size="normal"
+          />
+          {recaptchaError && (
+            <span className="text-red-500 text-sm">
+              {recaptchaError}
+            </span>
+          )}
+        </fieldset>
         <p>
           We aim to respond to all submissions within three to six months. If
           you have not heard from us within this timeframe, please feel free to
@@ -507,6 +567,9 @@ interface ContactFormData {
 
 const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isPending, startTransition] = useTransition();
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaError, setRecaptchaError] = useState<string>("");
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const isMobile = useMediaQuery("(max-width: 1024px)");
 
   const {
@@ -517,6 +580,15 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   } = useForm<ContactFormData>();
 
   const onSubmit = (data: ContactFormData) => {
+    // Clear previous reCAPTCHA error
+    setRecaptchaError("");
+    
+    // Check if reCAPTCHA is completed
+    if (!recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA verification");
+      return;
+    }
+
     startTransition(async () => {
       try {
         const formData = new FormData();
@@ -526,14 +598,35 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         formData.append("message", data.message);
         formData.append("consent", data.consent ? "on" : "");
         formData.append("newsletter", data.newsletter ? "on" : "");
+        formData.append("recaptchaToken", recaptchaToken);
 
         await submitContactForm(formData);
         onSuccess();
         reset();
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
+        // Reset reCAPTCHA on error
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       }
     });
+  };
+
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+    setRecaptchaError("");
+  };
+
+  const handleRecaptchaExpired = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA has expired. Please verify again.");
+  };
+
+  const handleRecaptchaError = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA error occurred. Please try again.");
   };
 
   return (
@@ -657,6 +750,21 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
             </small>
           </span>
         </PDInput>
+      </fieldset>
+      <fieldset className="flex flex-col gap-2">
+        <ReCaptcha
+          ref={recaptchaRef}
+          onChange={handleRecaptchaChange}
+          onExpired={handleRecaptchaExpired}
+          onError={handleRecaptchaError}
+          theme="light"
+          size="normal"
+        />
+        {recaptchaError && (
+          <span className="text-red-500 text-sm">
+            {recaptchaError}
+          </span>
+        )}
       </fieldset>
       <fieldset className="flex">
         <PDButton

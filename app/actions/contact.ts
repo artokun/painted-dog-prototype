@@ -1,10 +1,18 @@
 "use server";
 
 import resend from "@/app/lib/resend";
-import { validateInput, sanitizeInput, VALIDATION_LIMITS, ValidationError } from "@/app/lib/validation";
+import { validateInput, sanitizeInput, VALIDATION_LIMITS, ValidationError, verifyRecaptcha } from "@/app/lib/validation";
 
 export async function submitContactForm(formData: FormData) {
   try {
+    // Verify reCAPTCHA first
+    const recaptchaToken = formData.get("recaptchaToken") as string;
+    const isRecaptchaValid = await verifyRecaptcha(recaptchaToken);
+    
+    if (!isRecaptchaValid) {
+      throw new ValidationError("reCAPTCHA verification failed. Please try again.");
+    }
+
     // Validate and sanitize all inputs
     const firstName = validateInput.requiredText(
       formData.get("firstName") as string, 

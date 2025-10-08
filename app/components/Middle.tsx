@@ -146,18 +146,21 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           </p>
           <div className="flex flex-wrap gap-3 lg:gap-2">
             <PDButton
-              href="/contact"
+              href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
               className="w-full"
               primary
+              target="_blank"
               tall={isMobile}
             >
               <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
             </PDButton>
-            <PDButton href="/contact" className="flex-1" tall={isMobile}>
-              Takealot
-            </PDButton>
-            <PDButton className="flex-1" href="/contact" tall={isMobile}>
-              Exclusive Books
+            <PDButton
+              href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
+              className="w-full"
+              tall={isMobile}
+              target="_blank"
+            >
+              Wordsworth Books
             </PDButton>
           </div>
         </div>
