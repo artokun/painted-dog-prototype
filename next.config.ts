@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.225"],
   experimental: {
     serverActions: {
-      bodySizeLimit: '20mb', // Allow up to 50MB file uploads (larger than validation limit for safety)
+      bodySizeLimit: '20mb', // Allow up to 20MB file uploads (larger than validation limit for safety)
     },
   },
   /* config options here */
