@@ -340,14 +340,18 @@ const Leaflet = ({
       style={style}
       className={cn(
         "absolute inset-0 min-h-[75dvh] h-full w-full xl:pl-20 pr-5 pl-5 lg:pl-0 transform-style-preserve-3d origin-right pb-5 pointer-events-none text-black",
-        index > 0 && index === selectedIndex && "pointer-events-auto",
+        isMobile &&
+          index > 0 &&
+          index === selectedIndex &&
+          "pointer-events-auto",
+        !isMobile && index === selectedIndex && "pointer-events-auto",
         isMobile && "pl-0 pr-0 pb-0"
       )}
     >
       <div
         className={cn(
           "relative w-full h-full p-1",
-          index === 0 && "h-max",
+          index === 0 && isMobile && "h-max",
           index > 0 && "bg-[#F9F6F0]"
         )}
       >
