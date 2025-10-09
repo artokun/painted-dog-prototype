@@ -69,8 +69,8 @@ export async function submitSubmissionForm(formData: FormData) {
 
     // Send email notification with attachment and sanitized content
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "noreply@painteddogpress.com",
-      to: process.env.RESEND_TO_EMAIL || "submissions@painteddogpress.com",
+      from: process.env.RESEND_FROM_EMAIL || "noreply@painteddog.press",
+      to: process.env.RESEND_TO_EMAIL || "submissions@painteddog.press",
       subject: `${submissionType} Submission from ${firstName} ${surname}`,
       text: `
 New Submission Received
