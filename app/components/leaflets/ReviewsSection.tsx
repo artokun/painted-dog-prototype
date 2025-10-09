@@ -20,8 +20,11 @@ export const ReviewsSection = () => {
             <div className="flex flex-col gap-2" key={review.id}>
               <MarkdownParagraph content={review.excerpt || ""} />
               <div className="flex flex-col items-end">
-                <span className="uppercase text-sm">
-                  {review.criticName}
+                <span className="text-sm">
+                  <MarkdownParagraph
+                    content={review.criticName || ""}
+                    className="inline [&>p]:inline [&>p]:mb-0"
+                  />
                   {review.externalLink ? ", " : ""}
                 </span>
                 {review.externalLink && (
