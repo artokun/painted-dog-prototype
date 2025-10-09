@@ -148,12 +148,12 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
     >
       {showContent && (
         <>
-          <div className="flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 lg:px-2 px-8">
-            <div className="w-full flex flex-col items-center text-center gap-6 lg:py-20 py-12">
-              <h1 className="lg:text-5xl text-4xl font-medium">{pageTitle}</h1>
+          <div className="flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 md:px-2 px-8">
+            <div className="w-full flex flex-col items-center text-center gap-6 md:py-20 py-12">
+              <h1 className="md:text-5xl text-4xl font-medium">{pageTitle}</h1>
             </div>
             <div className="flex gap-9 w-full pb-20">
-              <aside className="hidden lg:flex flex-col items-end w-full flex-0 min-w-[225px] border-r border-black h-fit sticky top-[80px]">
+              <aside className="hidden md:flex flex-col items-end w-full flex-0 min-w-[225px] border-r border-black h-fit sticky top-[80px]">
                 <ul className="flex flex-col gap-2">
                   {sections.length > 0 ? (
                     sections.map((section) => (
@@ -227,16 +227,16 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
               </section>
             </div>
             <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pb-3" />
-            <div className="flex gap-[100px] w-full lg:py-20 py-12">
-              <aside className="hidden lg:flex flex-col items-end gap-4 flex-0 min-w-[224px] pr-8 h-fit">
+            <div className="flex gap-[100px] w-full md:py-20 py-12">
+              <aside className="hidden md:flex flex-col items-end gap-4 flex-0 min-w-[224px] pr-8 h-fit">
                 <h3 className="text-3xl font-medium">Contact</h3>
               </aside>
               <section className="flex-1">
-                <h3 className="text-3xl font-medium mb-6 lg:hidden">Contact</h3>
+                <h3 className="text-3xl font-medium mb-6 md:hidden">Contact</h3>
                 For further information or privacy-related enquiries, please
                 reach out to us at{" "}
-                <ThreeLink href="mailto:info@painteddogpress.com">
-                  info@painteddogpress.com
+                <ThreeLink href="mailto:info@painteddog.press" target="_blank">
+                  info@painteddog.press
                 </ThreeLink>{" "}
                 or visit our <ThreeLink href="/contact">contact page</ThreeLink>
                 .

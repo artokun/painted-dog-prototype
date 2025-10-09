@@ -2,6 +2,7 @@
 
 import resend from "@/app/lib/resend";
 import { validateInput, sanitizeInput, VALIDATION_LIMITS, ValidationError, verifyRecaptcha } from "@/app/lib/validation";
+import { subscribeToNewsletterWithEmail } from "./newsletter";
 
 export async function submitContactForm(formData: FormData) {
   try {
@@ -60,13 +61,21 @@ ${message || "No message provided"}
       `,
     });
 
-    // If newsletter is checked, also subscribe them
+    // If newsletter is checked, get subscription URL
+    let newsletterSubscription = null;
     if (newsletter) {
-      // You could call the newsletter subscription function here
-      // await subscribeToNewsletter(formData);
+      try {
+        newsletterSubscription = await subscribeToNewsletterWithEmail(email);
+      } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        // Don't fail the whole form if newsletter subscription fails
+      }
     }
 
-    return { success: true };
+    return { 
+      success: true,
+      newsletterSubscription: newsletterSubscription
+    };
   } catch (error) {
     // Handle validation errors specifically
     if (error instanceof ValidationError) {

@@ -2,6 +2,7 @@
 
 import resend from "@/app/lib/resend";
 import { validateInput, validateFile, sanitizeInput, VALIDATION_LIMITS, ValidationError, verifyRecaptcha } from "@/app/lib/validation";
+import { subscribeToNewsletterWithEmail } from "./newsletter";
 
 export async function submitSubmissionForm(formData: FormData) {
   try {
@@ -97,7 +98,21 @@ ${fileInfo}
       attachments: attachments.length > 0 ? attachments : undefined,
     });
 
-    return { success: true };
+    // If newsletter is checked, get subscription URL
+    let newsletterSubscription = null;
+    if (newsletter) {
+      try {
+        newsletterSubscription = await subscribeToNewsletterWithEmail(email);
+      } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        // Don't fail the whole form if newsletter subscription fails
+      }
+    }
+
+    return { 
+      success: true,
+      newsletterSubscription: newsletterSubscription
+    };
   } catch (error) {
     // Handle validation errors specifically
     if (error instanceof ValidationError) {

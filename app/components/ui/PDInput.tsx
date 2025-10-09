@@ -79,7 +79,9 @@ export const PDInput = forwardRef<
               ref={ref as any}
               placeholder={placeholder}
               className={cn(
-                "border-b border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end",
+                "border-b border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right",
+                "bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent]",
+                "text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40",
                 noUnderline && "border-b-0"
               )}
               type={type}
@@ -98,7 +100,8 @@ export const PDInput = forwardRef<
               ref={ref as any}
               className={cn(
                 "border-b border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 bg-transparent cursor-pointer text-end",
-                !value && "text-gray-500",
+                "text-[#1A1A1A]",
+                !value && "text-[#1A1A1A] opacity-40",
                 noUnderline && "border-b-0"
               )}
               onChange={onChange as any}
@@ -125,7 +128,7 @@ export const PDInput = forwardRef<
               {label && <span className="flex-shrink-0">{label}</span>}
               <span className={cn(
                 "text-sm truncate min-w-0",
-                selectedFileName ? "text-black font-medium" : "text-gray-500"
+                selectedFileName ? "text-[#1A1A1A] font-medium" : "text-[#1A1A1A] opacity-40"
               )}>
                 {selectedFileName || placeholder}
               </span>
@@ -188,7 +191,7 @@ export const PDInput = forwardRef<
           <input
             ref={ref as any}
             placeholder={placeholder}
-            className="border border-black rounded-sm p-2 h-8"
+            className="border border-black rounded-sm p-2 h-8 bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-right text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40"
             onChange={onChange as any}
             value={value}
             {...(props as any)}

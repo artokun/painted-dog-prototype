@@ -4,6 +4,7 @@ interface SubscriptionResponse {
   success: boolean;
   message?: string;
   redirectUrl?: string;
+  openInNewWindow?: boolean;
 }
 
 export async function subscribeToNewsletter(formData: FormData): Promise<SubscriptionResponse> {
@@ -11,15 +12,14 @@ export async function subscribeToNewsletter(formData: FormData): Promise<Subscri
   const consent = formData.get("consent") as string;
   const substackUrl = process.env.SUBSTACK_NEWSLETTER_URL;
 
-  // Log the data for analytics/debugging
-  console.log("Newsletter Subscription Request:");
-  console.log("Email:", email);
-  console.log("Consent:", consent === "on" ? "Yes" : "No");
-  console.log("Timestamp:", new Date().toISOString());
-
   // Validate required fields
-  if (!email || !consent) {
-    throw new Error("All fields are required");
+  if (!email) {
+    throw new Error("Email is required");
+  }
+
+  // For forms that don't have separate consent field, we assume consent was given if they checked newsletter
+  if (consent !== null && !consent) {
+    throw new Error("Consent is required");
   }
 
   // Basic email validation
@@ -44,6 +44,14 @@ export async function subscribeToNewsletter(formData: FormData): Promise<Subscri
   return {
     success: true,
     message: "Opening subscription form in new window",
-    redirectUrl: subscriptionUrl
+    redirectUrl: subscriptionUrl,
+    openInNewWindow: true
   };
+}
+
+// Helper function to create newsletter subscription with just email
+export async function subscribeToNewsletterWithEmail(email: string): Promise<SubscriptionResponse> {
+  const formData = new FormData();
+  formData.append("email", email);
+  return subscribeToNewsletter(formData);
 }

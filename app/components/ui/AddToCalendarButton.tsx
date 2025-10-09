@@ -106,14 +106,14 @@ END:VCALENDAR`;
   });
 
   return (
-    <div className="relative min-h-13 lg:min-h-9" ref={dropdownRef}>
+    <div className="relative min-h-13 md:min-h-9" ref={dropdownRef}>
       <animated.div
         style={styles}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "absolute top-0 left-0 flex flex-col items-center justify-start rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100",
-          "hover:translate-y-[-2px] hover:shadow-md active:bg-[#F2EFE9] overflow-hidden",
-          isOpen && "shadow-md bg-[#F2EFE9] translate-y-[-2px]",
+          "hover:translate-y-[-2px] hover:shadow-md active:bg-[#f9f6f0] overflow-hidden",
+          isOpen && "shadow-md bg-[#f9f6f0] translate-y-[-2px]",
           tall && "h-13",
           className
         )}

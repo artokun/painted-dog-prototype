@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 
 interface FormData {
-  firstName: string;
   email: string;
   consent: boolean;
 }
@@ -31,7 +30,6 @@ export const NewsletterForm = () => {
     startTransition(async () => {
       try {
         const formData = new FormData();
-        formData.append("firstName", data.firstName);
         formData.append("email", data.email);
         formData.append("consent", data.consent ? "on" : "");
 
@@ -52,16 +50,16 @@ export const NewsletterForm = () => {
 
   if (isSuccess) {
     return (
-      <div className="flex flex-col gap-3 text-center p-6 bg-green-50 border border-green-200 rounded-sm">
-        <div className="text-green-600 text-2xl">✓</div>
-        <h3 className="text-xl font-medium text-green-800">Thank you!</h3>
-        <p className="text-green-700">
+      <div className="flex flex-col gap-3">
+        <h3 className="text-xl font-medium">Thank you!</h3>
+        <p>
           You&apos;ve been subscribed to our newsletter and are now in the
           running to win a copy of Bitterkomix Sketchbooks and Journals.
         </p>
         <PDButton
           onClick={() => setIsSuccess(false)}
-          className="mt-2 border-green-600 text-green-600 hover:bg-green-50"
+          className="mt-2"
+		  primary
         >
           Subscribe another email
         </PDButton>
@@ -71,6 +69,12 @@ export const NewsletterForm = () => {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
+      <h3 className="text-xl font-medium">Win a copy, be in the know</h3>
+      <p className="text-md">
+        Receive updates on page-turning developments and future publications in
+        our newsletter and stand a chance to win a copy of <i>Bitterkomix</i>{" "}
+        Sketchbooks and Journals.
+      </p>
       <div className="w-full">
         <PDInput
           label="Email"
@@ -92,7 +96,7 @@ export const NewsletterForm = () => {
         )}
       </div>
 
-      <div className="relative flex flex-col lg:flex-row gap-3 mt-3">
+      <div className="relative flex flex-col md:flex-row gap-3 mt-3">
         <PDInput
           type="checkbox"
           id="consent"
