@@ -168,7 +168,10 @@ export const validateFile = {
       .substring(0, 255); // Limit filename length
     
     // Check file extension
-    const extension = sanitizedName.toLowerCase().substring(sanitizedName.lastIndexOf('.'));
+    const lastDotIndex = sanitizedName.lastIndexOf('.');
+    const extension = lastDotIndex !== -1
+      ? sanitizedName.toLowerCase().substring(lastDotIndex)
+      : '';
     if (!ALLOWED_EXTENSIONS.includes(extension)) {
       return { 
         isValid: false, 
