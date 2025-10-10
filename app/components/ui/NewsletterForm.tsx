@@ -54,13 +54,9 @@ export const NewsletterForm = () => {
         <h3 className="text-xl font-medium">Thank you!</h3>
         <p>
           You&apos;ve been subscribed to our newsletter and are now in the
-          running to win a copy of Bitterkomix Sketchbooks and Journals.
+          running to win a copy of <i>Bitterkomix</i> Sketchbooks and Journals.
         </p>
-        <PDButton
-          onClick={() => setIsSuccess(false)}
-          className="mt-2"
-		  primary
-        >
+        <PDButton onClick={() => setIsSuccess(false)} className="mt-2" primary>
           Subscribe another email
         </PDButton>
       </div>
