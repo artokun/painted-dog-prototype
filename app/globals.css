@@ -59,9 +59,9 @@ body {
   html,
   body {
     background-color: hsla(35, 68%, 82%, 1);
-    background-image: 
-      radial-gradient(at 21% 19%, hsla(39, 0%, 100%, 0) 0px, transparent 50%), 
-      radial-gradient(at 25% 19%, hsla(87, 38%, 97%, 1) 0px, transparent 50%);
+    background-image:
+      radial-gradient(at 21% 19%, hsla(39, 0%, 100%, 0) 0px, transparent 50%),
+      radial-gradient(at 22% 5%, hsla(87, 38%, 97%, 0.61) 0px, transparent 50%);
   }
 }
 
@@ -69,5 +69,5 @@ body {
 input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 30px transparent inset !important;
   transition: background-color 5000s ease-in-out 0s;
-  -webkit-text-fill-color: #1A1A1A !important;
+  -webkit-text-fill-color: #1a1a1a !important;
 }

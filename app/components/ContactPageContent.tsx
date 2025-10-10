@@ -156,21 +156,32 @@ const FormSelector = ({
         style={styles}
         className={cn(
           "flex flex-col rounded-sm border border-black font-medium cursor-pointer transition-all duration-100 overflow-hidden",
-          "hover:translate-y-[-2px] hover:shadow-md active:bg-[#f9f6f0]",
-          isOpen && "shadow-md bg-[#f9f6f0] translate-y-[-2px]"
+          "hover:translate-y-[-2px] hover:shadow-md",
+          isOpen && "shadow-md translate-y-[-2px]"
         )}
       >
         <div 
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center justify-between w-full px-4 py-3 text-left"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='black' stroke-width='1' d='M3 5l3 3 3-3'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right 1rem center",
-            backgroundSize: "12px",
-          }}
         >
-          {getDisplayText()}
+          <span>{getDisplayText()}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            className={cn(
+              "transition-transform duration-300 ease-in-out",
+              isOpen && "rotate-180"
+            )}
+          >
+            <path
+              fill="none"
+              stroke="black"
+              strokeWidth="1"
+              d="M3 5l3 3 3-3"
+            />
+          </svg>
         </div>
         {isOpen && (
           <div className="flex flex-col font-normal w-full border-t border-black">
@@ -178,7 +189,7 @@ const FormSelector = ({
               onClick={() => handleFormSelect(Tab.General)}
               className={cn(
                 "w-full px-4 py-2 text-left cursor-pointer hover:font-medium active:text-neutral-900",
-                tab === Tab.General && "bg-gray-50"
+                tab === Tab.General && "font-medium"
               )}
             >
               General form
@@ -187,7 +198,7 @@ const FormSelector = ({
               onClick={() => handleFormSelect(Tab.Submission)}
               className={cn(
                 "w-full px-4 py-2 text-left cursor-pointer hover:font-medium active:text-neutral-900",
-                tab === Tab.Submission && "bg-gray-50"
+                tab === Tab.Submission && "font-medium"
               )}
             >
               Submission form
