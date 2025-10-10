@@ -54,7 +54,7 @@ export const NewsletterForm = () => {
         <h3 className="text-xl font-medium">Thank you!</h3>
         <p>
           You&apos;ve been subscribed to our newsletter and are now in the
-          running to win a copy of <i>Bitterkomix</i> Sketchbooks and Journals.
+          running to win a copy of <i>Bitterkomix Sketchbooks and Journals.</i>
         </p>
         <PDButton onClick={() => setIsSuccess(false)} className="mt-2" primary>
           Subscribe another email
@@ -68,8 +68,8 @@ export const NewsletterForm = () => {
       <h3 className="text-xl font-medium">Win a copy, be in the know</h3>
       <p className="text-md">
         Receive updates on page-turning developments and future publications in
-        our newsletter and stand a chance to win a copy of <i>Bitterkomix</i>{" "}
-        Sketchbooks and Journals.
+        our newsletter and stand a chance to win a copy of <i>Bitterkomix{" "}
+        Sketchbooks and Journals.</i>
       </p>
       <div className="w-full">
         <PDInput
