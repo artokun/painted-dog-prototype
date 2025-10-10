@@ -113,6 +113,7 @@ export const Middle = () => {
 
 const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   const { currentRoute } = useSnapshot(globalStore);
+  const { focusedBookId } = useSnapshot(bookStore);
   const isHomePage = currentRoute === "/";
   const isMobile = useMediaQuery("(max-width: 1024px)");
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -123,7 +124,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   }, []);
 
   const styles = useSpring({
-    opacity: isHomePage ? 1 : 0,
+    opacity: isHomePage && !focusedBookId ? 1 : 0,
     config: { tension: 400, friction: 35 }, // Even faster spring config
     immediate: !hasInitialized, // Skip animation on initial load if not home
   });

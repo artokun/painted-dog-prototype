@@ -73,8 +73,7 @@ export const Header = () => {
   return (
     <div
       className={cn(
-        "fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto",
-        !isHomepage && "backdrop-blur-sm"
+        "fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto"
       )}
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto gap-4 px-4 h-20 w-full">
@@ -143,7 +142,7 @@ export const Header = () => {
           </div>
         </div>
       </div>
-      <div className="hidden">
+      <div className="visible">
         <Leva
           collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
           isRoot

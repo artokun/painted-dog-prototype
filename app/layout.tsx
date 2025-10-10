@@ -57,6 +57,7 @@ export default function RootLayout({
             <Image src="/logo-dog.png" alt="Logo" width={200} height={200} />
           </div>
         </main>
+        <div id="portal-root" />
         <Script id="prevent-navigation" strategy="beforeInteractive">
           {`
             // Prevent browser back/forward navigation
