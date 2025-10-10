@@ -23,7 +23,7 @@ export const ReviewsSection = () => {
                 <span className="text-sm">
                   <MarkdownParagraph
                     content={review.criticName || ""}
-                    className="inline [&>p]:inline [&>p]:mb-0"
+                    className="inline [&>p]:inline [&>p]:mb-0 uppercase"
                   />
                   {review.externalLink ? ", " : ""}
                 </span>

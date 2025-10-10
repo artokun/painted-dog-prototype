@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { BBAnchor, Html, useCursor, useScroll } from "@react-three/drei";
+import { useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import {
@@ -30,8 +30,6 @@ import {
   calculateFocusedBookCenterOffset,
 } from "../utils/book";
 import { filterStore, FilterView } from "../store/filterStore";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { subscribeKey } from "valtio/utils";
 import { MeshStandardMaterialProperties } from "three";
 import { useMediaQuery } from "usehooks-ts";
@@ -135,12 +133,14 @@ function Book({
       posX:
         book.featured || isFocused
           ? isFocused
-            ? calculateFocusedBookCenterOffset(
-                camera,
-                book.bookSize,
-                book.offset.posZ
-              )
-            : -book.offset.posZ // Keep featured books spine-aligned
+            ? book.featured
+              ? 0  // Featured books when focused should be perfectly centered
+              : calculateFocusedBookCenterOffset(
+                  camera,
+                  book.bookSize,
+                  0
+                )
+            : 0  // No offset for featured books either
           : isSorting
             ? getContentfulBookSize(book.bookSize)[0] *
               2 *
@@ -149,7 +149,9 @@ function Book({
               ? !book.hidden
                 ? 0
                 : book.offset.posX
-              : book.offset.posX,
+              : book.featured
+                ? 0  // Remove X offset for featured books
+                : book.offset.posX,
       posY: bookPosition.posY,
       posZ: isFocused
         ? 0
@@ -162,7 +164,7 @@ function Book({
                 ? 0
                 : -0.5
               : book.featured
-                ? -getContentfulBookSize("MD")[0] / 2 + book.offset.posZ
+                ? -getContentfulBookSize("MD")[0] / 2  // No offset for featured books
                 : -getContentfulBookSize(book.bookSize)[0] / 2 +
                   book.offset.posZ,
       rotX: 0,

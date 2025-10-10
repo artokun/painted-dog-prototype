@@ -49,7 +49,7 @@ export default function Skybox() {
             label: "Scale",
           },
           groundRotation: {
-            value: [0.0, 1.5, 0.0],
+            value: [0.0, 0.9, 0.0],
             min: -Math.PI,
             max: Math.PI,
             step: 0.01,

@@ -157,7 +157,7 @@ export default function BookPageContent() {
             className="w-full"
             target="_blank"
           >
-            Wordsworth Books 
+            Wordsworth Books
           </PDButton>
         </div>
       </animated.section>
@@ -234,7 +234,7 @@ function MobileBookPageContent() {
           bookStore.isBookFlipped = !bookStore.isBookFlipped;
         }}
       ></button>
-      <div className="w-full pt-5 bg-[#e1d6bf]  shadow-2xl border-t border-[#00000011] shadow-[#000000]">
+      <div className="w-full pt-5 bg-[#F0D6B2]  shadow-2xl border-t border-[#00000011] shadow-[#000000]">
         {/* Leaflets stacked above content */}
         <section className="relative z-10 w-full">
           <div className="relative md:h-full flex flex-col">

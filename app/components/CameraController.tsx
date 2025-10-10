@@ -47,7 +47,7 @@ const CameraController = memo(function CameraController() {
   // Calculate camera distance (fixed distance, no responsive behavior)
   const distance = useMemo(() => {
     const bookWidth = 0.28;
-    const desiredScreenPercentage = 0.6;
+    const desiredScreenPercentage = 0.5;
     const fov = 45; // From page.tsx
     const calculatedDistance =
       bookWidth /
@@ -72,7 +72,7 @@ const CameraController = memo(function CameraController() {
 
     // Camera movement per scroll page (in world units)
     // This should be constant regardless of viewport size
-    const cameraMovementPerPage = 0.51; // Tweak this value to match scroll speed
+    const cameraMovementPerPage = 0.6; // Tweak this value to match scroll speed
 
     // Total camera movement = movement per page * number of pages
     // But we subtract 1 because the first page is already in view
