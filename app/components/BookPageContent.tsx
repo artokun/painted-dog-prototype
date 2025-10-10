@@ -124,14 +124,14 @@ export default function BookPageContent() {
     <div
       id="book-page-content"
       className={cn(
-        "absolute inset-0 top-0 left-0 h-screen w-full z-20 gap-4 pointer-events-none lg:pt-20",
-        "flex flex-col-reverse lg:grid lg:grid-cols-3 lg:grid-rows-1 lg:place-items-center text-black"
+        "absolute inset-0 top-0 left-0 h-screen w-full z-20 gap-4 pointer-events-none md:pt-20",
+        "flex flex-col-reverse md:grid md:grid-cols-3 md:grid-rows-1 md:place-items-center text-black"
       )}
     >
       {/* Left Menu */}
       <animated.section
         style={leftContentSpring}
-        className="flex flex-col gap-4 p-10 xl:p-20 justify-center h-full w-full pb-[120px] lg:pb-10 xl:lg:pb-20"
+        className="flex flex-col gap-4 p-10 xl:p-20 justify-center h-full w-full pb-[120px] md:pb-10 xl:md:pb-20"
       >
         <MenuList
           menuItems={menuItems}
@@ -168,10 +168,10 @@ export default function BookPageContent() {
       {/* Right Content */}
       <animated.section
         style={rightContentSpring}
-        className="relative pointer-events-auto w-full h-full mt-[75dvh] lg:mt-0 lg:pt-0"
+        className="relative pointer-events-auto w-full h-full mt-[75dvh] md:mt-0 md:pt-0"
       >
         <div
-          className="relative lg:h-full flex flex-col lg:block"
+          className="relative md:h-full flex flex-col md:block"
           style={{ perspective: "1000px" }}
         >
           {menuItems.map((item, index) => (
@@ -237,7 +237,7 @@ function MobileBookPageContent() {
       <div className="w-full pt-5 bg-[#e1d6bf]  shadow-2xl border-t border-[#00000011] shadow-[#000000]">
         {/* Leaflets stacked above content */}
         <section className="relative z-10 w-full">
-          <div className="relative lg:h-full flex flex-col">
+          <div className="relative md:h-full flex flex-col">
             <div className="px-5">
               <FullDescriptionSection />
             </div>
@@ -355,7 +355,7 @@ const Leaflet = ({
     <animated.div
       style={style}
       className={cn(
-        "absolute inset-0 min-h-[75dvh] h-full w-full xl:pl-20 pr-5 pl-5 lg:pl-0 transform-style-preserve-3d origin-right pb-5 pointer-events-none text-black",
+        "absolute inset-0 min-h-[75dvh] h-full w-full xl:pl-20 pr-5 pl-5 md:pl-0 transform-style-preserve-3d origin-right pb-5 pointer-events-none text-black",
         isMobile &&
           index > 0 &&
           index === selectedIndex &&
