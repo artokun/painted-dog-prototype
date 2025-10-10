@@ -142,7 +142,7 @@ export const Header = () => {
           </div>
         </div>
       </div>
-      <div className="visible">
+      <div className="hidden">
         <Leva
           collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
           isRoot
