@@ -30,7 +30,7 @@ export const Middle = () => {
   const [windowHeight, setWindowHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
   const { isRendered } = useSnapshot(bookStore);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Update window height on resize with debouncing
   useEffect(() => {
@@ -115,7 +115,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   const { currentRoute } = useSnapshot(globalStore);
   const { focusedBookId } = useSnapshot(bookStore);
   const isHomePage = currentRoute === "/";
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Track if this is the first render

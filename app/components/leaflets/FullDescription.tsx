@@ -10,7 +10,7 @@ export const FullDescriptionSection = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-medium mb-4 lg:-mt-4">{book?.title}</h2>
+      <h2 className="text-2xl font-medium mb-4 md:-mt-4">{book?.title}</h2>
       {book?.isbn && (
         <p className="relative text-sm text-gray-800 -translate-y-2 -mt-4">
           ISBN&nbsp;: {book.isbn}

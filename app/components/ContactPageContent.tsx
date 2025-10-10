@@ -649,7 +649,7 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [recaptchaError, setRecaptchaError] = useState<string>("");
   const recaptchaRef = useRef<ReCAPTCHA>(null);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const {
     register,

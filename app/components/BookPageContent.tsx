@@ -63,7 +63,7 @@ export default function BookPageContent() {
   const { currentRoute } = useSnapshot(globalStore);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [book, setBook] = useState<ContentfulBook | null>(null);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const isBookPage = currentRoute.startsWith("/books/");
 
   useEffect(() => {

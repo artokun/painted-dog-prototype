@@ -55,7 +55,7 @@ body {
 }
 
 /* Mobile and tablet background */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   html,
   body {
     background-color: hsla(35, 68%, 82%, 1);

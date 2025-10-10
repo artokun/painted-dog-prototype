@@ -17,7 +17,7 @@ import { useMediaQuery } from "usehooks-ts";
 
 export const Footer = () => {
   const { focusedBookId } = useSnapshot(bookStore);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const someBookIsFocused = focusedBookId !== null;
 
   return (

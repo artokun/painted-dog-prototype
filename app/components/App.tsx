@@ -13,7 +13,7 @@ import { useSnapshot } from "valtio";
 import { useMediaQuery } from "usehooks-ts";
 
 export default function App() {
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const { enabled: effectsEnabled } = useControls(
     "Effects",
     {

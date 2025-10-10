@@ -22,7 +22,7 @@ export const Header = () => {
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [levaLoaded, setLevaLoaded] = useState(false);
 
@@ -84,7 +84,7 @@ export const Header = () => {
             <span>•</span>
             <Link href="/about/#who-we-are">Who We Are</Link>
           </div>
-          <div className="lg:hidden flex gap-2 items-center">
+          <div className="md:hidden flex gap-2 items-center">
             <Link href="/">
               <ShoppingCartIcon />
             </Link>
@@ -130,12 +130,12 @@ export const Header = () => {
             isBookFocused && "opacity-0 delay-600 pointer-events-none"
           )}
         >
-          <div className="hidden lg:flex gap-2 items-center text-black">
+          <div className="hidden md:flex gap-2 items-center text-black">
             <ThreeLink animatedUnderline href="/contact">
               Contact
             </ThreeLink>
           </div>
-          <div className="lg:hidden flex gap-2 items-center text-black">
+          <div className="md:hidden flex gap-2 items-center text-black">
             <ThreeLink noUnderline href="/contact">
               <MailIcon className="w-8 h-8" />
             </ThreeLink>
