@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 
 interface FormData {
-  firstName: string;
   email: string;
   consent: boolean;
 }
@@ -18,7 +17,7 @@ interface FormData {
 export const NewsletterForm = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const {
     register,
@@ -31,13 +30,17 @@ export const NewsletterForm = () => {
     startTransition(async () => {
       try {
         const formData = new FormData();
-        formData.append("firstName", data.firstName);
         formData.append("email", data.email);
         formData.append("consent", data.consent ? "on" : "");
 
-        await subscribeToNewsletter(formData);
-        setIsSuccess(true);
-        reset();
+        const response = await subscribeToNewsletter(formData);
+        
+        if (response.success && response.redirectUrl) {
+          // Open Substack subscription in new window
+          window.open(response.redirectUrl, '_blank', 'noopener,noreferrer');
+          setIsSuccess(true);
+          reset();
+        }
       } catch (error) {
         console.error("Form submission error:", error);
         // You could add error state here if needed
@@ -47,17 +50,13 @@ export const NewsletterForm = () => {
 
   if (isSuccess) {
     return (
-      <div className="flex flex-col gap-3 text-center p-6 bg-green-50 border border-green-200 rounded-sm">
-        <div className="text-green-600 text-2xl">✓</div>
-        <h3 className="text-xl font-medium text-green-800">Thank you!</h3>
-        <p className="text-green-700">
+      <div className="flex flex-col gap-3">
+        <h3 className="text-xl font-medium">Thank you!</h3>
+        <p>
           You&apos;ve been subscribed to our newsletter and are now in the
-          running to win a copy of Bitterkomix Sketchbooks and Journals.
+          running to win a copy of <i>Bitterkomix Sketchbooks and Journals.</i>
         </p>
-        <PDButton
-          onClick={() => setIsSuccess(false)}
-          className="mt-2 border-green-600 text-green-600 hover:bg-green-50"
-        >
+        <PDButton onClick={() => setIsSuccess(false)} className="mt-2" primary>
           Subscribe another email
         </PDButton>
       </div>
@@ -66,27 +65,12 @@ export const NewsletterForm = () => {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-      <div className="w-full">
-        <PDInput
-          label="First Name"
-          type="text"
-          id="firstName"
-          placeholder="Enter first name"
-          {...register("firstName", {
-            required: "First name is required",
-            minLength: {
-              value: 2,
-              message: "First name must be at least 2 characters",
-            },
-          })}
-        />
-        {errors.firstName && (
-          <span className="text-red-500 text-sm mt-1 block">
-            {errors.firstName.message}
-          </span>
-        )}
-      </div>
-
+      <h3 className="text-xl font-medium">Win a copy, be in the know</h3>
+      <p className="text-md">
+        Receive updates on page-turning developments and future publications in
+        our newsletter and stand a chance to win a copy of <i>Bitterkomix{" "}
+        Sketchbooks and Journals.</i>
+      </p>
       <div className="w-full">
         <PDInput
           label="Email"
@@ -108,7 +92,7 @@ export const NewsletterForm = () => {
         )}
       </div>
 
-      <div className="relative flex flex-col lg:flex-row gap-3 mt-3">
+      <div className="relative flex flex-col md:flex-row gap-3 mt-3">
         <PDInput
           type="checkbox"
           id="consent"

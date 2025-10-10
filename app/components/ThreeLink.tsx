@@ -12,6 +12,7 @@ inside of the react three fiber app. See Foreground.tsx for more details.
 */
 export const ThreeLink = ({
   href,
+  target,
   children,
   className,
   animatedUnderline = false,
@@ -21,6 +22,7 @@ export const ThreeLink = ({
   className?: string;
   animatedUnderline?: boolean;
   noUnderline?: boolean;
+  target?: string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -38,7 +40,13 @@ export const ThreeLink = ({
 
     if (href && href !== "#") {
       if (typeof window !== "undefined") {
-        globalStore.currentRoute = href.toString();
+        if (target) {
+          // If target is specified (e.g., "_blank"), use window.open
+          window.open(href.toString(), target);
+        } else {
+          // Default behavior: use internal navigation
+          globalStore.currentRoute = href.toString();
+        }
       }
     }
   };

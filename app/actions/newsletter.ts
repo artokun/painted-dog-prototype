@@ -1,22 +1,25 @@
 "use server";
 
-import { redirect } from "next/navigation";
-import { sendWelcomeEmail, type NewsletterSubscription } from "@/app/lib/sendgrid";
+interface SubscriptionResponse {
+  success: boolean;
+  message?: string;
+  redirectUrl?: string;
+  openInNewWindow?: boolean;
+}
 
-export async function subscribeToNewsletter(formData: FormData) {
-  const firstName = formData.get("firstName") as string;
+export async function subscribeToNewsletter(formData: FormData): Promise<SubscriptionResponse> {
   const email = formData.get("email") as string;
   const consent = formData.get("consent") as string;
-
-  // Log the data
-  console.log("Newsletter Subscription:");
-  console.log("First Name:", firstName);
-  console.log("Email:", email);
-  console.log("Consent:", consent === "on" ? "Yes" : "No");
+  const substackUrl = process.env.SUBSTACK_NEWSLETTER_URL;
 
   // Validate required fields
-  if (!firstName || !email || !consent) {
-    throw new Error("All fields are required");
+  if (!email) {
+    throw new Error("Email is required");
+  }
+
+  // For forms that don't have separate consent field, we assume consent was given if they checked newsletter
+  if (consent !== null && !consent) {
+    throw new Error("Consent is required");
   }
 
   // Basic email validation
@@ -25,26 +28,30 @@ export async function subscribeToNewsletter(formData: FormData) {
     throw new Error("Please enter a valid email address");
   }
 
-  const subscription: NewsletterSubscription = {
-    firstName,
-    email,
-    consent: consent === "on",
-  };
-
-  try {
-    // Send welcome email via SendGrid
-    await sendWelcomeEmail(subscription);
-
-    console.log("✅ Newsletter subscription successful!");
-
-    // TODO: Store subscription in database
-    // await saveSubscriptionToDatabase(subscription);
-
-  } catch (error) {
-    console.error("❌ Error processing newsletter subscription:", error);
-    throw new Error("Failed to process subscription. Please try again.");
+  if (!substackUrl) {
+    throw new Error("Substack URL is not configured");
   }
 
-  // You can redirect to a thank you page or return success
-  // redirect("/thank-you");
+  // Create a pre-filled subscription URL
+  const subscriptionUrl = `${substackUrl}/subscribe?utm_source=painted_dog_website&utm_medium=newsletter_form&email=${encodeURIComponent(email)}`;
+  
+  console.log("Generated subscription URL:", subscriptionUrl);
+  
+  // Store the attempted subscription for analytics if needed
+  // You could also send this to your analytics service here
+  
+  // Return the URL so client can open it in new window
+  return {
+    success: true,
+    message: "Opening subscription form in new window",
+    redirectUrl: subscriptionUrl,
+    openInNewWindow: true
+  };
+}
+
+// Helper function to create newsletter subscription with just email
+export async function subscribeToNewsletterWithEmail(email: string): Promise<SubscriptionResponse> {
+  const formData = new FormData();
+  formData.append("email", email);
+  return subscribeToNewsletter(formData);
 }

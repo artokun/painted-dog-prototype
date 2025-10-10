@@ -30,7 +30,7 @@ export const Middle = () => {
   const [windowHeight, setWindowHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
   const { isRendered } = useSnapshot(bookStore);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Update window height on resize with debouncing
   useEffect(() => {
@@ -115,7 +115,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
   const { currentRoute } = useSnapshot(globalStore);
   const { focusedBookId } = useSnapshot(bookStore);
   const isHomePage = currentRoute === "/";
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Track if this is the first render
@@ -138,34 +138,37 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
         !isHomePage && "pointer-events-none"
       )}
     >
-      <div className="flex flex-col lg:flex-row gap-12 justify-around mx-auto max-w-3xl px-8 lg:px-0">
+      <div className="flex flex-col md:flex-row gap-12 justify-around mx-auto max-w-3xl px-8 md:px-0">
         <div className="flex-1 flex flex-col gap-3">
-          <p className="text-lg font-medium">
+          <p className="text-md font-medium">
             An expansive publication in full colour showcasing decades&apos;
             worth of illustration done in hundreds of sketchbooks and journals
             by the creators of the biting satirical comic <i>Bitterkomix</i>.
           </p>
-          <div className="flex flex-wrap gap-3 lg:gap-2">
+          <div className="flex flex-wrap gap-3 md:gap-2">
             <PDButton
-              href="/contact"
+              href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
               className="w-full"
               primary
+              target="_blank"
               tall={isMobile}
             >
               <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
             </PDButton>
-            <PDButton href="/contact" className="flex-1" tall={isMobile}>
-              Takealot
-            </PDButton>
-            <PDButton className="flex-1" href="/contact" tall={isMobile}>
-              Exclusive Books
+            <PDButton
+              href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
+              className="w-full"
+              tall={isMobile}
+              target="_blank"
+            >
+              Wordsworth Books
             </PDButton>
           </div>
         </div>
         <div className="flex-1 gap-3 flex flex-col">
           <h3 className="text-xl font-medium">Stellenbosch Woordfees</h3>
           <p className="text-md">
-            The collection will be launching on September 18th at the
+            The collection will be launching on October 17th at the
             Stellenbosch Woordfees.
           </p>
           <div className="mt-1">
@@ -184,8 +187,8 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           </div>
         </div>
       </div>
-      <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-[1px] pt-10 lg:pt-3 mb-10 lg:mb-0" />
-      <div className="flex flex-col lg:flex-row gap-20 lg:gap-10 max-w-3xl mx-auto px-8 lg:px-0">
+      <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-[1px] pt-10 md:pt-3 mb-10 md:mb-0" />
+      <div className="flex flex-col md:flex-row gap-20 md:gap-10 max-w-3xl mx-auto px-8 md:px-0">
         <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">New Publisher, New Tricks</h3>
           <p>
@@ -211,12 +214,6 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           </p>
         </article> */}
         <article className="flex-1 flex flex-col gap-4">
-          <h3 className="text-xl font-medium">Win a copy, be in the know</h3>
-          <p className="text-md">
-            Receive updates on page-turning developments and future publications
-            in our newsletter and stand a chance to win a copy of{" "}
-            <i>Bitterkomix</i> Sketchbooks and Journals.
-          </p>
           <NewsletterForm />
         </article>
       </div>

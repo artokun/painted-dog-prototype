@@ -1,62 +1,126 @@
 "use server";
 
-import sgMail from "@sendgrid/mail";
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+import resend from "@/app/lib/resend";
+import { validateInput, validateFile, sanitizeInput, VALIDATION_LIMITS, ValidationError, verifyRecaptcha } from "@/app/lib/validation";
+import { subscribeToNewsletterWithEmail } from "./newsletter";
 
 export async function submitSubmissionForm(formData: FormData) {
-  const firstName = formData.get("firstName") as string;
-  const surname = formData.get("surname") as string;
-  const email = formData.get("email") as string;
-  const phone = formData.get("phone") as string;
-  const submissionType = formData.get("submissionType") as string;
-  const submittedElsewhere = formData.get("submittedToAnotherPublisher") as string;
-  const newsletter = formData.get("newsletter") === "on";
-  const consent = formData.get("consent") === "on";
+  try {
+    // Verify reCAPTCHA first
+    const recaptchaToken = formData.get("recaptchaToken") as string;
+    const isRecaptchaValid = await verifyRecaptcha(recaptchaToken);
+    
+    if (!isRecaptchaValid) {
+      throw new ValidationError("reCAPTCHA verification failed. Please try again.");
+    }
 
-  if (!firstName || !surname || !email || !phone || !submissionType || !consent) {
-    throw new Error("Missing required fields");
-  }
+    // Validate and sanitize all inputs
+    const firstName = validateInput.requiredText(
+      formData.get("firstName") as string, 
+      "First name", 
+      VALIDATION_LIMITS.name
+    );
+    const surname = validateInput.requiredText(
+      formData.get("surname") as string, 
+      "Surname", 
+      VALIDATION_LIMITS.name
+    );
+    const email = validateInput.email(formData.get("email") as string);
+    const phone = validateInput.phone(formData.get("phone") as string);
+    const submissionType = validateInput.requiredText(
+      formData.get("submissionType") as string, 
+      "Submission type", 
+      VALIDATION_LIMITS.submissionType
+    );
+    const submittedElsewhere = validateInput.optionalText(
+      formData.get("submittedToAnotherPublisher") as string, 
+      "Previously submitted", 
+      200
+    );
+    const newsletter = formData.get("newsletter") === "on";
+    const consent = formData.get("consent") === "on";
 
-  // Handle file upload (you'd want to save this to a storage service)
-  const file = formData.get("file") as File;
-  let fileInfo = "No file attached";
+    if (!consent) {
+      throw new ValidationError("You must consent to data processing");
+    }
 
-  if (file && file.size > 0) {
-    fileInfo = `File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-    // TODO: Upload file to storage service and get URL
-  }
+    // Handle and validate file attachment
+    const file = formData.get("file") as File;
+    let fileInfo = "No file attached";
+    let attachments: any[] = [];
 
-  // Send email notification
-  const msg = {
-    to: "submissions@painteddogpress.com",
-    from: "noreply@painteddogpress.com",
-    subject: `${submissionType} Submission from ${firstName} ${surname}`,
-    text: `
+    if (file && file.size > 0) {
+      // Validate the uploaded file
+      const fileValidation = await validateFile.upload(file);
+      
+      if (!fileValidation.isValid) {
+        throw new ValidationError(fileValidation.error || "Invalid file");
+      }
+      
+      fileInfo = `File: ${fileValidation.sanitizedName} (${(fileValidation.size! / 1024 / 1024).toFixed(2)} MB)`;
+      
+      // Convert file to buffer for email attachment
+      const fileBuffer = await file.arrayBuffer();
+      
+      attachments.push({
+        filename: fileValidation.sanitizedName,
+        content: Buffer.from(fileBuffer),
+      });
+    }
+
+    // Send email notification with attachment and sanitized content
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "noreply@painteddog.press",
+      to: process.env.RESEND_TO_EMAIL || "submissions@painteddog.press",
+      subject: `${submissionType} Submission from ${firstName} ${surname}`,
+      text: `
 New Submission Received
 
 Name: ${firstName} ${surname}
 Email: ${email}
 Phone: ${phone}
 Submission Type: ${submissionType}
-Submitted Elsewhere: ${submittedElsewhere}
+Submitted Elsewhere: ${submittedElsewhere || "Not specified"}
 Newsletter: ${newsletter ? "Yes" : "No"}
 
 ${fileInfo}
-    `,
-    html: `
-      <h3>New Submission Received</h3>
-      <p><strong>Name:</strong> ${firstName} ${surname}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Phone:</strong> ${phone}</p>
-      <p><strong>Submission Type:</strong> ${submissionType}</p>
-      <p><strong>Submitted Elsewhere:</strong> ${submittedElsewhere}</p>
-      <p><strong>Newsletter:</strong> ${newsletter ? "Yes" : "No"}</p>
-      <p>${fileInfo}</p>
-    `,
-  };
+      `,
+      html: `
+        <h3>New Submission Received</h3>
+        <p><strong>Name:</strong> ${sanitizeInput.html(firstName)} ${sanitizeInput.html(surname)}</p>
+        <p><strong>Email:</strong> ${sanitizeInput.html(email)}</p>
+        <p><strong>Phone:</strong> ${sanitizeInput.html(phone)}</p>
+        <p><strong>Submission Type:</strong> ${sanitizeInput.html(submissionType)}</p>
+        <p><strong>Submitted Elsewhere:</strong> ${sanitizeInput.html(submittedElsewhere || "Not specified")}</p>
+        <p><strong>Newsletter:</strong> ${newsletter ? "Yes" : "No"}</p>
+        <p><strong>Attachment:</strong> ${sanitizeInput.html(fileInfo)}</p>
+      `,
+      attachments: attachments.length > 0 ? attachments : undefined,
+    });
 
-  await sgMail.send(msg);
+    // If newsletter is checked, get subscription URL
+    let newsletterSubscription = null;
+    if (newsletter) {
+      try {
+        newsletterSubscription = await subscribeToNewsletterWithEmail(email);
+      } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        // Don't fail the whole form if newsletter subscription fails
+      }
+    }
 
-  return { success: true };
+    return { 
+      success: true,
+      newsletterSubscription: newsletterSubscription
+    };
+  } catch (error) {
+    // Handle validation errors specifically
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+    
+    // Log other errors for debugging but don't expose details
+    console.error('Submission form error:', error);
+    throw new Error('Failed to submit form. Please try again.');
+  }
 }

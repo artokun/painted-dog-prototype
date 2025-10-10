@@ -63,7 +63,7 @@ export default function BookPageContent() {
   const { currentRoute } = useSnapshot(globalStore);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [book, setBook] = useState<ContentfulBook | null>(null);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const isBookPage = currentRoute.startsWith("/books/");
 
   useEffect(() => {
@@ -124,14 +124,14 @@ export default function BookPageContent() {
     <div
       id="book-page-content"
       className={cn(
-        "absolute inset-0 top-0 left-0 h-screen w-full z-20 gap-4 pointer-events-none lg:pt-20",
-        "flex flex-col-reverse lg:grid lg:grid-cols-3 lg:grid-rows-1 lg:place-items-center text-black"
+        "absolute inset-0 top-0 left-0 h-screen w-full z-20 gap-4 pointer-events-none md:pt-20",
+        "flex flex-col-reverse md:grid md:grid-cols-3 md:grid-rows-1 md:place-items-center text-black"
       )}
     >
       {/* Left Menu */}
       <animated.section
         style={leftContentSpring}
-        className="flex flex-col gap-4 p-10 xl:p-20 justify-center h-full w-full pb-[120px] lg:pb-10 xl:lg:pb-20"
+        className="flex flex-col gap-4 p-10 xl:p-20 justify-center h-full w-full pb-[120px] md:pb-10 xl:md:pb-20"
       >
         <MenuList
           menuItems={menuItems}
@@ -142,14 +142,22 @@ export default function BookPageContent() {
           book={book}
         />
         <div className="flex flex-wrap flex-col xl:flex-row gap-3 mt-10 pointer-events-auto">
-          <PDButton href="/contact" className="w-full" primary tall>
+          <PDButton
+            href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
+            className="w-full"
+            target="_blank"
+            primary
+            tall
+          >
             <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
           </PDButton>
-          <PDButton href="/contact" className="flex-1" tall>
-            Takealot
-          </PDButton>
-          <PDButton className="flex-1" href="/contact" tall>
-            Exclusive Books
+          <PDButton
+            href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
+            tall
+            className="w-full"
+            target="_blank"
+          >
+            Wordsworth Books 
           </PDButton>
         </div>
       </animated.section>
@@ -160,10 +168,10 @@ export default function BookPageContent() {
       {/* Right Content */}
       <animated.section
         style={rightContentSpring}
-        className="relative pointer-events-auto w-full h-full mt-[75dvh] lg:mt-0 lg:pt-0"
+        className="relative pointer-events-auto w-full h-full mt-[75dvh] md:mt-0 md:pt-0"
       >
         <div
-          className="relative lg:h-full flex flex-col lg:block"
+          className="relative md:h-full flex flex-col md:block"
           style={{ perspective: "1000px" }}
         >
           {menuItems.map((item, index) => (
@@ -229,21 +237,29 @@ function MobileBookPageContent() {
       <div className="w-full pt-5 bg-[#e1d6bf]  shadow-2xl border-t border-[#00000011] shadow-[#000000]">
         {/* Leaflets stacked above content */}
         <section className="relative z-10 w-full">
-          <div className="relative lg:h-full flex flex-col">
+          <div className="relative md:h-full flex flex-col">
             <div className="px-5">
               <FullDescriptionSection />
             </div>
             {/* Buy buttons after Leaflets */}
-            <div className="relative z-10 flex flex-col gap-3 my-15 px-5 pointer-events-auto">
-              <PDButton href="/contact" className="w-full" primary tall>
+            <div className="relative z-10 flex flex-col gap-3 mb-15 px-5">
+              <PDButton
+                href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
+                className="w-full"
+                target="_blank"
+                primary
+                tall
+              >
                 <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
               </PDButton>
               <div className="flex gap-3">
-                <PDButton href="/contact" className="flex-1" tall>
-                  Takealot
-                </PDButton>
-                <PDButton className="flex-1" href="/contact" tall>
-                  Exclusive Books
+                <PDButton
+                  href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
+                  className="w-full"
+                  tall
+                  target="_blank"
+                >
+                  Wordsworth Books
                 </PDButton>
               </div>
             </div>
@@ -339,7 +355,7 @@ const Leaflet = ({
     <animated.div
       style={style}
       className={cn(
-        "absolute inset-0 min-h-[75dvh] h-full w-full xl:pl-20 pr-5 pl-5 lg:pl-0 transform-style-preserve-3d origin-right pb-5 pointer-events-none text-black",
+        "absolute inset-0 min-h-[75dvh] h-full w-full xl:pl-20 pr-5 pl-5 md:pl-0 transform-style-preserve-3d origin-right pb-5 pointer-events-none text-black",
         isMobile &&
           index > 0 &&
           index === selectedIndex &&

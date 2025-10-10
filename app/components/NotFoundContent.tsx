@@ -36,7 +36,7 @@ export const NotFoundContent = ({ visible }: { visible: boolean }) => {
     >
       {showContent && (
         <>
-          <div className="flex flex-col flex-1 gap-5 items-center justify-center max-w-lg text-center mx-auto w-full mt-20 px-2 pt-20">
+          <div className="flex flex-col flex-1 gap-5 items-center justify-center max-w-md text-center mx-auto w-full mt-20 px-2 pt-20">
             <h1 className="text-5xl font-medium">404</h1>
             <div className="w-80 h-80 mt-10">
               {isSafari ? (
@@ -56,10 +56,10 @@ export const NotFoundContent = ({ visible }: { visible: boolean }) => {
                 />
               )}
             </div>
-            <p className="text-lg">
+            <p className="text-md">
               Whoops! There&apos;s a problem with the link.
             </p>
-            <p className="text-lg">
+            <p className="text-md">
               Not to worry though, you can continue to browse from the homepage.
             </p>
             <PDButton

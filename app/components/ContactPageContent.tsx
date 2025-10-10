@@ -5,7 +5,7 @@ import { PDButton } from "./ui/PDButton";
 import { PDInput } from "./ui/PDInput";
 import { PDTextarea } from "./ui/PDTextarea";
 import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { submitContactForm } from "@/app/actions/contact";
 import { submitSubmissionForm } from "@/app/actions/submission";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,8 @@ import { ArrowRight } from "./icons/ArrowRight";
 import { animated, useSpring } from "@react-spring/web";
 import { Footer } from "./Footer";
 import { useMediaQuery } from "usehooks-ts";
+import ReCaptcha from "./ReCaptcha";
+import ReCAPTCHA from "react-google-recaptcha";
 
 enum Tab {
   General = "general",
@@ -23,6 +25,16 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [tab, setTab] = useState(Tab.General);
   const [showContent, setShowContent] = useState(false);
+  const [wasVisible, setWasVisible] = useState(visible);
+
+  // Reset success state when component becomes visible after being hidden
+  useEffect(() => {
+    if (visible && !wasVisible && isSuccess) {
+      setIsSuccess(false);
+      setTab(Tab.General); // Also reset to general tab
+    }
+    setWasVisible(visible);
+  }, [visible, wasVisible, isSuccess]);
 
   const style = useSpring({
     opacity: visible ? 1 : 0,
@@ -48,7 +60,7 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
         <>
           <div
             className={cn(
-              "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 lg:px-2 px-8"
+              "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 md:px-2 px-8"
             )}
           >
             {isSuccess ? (
@@ -100,6 +112,94 @@ const TabButton = ({
   );
 };
 
+const FormSelector = ({
+  tab,
+  setTab,
+}: {
+  tab: Tab;
+  setTab: (tab: Tab) => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleFormSelect = (selectedTab: Tab) => {
+    setTab(selectedTab);
+    setIsOpen(false);
+  };
+
+  const styles = useSpring({
+    height: isOpen ? "auto" : 48, // 48px for the main button (py-3 = 12px top + 12px bottom + ~24px content)
+    config: { duration: 150 },
+  });
+
+  const getDisplayText = () => {
+    return tab === Tab.General ? "General form" : "Submission form";
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <animated.div
+        style={styles}
+        className={cn(
+          "flex flex-col rounded-sm border border-black font-medium cursor-pointer transition-all duration-100 overflow-hidden",
+          "hover:translate-y-[-2px] hover:shadow-md active:bg-[#f9f6f0]",
+          isOpen && "shadow-md bg-[#f9f6f0] translate-y-[-2px]"
+        )}
+      >
+        <div 
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-between w-full px-4 py-3 text-left"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='black' stroke-width='1' d='M3 5l3 3 3-3'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right 1rem center",
+            backgroundSize: "12px",
+          }}
+        >
+          {getDisplayText()}
+        </div>
+        {isOpen && (
+          <div className="flex flex-col font-normal w-full border-t border-black">
+            <button
+              onClick={() => handleFormSelect(Tab.General)}
+              className={cn(
+                "w-full px-4 py-2 text-left cursor-pointer hover:font-medium active:text-neutral-900",
+                tab === Tab.General && "bg-gray-50"
+              )}
+            >
+              General form
+            </button>
+            <button
+              onClick={() => handleFormSelect(Tab.Submission)}
+              className={cn(
+                "w-full px-4 py-2 text-left cursor-pointer hover:font-medium active:text-neutral-900",
+                tab === Tab.Submission && "bg-gray-50"
+              )}
+            >
+              Submission form
+            </button>
+          </div>
+        )}
+      </animated.div>
+    </div>
+  );
+};
+
+
 const ContactPage = ({
   onSuccess,
   tab,
@@ -111,33 +211,20 @@ const ContactPage = ({
 }) => {
   return (
     <>
-      <h1 className="lg:text-5xl text-4xl font-medium lg:py-20 py-12">
+      <h1 className="md:text-5xl text-4xl font-medium md:py-20 py-12">
         Contact
       </h1>
-      <p className="max-w-md text-center lg:leading-loose px-2">
+      <p className="max-w-md text-center md:leading-loose px-2">
         Whether you are an aspiring writer, a reviewer, an influencer, or you
         have discovered interesting reviews of our works in publications or on
         BookTok we&apos;d love to hear from you. Select a form type to begin.
       </p>
-      <div className="lg:hidden w-full py-12 flex flex-col gap-2">
-        <label className="text-lg font-medium">Select form</label>
-        <select
-          value={tab}
-          onChange={(e) => setTab(e.target.value as Tab)}
-          className="w-full px-4 py-3 border border-black rounded-sm text-black appearance-none cursor-pointer"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='black' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right 1rem center",
-            backgroundSize: "12px",
-          }}
-        >
-          <option value={Tab.General}>General form</option>
-          <option value={Tab.Submission}>Submission form</option>
-        </select>
+      <div className="md:hidden w-full py-12 flex flex-col gap-2">
+        <label className="text-md font-medium">Select form</label>
+        <FormSelector tab={tab} setTab={setTab} />
       </div>
-      <div className="flex gap-[100px] w-full lg:py-20">
-        <aside className="hidden lg:flex flex-col items-end gap-4 flex-0 min-w-[224px] border-r border-black pr-8 h-fit sticky top-[80px]">
+      <div className="flex gap-[100px] w-full md:py-20">
+        <aside className="hidden md:flex flex-col items-end gap-4 flex-0 min-w-[224px] border-r border-black pr-8 h-fit sticky top-[80px]">
           <h3 className="text-3xl">Form Type</h3>
           <ul className="flex flex-col gap-2">
             <TabButton
@@ -159,16 +246,16 @@ const ContactPage = ({
           {tab === Tab.Submission && <SubmissionForm onSuccess={onSuccess} />}
         </section>
       </div>
-      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pt-20 lg:pt-3" />
-      <div className="flex gap-[100px] w-full lg:py-20 pt-18">
-        <aside className="hidden lg:flex flex-col items-end gap-4 flex-0 min-w-[224px] pr-8 h-fit">
+      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pt-20 md:pt-3" />
+      <div className="flex gap-[100px] w-full md:py-20 pt-18">
+        <aside className="hidden md:flex flex-col items-end gap-4 flex-0 min-w-[224px] pr-8 h-fit">
           <h3 className="text-3xl font-medium">Email us</h3>
         </aside>
         <section className="flex-1">
-          <h3 className="text-3xl font-medium mb-6 lg:hidden">Email us</h3>
+          <h3 className="text-3xl font-medium mb-6 md:hidden">Email us</h3>
           If you have any further concerns, please reach out to us at{" "}
-          <ThreeLink href="mailto:info@painteddogpress.com">
-            info@painteddogpress.com
+          <ThreeLink href="mailto:info@painteddog.press" target="_blank">
+            info@painteddog.press
           </ThreeLink>
         </section>
       </div>
@@ -190,6 +277,9 @@ interface SubmissionFormData {
 
 const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isPending, startTransition] = useTransition();
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaError, setRecaptchaError] = useState<string>("");
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const {
     register,
@@ -199,6 +289,15 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   } = useForm<SubmissionFormData>();
 
   const onSubmit = (data: SubmissionFormData) => {
+    // Clear previous reCAPTCHA error
+    setRecaptchaError("");
+
+    // Check if reCAPTCHA is completed
+    if (!recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA verification");
+      return;
+    }
+
     startTransition(async () => {
       try {
         const formData = new FormData();
@@ -216,14 +315,41 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
         }
         formData.append("consent", data.consent ? "on" : "");
         formData.append("newsletter", data.newsletter ? "on" : "");
+        formData.append("recaptchaToken", recaptchaToken);
 
-        await submitSubmissionForm(formData);
+        const result = await submitSubmissionForm(formData);
+        
+        // Handle newsletter subscription if present
+        if (result.newsletterSubscription && result.newsletterSubscription.redirectUrl) {
+          window.open(result.newsletterSubscription.redirectUrl, '_blank', 'noopener,noreferrer');
+        }
+        
         onSuccess();
         reset();
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
+        // Reset reCAPTCHA on error
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       }
     });
+  };
+
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+    setRecaptchaError("");
+  };
+
+  const handleRecaptchaExpired = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA has expired. Please verify again.");
+  };
+
+  const handleRecaptchaError = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA error occurred. Please try again.");
   };
   return (
     <div className="flex flex-col gap-4">
@@ -245,7 +371,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </p>
       <form className="flex flex-col gap-9" onSubmit={handleSubmit(onSubmit)}>
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-lg font-medium mb-4">
+          <legend className="text-md font-medium mb-4">
             Personal Information
           </legend>
           <div className="border-b border-black pb-1">
@@ -333,7 +459,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
           </div>
         </fieldset>
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-lg font-medium mb-4">
+          <legend className="text-md font-medium mb-4">
             Submission Details
           </legend>
           <div className="border-b border-black pb-1">
@@ -456,6 +582,19 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
             </span>
           </PDInput>
         </fieldset>
+        <fieldset className="flex flex-col gap-2">
+          <ReCaptcha
+            ref={recaptchaRef}
+            onChange={handleRecaptchaChange}
+            onExpired={handleRecaptchaExpired}
+            onError={handleRecaptchaError}
+            theme="light"
+            size="normal"
+          />
+          {recaptchaError && (
+            <span className="text-red-500 text-sm">{recaptchaError}</span>
+          )}
+        </fieldset>
         <p>
           We aim to respond to all submissions within three to six months. If
           you have not heard from us within this timeframe, please feel free to
@@ -507,7 +646,10 @@ interface ContactFormData {
 
 const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isPending, startTransition] = useTransition();
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaError, setRecaptchaError] = useState<string>("");
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const {
     register,
@@ -517,6 +659,15 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   } = useForm<ContactFormData>();
 
   const onSubmit = (data: ContactFormData) => {
+    // Clear previous reCAPTCHA error
+    setRecaptchaError("");
+
+    // Check if reCAPTCHA is completed
+    if (!recaptchaToken) {
+      setRecaptchaError("Please complete the reCAPTCHA verification");
+      return;
+    }
+
     startTransition(async () => {
       try {
         const formData = new FormData();
@@ -526,20 +677,47 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         formData.append("message", data.message);
         formData.append("consent", data.consent ? "on" : "");
         formData.append("newsletter", data.newsletter ? "on" : "");
+        formData.append("recaptchaToken", recaptchaToken);
 
-        await submitContactForm(formData);
+        const result = await submitContactForm(formData);
+        
+        // Handle newsletter subscription if present
+        if (result.newsletterSubscription && result.newsletterSubscription.redirectUrl) {
+          window.open(result.newsletterSubscription.redirectUrl, '_blank', 'noopener,noreferrer');
+        }
+        
         onSuccess();
         reset();
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
+        // Reset reCAPTCHA on error
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
       }
     });
+  };
+
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+    setRecaptchaError("");
+  };
+
+  const handleRecaptchaExpired = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA has expired. Please verify again.");
+  };
+
+  const handleRecaptchaError = () => {
+    setRecaptchaToken(null);
+    setRecaptchaError("reCAPTCHA error occurred. Please try again.");
   };
 
   return (
     <form className="flex flex-col gap-9" onSubmit={handleSubmit(onSubmit)}>
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-lg font-medium mb-4">
+        <legend className="text-md font-medium mb-4">
           Personal Information
         </legend>
         <div className="border-b border-black pb-1">
@@ -607,7 +785,7 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         </div>
       </fieldset>
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-lg font-medium mb-4">Message</legend>
+        <legend className="text-md font-medium mb-4">Message</legend>
         <PDTextarea
           required
           placeholder="Type your message here."
@@ -658,6 +836,19 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
           </span>
         </PDInput>
       </fieldset>
+      <fieldset className="flex flex-col gap-2">
+        <ReCaptcha
+          ref={recaptchaRef}
+          onChange={handleRecaptchaChange}
+          onExpired={handleRecaptchaExpired}
+          onError={handleRecaptchaError}
+          theme="light"
+          size="normal"
+        />
+        {recaptchaError && (
+          <span className="text-red-500 text-sm">{recaptchaError}</span>
+        )}
+      </fieldset>
       <fieldset className="flex">
         <PDButton
           primary
@@ -666,7 +857,7 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
           tall={isMobile}
           disabled={isPending}
           className={cn(
-            "w-full lg:w-fit",
+            "w-full md:w-fit",
             isPending && "opacity-50 cursor-not-allowed"
           )}
         >

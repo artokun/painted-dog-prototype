@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import AuthGate from "./components/AuthGate";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,17 @@ import Image from "next/image";
 export const metadata: Metadata = {
   title: "Painted Dog",
   description: "A book stacking visualization",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" }
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ]
+  },
+  manifest: "/site.webmanifest"
 };
 
 export default function RootLayout({
@@ -26,6 +38,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="stylesheet" href="https://use.typekit.net/uww8yjt.css" />
+        <Script
+          id="cookieyes"
+          strategy="beforeInteractive"
+          src={`https://cdn-cookieyes.com/client_data/de39bc09360b5ee9ef438483/script.js`}
+        ></Script>
       </head>
       <body className={`font-fields antialiased overflow-hidden h-dvh w-full`}>
         <main className="h-dvh w-screen relative">
@@ -100,6 +117,7 @@ export default function RootLayout({
             });
           `}
         </Script>
+        <GoogleAnalytics gaId="G-HT9PYQDS94" />
       </body>
     </html>
   );
