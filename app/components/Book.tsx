@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useCursor } from "@react-three/drei";
+import { BBAnchor, Html, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import {
@@ -33,6 +33,8 @@ import { filterStore, FilterView } from "../store/filterStore";
 import { subscribeKey } from "valtio/utils";
 import { MeshStandardMaterialProperties } from "three";
 import { useMediaQuery } from "usehooks-ts";
+import { CursorSvg } from "./CursorSvg";
+import { globalStore } from "../store/globalStore";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
@@ -134,13 +136,9 @@ function Book({
         book.featured || isFocused
           ? isFocused
             ? book.featured
-              ? 0  // Featured books when focused should be perfectly centered
-              : calculateFocusedBookCenterOffset(
-                  camera,
-                  book.bookSize,
-                  0
-                )
-            : 0  // No offset for featured books either
+              ? 0 // Featured books when focused should be perfectly centered
+              : calculateFocusedBookCenterOffset(camera, book.bookSize, 0)
+            : 0 // No offset for featured books either
           : isSorting
             ? getContentfulBookSize(book.bookSize)[0] *
               2 *
@@ -150,7 +148,7 @@ function Book({
                 ? 0
                 : book.offset.posX
               : book.featured
-                ? 0  // Remove X offset for featured books
+                ? 0 // Remove X offset for featured books
                 : book.offset.posX,
       posY: bookPosition.posY,
       posZ: isFocused
@@ -164,7 +162,7 @@ function Book({
                 ? 0
                 : -0.5
               : book.featured
-                ? -getContentfulBookSize("MD")[0] / 2  // No offset for featured books
+                ? -getContentfulBookSize("MD")[0] / 2 // No offset for featured books
                 : -getContentfulBookSize(book.bookSize)[0] / 2 +
                   book.offset.posZ,
       rotX: 0,
@@ -480,102 +478,6 @@ function Book({
   );
 }
 
-// const FeaturedLinks = ({
-//   book,
-//   isHovered,
-// }: {
-//   book: BookType;
-//   isHovered: boolean;
-// }) => {
-//   const scroll = useScroll();
-//   const { view, isSorting } = useSnapshot(filterStore);
-//   const isGridMode = view === FilterView.Grid;
-
-//   const middleDivRef = useRef<HTMLDivElement>(
-//     document.getElementById("middle") as HTMLDivElement
-//   );
-
-//   const textVisible = isHovered && !isGridMode && !isSorting;
-
-//   return (
-//     <Html
-//       pixelPerfect
-//       zIndexRange={[-0.1, 0]}
-//       center
-//       className={cn(
-//         "text-sm opacity-0 w-dvw px-12 pointer-events-none",
-//         textVisible && "opacity-100"
-//       )}
-//       style={{
-//         height:
-//           getContentfulBookSize(book.bookSize)[book.featured ? 2 : 1] * 3400,
-//         transition: "opacity ease-in-out",
-//         transitionDuration: isHovered ? "0ms" : "0.3s",
-//       }}
-//       position={[
-//         -book.offset.posX,
-//         0,
-//         getContentfulBookSize(book.bookSize)[0] * 0.5 - book.offset.posZ,
-//       ]}
-//       portal={middleDivRef}
-//     >
-//       <div
-//         className="text-black flex justify-between h-full w-full"
-//         onWheel={(e) => {
-//           scroll.el.scrollTop += e.deltaY;
-//         }}
-//       >
-//         {book.reviews?.find((r) => r.isFeatured) && (
-//           <div
-//             className="h-full flex items-center justify-start pointer-events-auto w-[28dvw]"
-//             onPointerOver={(e) => {
-//               e.preventDefault();
-//               bookStore.hoveredBookId = book.id;
-//             }}
-//             onPointerLeave={(e) => {
-//               e.preventDefault();
-//               bookStore.hoveredBookId = null;
-//             }}
-//           >
-//             <Link
-//               href={book.reviews.find((r) => r.isFeatured)!.externalLink}
-//               target="_blank"
-//               rel="noopener noreferrer"
-//               className="hover:underline"
-//             >
-//               {book.reviews.find((r) => r.isFeatured)!.title}
-//             </Link>
-//           </div>
-//         )}
-//         {book.podcastEpisodes?.find((p) => p.isFeatured) && (
-//           <div
-//             className="h-full flex items-center justify-end pointer-events-auto w-[28dvw]"
-//             onPointerOver={(e) => {
-//               e.preventDefault();
-//               bookStore.hoveredBookId = book.id;
-//             }}
-//             onPointerLeave={(e) => {
-//               e.preventDefault();
-//               bookStore.hoveredBookId = null;
-//             }}
-//           >
-//             <Link
-//               href={
-//                 book.podcastEpisodes.find((p) => p.isFeatured)!.externalLink
-//               }
-//               target="_blank"
-//               rel="noopener noreferrer"
-//               className="hover:underline"
-//             >
-//               {book.podcastEpisodes.find((p) => p.isFeatured)!.title}
-//             </Link>
-//           </div>
-//         )}
-//       </div>
-//     </Html>
-//   );
-// };
-
 const BookModel = ({
   book,
   materialControls,
@@ -583,6 +485,11 @@ const BookModel = ({
   book: BookType;
   materialControls: Partial<MeshStandardMaterialProperties>;
 }) => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const { currentRoute } = useSnapshot(globalStore);
+  const { isBookFlipped } = useSnapshot(bookStore);
+  const isBookPage = currentRoute.startsWith("/books/");
+
   const SelectedBookModel = useMemo(() => {
     switch (book.bookSize) {
       case "XS":
@@ -602,9 +509,41 @@ const BookModel = ({
     }
   }, [book.bookSize]);
 
+  const htmlRef = useRef<HTMLElement>(
+    document.getElementById("middle") as HTMLElement
+  );
+  const scrollRef = useRef<HTMLDivElement>(
+    document.getElementById("scroll-el") as HTMLDivElement
+  );
+
   return (
     <Suspense fallback={null}>
-      <SelectedBookModel book={book} materialControls={materialControls} />
+      <group name="book-model">
+        <SelectedBookModel book={book} materialControls={materialControls} />
+        {isMobile && (
+          <Html
+            portal={htmlRef}
+            center
+            position={[0.11, 0, -0.11]}
+            wrapperClass="pointer-events-none"
+            zIndexRange={[100, 100]}
+          >
+            <div className="w-20 h-20">
+              <CursorSvg
+                text={isBookPage ? "Flip" : "Focus"}
+                mousePosition={{
+                  x: 0,
+                  y: 0,
+                  nx: isBookPage ? (isBookFlipped ? -0.6 : 0.7) : 0.5,
+                  ny: isBookPage ? (isBookFlipped ? 0.7 : 0.7) : 0.5,
+                }}
+                scrollRef={scrollRef}
+                focusedBookId={book.id}
+              />
+            </div>
+          </Html>
+        )}
+      </group>
     </Suspense>
   );
 };
