@@ -103,7 +103,7 @@ export const Footer = () => {
             >
               Contact
             </ThreeLink>
-            <ThreeLink href="/legal#privacy-data-collection" noUnderline>
+            <ThreeLink href="/legal" noUnderline>
               Privacy &amp; Legal Policy
             </ThreeLink>
           </div>
