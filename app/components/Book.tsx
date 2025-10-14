@@ -2,6 +2,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { BBAnchor, Html, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import debounce from "lodash.debounce";
 import {
   BookXS,
   BookSM,
@@ -66,6 +67,7 @@ function Book({
   const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
   const [bookFlipped, setBookFlipped] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     if (isMobile) {
@@ -202,6 +204,7 @@ function Book({
       book.offset.posX,
       book.offset.rotY,
       bookPosition.posY,
+      windowSize,
     ]
   );
 
@@ -266,7 +269,7 @@ function Book({
       },
       config: isGridMode ? config.default : config.gentle,
     },
-    [isFocused, isGridMode, book.bookSize]
+    [isFocused, isGridMode, book.bookSize, windowSize]
   );
 
   const dropHeight = getDropHeight(book.id);
@@ -416,8 +419,17 @@ function Book({
       }
     };
 
+    const handleResize = debounce(() => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    }, 100);
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      handleResize.cancel();
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [isFocused, bookFocusedTiltGroupApi, bookFlipped]);
 
   const [width, thickness, height] = getContentfulBookSize(book.bookSize);
