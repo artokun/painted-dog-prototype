@@ -23,7 +23,7 @@ export const BookSection = ({
       <MarkdownParagraph
         content={book?.description || ""}
         truncate={true}
-        truncateLength={145}
+        truncateLength={110}
         truncateBy="words"
         onReadMore={setSelectedIndex ? () => setSelectedIndex(6) : undefined}
       />

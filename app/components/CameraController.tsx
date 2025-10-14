@@ -10,6 +10,7 @@ import { lerp } from "three/src/math/MathUtils.js";
 import { useGridOverrideControls } from "../hooks/useGridOverrideControls";
 import { globalStore } from "@/app/store/globalStore";
 import * as THREE from "three";
+import { useMediaQuery } from "usehooks-ts";
 
 const CameraController = memo(function CameraController() {
   const { camera } = useThree();
@@ -17,6 +18,7 @@ const CameraController = memo(function CameraController() {
   const { view, isChangingView } = useSnapshot(filterStore);
   const { currentRoute } = useSnapshot(globalStore);
   const isGridMode = view === FilterView.Grid;
+  const isMobile = useMediaQuery("(max-width: 768px)");
   // Get book state
 
   const { focusedBookId, isRendered } = useSnapshot(bookStore);
@@ -94,7 +96,14 @@ const CameraController = memo(function CameraController() {
     //   topLimit: isGridMode ? gridLimits.topLimit : getBookStackHeight() + 0.12,
     //   bottomLimit: 0.03,
     // };
-  }, [isGridMode, isRendered, gridOverrideControls, scrollPages, windowHeight]);
+  }, [
+    isGridMode,
+    isRendered,
+    gridOverrideControls,
+    scrollPages,
+    windowHeight,
+    isMobile,
+  ]);
 
   // Spring for camera Y position - start at top
   const [{ cameraY }, api] = useSpring(() => ({

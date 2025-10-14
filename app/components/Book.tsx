@@ -269,7 +269,7 @@ function Book({
       },
       config: isGridMode ? config.default : config.gentle,
     },
-    [isFocused, isGridMode, book.bookSize, windowSize]
+    [isFocused, isGridMode, book.bookSize, windowSize, isMobile]
   );
 
   const dropHeight = getDropHeight(book.id);

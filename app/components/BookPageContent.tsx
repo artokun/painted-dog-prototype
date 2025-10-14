@@ -128,12 +128,10 @@ export default function BookPageContent() {
         "flex flex-col-reverse md:grid md:grid-cols-3 md:grid-rows-1 md:place-items-center text-black"
       )}
     >
-      {/* Temporary center line for manual book centering */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-black pointer-events-none z-50" />
       {/* Left Menu */}
       <animated.section
         style={leftContentSpring}
-        className="flex flex-col gap-4 p-10 xl:pl-8 xl:pr-20 justify-center h-full w-full pb-[120px] md:pb-10 xl:md:pb-20 border-2 border-black"
+        className="flex flex-col gap-4 p-10 xl:pl-8 xl:pr-20 justify-center h-full w-full pb-[120px] md:pb-10 xl:md:pb-20"
       >
         <MenuList
           menuItems={menuItems}
@@ -170,7 +168,7 @@ export default function BookPageContent() {
       {/* Right Content */}
       <animated.section
         style={rightContentSpring}
-        className="relative pointer-events-auto w-full h-full mt-[75dvh] md:mt-0 md:pt-0 border-2 border-black"
+        className="relative pointer-events-auto w-full h-full mt-[75dvh] md:mt-0 md:pt-0"
       >
         <div
           className="relative md:h-full flex flex-col md:block"
@@ -377,6 +375,7 @@ const Leaflet = ({
           ref={scrollContainerRef}
           className={cn(
             "px-9 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent",
+            index === 0 && "pl-0",
             index > 0 && "pt-40 border border-black pb-20",
             isMobile && "pb-20 pt-20"
           )}
