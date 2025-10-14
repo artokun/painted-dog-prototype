@@ -45,9 +45,9 @@ export function MenuList({
             >
               <span
                 className={cn(
-                  "group-hover:translate-x-2 transition-all duration-300",
+                  "group-hover:translate-x-1 transition-all duration-300",
                   selectedIndex === index &&
-                    "group-hover:translate-x-4 translate-x-4 "
+                    "group-hover:translate-x-2 translate-x-2 "
                 )}
               >
                 {index === 1
