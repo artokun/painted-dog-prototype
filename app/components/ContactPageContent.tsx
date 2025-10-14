@@ -15,6 +15,7 @@ import { Footer } from "./Footer";
 import { useMediaQuery } from "usehooks-ts";
 import ReCaptcha from "./ReCaptcha";
 import ReCAPTCHA from "react-google-recaptcha";
+import { globalStore } from "../store/globalStore";
 
 enum Tab {
   General = "general",
@@ -26,6 +27,7 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
   const [tab, setTab] = useState(Tab.General);
   const [showContent, setShowContent] = useState(false);
   const [wasVisible, setWasVisible] = useState(visible);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Reset success state when component becomes visible after being hidden
   useEffect(() => {
@@ -35,6 +37,30 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
     }
     setWasVisible(visible);
   }, [visible, wasVisible, isSuccess]);
+
+  // Track scroll position and smooth scroll to top on navigation away
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (visible) {
+        globalStore.overlayScrollPosition = container.scrollTop;
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+
+    // Smooth scroll to top when navigating away
+    if (!visible && container.scrollTop > 0) {
+      container.scrollTo({ top: 0, behavior: "smooth" });
+      globalStore.overlayScrollPosition = 0;
+    }
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [visible]);
 
   const style = useSpring({
     opacity: visible ? 1 : 0,
@@ -50,6 +76,7 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
 
   return (
     <animated.div
+      ref={containerRef}
       style={style}
       className={cn(
         "absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden",

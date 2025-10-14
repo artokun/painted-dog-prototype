@@ -10,6 +10,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useSnapshot } from "valtio";
 import { legalStore } from "@/app/store/legalStore";
+import { globalStore } from "../store/globalStore";
 
 interface SectionAnchor {
   id: string;
@@ -59,6 +60,30 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
     if (!visible) {
       hasAutoScrolled.current = false;
     }
+  }, [visible]);
+
+  // Track scroll position and smooth scroll to top on navigation away
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (visible) {
+        globalStore.overlayScrollPosition = container.scrollTop;
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+
+    // Smooth scroll to top when navigating away
+    if (!visible && container.scrollTop > 0) {
+      container.scrollTo({ top: 0, behavior: "smooth" });
+      globalStore.overlayScrollPosition = 0;
+    }
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
   }, [visible]);
 
   const style = useSpring({

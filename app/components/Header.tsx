@@ -15,10 +15,13 @@ import { globalStore } from "../store/globalStore";
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
   const { isRendered, focusedBookId } = useSnapshot(bookStore);
-  const { currentRoute } = useSnapshot(globalStore);
+  const { currentRoute, overlayScrollPosition } = useSnapshot(globalStore);
   const isGridMode = view === FilterView.Grid;
   const isBookPage = currentRoute.startsWith("/books/");
   const isHomepage = currentRoute === "/";
+  const isContactPage = currentRoute === "/contact";
+  const isLegalPage = currentRoute === "/legal";
+  const isOverlayPage = isContactPage || isLegalPage;
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
@@ -66,6 +69,13 @@ export const Header = () => {
     };
   }, [isRendered, isMobile, isBookPage, isBookFocused]);
 
+  // Hide header when overlay pages are scrolled past 50px
+  useEffect(() => {
+    if (isOverlayPage) {
+      setShowHeader(overlayScrollPosition <= 50);
+    }
+  }, [isOverlayPage, overlayScrollPosition]);
+
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
   };
@@ -73,10 +83,9 @@ export const Header = () => {
   return (
     <div
       className={cn(
-        "fixed top-0 left-0 w-full flex items-center justify-center z-20 font-[500] pointer-events-auto"
+        "fixed top-0 left-0 w-full flex items-center justify-between z-20 font-[500] pointer-events-auto gap-4 h-20 px-4 md:px-20"
       )}
     >
-      <div className="flex items-center justify-between max-w-7xl mx-auto gap-4 px-4 h-20 w-full">
         <div className="flex-1">
           {/* TODO: Restore after accelerated launch */}
           {/* <div className="hidden lg:flex gap-2 items-center">
@@ -94,6 +103,7 @@ export const Header = () => {
               "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
               isBookFocused &&
                 showBackButton &&
+                showHeader &&
                 "opacity-100 translate-x-0 delay-400 pointer-events-auto"
             )}
             onClick={handleBackButtonClick}
@@ -110,7 +120,7 @@ export const Header = () => {
           <h1
             className={cn(
               "text-4xl flex justify-center whitespace-nowrap items-center text-center font-fields font-[600] flex-1 transition-opacity duration-300",
-              !showHeader && isHomepage && "opacity-0 pointer-events-none"
+              !showHeader && (isHomepage || isOverlayPage) && "opacity-0 pointer-events-none"
             )}
           >
             <Link href="/">
@@ -127,7 +137,7 @@ export const Header = () => {
         <div
           className={cn(
             "gap-2 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-            isBookFocused && "opacity-0 delay-600 pointer-events-none"
+            (isBookFocused || isContactPage) && "opacity-0 delay-600 pointer-events-none"
           )}
         >
           <div className="hidden md:flex gap-2 items-center text-black">
@@ -141,7 +151,6 @@ export const Header = () => {
             </ThreeLink>
           </div>
         </div>
-      </div>
       <div className="hidden">
         <Leva
           collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}

@@ -82,11 +82,21 @@ export const PDInput = forwardRef<
                 "border-b border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right",
                 "bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent]",
                 "text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40",
+                "scroll-m-0",
                 noUnderline && "border-b-0"
               )}
               type={type}
               onChange={onChange as any}
               value={value}
+              onFocus={(e) => {
+                e.preventDefault();
+                const currentScrollPos = e.target.parentElement?.parentElement?.parentElement?.parentElement?.scrollTop;
+                if (currentScrollPos !== undefined) {
+                  requestAnimationFrame(() => {
+                    e.target.parentElement?.parentElement?.parentElement?.parentElement?.scrollTo({ top: currentScrollPos });
+                  });
+                }
+              }}
               {...(props as any)}
             />
           </label>
@@ -101,12 +111,22 @@ export const PDInput = forwardRef<
               className={cn(
                 "border-b border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 bg-transparent cursor-pointer text-end",
                 "text-[#1A1A1A]",
+                "scroll-m-0",
                 !value && "text-[#1A1A1A] opacity-40",
                 noUnderline && "border-b-0"
               )}
               onChange={onChange as any}
               defaultValue=""
               value={value}
+              onFocus={(e) => {
+                e.preventDefault();
+                const currentScrollPos = e.target.parentElement?.parentElement?.parentElement?.parentElement?.scrollTop;
+                if (currentScrollPos !== undefined) {
+                  requestAnimationFrame(() => {
+                    e.target.parentElement?.parentElement?.parentElement?.parentElement?.scrollTo({ top: currentScrollPos });
+                  });
+                }
+              }}
               {...(props as any)}
             >
               <option value="">
