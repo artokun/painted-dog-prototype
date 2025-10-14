@@ -23,7 +23,7 @@ export const Footer = () => {
   return (
     <section
       className={cn(
-        "flex w-full items-center justify-center pointer-events-none px-4 pt-20 pb-4 md:pt-15 md:pb-0 transition-opacity duration-300 2xl:px-20",
+        "flex w-full items-center justify-center pointer-events-none px-4 pt-20 pb-4 md:pt-15 md:pb-6 transition-opacity duration-300 2xl:px-20",
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
