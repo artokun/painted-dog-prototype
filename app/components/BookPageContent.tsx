@@ -238,7 +238,7 @@ function MobileBookPageContent() {
         {/* Leaflets stacked above content */}
         <section className="relative z-10 w-full">
           <div className="relative md:h-full flex flex-col">
-            <div className="px-5">
+            <div className="px-5 pb-12">
               <FullDescriptionSection />
             </div>
             {/* Buy buttons after Leaflets */}
