@@ -163,7 +163,9 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
             >
               Wordsworth Books
             </PDButton>
-            <p className="pt-2 text-sm text-center">Also available in-store at select Exclusive Books.</p>
+            <p className="pt-2 text-sm w-full flex justify-center">
+              Also available in-store at select Exclusive Books.
+            </p>
           </div>
         </div>
         <div className="flex-1 gap-3 flex flex-col">
