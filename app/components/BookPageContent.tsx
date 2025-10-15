@@ -105,14 +105,14 @@ export default function BookPageContent() {
   const rightContentSpring = useSpring({
     opacity: focusedBookId ? 1 : 0,
     x: focusedBookId ? "0%" : "100%",
-    immediate: isMobile && !focusedBookId,
+    immediate: isMobile, // Skip all animations on mobile
     delay: focusedBookId ? ENTRY : EXIT,
   });
 
   const leftContentSpring = useSpring({
     opacity: focusedBookId ? 1 : 0,
     x: focusedBookId ? "0%" : "-100%",
-    immediate: isMobile && !focusedBookId,
+    immediate: isMobile, // Skip all animations on mobile
     delay: focusedBookId ? ENTRY : EXIT,
   });
 
