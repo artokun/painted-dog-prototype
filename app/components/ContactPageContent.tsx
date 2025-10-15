@@ -318,6 +318,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [recaptchaError, setRecaptchaError] = useState<string>("");
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const fileInputRef = useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -325,6 +326,16 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
     formState: { errors },
     reset,
   } = useForm<SubmissionFormData>();
+
+  // Scroll to file input error when file validation fails
+  useEffect(() => {
+    if (errors.file && fileInputRef.current) {
+      fileInputRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  }, [errors.file]);
 
   const onSubmit = (data: SubmissionFormData) => {
     // Clear previous reCAPTCHA error
@@ -551,7 +562,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
               </span>
             )}
           </div>
-          <div>
+          <div ref={fileInputRef}>
             <PDInput
               label="Your file*"
               noUnderline
