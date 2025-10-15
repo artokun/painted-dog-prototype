@@ -160,6 +160,9 @@ export default function BookPageContent() {
           >
             Wordsworth Books
           </PDButton>
+          <p className="pt-2 text-sm w-full flex justify-center">
+            Also available in-store at select Exclusive Books.
+          </p>
         </div>
       </animated.section>
 
@@ -264,6 +267,9 @@ function MobileBookPageContent() {
                   Wordsworth Books
                 </PDButton>
               </div>
+              <p className="pt-2 text-sm w-full flex justify-center">
+                Also available in-store at select Exclusive Books.
+              </p>
             </div>
             <div className="px-5 pb-15 pointer-events-auto">
               <MenuList

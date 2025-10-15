@@ -427,7 +427,8 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 },
                 pattern: {
                   value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
-                  message: "First name can only contain letters, spaces, hyphens, and apostrophes",
+                  message:
+                    "First name can only contain letters, spaces, hyphens, and apostrophes",
                 },
               })}
             />
@@ -452,7 +453,8 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 },
                 pattern: {
                   value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
-                  message: "Surname can only contain letters, spaces, hyphens, and apostrophes",
+                  message:
+                    "Surname can only contain letters, spaces, hyphens, and apostrophes",
                 },
               })}
             />
@@ -493,7 +495,8 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 required: "Phone number is required",
                 pattern: {
                   value: /^[\d\s\-\+\(\)]+$/,
-                  message: "Phone number can only contain numbers, spaces, hyphens, plus signs, and parentheses",
+                  message:
+                    "Phone number can only contain numbers, spaces, hyphens, plus signs, and parentheses",
                 },
               })}
             />
@@ -555,15 +558,15 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
               multiple
               type="file"
               accept=".doc,.docx,.pdf"
-              placeholder="Maximum file size: 20MB"
+              placeholder="Maximum file size: 4.5MB"
               {...register("file", {
                 required: "Please upload your manuscript",
                 validate: {
                   size: (files) => {
                     if (!files || !files[0]) return true;
                     return (
-                      files[0].size <= 20 * 1024 * 1024 ||
-                      "File size must be less than 20MB"
+                      files[0].size <= 4.5 * 1024 * 1024 ||
+                      "File size must be less than 4.5MB"
                     );
                   },
                   type: (files) => {
@@ -597,6 +600,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
             })}
           >
             <span>
+              {" "}
               I consent to the{" "}
               <ThreeLink href="/legal#use-of-personal-information">
                 terms of submission.
@@ -617,8 +621,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
               Join the newsletter to receive updates.
               <br />
               <small className="text-sm block leading-tight mt-1">
-                By ticking this box, you agree to our POPI policy.
-                <br />
+                By ticking this box, you agree to our POPI policy.{" "}
                 <ThreeLink href="/legal#privacy-data-collection">
                   Read it here
                 </ThreeLink>
@@ -780,7 +783,8 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
               },
               pattern: {
                 value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
-                message: "First name can only contain letters, spaces, hyphens, and apostrophes",
+                message:
+                  "First name can only contain letters, spaces, hyphens, and apostrophes",
               },
             })}
           />
@@ -805,7 +809,8 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
               },
               pattern: {
                 value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
-                message: "Surname can only contain letters, spaces, hyphens, and apostrophes",
+                message:
+                  "Surname can only contain letters, spaces, hyphens, and apostrophes",
               },
             })}
           />
@@ -879,8 +884,7 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
             Join the newsletter to receive updates.
             <br />
             <small className="text-sm block leading-tight mt-1">
-              By ticking this box, you agree to our POPI policy.
-              <br />
+              By ticking this box, you agree to our POPI policy.{" "}
               <ThreeLink href="/legal#privacy-data-collection">
                 Read it here
               </ThreeLink>

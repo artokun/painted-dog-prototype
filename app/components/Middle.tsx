@@ -163,13 +163,14 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
             >
               Wordsworth Books
             </PDButton>
+            <p className="pt-2 text-sm text-center">Also available in-store at select Exclusive Books.</p>
           </div>
         </div>
         <div className="flex-1 gap-3 flex flex-col">
           <h3 className="text-xl font-medium">Stellenbosch Woordfees</h3>
           <p className="text-md">
-            The collection will be launching on October 17th at the
-            Stellenbosch Woordfees.
+            The collection will be launching on October 17th at the Stellenbosch
+            Woordfees.
           </p>
           <div className="mt-1">
             <AddToCalendarButton

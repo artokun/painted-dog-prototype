@@ -34,9 +34,7 @@ export async function subscribeToNewsletter(formData: FormData): Promise<Subscri
 
   // Create a pre-filled subscription URL
   const subscriptionUrl = `${substackUrl}/subscribe?utm_source=painted_dog_website&utm_medium=newsletter_form&email=${encodeURIComponent(email)}`;
-  
-  console.log("Generated subscription URL:", subscriptionUrl);
-  
+    
   // Store the attempted subscription for analytics if needed
   // You could also send this to your analytics service here
   
