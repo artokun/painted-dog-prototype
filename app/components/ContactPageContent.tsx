@@ -599,9 +599,8 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
             <span>
               I consent to the{" "}
               <ThreeLink href="/legal#use-of-personal-information">
-                terms of submission
+                terms of submission.
               </ThreeLink>
-              .
             </span>
           </PDInput>
           {errors.consent && (
