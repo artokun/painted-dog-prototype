@@ -27,7 +27,7 @@ export const Footer = () => {
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
-      <footer className="relative min-h-[216px] bg-[#F9F6F0] overflow-hidden pointer-events-auto p-[5px] text-black w-full">
+      <footer className="relative min-h-[216px] bg-[#F9F6F0] overflow-hidden pointer-events-auto p-[5px] text-black w-full max-w-7xl">
         <div className="flex flex-col md:flex-row border border-black p-1 w-full h-full min-h-[206px]">
           <div className="flex flex-col p-4 md:flex-row justify-center gap-6 md:gap-10 items-center relative border-2 md:border-r-1 border-b-0 md:border-b-2 border-black flex-1 h-full min-h-[196px]">
             <ThreeLink href="/">

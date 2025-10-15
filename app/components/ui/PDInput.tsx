@@ -43,9 +43,93 @@ export const PDInput = forwardRef<
     const [internalChecked, setInternalChecked] = useState(false);
     const [selectedFileName, setSelectedFileName] = useState<string>("");
 
+    // Character filtering functions
+    const isNameCharacterAllowed = (char: string) => {
+      // Allow letters, spaces, hyphens, apostrophes, and some international characters
+      return /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']*$/.test(char);
+    };
+
+    const isPhoneCharacterAllowed = (char: string) => {
+      // Allow digits, spaces, hyphens, plus signs, and parentheses
+      return /^[\d\s\-\+\(\)]*$/.test(char);
+    };
+
+    const filterInput = (inputValue: string, filterType: 'name' | 'phone'): string => {
+      if (filterType === 'name') {
+        return inputValue.replace(/[^a-zA-ZÀ-ÿĀ-žА-я\s\-']/g, '');
+      } else if (filterType === 'phone') {
+        return inputValue.replace(/[^\d\s\-\+\(\)]/g, '');
+      }
+      return inputValue;
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setInternalChecked(e.target.checked);
       onChange?.(e as any); // Call the external onChange if provided
+    };
+
+    const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const isNameField = label?.toLowerCase().includes('name') || label?.toLowerCase().includes('surname');
+      const isPhoneField = type === 'tel' || label?.toLowerCase().includes('phone');
+      
+      if (isNameField || isPhoneField) {
+        const filterType = isNameField ? 'name' : 'phone';
+        const filteredValue = filterInput(e.target.value, filterType);
+        
+        if (filteredValue !== e.target.value) {
+          // Update the input value and create a new event
+          e.target.value = filteredValue;
+          const syntheticEvent = {
+            ...e,
+            target: { ...e.target, value: filteredValue },
+            currentTarget: { ...e.currentTarget, value: filteredValue }
+          };
+          onChange?.(syntheticEvent as any);
+        } else {
+          onChange?.(e as any);
+        }
+      } else {
+        onChange?.(e as any);
+      }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const isNameField = label?.toLowerCase().includes('name') || label?.toLowerCase().includes('surname');
+      const isPhoneField = type === 'tel' || label?.toLowerCase().includes('phone');
+      
+      if (isNameField && !isNameCharacterAllowed(e.key)) {
+        e.preventDefault();
+      } else if (isPhoneField && !isPhoneCharacterAllowed(e.key)) {
+        e.preventDefault();
+      }
+    };
+
+    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+      const isNameField = label?.toLowerCase().includes('name') || label?.toLowerCase().includes('surname');
+      const isPhoneField = type === 'tel' || label?.toLowerCase().includes('phone');
+      
+      if (isNameField || isPhoneField) {
+        e.preventDefault();
+        const pastedText = e.clipboardData.getData('text');
+        const filterType = isNameField ? 'name' : 'phone';
+        const filteredText = filterInput(pastedText, filterType);
+        
+        // Update the input value
+        const target = e.currentTarget;
+        const start = target.selectionStart || 0;
+        const end = target.selectionEnd || 0;
+        const currentValue = target.value;
+        const newValue = currentValue.slice(0, start) + filteredText + currentValue.slice(end);
+        
+        target.value = newValue;
+        
+        // Trigger onChange
+        const syntheticEvent = {
+          target: { ...target, value: newValue },
+          currentTarget: { ...target, value: newValue }
+        } as React.ChangeEvent<HTMLInputElement>;
+        onChange?.(syntheticEvent as any);
+      }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,8 +170,15 @@ export const PDInput = forwardRef<
                 noUnderline && "border-b-0"
               )}
               type={type}
-              onChange={onChange as any}
+              onChange={handleTextChange}
               value={value}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                }
+              }}
+              onKeyPress={handleKeyPress}
+              onPaste={handlePaste}
               onFocus={(e) => {
                 e.preventDefault();
                 const currentScrollPos = e.target.parentElement?.parentElement?.parentElement?.parentElement?.scrollTop;
@@ -118,6 +209,11 @@ export const PDInput = forwardRef<
               onChange={onChange as any}
               defaultValue=""
               value={value}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                }
+              }}
               onFocus={(e) => {
                 e.preventDefault();
                 const currentScrollPos = e.target.parentElement?.parentElement?.parentElement?.parentElement?.scrollTop;

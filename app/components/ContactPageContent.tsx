@@ -425,6 +425,10 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
                   value: 2,
                   message: "First name must be at least 2 characters",
                 },
+                pattern: {
+                  value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
+                  message: "First name can only contain letters, spaces, hyphens, and apostrophes",
+                },
               })}
             />
             {errors.firstName && (
@@ -445,6 +449,10 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 minLength: {
                   value: 2,
                   message: "Surname must be at least 2 characters",
+                },
+                pattern: {
+                  value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
+                  message: "Surname can only contain letters, spaces, hyphens, and apostrophes",
                 },
               })}
             />
@@ -485,7 +493,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 required: "Phone number is required",
                 pattern: {
                   value: /^[\d\s\-\+\(\)]+$/,
-                  message: "Please enter a valid phone number",
+                  message: "Phone number can only contain numbers, spaces, hyphens, plus signs, and parentheses",
                 },
               })}
             />
@@ -771,6 +779,10 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 value: 2,
                 message: "First name must be at least 2 characters",
               },
+              pattern: {
+                value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
+                message: "First name can only contain letters, spaces, hyphens, and apostrophes",
+              },
             })}
           />
           {errors.firstName && (
@@ -791,6 +803,10 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
               minLength: {
                 value: 2,
                 message: "Surname must be at least 2 characters",
+              },
+              pattern: {
+                value: /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/,
+                message: "Surname can only contain letters, spaces, hyphens, and apostrophes",
               },
             })}
           />
