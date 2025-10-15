@@ -36,6 +36,16 @@
   animation: arrow-bounce 1s ease-in-out infinite;
 }
 
+/* Fade in animation for mobile book page */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Prevent browser back/forward navigation gestures */
 html,
 body {

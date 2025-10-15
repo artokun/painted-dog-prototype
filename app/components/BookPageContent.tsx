@@ -125,7 +125,8 @@ export default function BookPageContent() {
       id="book-page-content"
       className={cn(
         "absolute inset-0 top-0 left-0 h-screen w-full z-20 gap-4 pointer-events-none md:pt-20",
-        "flex flex-col-reverse md:grid md:grid-cols-3 md:grid-rows-1 md:place-items-center text-black"
+        "flex flex-col-reverse md:grid md:grid-cols-3 md:grid-rows-1 md:place-items-center text-black",
+        isMobile && "hidden"
       )}
     >
       {/* Left Menu */}
@@ -225,7 +226,8 @@ function MobileBookPageContent() {
       ref={contentRef}
       className={cn(
         "absolute inset-0 top-0 left-0 z-10 w-full h-full overflow-y-auto overflow-x-hidden pointer-events-auto",
-        "pb-0 text-black"
+        "pb-0 text-black opacity-0",
+        "animate-[fadeIn_300ms_ease-out_forwards]"
       )}
     >
       <button
