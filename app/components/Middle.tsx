@@ -163,8 +163,8 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
               className="w-full"
               event={{
                 title: "Bitterkomix Launch - Stellenbosch Woordfees",
-                start: "20251017T160000Z",
-                end: "20251017T170000Z",
+                start: "20251017T140000Z",
+                end: "20251017T150000Z",
                 description:
                   "Launch of Bitterkomix Sketchbooks and Journals at Stellenbosch Woordfees",
                 location: "Stellenbosch, South Africa",
