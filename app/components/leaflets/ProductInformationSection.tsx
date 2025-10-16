@@ -21,15 +21,19 @@ export const ProductInformationSection = () => {
 
           {price.productInformation && (
             <div
-              className="grid mt-8 gap-x-4"
-              style={{ gridTemplateColumns: "auto 1fr" }}
+              className="grid mt-8"
+              style={{ gridTemplateColumns: "1fr 1fr" }}
             >
               <span>ISBN:</span>
               <span>{book.isbn}</span>
               <span>Price:</span>
               <span>R{price.price}</span>
               <span>Publication Date:</span>
-              <span>{new Date(book.publishDate).toLocaleDateString()}</span>
+              <span>{new Date(book.publishDate).toLocaleDateString('en-GB', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              })}</span>
               {Object.entries(price.productInformation)
                 .sort((a, b) => a[0].length - b[0].length)
                 .map(([key, value]) => (

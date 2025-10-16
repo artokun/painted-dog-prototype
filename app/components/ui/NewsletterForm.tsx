@@ -56,6 +56,15 @@ export const NewsletterForm = () => {
           You&apos;ve been subscribed to our newsletter and are now in the
           running to win a copy of <i>Bitterkomix Sketchbooks and Journals.</i>
         </p>
+        <p>
+          <ThreeLink
+            href="https://painteddogpress.substack.com/p/decades-of-sketchbook-drawings-collected"
+            target="_blank"
+            className="underline"
+          >
+            See competition terms here{" "}
+          </ThreeLink>
+        </p>
         <PDButton onClick={() => setIsSuccess(false)} className="mt-2" primary>
           Subscribe another email
         </PDButton>

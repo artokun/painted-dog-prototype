@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
-import AuthGate from "./components/AuthGate";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Middle } from "./components/Middle";
+import { Foreground } from "./components/Foreground";
 
 export const metadata: Metadata = {
   title: "Painted Dog",
@@ -46,7 +47,9 @@ export default function RootLayout({
       </head>
       <body className={`font-fields antialiased overflow-hidden h-dvh w-full`}>
         <main className="h-dvh w-screen relative">
-          <AuthGate>{children}</AuthGate>
+          <Middle />
+          {children}
+          <Foreground />
           <div
             id="loading-overlay"
             className={cn(
