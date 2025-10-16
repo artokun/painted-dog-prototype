@@ -13,8 +13,6 @@ import { cn } from "@/lib/utils";
 import { ContentfulBook } from "@/types/app";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
-import { PDButton } from "./ui/PDButton";
-import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { CloseIcon } from "./icons/Close";
 import { ArrowDownIcon } from "./icons/ArrowDown";
 import { BookSection } from "./leaflets/BookSection";
@@ -28,6 +26,7 @@ import { MenuList } from "./MenuList";
 import { Footer } from "./Footer";
 import { useMediaQuery } from "usehooks-ts";
 import { globalStore } from "../store/globalStore";
+import { PurchaseButtons } from "./PurchaseButtons";
 
 const menuItems = [
   "book",
@@ -142,27 +141,8 @@ export default function BookPageContent() {
           formatAuthorNames={formatAuthorNames}
           book={book}
         />
-        <div className="flex flex-wrap flex-col xl:flex-row gap-3 mt-10 pointer-events-auto">
-          <PDButton
-            href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
-            className="w-full"
-            target="_blank"
-            primary
-            tall
-          >
-            <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
-          </PDButton>
-          <PDButton
-            href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
-            tall
-            className="w-full"
-            target="_blank"
-          >
-            Wordsworth Books
-          </PDButton>
-          <p className="pt-2 text-sm w-full flex justify-center">
-            Also available in-store at select Exclusive Books.
-          </p>
+        <div className="mt-10 pointer-events-auto">
+          <PurchaseButtons layout="vertical" className="flex flex-wrap flex-col xl:flex-row gap-3" />
         </div>
       </animated.section>
 
@@ -247,29 +227,8 @@ function MobileBookPageContent() {
               <FullDescriptionSection />
             </div>
             {/* Buy buttons after Leaflets */}
-            <div className="relative z-10 flex flex-col gap-3 mb-15 px-5">
-              <PDButton
-                href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
-                className="w-full"
-                target="_blank"
-                primary
-                tall
-              >
-                <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
-              </PDButton>
-              <div className="flex gap-3">
-                <PDButton
-                  href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
-                  className="w-full"
-                  tall
-                  target="_blank"
-                >
-                  Wordsworth Books
-                </PDButton>
-              </div>
-              <p className="pt-2 text-sm w-full flex justify-center">
-                Also available in-store at select Exclusive Books.
-              </p>
+            <div className="relative z-10 mb-15 px-5">
+              <PurchaseButtons layout="mobile" />
             </div>
             <div className="px-5 pb-15 pointer-events-auto">
               <MenuList

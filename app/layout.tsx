@@ -8,18 +8,19 @@ import { Middle, Foreground } from "./components/ClientComponents";
 
 export const metadata: Metadata = {
   title: "Painted Dog",
-  description: "A book stacking visualization",
+  description:
+    "Painted Dog Press is an independent book publisher of fiction and non-fiction. We develop and nurture quality literature and provide writers with a publishing house that continually fosters and markets their work.",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.ico", sizes: "any" }
+      { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
-    ]
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
-  manifest: "/site.webmanifest"
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({

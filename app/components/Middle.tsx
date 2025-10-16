@@ -18,12 +18,11 @@ import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
 import { AddToCalendarButton } from "./ui/AddToCalendarButton";
 import { NewsletterForm } from "./ui/NewsletterForm";
-import { PDButton } from "./ui/PDButton";
-import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { animated, useSpring } from "@react-spring/web";
 import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";
 import { useMediaQuery } from "usehooks-ts";
+import { PurchaseButtons } from "./PurchaseButtons";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -150,28 +149,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
             worth of illustration done in hundreds of sketchbooks and journals
             by the creators of the biting satirical comic <i>Bitterkomix</i>.
           </p>
-          <div className="flex flex-wrap gap-3 md:gap-2">
-            <PDButton
-              href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
-              className="w-full"
-              primary
-              target="_blank"
-              tall={isMobile}
-            >
-              <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
-            </PDButton>
-            <PDButton
-              href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
-              className="w-full"
-              tall={isMobile}
-              target="_blank"
-            >
-              Wordsworth Books
-            </PDButton>
-            <p className="pt-2 text-sm w-full flex justify-center">
-              Also available in-store at select Exclusive Books.
-            </p>
-          </div>
+          <PurchaseButtons layout="horizontal" isMobile={isMobile} />
         </div>
         <div className="flex-1 gap-3 flex flex-col">
           <h3 className="text-xl font-medium">Stellenbosch Woordfees</h3>
