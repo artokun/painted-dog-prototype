@@ -97,7 +97,7 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
       setShowContent(visible);
 
       // Auto-scroll to anchor after animation completes, only on visibility
-      if (visible && !hasAutoScrolled.current && scrollContainerRef.current) {
+      if (visible && !hasAutoScrolled.current && scrollContainerRef.current && typeof window !== 'undefined') {
         const hash = window.location.hash.slice(1);
         if (hash) {
           setTimeout(() => {

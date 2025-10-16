@@ -405,6 +405,8 @@ function Book({
   });
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleMouseMove = (e: MouseEvent) => {
       const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
       const normalizedY = (e.clientY / window.innerHeight) * 2 - 1;
@@ -427,8 +429,10 @@ function Book({
     window.addEventListener("resize", handleResize);
     return () => {
       handleResize.cancel();
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("resize", handleResize);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("resize", handleResize);
+      }
     };
   }, [isFocused, bookFocusedTiltGroupApi, bookFlipped]);
 

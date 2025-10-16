@@ -37,6 +37,8 @@ const CameraController = memo(function CameraController() {
   );
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -130,6 +132,8 @@ const CameraController = memo(function CameraController() {
 
   // Handle mouse movement for rotation
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleMouseMove = (e: MouseEvent) => {
       const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
       mouseX.current = normalizedX;

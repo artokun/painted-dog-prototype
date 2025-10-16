@@ -27,13 +27,16 @@ import { useMediaQuery } from "usehooks-ts";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [windowHeight, setWindowHeight] = useState(0);
+  const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
   const [contentHeight, setContentHeight] = useState(0);
   const { isRendered } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Update window height on resize with debouncing
   useEffect(() => {
+    // Check if we're on the client side
+    if (typeof window === 'undefined') return;
+    
     const updateHeights = () => {
       setWindowHeight(window.innerHeight);
       if (contentRef.current) {
@@ -60,7 +63,9 @@ export const Middle = () => {
 
     return () => {
       debouncedUpdateHeights.cancel(); // Cancel any pending debounced calls
-      window.removeEventListener("resize", debouncedUpdateHeights);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener("resize", debouncedUpdateHeights);
+      }
       observer.disconnect();
     };
   }, [isRendered]);

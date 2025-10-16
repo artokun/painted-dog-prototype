@@ -10,7 +10,6 @@ import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
 import BookPageContent from "./BookPageContent";
-import { useControls } from "leva";
 import { ContactPageContent } from "./ContactPageContent";
 import { LegalPageContent } from "./LegalPageContent";
 import { NotFoundContent } from "./NotFoundContent";
@@ -25,16 +24,8 @@ export const Foreground = () => {
   const isLegalPage = currentRoute === "/legal";
   const isNotFound = currentRoute === "/not-found";
 
-  const { showFloatingBar } = useControls(
-    "UI",
-    {
-      showFloatingBar: {
-        value: false,
-        label: "Filters",
-      },
-    },
-    { collapsed: true }
-  );
+  // Hide floating bar - hardcode to false instead of using Leva controls
+  const showFloatingBar = false;
 
   // This sets the current route to the pathname when the pathname changes
   useEffect(() => {

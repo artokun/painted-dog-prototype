@@ -4,8 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { Middle } from "./components/Middle";
-import { Foreground } from "./components/Foreground";
+import { Middle, Foreground } from "./components/ClientComponents";
 
 export const metadata: Metadata = {
   title: "Painted Dog",
@@ -61,22 +60,24 @@ export default function RootLayout({
           </div>
         </main>
         <div id="portal-root" />
-        <Script id="prevent-navigation" strategy="beforeInteractive">
+        <Script id="prevent-navigation" strategy="afterInteractive">
           {`
-            // Prevent browser back/forward navigation
-            let preventNavigation = false;
-            
-            // Prevent back/forward browser navigation
-            function preventBrowserNavigation(e) {
-              if (preventNavigation) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
+            // Check if we're in the browser environment
+            if (typeof window !== 'undefined') {
+              // Prevent browser back/forward navigation
+              let preventNavigation = false;
+              
+              // Prevent back/forward browser navigation
+              function preventBrowserNavigation(e) {
+                if (preventNavigation) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return false;
+                }
               }
-            }
-            
-            // Set up navigation prevention when page loads
-            document.addEventListener('DOMContentLoaded', function() {
+              
+              // Set up navigation prevention when page loads
+              document.addEventListener('DOMContentLoaded', function() {
               preventNavigation = true;
               
               // Prevent gesture navigation
@@ -117,7 +118,8 @@ export default function RootLayout({
               
               // Push initial state to prevent immediate back navigation
               window.history.pushState(null, '', window.location.href);
-            });
+              });
+            }
           `}
         </Script>
         <GoogleAnalytics gaId="G-HT9PYQDS94" />
