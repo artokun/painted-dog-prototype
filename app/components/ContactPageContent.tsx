@@ -317,6 +317,7 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isPending, startTransition] = useTransition();
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [recaptchaError, setRecaptchaError] = useState<string>("");
+  const [serverError, setServerError] = useState<string>("");
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const fileInputRef = useRef<HTMLDivElement>(null);
 
@@ -338,8 +339,9 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   }, [errors.file]);
 
   const onSubmit = (data: SubmissionFormData) => {
-    // Clear previous reCAPTCHA error
+    // Clear previous errors
     setRecaptchaError("");
+    setServerError("");
 
     // Check if reCAPTCHA is completed
     if (!recaptchaToken) {
@@ -379,6 +381,29 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
         recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
+        
+        // Handle different types of errors gracefully
+        if (error instanceof Error) {
+          // Check if it's a validation error or other server error
+          const errorMessage = error.message;
+          
+          // Handle specific validation errors
+          if (errorMessage.includes("phone") || errorMessage.includes("Phone")) {
+            setServerError("Please check your phone number format and try again.");
+          } else if (errorMessage.includes("email") || errorMessage.includes("Email")) {
+            setServerError("Please check your email address and try again.");
+          } else if (errorMessage.includes("file") || errorMessage.includes("File")) {
+            setServerError("There was an issue with your file upload. Please check the file size and format.");
+          } else if (errorMessage.includes("reCAPTCHA") || errorMessage.includes("recaptcha")) {
+            setRecaptchaError(errorMessage);
+          } else {
+            // Generic server error
+            setServerError(errorMessage || "Something went wrong. Please try again.");
+          }
+        } else {
+          setServerError("An unexpected error occurred. Please try again.");
+        }
+        
         // Reset reCAPTCHA on error
         setRecaptchaToken(null);
         recaptchaRef.current?.reset();
@@ -505,9 +530,8 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
               {...register("phone", {
                 required: "Phone number is required",
                 pattern: {
-                  value: /^[\d\s\-\+\(\)]+$/,
-                  message:
-                    "Phone number can only contain numbers, spaces, hyphens, plus signs, and parentheses",
+                  value: /^[\+]?[\d\s\-\(\)\.]{10,20}$/,
+                  message: "Please enter a valid phone number (10-20 characters)",
                 },
               })}
             />
@@ -653,6 +677,9 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
           {recaptchaError && (
             <span className="text-red-500 text-sm">{recaptchaError}</span>
           )}
+          {serverError && (
+            <span className="text-red-500 text-sm font-medium">{serverError}</span>
+          )}
         </fieldset>
         <p>
           We aim to respond to all submissions within three to six months. If
@@ -707,6 +734,7 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isPending, startTransition] = useTransition();
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [recaptchaError, setRecaptchaError] = useState<string>("");
+  const [serverError, setServerError] = useState<string>("");
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -718,8 +746,9 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
   } = useForm<ContactFormData>();
 
   const onSubmit = (data: ContactFormData) => {
-    // Clear previous reCAPTCHA error
+    // Clear previous errors
     setRecaptchaError("");
+    setServerError("");
 
     // Check if reCAPTCHA is completed
     if (!recaptchaToken) {
@@ -751,6 +780,25 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
+        
+        // Handle different types of errors gracefully
+        if (error instanceof Error) {
+          // Check if it's a validation error or other server error
+          const errorMessage = error.message;
+          
+          // Handle specific validation errors
+          if (errorMessage.includes("email") || errorMessage.includes("Email")) {
+            setServerError("Please check your email address and try again.");
+          } else if (errorMessage.includes("reCAPTCHA") || errorMessage.includes("recaptcha")) {
+            setRecaptchaError(errorMessage);
+          } else {
+            // Generic server error
+            setServerError(errorMessage || "Something went wrong. Please try again.");
+          }
+        } else {
+          setServerError("An unexpected error occurred. Please try again.");
+        }
+        
         // Reset reCAPTCHA on error
         setRecaptchaToken(null);
         recaptchaRef.current?.reset();
@@ -915,6 +963,9 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         />
         {recaptchaError && (
           <span className="text-red-500 text-sm">{recaptchaError}</span>
+        )}
+        {serverError && (
+          <span className="text-red-500 text-sm font-medium">{serverError}</span>
         )}
       </fieldset>
       <fieldset className="flex">

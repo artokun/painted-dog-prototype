@@ -49,16 +49,36 @@ export const PDInput = forwardRef<
       return /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']*$/.test(char);
     };
 
-    const isPhoneCharacterAllowed = (char: string) => {
-      // Allow digits, spaces, hyphens, plus signs, and parentheses
-      return /^[\d\s\-\+\(\)]*$/.test(char);
+    const isPhoneCharacterAllowed = (char: string, currentValue: string, cursorPosition: number) => {
+      // Allow digits, spaces, hyphens, parentheses, and dots always
+      if (/^[\d\s\-\(\)\.]*$/.test(char)) {
+        return true;
+      }
+      // Allow plus sign only at the beginning
+      if (char === '+' && cursorPosition === 0 && !currentValue.includes('+')) {
+        return true;
+      }
+      return false;
     };
 
     const filterInput = (inputValue: string, filterType: 'name' | 'phone'): string => {
       if (filterType === 'name') {
         return inputValue.replace(/[^a-zA-ZÀ-ÿĀ-žА-я\s\-']/g, '');
       } else if (filterType === 'phone') {
-        return inputValue.replace(/[^\d\s\-\+\(\)]/g, '');
+        // Allow digits, spaces, hyphens, parentheses, dots, and plus only at the beginning
+        let result = inputValue.replace(/[^\d\s\-\(\)\.\+]/g, '');
+        // Ensure plus sign is only at the beginning
+        if (result.includes('+')) {
+          const plusIndex = result.indexOf('+');
+          if (plusIndex > 0) {
+            // Remove plus signs that are not at the beginning
+            result = result.replace(/\+/g, '');
+          } else {
+            // Keep only the first plus sign at the beginning
+            result = '+' + result.substring(1).replace(/\+/g, '');
+          }
+        }
+        return result;
       }
       return inputValue;
     };
@@ -99,8 +119,12 @@ export const PDInput = forwardRef<
       
       if (isNameField && !isNameCharacterAllowed(e.key)) {
         e.preventDefault();
-      } else if (isPhoneField && !isPhoneCharacterAllowed(e.key)) {
-        e.preventDefault();
+      } else if (isPhoneField) {
+        const currentValue = e.currentTarget.value;
+        const cursorPosition = e.currentTarget.selectionStart || 0;
+        if (!isPhoneCharacterAllowed(e.key, currentValue, cursorPosition)) {
+          e.preventDefault();
+        }
       }
     };
 
