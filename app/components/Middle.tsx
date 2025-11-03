@@ -143,31 +143,53 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
       )}
     >
       <div className="flex flex-col md:flex-row gap-12 justify-around mx-auto max-w-3xl px-8 md:px-0">
-        <div className="flex-1 flex flex-col gap-3">
-          <p className="text-md font-medium">
+        <div className="flex-1 flex flex-col gap-4">
+          <h3 className="text-xl font-medium">
             An expansive publication in full colour showcasing decades&apos;
             worth of illustration done in hundreds of sketchbooks and journals
             by the creators of the biting satirical comic <i>Bitterkomix</i>.
-          </p>
+          </h3>
           <PurchaseButtons layout="horizontal" isMobile={isMobile} />
         </div>
-        <div className="flex-1 gap-3 flex flex-col">
-          <h3 className="text-xl font-medium">Stellenbosch Woordfees</h3>
+        <div className="flex-1 gap-4 flex flex-col">
+          <h3 className="text-xl font-medium">Upcoming Events</h3>
           <p className="text-md">
-            The collection will be launching on October 17th at the Stellenbosch
-            Woordfees.
+            Conrad and Anton will sign copies of{" "}
+            <i>Bitterkomix: Sketchbooks and Journals</i> at Vadas Smokehouse &
+            Bakery, Stellenbosch at 10am, on 15 November 2025.
           </p>
           <div className="mt-1">
             <AddToCalendarButton
               tall={isMobile}
               className="w-full"
               event={{
-                title: "Bitterkomix Launch - Stellenbosch Woordfees",
-                start: "20251017T140000Z",
-                end: "20251017T150000Z",
+                title: "Bitterkomix Book Signing - Vadas Smokehouse & Bakery",
+                start: "20251115T080000Z",
+                end: "20251115T100000Z",
                 description:
-                  "Launch of Bitterkomix Sketchbooks and Journals at Stellenbosch Woordfees",
-                location: "Stellenbosch, South Africa",
+                  "Conrad and Anton will sign copies of Bitterkomix: Sketchbooks and Journals at Vadas Smokehouse & Bakery, Stellenbosch at 10am, on 15 November 2025.",
+                location:
+                  "Vadas Smokehouse & Bakery, Spier Wine Farm, R310 Baden Powell Dr, Stellenbosch, 7603, South Africa",
+              }}
+            />
+          </div>
+          <p className="text-md">
+            <i>Bitterkomix: Sketchbooks and Journals</i> will be launched at the
+            Book Lounge, Cape Town, on 5 December 2025. Please arrive 17:30 for
+            18:00.
+          </p>
+          <div className="mt-1">
+            <AddToCalendarButton
+              tall={isMobile}
+              className="w-full"
+              event={{
+                title: "Bitterkomix Launch - Book Lounge",
+                start: "20251205T153000Z",
+                end: "20251205T170000Z",
+                description:
+                  "The artists will be in conversation with Sean O'Toole about this collection featuring more than a thousand images from their sketchbooks and journals of the past 30+ years.",
+                location:
+                  "The Book Lounge, Cnr Buitenkant &, 71 Roeland St, Cape Town City Centre, Cape Town, 8001, South Africa",
               }}
             />
           </div>
@@ -187,18 +209,6 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
             and human-first technology.
           </p>
         </article>
-        {/* <article className="flex-1 flex flex-col gap-4">
-          <h3 className="text-xl font-medium">&nbsp;</h3>
-          <p>
-            The launch of <i>Bitterkomix</i>. at Stellenbosch Woordfees, simultaneously
-            launches Painted Dog Press.
-          </p>
-          <p>
-            Come and enjoy what Anton and Conrad have planned{" "}
-            <strong>and</strong> meet the team that has brought Painted Dog to
-            life.
-          </p>
-        </article> */}
         <article className="flex-1 flex flex-col gap-4">
           <NewsletterForm />
         </article>

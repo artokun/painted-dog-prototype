@@ -25,7 +25,7 @@ export function PurchaseButtons({
         className="w-full"
         target="_blank"
         primary
-        tall={layout === "mobile" || isMobile}
+        tall={shouldBeTall}
       >
         <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
       </PDButton>
