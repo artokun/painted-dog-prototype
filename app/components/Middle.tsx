@@ -154,26 +154,6 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
         <div className="flex-1 gap-4 flex flex-col">
           <h3 className="text-xl font-medium">Upcoming Events</h3>
           <p className="text-md">
-            Conrad and Anton will sign copies of{" "}
-            <i>Bitterkomix: Sketchbooks and Journals</i> at Vadas Smokehouse &
-            Bakery, Stellenbosch at 10am, on 15 November 2025.
-          </p>
-          <div className="mt-1">
-            <AddToCalendarButton
-              tall={isMobile}
-              className="w-full"
-              event={{
-                title: "Bitterkomix Book Signing - Vadas Smokehouse & Bakery",
-                start: "20251115T080000Z",
-                end: "20251115T100000Z",
-                description:
-                  "Conrad and Anton will sign copies of Bitterkomix: Sketchbooks and Journals at Vadas Smokehouse & Bakery, Stellenbosch at 10am, on 15 November 2025.",
-                location:
-                  "Vadas Smokehouse & Bakery, Spier Wine Farm, R310 Baden Powell Dr, Stellenbosch, 7603, South Africa",
-              }}
-            />
-          </div>
-          <p className="text-md">
             <i>Bitterkomix: Sketchbooks and Journals</i> will be launched at the
             Book Lounge, Cape Town, on 5 December 2025. Please arrive 17:30 for
             18:00.
