@@ -77,6 +77,7 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
   return (
     <animated.div
       ref={containerRef}
+      id="contact-page-scroll-container"
       style={style}
       className={cn(
         "absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden",
@@ -248,11 +249,11 @@ const ContactPage = ({
   setTab: (tab: Tab) => void;
 }) => {
   return (
-    <>
-      <h1 className="md:text-5xl text-4xl font-medium md:py-20 py-12">
+    <div className="md:py-20 py-12">
+      <h1 className="text-center md:text-5xl text-4xl font-medium md:py-20 py-12">
         Contact
       </h1>
-      <p className="max-w-md text-center md:leading-loose px-2">
+      <p className="mx-auto max-w-md text-center md:leading-loose px-2">
         Whether you are an aspiring writer, a reviewer, an influencer, or you
         have discovered interesting reviews of our works in publications or on
         BookTok we&apos;d love to hear from you. Select a form type to begin.
@@ -297,7 +298,7 @@ const ContactPage = ({
           </ThreeLink>
         </section>
       </div>
-    </>
+    </div>
   );
 };
 

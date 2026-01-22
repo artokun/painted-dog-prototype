@@ -14,12 +14,13 @@ import { ContactPageContent } from "./ContactPageContent";
 import { LegalPageContent } from "./LegalPageContent";
 import { NotFoundContent } from "./NotFoundContent";
 import { Cursor } from "./Cursor";
+import { MenuOverlay } from "./MenuOverlay";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
-  const { currentRoute } = useSnapshot(globalStore);
+  const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
   const isNotFound = currentRoute === "/not-found";
@@ -96,6 +97,7 @@ export const Foreground = () => {
       <ContactPageContent visible={isContactPage} />
       <LegalPageContent visible={isLegalPage} />
       <NotFoundContent visible={isNotFound} />
+      <MenuOverlay visible={isMenuOpen} />
       <Loader />
     </div>
   );
