@@ -26,7 +26,9 @@ import { PurchaseButtons } from "./PurchaseButtons";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
+  const [windowHeight, setWindowHeight] = useState(
+    typeof window !== "undefined" ? window.innerHeight : 0
+  );
   const [contentHeight, setContentHeight] = useState(0);
   const { isRendered } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -34,8 +36,8 @@ export const Middle = () => {
   // Update window height on resize with debouncing
   useEffect(() => {
     // Check if we're on the client side
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const updateHeights = () => {
       setWindowHeight(window.innerHeight);
       if (contentRef.current) {
@@ -62,7 +64,7 @@ export const Middle = () => {
 
     return () => {
       debouncedUpdateHeights.cancel(); // Cancel any pending debounced calls
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         window.removeEventListener("resize", debouncedUpdateHeights);
       }
       observer.disconnect();
@@ -175,7 +177,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           </div>
         </div>
       </div>
-      <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-[1px] pt-10 md:pt-3 mb-10 md:mb-0" />
+      <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-px pt-10 md:pt-3 mb-10 md:mb-0" />
       <div className="flex flex-col md:flex-row gap-20 md:gap-10 max-w-3xl mx-auto px-8 md:px-0">
         <article className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">New Publisher, New Tricks</h3>
