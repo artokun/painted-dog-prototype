@@ -20,6 +20,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
   const [showContent, setShowContent] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
+  const menuRef = useRef<HTMLParagraphElement>(null);
 
   // const isMobile = useMediaQuery("(max-width: 768px)");
   const { currentRoute } = useSnapshot(globalStore);
@@ -74,6 +75,16 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
         opacity: 1,
         y: 0,
         rotationX: 0,
+        duration: 0.8,
+        stagger: 0.03,
+        ease: "back.out(1.7)",
+        delay: 0.3,
+      });
+
+      gsap.to(menuRef, {
+        opacity: 1,
+        y: 0,
+        rotationX: -100,
         duration: 0.8,
         stagger: 0.03,
         ease: "back.out(1.7)",
@@ -143,7 +154,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           {/* Close Button */}
 
           {/* Menu Content */}
-          <div className="flex flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]">
+          <div ref={menuRef} className="flex flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]">
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
               <div className="flex flex-col md:flex-row justify-between w-full px-[41px] py-8">

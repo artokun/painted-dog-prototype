@@ -15,14 +15,18 @@ import { LegalPageContent } from "./LegalPageContent";
 import { NotFoundContent } from "./NotFoundContent";
 import { Cursor } from "./Cursor";
 import { MenuOverlay } from "./MenuOverlay";
+import { AboutPageContent } from "./AboutPageContent";
+import { LoginPageComponent } from "./LoginPageComponent";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
   const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
+  const isAboutPage = currentRoute === "/about";
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
+  const isLoginPage = currentRoute === "/login";
   const isNotFound = currentRoute === "/not-found";
 
   // Hide floating bar - hardcode to false instead of using Leva controls
@@ -94,8 +98,10 @@ export const Foreground = () => {
       {showFloatingBar && <FloatingBar />}
       <BookPageContent />
       <Cursor />
+      <AboutPageContent visible={isAboutPage} />
       <ContactPageContent visible={isContactPage} />
       <LegalPageContent visible={isLegalPage} />
+      <LoginPageComponent visible={isLoginPage} />
       <NotFoundContent visible={isNotFound} />
       <MenuOverlay visible={isMenuOpen} />
       <Loader />

@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Leva } from "leva";
-import { MailIcon } from "./icons/Mail";
 import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
 import { ThreeLink } from "./ThreeLink";
@@ -14,6 +13,8 @@ import { globalStore } from "../store/globalStore";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { animated, useSpring } from "@react-spring/web";
+import { CartButton } from "./ecommerce/CartButton";
+import { authStore, logout } from "@/app/store/authStore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,13 +65,15 @@ export const Header = () => {
   const isHomepage = currentRoute === "/";
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
-  const isOverlayPage = isContactPage || isLegalPage;
+  const isLoginPage = currentRoute === "/login";
+  const isOverlayPage = isContactPage || isLegalPage || isLoginPage;
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [levaLoaded, setLevaLoaded] = useState(false);
+  const auth = useSnapshot(authStore);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const mobileBookPageContentRef = useRef<HTMLDivElement>(null);
@@ -230,7 +233,7 @@ export const Header = () => {
         timeline.to(
           loginRef.current,
           {
-            x: 60,
+            x: 130,
             y: 0,
             duration: 1,
           },
@@ -370,15 +373,29 @@ export const Header = () => {
         <div
           style={
             shouldStartCollapsed
-              ? { transform: "translateX(60px)" }
-              : { transform: "translateX(60px) translateY(220px)" }
+              ? { transform: "translateX(143px)" }
+              : { transform: "translateX(143px) translateY(220px)" }
           }
           ref={loginRef}
           className="hidden md:flex gap-2 items-center text-black"
         >
-          <ThreeLink animatedUnderline href="/contact">
+          {/* <ThreeLink animatedUnderline href="/contact">
             Login/SignUp
-          </ThreeLink>
+          </ThreeLink> */}
+
+          {/* <button onClick={logout}>Test Logout</button> */}
+          {auth?.isLoggedIn ? (
+            <>
+              <span>Hello, {auth.user?.firstName}</span>
+              <button className="cursor-pointer" onClick={logout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <ThreeLink animatedUnderline href="/login">
+              Login/SignUp
+            </ThreeLink>
+          )}
         </div>
         <div
           style={
@@ -389,12 +406,13 @@ export const Header = () => {
           ref={menuRef}
           className="hidden md:flex gap-2 items-center text-black"
         >
+          <CartButton />
           <MenuButton />
         </div>
         <div
           style={
             shouldStartCollapsed
-              ? { opacity: 1, transform: "translateX(-116px) translateY(-1px)" }
+              ? { opacity: 1, transform: "translateX(-106px) translateY(-1px)" }
               : { opacity: 0 }
           }
           className="text-black"
