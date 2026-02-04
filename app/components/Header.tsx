@@ -412,7 +412,10 @@ export const Header = () => {
         <div
           style={
             shouldStartCollapsed
-              ? { opacity: 1, transform: "translateX(-106px) translateY(-1px)" }
+              ? {
+                  opacity: 1,
+                  transform: `${auth.isLoggedIn ? "translateX(-133px) translateY(-1px)" : "translateX(-106px) translateY(-1px)"}`,
+                }
               : { opacity: 0 }
           }
           className="text-black"

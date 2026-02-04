@@ -5,7 +5,7 @@ import { FloatingBar } from "./FloatingBar";
 import { Loader } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
@@ -18,7 +18,7 @@ import { MenuOverlay } from "./MenuOverlay";
 import { AboutPageContent } from "./AboutPageContent";
 import { LoginPageComponent } from "./LoginPageComponent";
 
-export const Foreground = () => {
+export const Foreground = ({ visible }: { visible: boolean }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
@@ -28,6 +28,7 @@ export const Foreground = () => {
   const isLegalPage = currentRoute === "/legal";
   const isLoginPage = currentRoute === "/login";
   const isNotFound = currentRoute === "/not-found";
+  const [wasVisible, setWasVisible] = useState(visible);
 
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;

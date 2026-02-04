@@ -6,12 +6,16 @@ import {
   removeFromCart,
   clearCart,
 } from "@/app/store/cartStore";
+import { authStore } from "@/app/store/authStore";
 import { createCart } from "@/lib/shopify";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 
 export const CartButton = () => {
   const cart = useSnapshot(cartStore);
+  const auth = useSnapshot(authStore);
+  const router = useRouter();
   const [showCart, setShowCart] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
@@ -28,6 +32,13 @@ export const CartButton = () => {
   };
 
   const handleCheckout = async () => {
+    // AUTH CHECK
+    if (!auth.isLoggedIn) {
+      setShowCart(false);
+      router.push("/login");
+      return;
+    }
+
     setIsCheckingOut(true);
 
     const lineItems = cart.items.map((item) => ({
@@ -57,7 +68,7 @@ export const CartButton = () => {
         onClick={() => setShowCart(!showCart)}
         className="relative cursor-pointer text-black px-4 py-2 rounded z-50"
       >
-        <span className="absolute  text-black bg-white w-4 h-4 text-[9px] flex items-center justify-center rounded-full top-[5px] right-2.5">
+        <span className="absolute text-black bg-white w-4 h-4 text-[9px] flex items-center justify-center rounded-full top-[5px] right-2.5">
           {getTotalItems()}
         </span>
         <ShoppingCart />
@@ -133,12 +144,24 @@ export const CartButton = () => {
                   <span>Total:</span>
                   <span>${getTotalPrice().toFixed(2)}</span>
                 </div>
+
+                {/* Login prompt if not logged in */}
+                {!auth.isLoggedIn && (
+                  <p className="text-sm text-gray-600 mb-3 text-center">
+                    Please login to checkout
+                  </p>
+                )}
+
                 <button
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
                   className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
                 >
-                  {isCheckingOut ? "Loading..." : "Checkout"}
+                  {isCheckingOut
+                    ? "Loading..."
+                    : auth.isLoggedIn
+                      ? "Checkout"
+                      : "Login to Checkout"}
                 </button>
                 <button
                   onClick={clearCart}
