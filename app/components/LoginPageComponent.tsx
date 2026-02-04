@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { login } from "@/app/store/authStore";
 import { createCustomer, loginCustomer, getCustomer } from "@/lib/shopify";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
 export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
   const [showContent, setShowContent] = useState(false);
@@ -177,7 +178,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         visible && "pointer-events-auto"
       )}
     >
-      <div className="pd_login-wrapper w-[464px] bg-white p-6 -rotate-1 scale-[.99]">
+      <div className="pd_login-wrapper w-[464px] bg-white p-6 rotate-0 filter drop-shadow-xl lg:-rotate-1 scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180">
         {/* header items */}
         <div className="flex justify-between gap-4">
           <p className="font-bold">Library & Account</p>
@@ -262,6 +263,10 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
             {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
           </button>
 
+          <div className="w-full text-center py-1 relative ">
+            <p>or</p>
+          </div>
+
           {isLogin ? (
             <button
               onClick={() => setIsLogin(false)}
@@ -269,7 +274,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                 "flex items-center gap-2 justify-center px-3 h-9 rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100 hover:translate-y-[-2px] hover:shadow-md active:bg-[#F2EFE9] bg-transparent text-black w-full"
               }
             >
-              Sign Up
+              Sign Up <ArrowRight />
             </button>
           ) : (
             <button
@@ -278,7 +283,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                 "flex items-center gap-2 justify-center px-3 h-9 rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100 hover:translate-y-[-2px] hover:shadow-md active:bg-[#F2EFE9] bg-transparent text-black w-full"
               }
             >
-              Login
+              Login <ArrowRight />
             </button>
           )}
 
