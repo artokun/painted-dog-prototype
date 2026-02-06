@@ -17,6 +17,7 @@ import { Cursor } from "./Cursor";
 import { MenuOverlay } from "./MenuOverlay";
 import { AboutPageContent } from "./AboutPageContent";
 import { LoginPageComponent } from "./LoginPageComponent";
+import { Dashboard } from "./ecommerce/Dashboard";
 
 export const Foreground = ({ visible }: { visible: boolean }) => {
   const router = useRouter();
@@ -27,6 +28,8 @@ export const Foreground = ({ visible }: { visible: boolean }) => {
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
   const isLoginPage = currentRoute === "/login";
+  const isDashboardPage = currentRoute === "/dashboard";
+
   const isNotFound = currentRoute === "/not-found";
   const [wasVisible, setWasVisible] = useState(visible);
 
@@ -103,6 +106,7 @@ export const Foreground = ({ visible }: { visible: boolean }) => {
       <ContactPageContent visible={isContactPage} />
       <LegalPageContent visible={isLegalPage} />
       <LoginPageComponent visible={isLoginPage} />
+      <Dashboard visible={isDashboardPage} />
       <NotFoundContent visible={isNotFound} />
       <MenuOverlay visible={isMenuOpen} />
       <Loader />

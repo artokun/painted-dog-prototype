@@ -5,7 +5,6 @@ import { animated, useSpring } from "@react-spring/web";
 import { useState, useRef, useEffect } from "react";
 import { globalStore } from "../store/globalStore";
 import { Footer } from "./Footer";
-import { getAllProducts } from "@/lib/shopify";
 
 enum Tab {
   About = "about",

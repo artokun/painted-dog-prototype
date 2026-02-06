@@ -35,7 +35,7 @@ export const CartButton = () => {
     // AUTH CHECK
     if (!auth.isLoggedIn) {
       setShowCart(false);
-      router.push("/login");
+      router.push("/");
       return;
     }
 

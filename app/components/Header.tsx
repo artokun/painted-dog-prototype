@@ -384,12 +384,27 @@ export const Header = () => {
           </ThreeLink> */}
 
           {/* <button onClick={logout}>Test Logout</button> */}
-          {auth?.isLoggedIn ? (
+          {/* {auth?.isLoggedIn ? (
             <>
               <span>Hello, {auth.user?.firstName}</span>
               <button className="cursor-pointer" onClick={logout}>
                 Logout
               </button>
+            </>
+          ) : (
+            <ThreeLink animatedUnderline href="/login">
+              Login/SignUp
+            </ThreeLink>
+          )} */}
+
+          {auth?.isLoggedIn ? (
+            <>
+              <ThreeLink animatedUnderline href="/dashboard">
+                Hello, {auth.user?.firstName}
+              </ThreeLink>
+              {/* <button className="cursor-pointer" onClick={logout}>
+                Logout
+              </button> */}
             </>
           ) : (
             <ThreeLink animatedUnderline href="/login">
@@ -427,7 +442,7 @@ export const Header = () => {
           <MenuButton />
         </div>
       </div>
-      <div className="hidden">
+      <div className="hidden!">
         <Leva
           collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
           isRoot

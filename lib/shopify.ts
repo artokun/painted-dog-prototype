@@ -384,3 +384,141 @@ export async function getCustomer(accessToken: string) {
     return { success: false, errors: [{ message: "Network error" }] };
   }
 }
+
+// Get customer orders
+export async function getCustomerOrders(accessToken: string) {
+  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const storefrontAccessToken =
+    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+  const query = `
+    query getCustomerOrders($customerAccessToken: String!) {
+      customer(customerAccessToken: $customerAccessToken) {
+        orders(first: 10, sortKey: PROCESSED_AT, reverse: true) {
+          edges {
+            node {
+              id
+              orderNumber
+              processedAt
+              fulfillmentStatus
+              totalPrice {
+                amount
+                currencyCode
+              }
+              lineItems(first: 10) {
+                edges {
+                  node {
+                    id
+                    title
+                    quantity
+                    originalTotalPrice {
+                      amount
+                      currencyCode
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    customerAccessToken: accessToken,
+  };
+
+  try {
+    const response = await fetch(`https://${domain}/api/2026-01/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": storefrontAccessToken!,
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
+
+    const data = await response.json();
+    console.log("Get orders response:", data); // This line should already be there
+    console.log("Customer data:", data.data?.customer);
+    console.log("Orders edges:", data.data?.customer?.orders?.edges);
+
+    if (data.errors) {
+      return { success: false, errors: data.errors };
+    }
+
+    const orders =
+      data.data?.customer?.orders?.edges.map((edge: any) => edge.node) || [];
+    return { success: true, orders };
+  } catch (error) {
+    console.error("Error getting orders:", error);
+    return { success: false, errors: [{ message: "Network error" }] };
+  }
+}
+
+// Get customer addresses
+export async function getCustomerAddresses(accessToken: string) {
+  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const storefrontAccessToken =
+    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+  const query = `
+    query getCustomerAddresses($customerAccessToken: String!) {
+      customer(customerAccessToken: $customerAccessToken) {
+        addresses(first: 10) {
+          edges {
+            node {
+              id
+              name
+              firstName
+              lastName
+              address1
+              address2
+              city
+              province
+              country
+              zip
+              phone
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    customerAccessToken: accessToken,
+  };
+
+  try {
+    const response = await fetch(`https://${domain}/api/2026-01/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": storefrontAccessToken!,
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
+
+    const data = await response.json();
+    console.log("Get addresses response:", data);
+
+    if (data.errors) {
+      return { success: false, errors: data.errors };
+    }
+
+    const addresses =
+      data.data?.customer?.addresses?.edges.map((edge: any) => edge.node) || [];
+    return { success: true, addresses };
+  } catch (error) {
+    console.error("Error getting addresses:", error);
+    return { success: false, errors: [{ message: "Network error" }] };
+  }
+}
