@@ -13,8 +13,7 @@ import { globalStore } from "../store/globalStore";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { animated, useSpring } from "@react-spring/web";
-import { CartButton } from "./ecommerce/CartButton";
-import { authStore, logout } from "@/app/store/authStore";
+import { authStore } from "@/app/store/authStore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -81,10 +80,10 @@ export const Header = () => {
   // GSAP refs
   const logoRef = useRef<HTMLDivElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
-  const reviewsRef = useRef<HTMLDivElement>(null);
   const newsletterRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const separatorRef = useRef<HTMLDivElement>(null);
+  const leftseparatorRef = useRef<HTMLDivElement>(null);
   const loginRef = useRef<HTMLDivElement>(null);
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
@@ -179,7 +178,7 @@ export const Header = () => {
         timeline.to(
           newsRef.current,
           {
-            x: 210,
+            x: 130,
             duration: 1,
             y: 0,
           },
@@ -197,12 +196,12 @@ export const Header = () => {
         );
 
         timeline.to(
-          reviewsRef.current,
+          leftseparatorRef.current,
           {
-            x: 60,
+            x: -116,
             opacity: 1,
             duration: 1,
-            y: 0,
+            y: -1,
           },
           0
         );
@@ -222,7 +221,7 @@ export const Header = () => {
         timeline.to(
           newsletterRef.current,
           {
-            x: -133,
+            x: -90,
             y: 0,
             duration: 1,
           },
@@ -233,7 +232,7 @@ export const Header = () => {
         timeline.to(
           loginRef.current,
           {
-            x: 130,
+            x: 90,
             y: 0,
             duration: 1,
           },
@@ -257,7 +256,7 @@ export const Header = () => {
   return (
     <div
       className={cn(
-        "fixed top-0 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto gap-4 h-20 px-4 md:px-20"
+        "absolute top-0 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto gap-4 h-20 px-4 md:px-20"
       )}
     >
       <div className="flex-1 flex text-black">
@@ -276,41 +275,35 @@ export const Header = () => {
               <div
                 style={
                   shouldStartCollapsed
-                    ? { transform: "translateX(210px)" }
-                    : undefined
+                    ? { transform: "translateX(130px)" }
+                    : { transform: "translateX(-40px) translateY(0px)" }
                 }
                 ref={newsRef}
-                className="hidden md:flex pointer-events-auto"
+                className="hidden uppercase md:flex pointer-events-auto"
               >
                 <ThreeLink animatedUnderline href="/contact">
                   News
                 </ThreeLink>
               </div>
-
-              <div
+              {/* <div
                 style={
                   shouldStartCollapsed
-                    ? { opacity: 1, transform: "translateX(60px)" }
+                    ? { opacity: 1, transform: "translateX(90px)" }
                     : { opacity: 0 }
                 }
-                ref={reviewsRef}
-                className="pointer-events-auto"
+                className="text-black "
+                ref={leftseparatorRef}
               >
                 <span>•</span>
-                <ThreeLink animatedUnderline className="px-2" href="/contact">
-                  Reviews
-                </ThreeLink>
-                <span>•</span>
-              </div>
-
+              </div> */}
               <div
                 style={
                   shouldStartCollapsed
-                    ? { transform: "translateX(-133px)" }
-                    : { transform: "translateX(-143px) translateY(220px)" }
+                    ? { transform: "translateX(-90px)" }
+                    : { transform: "translateX(-90px) translateY(220px)" }
                 }
                 ref={newsletterRef}
-                className="hidden md:flex pointer-events-auto"
+                className="hidden uppercase md:flex pointer-events-auto"
               >
                 <ThreeLink animatedUnderline href="/contact">
                   Newsletter
@@ -347,7 +340,7 @@ export const Header = () => {
           }
           ref={logoRef}
           className={cn(
-            "fixed top-0 w-[90%] block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300",
+            "fixed px-8 top-0 w-full left-0 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300",
             !showHeader &&
               (isHomepage || isOverlayPage) &&
               "opacity-0 pointer-events-none"
@@ -373,42 +366,21 @@ export const Header = () => {
         <div
           style={
             shouldStartCollapsed
-              ? { transform: "translateX(143px)" }
-              : { transform: "translateX(143px) translateY(220px)" }
+              ? { transform: "translateX(90px)" }
+              : { transform: "translateX(90px) translateY(230px)" }
           }
           ref={loginRef}
-          className="hidden md:flex gap-2 items-center text-black"
+          className="hidden uppercase md:flex gap-2 items-center text-black"
         >
-          {/* <ThreeLink animatedUnderline href="/contact">
-            Login/SignUp
-          </ThreeLink> */}
-
-          {/* <button onClick={logout}>Test Logout</button> */}
-          {/* {auth?.isLoggedIn ? (
-            <>
-              <span>Hello, {auth.user?.firstName}</span>
-              <button className="cursor-pointer" onClick={logout}>
-                Logout
-              </button>
-            </>
-          ) : (
-            <ThreeLink animatedUnderline href="/login">
-              Login/SignUp
-            </ThreeLink>
-          )} */}
-
           {auth?.isLoggedIn ? (
             <>
               <ThreeLink animatedUnderline href="/dashboard">
-                Hello, {auth.user?.firstName}
+                Account
               </ThreeLink>
-              {/* <button className="cursor-pointer" onClick={logout}>
-                Logout
-              </button> */}
             </>
           ) : (
             <ThreeLink animatedUnderline href="/login">
-              Login/SignUp
+              Log In
             </ThreeLink>
           )}
         </div>
@@ -421,28 +393,25 @@ export const Header = () => {
           ref={menuRef}
           className="hidden md:flex gap-2 items-center text-black"
         >
-          <CartButton />
+          {/* <CartButton /> */}
           <MenuButton />
         </div>
-        <div
+        {/* <div
           style={
             shouldStartCollapsed
-              ? {
-                  opacity: 1,
-                  transform: `${auth.isLoggedIn ? "translateX(-133px) translateY(-1px)" : "translateX(-106px) translateY(-1px)"}`,
-                }
+              ? { opacity: 1, transform: "translateX(90px)" }
               : { opacity: 0 }
           }
           className="text-black"
           ref={separatorRef}
         >
           <span>•</span>
-        </div>
+        </div> */}
         <div className="md:hidden flex gap-2 items-center text-black">
           <MenuButton />
         </div>
       </div>
-      <div className="hidden!">
+      <div className="hidden! invisible">
         <Leva
           collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
           isRoot

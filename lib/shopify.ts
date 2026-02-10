@@ -401,20 +401,30 @@ export async function getCustomerOrders(accessToken: string) {
               orderNumber
               processedAt
               fulfillmentStatus
-              totalPrice {
-                amount
-                currencyCode
-              }
+           totalPrice {
+  amount
+  currencyCode
+}
+totalShippingPrice {
+  amount
+  currencyCode
+}
+              
               lineItems(first: 10) {
                 edges {
                   node {
-                    id
                     title
                     quantity
                     originalTotalPrice {
                       amount
                       currencyCode
                     }
+                       variant {
+        image {
+          url
+          altText
+        }
+      }
                   }
                 }
               }
@@ -519,6 +529,187 @@ export async function getCustomerAddresses(accessToken: string) {
     return { success: true, addresses };
   } catch (error) {
     console.error("Error getting addresses:", error);
+    return { success: false, errors: [{ message: "Network error" }] };
+  }
+}
+
+// create Google customer using Admin
+export async function createCustomerAdmin(
+  email: string,
+  password: string,
+  firstName?: string,
+  lastName?: string
+) {
+  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+  const response = await fetch(
+    `https://${domain}/admin/api/2026-01/customers.json`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": adminToken!,
+      },
+      body: JSON.stringify({
+        customer: {
+          email,
+          password,
+          password_confirmation: password,
+          first_name: firstName,
+          last_name: lastName,
+          verified_email: true, // 👈 this is the key line
+          send_email_welcome: false,
+        },
+      }),
+    }
+  );
+
+  const data = await response.json();
+  console.log("ADMIN CREATE CUSTOMER:", data);
+
+  if (data.errors) {
+    return { success: false, errors: data.errors };
+  }
+
+  return { success: true, customer: data.customer };
+}
+
+// Update customer profile
+export async function updateCustomerProfile(
+  accessToken: string,
+  firstName: string,
+  lastName: string,
+  email: string
+) {
+  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const storefrontAccessToken =
+    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+  const mutation = `
+    mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+      customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+        customer {
+          firstName
+          lastName
+          email
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    customerAccessToken: accessToken,
+    customer: { firstName, lastName, email },
+  };
+
+  try {
+    const response = await fetch(`https://${domain}/api/2026-01/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": storefrontAccessToken!,
+      },
+      body: JSON.stringify({ query: mutation, variables }),
+    });
+
+    const data = await response.json();
+
+    if (
+      data.errors ||
+      data.data?.customerUpdate?.customerUserErrors?.length > 0
+    ) {
+      return {
+        success: false,
+        errors: data.errors || data.data.customerUpdate.customerUserErrors,
+      };
+    }
+
+    return { success: true, customer: data.data.customerUpdate.customer };
+  } catch (error) {
+    return { success: false, errors: [{ message: "Network error" }] };
+  }
+}
+
+// Update a customer address
+export async function updateCustomerAddress(
+  accessToken: string,
+  addressId: string,
+  address: {
+    address1: string;
+    address2?: string;
+    city: string;
+    province: string;
+    zip: string;
+    country: string;
+    phone?: string;
+  }
+) {
+  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const storefrontAccessToken =
+    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+  const mutation = `
+    mutation customerAddressUpdate($customerAccessToken: String!, $id: ID!, $address: MailingAddressInput!) {
+      customerAddressUpdate(customerAccessToken: $customerAccessToken, id: $id, address: $address) {
+        customerAddress {
+          id
+          address1
+          address2
+          city
+          province
+          zip
+          country
+          phone
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    customerAccessToken: accessToken,
+    id: addressId,
+    address,
+  };
+
+  try {
+    const response = await fetch(`https://${domain}/api/2026-01/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": storefrontAccessToken!,
+      },
+      body: JSON.stringify({ query: mutation, variables }),
+    });
+
+    const data = await response.json();
+
+    if (
+      data.errors ||
+      data.data?.customerAddressUpdate?.customerUserErrors?.length > 0
+    ) {
+      return {
+        success: false,
+        errors:
+          data.errors || data.data.customerAddressUpdate.customerUserErrors,
+      };
+    }
+
+    return {
+      success: true,
+      address: data.data.customerAddressUpdate.customerAddress,
+    };
+  } catch (error) {
     return { success: false, errors: [{ message: "Network error" }] };
   }
 }

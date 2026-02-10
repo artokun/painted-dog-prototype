@@ -18,12 +18,16 @@ import { MenuOverlay } from "./MenuOverlay";
 import { AboutPageContent } from "./AboutPageContent";
 import { LoginPageComponent } from "./LoginPageComponent";
 import { Dashboard } from "./ecommerce/Dashboard";
+import { cartUIStore, closeCart } from "../store/cartUIStore";
+import { CartSidebar } from "./ecommerce/CartSidebar";
 
-export const Foreground = ({ visible }: { visible: boolean }) => {
+export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
   const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
+  const { isOpen: isCartOpen } = useSnapshot(cartUIStore); // Subscribe to cart state
+
   const isAboutPage = currentRoute === "/about";
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
@@ -31,7 +35,7 @@ export const Foreground = ({ visible }: { visible: boolean }) => {
   const isDashboardPage = currentRoute === "/dashboard";
 
   const isNotFound = currentRoute === "/not-found";
-  const [wasVisible, setWasVisible] = useState(visible);
+  // const [wasVisible, setWasVisible] = useState(visible);
 
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;
@@ -109,6 +113,9 @@ export const Foreground = ({ visible }: { visible: boolean }) => {
       <Dashboard visible={isDashboardPage} />
       <NotFoundContent visible={isNotFound} />
       <MenuOverlay visible={isMenuOpen} />
+
+      {/* Cart Sidebar - Single instance at top level */}
+      <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
       <Loader />
     </div>
   );

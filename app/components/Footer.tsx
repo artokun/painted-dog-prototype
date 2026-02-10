@@ -14,6 +14,7 @@ import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
+import { openCart } from "@/app/store/cartUIStore"; // Import open function
 
 export const Footer = () => {
   const { focusedBookId } = useSnapshot(bookStore);
@@ -97,15 +98,21 @@ export const Footer = () => {
                   noUnderline
                   href="/login"
                 >
-                  Login / Signup
+                  Login
                 </ThreeLink>
                 <ThreeLink
                   className="text-xl font-medium"
                   noUnderline
-                  href="/cart"
+                  href="/dashboard"
+                >
+                  Account
+                </ThreeLink>
+                <button
+                  className="text-xl font-medium hover:cursor-pointer"
+                  onClick={openCart}
                 >
                   Cart
-                </ThreeLink>
+                </button>
               </div>
             </div>
           </div>
@@ -120,14 +127,11 @@ export const Footer = () => {
               >
                 For Readers
               </ThreeLink>
-              <ThreeLink href="/your-library" noUnderline>
-                Your Library
-              </ThreeLink>
-              <ThreeLink href="/reviews" noUnderline>
-                Reviews
-              </ThreeLink>
               <ThreeLink href="/newsletter" noUnderline>
                 Newsletter
+              </ThreeLink>
+              <ThreeLink href="/newsletter" noUnderline>
+                Browse Stack
               </ThreeLink>
             </div>
           </div>
@@ -144,12 +148,6 @@ export const Footer = () => {
               </ThreeLink>
               <ThreeLink href="/legal" noUnderline>
                 Submissions
-              </ThreeLink>
-              <ThreeLink href="/legal" noUnderline>
-                Reviewers
-              </ThreeLink>
-              <ThreeLink href="/legal" noUnderline>
-                Influencers
               </ThreeLink>
             </div>
           </div>

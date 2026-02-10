@@ -3,6 +3,8 @@ import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { addToCart } from "@/app/store/cartStore";
 import { getProduct } from "@/lib/shopify"; // Use your existing function
 import { useState, useEffect } from "react";
+import { CartSidebar } from "@/app/components/ecommerce/CartSidebar"; // Import the sidebar
+import { openCart } from "../store/cartUIStore";
 
 interface PurchaseButtonsProps {
   layout?: "horizontal" | "vertical" | "mobile";
@@ -27,6 +29,8 @@ export function PurchaseButtons({
   const [product, setProduct] = useState<Product | null>(null); // Fixed!
   const [justAdded, setJustAdded] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [showCart, setShowCart] = useState(false); // Add cart state
 
   const containerClasses =
     layout === "horizontal"
@@ -68,70 +72,76 @@ export function PurchaseButtons({
       });
 
       setJustAdded(true);
+      openCart(); // Open the cart
       setTimeout(() => setJustAdded(false), 2000);
     }
   };
 
   return (
-    <div className={`${containerClasses} ${className}`}>
-      {/* Add to Cart button */}
-      {loading ? (
-        <PDButton className="w-full" primary tall={shouldBeTall} disabled>
-          Loading...
-        </PDButton>
-      ) : product ? (
+    <>
+      <div className={`${containerClasses} ${className}`}>
+        {/* Add to Cart button */}
+        {loading ? (
+          <PDButton className="w-full" primary tall={shouldBeTall} disabled>
+            Loading...
+          </PDButton>
+        ) : product ? (
+          <PDButton
+            onClick={handleAddToCart}
+            className="w-full"
+            primary
+            tall={shouldBeTall}
+          >
+            <ShoppingCartIcon className="w-5 h-5 -mt-0.5" />
+            {justAdded ? "✓ Added!" : `Add to Cart - R${product.price}`}
+          </PDButton>
+        ) : null}
+
         <PDButton
-          onClick={handleAddToCart}
+          href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
           className="w-full"
+          target="_blank"
           primary
           tall={shouldBeTall}
         >
-          <ShoppingCartIcon className="w-5 h-5 -mt-0.5" />
-          {justAdded ? "✓ Added!" : `Add to Cart - R${product.price}`}
+          <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
         </PDButton>
-      ) : null}
 
-      <PDButton
-        href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
-        className="w-full"
-        target="_blank"
-        primary
-        tall={shouldBeTall}
-      >
-        <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
-      </PDButton>
-
-      <PDButton
-        href="https://stellenboschbooks.co.za/products/bitterkomix-sketchbooks-and-journals-a-kannemeyer-c-botes"
-        className="w-full"
-        tall={shouldBeTall}
-        target="_blank"
-      >
-        Stellenbosch Books
-      </PDButton>
-
-      <div className="w-full flex gap-3">
         <PDButton
-          href="https://booklounge.co.za/product/bitterkomix-sketchbooks-and-journals/"
-          className="flex-1"
+          href="https://stellenboschbooks.co.za/products/bitterkomix-sketchbooks-and-journals-a-kannemeyer-c-botes"
+          className="w-full"
           tall={shouldBeTall}
           target="_blank"
         >
-          Book Lounge
+          Stellenbosch Books
         </PDButton>
-        <PDButton
-          href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
-          className="flex-1"
-          tall={shouldBeTall}
-          target="_blank"
-        >
-          Wordsworth
-        </PDButton>
+
+        <div className="w-full flex gap-3">
+          <PDButton
+            href="https://booklounge.co.za/product/bitterkomix-sketchbooks-and-journals/"
+            className="flex-1"
+            tall={shouldBeTall}
+            target="_blank"
+          >
+            Book Lounge
+          </PDButton>
+          <PDButton
+            href="https://www.wordsworth.co.za/products/bitterkomix-sketchbooks-journals"
+            className="flex-1"
+            tall={shouldBeTall}
+            target="_blank"
+          >
+            Wordsworth
+          </PDButton>
+        </div>
+
+        <p className="pt-2 text-sm w-full flex justify-center">
+          Also available in-store at select Exclusive Books.
+        </p>
       </div>
 
-      <p className="pt-2 text-sm w-full flex justify-center">
-        Also available in-store at select Exclusive Books.
-      </p>
-    </div>
+      {/* Cart Sidebar */}
+      <CartSidebar isOpen={showCart} onClose={() => setShowCart(false)} />
+    </>
   );
 }

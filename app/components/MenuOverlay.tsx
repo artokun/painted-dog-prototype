@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { useSnapshot } from "valtio";
 import { globalStore } from "../store/globalStore";
 import { CloseIcon } from "./icons/Close";
+import { openCart } from "@/app/store/cartUIStore"; // Import open function
+
 // import { useMediaQuery } from "usehooks-ts";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/dist/SplitText";
@@ -154,7 +156,10 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           {/* Close Button */}
 
           {/* Menu Content */}
-          <div ref={menuRef} className="flex flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]">
+          <div
+            ref={menuRef}
+            className="flex flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]"
+          >
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
               <div className="flex flex-col md:flex-row justify-between w-full px-[41px] py-8">
@@ -180,15 +185,21 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   className="text-[18px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
                   noUnderline
                 >
-                  Login | SignUp
+                  Login
                 </ThreeLink>
                 <ThreeLink
-                  href="/cart"
+                  href="/dashboard"
                   className="text-[18px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
                   noUnderline
                 >
-                  Cart
+                  Account
                 </ThreeLink>
+                <button
+                  className="text-[18px] md:text-[32px] font-medium hover:opacity-70 transition-opacity hover:cursor-pointer"
+                  onClick={openCart}
+                >
+                  Cart
+                </button>
                 <button
                   onClick={handleClose}
                   className="p-2 hidden md:flex items-center hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
@@ -200,7 +211,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
 
               {/* for writers reader links */}
               <div className="flex flex-col md:flex-row  gap-6 md:gap-8 w-full border-y">
-                <div className="flex-1 flex flex-col py-8">
+                <div className="flex-1 flex flex-col py-8 gap-2">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-bold"
                     noUnderline
@@ -208,14 +219,11 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   >
                     For Readers
                   </ThreeLink>
-                  <ThreeLink href="/your-library" noUnderline>
-                    Your Library
-                  </ThreeLink>
-                  <ThreeLink href="/reviews" noUnderline>
-                    Reviews
-                  </ThreeLink>
                   <ThreeLink href="/newsletter" noUnderline>
                     Newsletter
+                  </ThreeLink>
+                  <ThreeLink href="/newsletter" noUnderline>
+                    Browse Stack
                   </ThreeLink>
                 </div>
                 <div className="flex-1 flex flex-col py-8 border-t md:border-l">
@@ -226,14 +234,9 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   >
                     For Writers
                   </ThreeLink>
-                  <ThreeLink href="/submissions" noUnderline>
+
+                  <ThreeLink href="/contact" noUnderline>
                     Submissions
-                  </ThreeLink>
-                  <ThreeLink href="/reviewers" noUnderline>
-                    Reviewers
-                  </ThreeLink>
-                  <ThreeLink href="/influencers" noUnderline>
-                    Influencers
                   </ThreeLink>
                 </div>
               </div>
@@ -260,7 +263,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     className="text-[24px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
                     noUnderline
                   >
-                    Blog
+                    News
                   </ThreeLink>
                 </nav>
                 <nav className="flex gap-4 text-center">

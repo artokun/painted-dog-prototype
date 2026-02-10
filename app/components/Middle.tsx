@@ -23,6 +23,7 @@ import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";
 import { useMediaQuery } from "usehooks-ts";
 import { PurchaseButtons } from "./PurchaseButtons";
+import { hydrateAuth } from "@/app/store/authStore";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -33,6 +34,9 @@ export const Middle = () => {
   const { isRendered } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
+  useEffect(() => {
+    hydrateAuth();
+  }, []);
   // Update window height on resize with debouncing
   useEffect(() => {
     // Check if we're on the client side
