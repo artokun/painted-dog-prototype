@@ -83,8 +83,11 @@ export default async function NewsArticlePage({
           )}
 
           {article.contentBlock1 && article.contentBlock1.content && (
-            <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14 md:ml-auto md:w-1/2">
-              {documentToReactComponents(article.contentBlock1)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+              <div></div>
+              <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+                {documentToReactComponents(article.contentBlock1)}
+              </div>
             </div>
           )}
 
@@ -111,8 +114,11 @@ export default async function NewsArticlePage({
           )}
 
           {article.contentBlock2 && article.contentBlock2.content && (
-            <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14 md:ml-auto md:w-1/2">
-              {documentToReactComponents(article.contentBlock2)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+              <div></div>
+              <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+                {documentToReactComponents(article.contentBlock2)}
+              </div>
             </div>
           )}
 
@@ -129,7 +135,7 @@ export default async function NewsArticlePage({
           {article.imageWithCaption && article.imageWithCaption.fields && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div></div>
-              <div className="grid grid-cols-[80%_20%] gap-4 items-end">
+              <div className="grid grid-cols-[70%_30%] gap-4 items-end">
                 <img
                   src={`https:${article.imageWithCaption.fields.file.url}`}
                   alt={
@@ -152,8 +158,11 @@ export default async function NewsArticlePage({
           )}
 
           {article.contentBlock3 && article.contentBlock3.content && (
-            <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14 md:ml-auto md:w-1/2">
-              {documentToReactComponents(article.contentBlock3)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+              <div></div>
+              <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+                {documentToReactComponents(article.contentBlock3)}
+              </div>
             </div>
           )}
 
@@ -194,7 +203,7 @@ export default async function NewsArticlePage({
             <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
               <div></div>
               <div>
-                <h3 className="text-base font-semibold mb-3">
+                <h3 className="text-base mb-3">
                   Acknowledgements
                 </h3>
                 <div className="prose max-w-none [&_p]:text-sm [&_p]:text-black/70 [&_p]:leading-relaxed [&_p]:flex [&_p]:gap-3 [&_p]:before:content-['—'] [&_p]:before:shrink-0">
