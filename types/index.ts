@@ -101,3 +101,25 @@ export type {
   TypePriceWithoutLinkResolutionResponse,
   TypePriceWithoutUnresolvableLinksResponse,
 } from "./generated/TypePrice";
+
+export type {
+  TypeNewsArticle,
+  TypeNewsArticleFields,
+  TypeNewsArticleSkeleton,
+  TypeNewsArticleWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypeNewsArticleWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypeNewsArticleWithAllLocalesResponse,
+  TypeNewsArticleWithoutLinkResolutionResponse,
+  TypeNewsArticleWithoutUnresolvableLinksResponse,
+} from "./generated/TypeNewsArticle";
+
+export type {
+  TypeNewsCategory,
+  TypeNewsCategoryFields,
+  TypeNewsCategorySkeleton,
+  TypeNewsCategoryWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypeNewsCategoryWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypeNewsCategoryWithAllLocalesResponse,
+  TypeNewsCategoryWithoutLinkResolutionResponse,
+  TypeNewsCategoryWithoutUnresolvableLinksResponse,
+} from "./generated/TypeNewsCategory";
