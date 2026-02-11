@@ -5,7 +5,7 @@ import { FloatingBar } from "./FloatingBar";
 import { Loader } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
@@ -14,15 +14,28 @@ import { ContactPageContent } from "./ContactPageContent";
 import { LegalPageContent } from "./LegalPageContent";
 import { NotFoundContent } from "./NotFoundContent";
 import { Cursor } from "./Cursor";
+import { MenuOverlay } from "./MenuOverlay";
+import { AboutPageContent } from "./AboutPageContent";
+import { LoginPageComponent } from "./LoginPageComponent";
+import { Dashboard } from "./ecommerce/Dashboard";
+import { cartUIStore, closeCart } from "../store/cartUIStore";
+import { CartSidebar } from "./ecommerce/CartSidebar";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
-  const { currentRoute } = useSnapshot(globalStore);
+  const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
+  const { isOpen: isCartOpen } = useSnapshot(cartUIStore); // Subscribe to cart state
+
+  const isAboutPage = currentRoute === "/about";
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
+  const isLoginPage = currentRoute === "/login";
+  const isDashboardPage = currentRoute === "/dashboard";
+
   const isNotFound = currentRoute === "/not-found";
+  // const [wasVisible, setWasVisible] = useState(visible);
 
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;
@@ -93,9 +106,16 @@ export const Foreground = () => {
       {showFloatingBar && <FloatingBar />}
       <BookPageContent />
       <Cursor />
+      <AboutPageContent visible={isAboutPage} />
       <ContactPageContent visible={isContactPage} />
       <LegalPageContent visible={isLegalPage} />
+      <LoginPageComponent visible={isLoginPage} />
+      <Dashboard visible={isDashboardPage} />
       <NotFoundContent visible={isNotFound} />
+      <MenuOverlay visible={isMenuOpen} />
+
+      {/* Cart Sidebar - Single instance at top level */}
+      <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
       <Loader />
     </div>
   );

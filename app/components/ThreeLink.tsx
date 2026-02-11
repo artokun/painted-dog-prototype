@@ -80,7 +80,7 @@ export const ThreeLink = ({
       {children}
       {animatedUnderline && (
         <animated.span
-          className="absolute left-0 h-[2px] bg-black origin-left text-[0px]"
+          className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
           style={{
             bottom: "5px",
             width: underlineSpring.width.to((width) => `${width * 100}%`),

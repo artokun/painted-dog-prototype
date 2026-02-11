@@ -1,0 +1,337 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { animated, useSpring } from "@react-spring/web";
+import { cn } from "@/lib/utils";
+import { globalStore } from "../store/globalStore";
+import { useRouter } from "next/navigation";
+import { login } from "@/app/store/authStore";
+import { createCustomer, loginCustomer, getCustomer } from "@/lib/shopify";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+
+export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
+  const [showContent, setShowContent] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hasAutoScrolled = useRef(false);
+  const [isLogin, setIsLogin] = useState(true); // Toggle between login/signup
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      // Step 1: Login and get access token
+      const loginResult = await loginCustomer(email, password);
+
+      if (!loginResult.success) {
+        setError(loginResult.errors?.[0]?.message || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Get customer details
+      const customerResult = await getCustomer(loginResult.accessToken);
+
+      if (!customerResult.success) {
+        setError("Failed to fetch customer details");
+        setLoading(false);
+        return;
+      }
+
+      // Step 3: Save to auth store
+      login(
+        {
+          email: customerResult.customer.email,
+          firstName: customerResult.customer.firstName,
+          lastName: customerResult.customer.lastName,
+          customerId: customerResult.customer.id,
+        },
+        loginResult.accessToken
+      );
+
+      // Step 4: Redirect
+      router.push("/");
+    } catch (err) {
+      setError("An unexpected error occurred");
+      // console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      // Step 1: Create customer
+      const result = await createCustomer(email, password, firstName, lastName);
+
+      if (!result.success) {
+        setError(result.errors?.[0]?.message || "Signup failed");
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Auto-login after signup
+      const loginResult = await loginCustomer(email, password);
+
+      if (!loginResult.success) {
+        setError("Account created! Please login.");
+        setIsLogin(true); // Switch to login tab
+        setLoading(false);
+        return;
+      }
+
+      // Step 3: Get customer details
+      const customerResult = await getCustomer(loginResult.accessToken);
+
+      if (!customerResult.success) {
+        setError("Account created! Please login.");
+        setIsLogin(true);
+        setLoading(false);
+        return;
+      }
+
+      // Step 4: Save to auth store
+      login(
+        {
+          email: customerResult.customer.email,
+          firstName: customerResult.customer.firstName,
+          lastName: customerResult.customer.lastName,
+          customerId: customerResult.customer.id,
+        },
+        loginResult.accessToken
+      );
+
+      // Step 5: Redirect
+      router.push("/");
+    } catch (err) {
+      setError("An unexpected error occurred");
+      // console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = isLogin ? handleLogin : handleSignup;
+  // Reset auto-scroll flag when component becomes invisible
+  useEffect(() => {
+    if (!visible) {
+      hasAutoScrolled.current = false;
+    }
+  }, [visible]);
+
+  // Track scroll position and smooth scroll to top on navigation away
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (visible) {
+        globalStore.overlayScrollPosition = container.scrollTop;
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+
+    // Smooth scroll to top when navigating away
+    if (!visible && container.scrollTop > 0) {
+      container.scrollTo({ top: 0, behavior: "smooth" });
+      globalStore.overlayScrollPosition = 0;
+    }
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [visible]);
+
+  const style = useSpring({
+    opacity: visible ? 1 : 0,
+    x: visible ? 0 : -100,
+    delay: visible ? 300 : 0,
+    onStart: () => {
+      setShowContent(true);
+    },
+    onRest: () => {
+      setShowContent(visible);
+    },
+  });
+
+  return (
+    <animated.div
+      style={style}
+      ref={scrollContainerRef}
+      id="login-page-scroll-container"
+      className={cn(
+        "absolute flex items-center justify-center inset-0 h-dvh w-dvw pt-0 pointer-events-none text-black z-10 overflow-y-auto overflow-x-hidden bg-[#f6ead6]",
+        visible && "pointer-events-auto"
+      )}
+    >
+      <div className="pd_login-wrapper w-[464px] bg-white p-6 rotate-0 filter drop-shadow-xl lg:-rotate-1 scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180">
+        {/* header items */}
+        <div className="flex justify-between gap-4">
+          <p className="font-bold">Library & Account</p>
+          <Image
+            src={"/logo-dog-stacked.png"}
+            width={87}
+            height={37}
+            alt="Painted Dog"
+          />
+        </div>
+
+        <h1 className="text-[62px] font-bold text-center">
+          {isLogin ? "Login" : "Sign Up"}
+        </h1>
+        <p className="text-center">
+          Enter your email address, then login using a button below.
+        </p>
+        {/* Error message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4 max">
+          {/* Login */}
+          {!isLogin && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-black text-white px-3 h-9 rounded hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+          >
+            {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
+          </button>
+          <button
+            onClick={() => (window.location.href = "/api/auth/google")}
+            className={
+              "flex items-center gap-2 justify-center px-3 h-9 rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100 hover:translate-y-[-2px] hover:shadow-md active:bg-[#F2EFE9] bg-transparent text-black w-full"
+            }
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 753 768"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clipPath="url(#clip0_1_3)">
+                <path
+                  d="M752.64 392.727C752.64 365.498 750.196 339.316 745.658 314.182H384V462.895H590.662C581.585 510.72 554.356 551.215 513.513 578.444V675.142H638.138C710.749 608.116 752.64 509.673 752.64 392.727Z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M384 768C487.68 768 574.604 733.789 638.138 675.142L513.513 578.444C479.302 601.484 435.665 615.447 384 615.447C284.16 615.447 199.331 548.073 168.96 457.309H41.1927V556.451C104.378 681.775 233.891 768 384 768Z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M168.96 456.96C161.28 433.92 156.742 409.484 156.742 384C156.742 358.516 161.28 334.08 168.96 311.04V211.898H41.1927C15.0109 263.564 0 321.862 0 384C0 446.138 15.0109 504.436 41.1927 556.102L140.684 478.604L168.96 456.96Z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M384 152.902C440.553 152.902 490.822 172.451 530.967 210.153L640.931 100.189C574.255 38.0509 487.68 0 384 0C233.891 0 104.378 86.2255 41.1927 211.898L168.96 311.04C199.331 220.276 284.16 152.902 384 152.902Z"
+                  fill="#EA4335"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_1_3">
+                  <rect width="752.64" height="768" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            Sign in with Google
+          </button>
+
+          <div className="w-full text-center py-1 relative ">
+            <p>or</p>
+          </div>
+
+          {isLogin ? (
+            <button
+              onClick={() => setIsLogin(false)}
+              className={
+                "flex items-center gap-2 justify-center px-3 h-9 rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100 hover:-translate-y-0.5 hover:shadow-md active:bg-[#F2EFE9] bg-transparent text-black w-full"
+              }
+            >
+              Sign Up <ArrowRight />
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsLogin(true)}
+              className={
+                "flex items-center gap-2 justify-center px-3 h-9 rounded-sm border border-black font-medium cursor-pointer whitespace-nowrap transition-all duration-100 hover:-translate-y-0.5 hover:shadow-md active:bg-[#F2EFE9] bg-transparent text-black w-full"
+              }
+            >
+              Login <ArrowRight />
+            </button>
+          )}
+
+          <h2 className="text-[32px] font-bold text-center pb-6">
+            A community <br />
+            for book-lovers.
+          </h2>
+        </form>
+      </div>
+    </animated.div>
+  );
+};
