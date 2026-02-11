@@ -149,15 +149,10 @@ export function Dashboard({ visible }: { visible: boolean }) {
                 >
                   Contact Us <ArrowUpRight />
                 </button>
-                {/* <button
-                  onClick={() => {
-                    logout();
-                  }}
+                <button
+                  onClick={logout}
                   className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 transition-colors hover:cursor-pointer"
                 >
-                  Log out
-                </button> */}
-                <button onClick={logout} className="uppercase cursor-pointer">
                   Log out
                 </button>
               </nav>
@@ -166,7 +161,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
             {/* Main Content Area */}
             <div className="flex-1 p-8">
               {/* Header with Edit button */}
-              <div className="flex justify-between items-center mb-6">
+              {/* <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">
                   {activeTab === "profile"
                     ? "Profile"
@@ -174,7 +169,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
                       ? "Addresses"
                       : "Order History"}
                 </h1>
-              </div>
+              </div> */}
 
               {/* Content */}
               {activeTab === "profile" && (
@@ -235,81 +230,88 @@ function ProfileInfo({
 
   if (editing) {
     return (
-      <div className="space-y-2">
-        <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
-          <span className="text-gray-600">First Name</span>
-          <input
-            className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
-            value={form.firstName}
-            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-          />
+      <>
+        <div className="flex justify-between items-center mb-6">
+          {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="px-4 py-2 bg-black text-white text-sm rounded hover:bg-gray-800 disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+            <button
+              onClick={() => {
+                setEditing(false);
+                setError(null);
+              }}
+              className="px-4 py-2 border border-gray-300 text-sm rounded hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
-          <span className="text-gray-600">Surname</span>
-          <input
-            className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
-            value={form.lastName}
-            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-          />
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
+            <span className="text-gray-600">First Name</span>
+            <input
+              className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+              value={form.firstName}
+              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
+            <span className="text-gray-600">Surname</span>
+            <input
+              className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+              value={form.lastName}
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
+            <span className="text-gray-600">Email Address</span>
+            <input
+              className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
-          <span className="text-gray-600">Email Address</span>
-          <input
-            className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-        </div>
-        {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-        <div className="flex gap-3 pt-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="px-4 py-2 bg-black text-white text-sm rounded hover:bg-gray-800 disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save"}
-          </button>
-          <button
-            onClick={() => {
-              setEditing(false);
-              setError(null);
-            }}
-            className="px-4 py-2 border border-gray-300 text-sm rounded hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-4 pb-2 border-b">
-        <span className="text-gray-600">First Name</span>
-        <span className="text-right font-medium">
-          {user?.firstName || "N/A"}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-4 pb-2 border-b">
-        <span className="text-gray-600">Surname</span>
-        <span className="text-right font-medium">
-          {user?.lastName || "N/A"}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-4 pb-2 border-b">
-        <span className="text-gray-600">Email Address</span>
-        <span className="text-right font-medium">{user?.email || "N/A"}</span>
-      </div>
-      <div className="pt-4">
+    <>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Profile</h1>
         <button
           onClick={() => setEditing(true)}
-          className="px-4 py-2 border text-sm rounded hover:bg-gray-50"
+          className="px-4 flex items-center gap-1 py-2 text-sm rounded hover:bg-gray-50"
         >
-          <Pencil />
+          Edit <Pencil width={14} height={14} />
         </button>
       </div>
-    </div>
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-4 pb-2 border-b">
+          <span className="text-gray-600">First Name</span>
+          <span className="text-right font-medium">
+            {user?.firstName || "N/A"}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-4 pb-2 border-b">
+          <span className="text-gray-600">Surname</span>
+          <span className="text-right font-medium">
+            {user?.lastName || "N/A"}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-4 pb-2 border-b">
+          <span className="text-gray-600">Email Address</span>
+          <span className="text-right font-medium">{user?.email || "N/A"}</span>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -387,32 +389,9 @@ function AddressInfo({ accessToken }: { accessToken: string | null }) {
 
           {editingId === address.id ? (
             // Edit form
-            <div className="space-y-2">
-              {[
-                { label: "Street", field: "address1" },
-                { label: "Apt / Suite", field: "address2" },
-                { label: "City", field: "city" },
-                { label: "Province", field: "province" },
-                { label: "Postal Code", field: "zip" },
-                { label: "Country", field: "country" },
-                { label: "Phone", field: "phone" },
-              ].map(({ label, field }) => (
-                <div
-                  key={field}
-                  className="grid grid-cols-2 gap-4 pb-2 border-b items-center"
-                >
-                  <span className="text-gray-600">{label}</span>
-                  <input
-                    className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
-                    value={form[field]}
-                    onChange={(e) =>
-                      setForm({ ...form, [field]: e.target.value })
-                    }
-                  />
-                </div>
-              ))}
+            <>
               {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-4 mb-6">
                 <button
                   onClick={() => handleSave(address.id)}
                   disabled={saving}
@@ -430,67 +409,97 @@ function AddressInfo({ accessToken }: { accessToken: string | null }) {
                   Cancel
                 </button>
               </div>
-            </div>
+              <div className="space-y-2">
+                {[
+                  { label: "Street", field: "address1" },
+                  { label: "Apt / Suite", field: "address2" },
+                  { label: "City", field: "city" },
+                  { label: "Province", field: "province" },
+                  { label: "Postal Code", field: "zip" },
+                  { label: "Country", field: "country" },
+                  { label: "Phone", field: "phone" },
+                ].map(({ label, field }) => (
+                  <div
+                    key={field}
+                    className="grid grid-cols-2 gap-4 pb-2 border-b items-center"
+                  >
+                    <span className="text-gray-600">{label}</span>
+                    <input
+                      className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+                      value={form[field]}
+                      onChange={(e) =>
+                        setForm({ ...form, [field]: e.target.value })
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             // Read view
-            <div className="space-y-2">
-              {address.address1 && (
-                <div className="grid grid-cols-2 gap-4 py-2 border-b">
-                  <span className="text-gray-600">Street</span>
-                  <span className="text-right font-medium">
-                    {address.address1}
-                  </span>
-                </div>
-              )}
-              {address.address2 && (
-                <div className="grid grid-cols-2 gap-4 py-2 border-b">
-                  <span className="text-gray-600">Apt / Suite</span>
-                  <span className="text-right font-medium">
-                    {address.address2}
-                  </span>
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-4 py-2 border-b">
-                <span className="text-gray-600">City</span>
-                <span className="text-right font-medium">
-                  {address.city || "N/A"}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 py-2 border-b">
-                <span className="text-gray-600">Province</span>
-                <span className="text-right font-medium">
-                  {address.province || "N/A"}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 py-2 border-b">
-                <span className="text-gray-600">Postal Code</span>
-                <span className="text-right font-medium">
-                  {address.zip || "N/A"}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 py-2 border-b">
-                <span className="text-gray-600">Country</span>
-                <span className="text-right font-medium">
-                  {address.country || "N/A"}
-                </span>
-              </div>
-              {address.phone && (
-                <div className="grid grid-cols-2 gap-4 py-2 border-b">
-                  <span className="text-gray-600">Phone</span>
-                  <span className="text-right font-medium">
-                    {address.phone}
-                  </span>
-                </div>
-              )}
-              <div className="pt-4">
+            <>
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Address</h1>
+
                 <button
                   onClick={() => startEditing(address)}
-                  className="px-4 py-2 border border-gray-300 text-sm rounded hover:bg-gray-50"
+                  className="px-4 flex items-center gap-1 py-2 text-sm rounded hover:bg-gray-50"
                 >
-                  Edit Address
+                  Edit <Pencil width={14} height={14} />
                 </button>
               </div>
-            </div>
+              <div className="space-y-2">
+                {address.address1 && (
+                  <div className="grid grid-cols-2 gap-4 py-2 border-b">
+                    <span className="text-gray-600">Street</span>
+                    <span className="text-right font-medium">
+                      {address.address1}
+                    </span>
+                  </div>
+                )}
+                {address.address2 && (
+                  <div className="grid grid-cols-2 gap-4 py-2 border-b">
+                    <span className="text-gray-600">Apt / Suite</span>
+                    <span className="text-right font-medium">
+                      {address.address2}
+                    </span>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-4 py-2 border-b">
+                  <span className="text-gray-600">City</span>
+                  <span className="text-right font-medium">
+                    {address.city || "N/A"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-4 py-2 border-b">
+                  <span className="text-gray-600">Province</span>
+                  <span className="text-right font-medium">
+                    {address.province || "N/A"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-4 py-2 border-b">
+                  <span className="text-gray-600">Postal Code</span>
+                  <span className="text-right font-medium">
+                    {address.zip || "N/A"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-4 py-2 border-b">
+                  <span className="text-gray-600">Country</span>
+                  <span className="text-right font-medium">
+                    {address.country || "N/A"}
+                  </span>
+                </div>
+                {address.phone && (
+                  <div className="grid grid-cols-2 gap-4 py-2 border-b">
+                    <span className="text-gray-600">Phone</span>
+                    <span className="text-right font-medium">
+                      {address.phone}
+                    </span>
+                  </div>
+                )}
+                <div className="pt-4"></div>
+              </div>
+            </>
           )}
         </div>
       ))}
