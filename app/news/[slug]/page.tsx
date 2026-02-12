@@ -5,6 +5,7 @@ import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import type { Document } from "@contentful/rich-text-types";
 import { Footer } from "@/app/components/Footer";
 import { NewsParallaxHeader } from "@/app/components/NewsParallaxHeader";
+import { NewsContentBlock4 } from "@/app/components/NewsContentBlock4";
 
 export async function generateMetadata({
   params,
@@ -117,7 +118,7 @@ export default async function NewsArticlePage({
           {article.imageWithCaption && article.imageWithCaption.fields && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div></div>
-              <div className="grid grid-cols-[70%_30%] gap-4 items-end">
+              <div className="flex flex-col md:grid md:grid-cols-[70%_30%] gap-4 md:items-end">
                 <img
                   src={`https:${article.imageWithCaption.fields.file.url}`}
                   alt={
@@ -130,7 +131,7 @@ export default async function NewsArticlePage({
                 />
                 {(article.imageWithCaption.fields.description ||
                   article.imageWithCaption.fields.title) && (
-                  <figcaption className="text-sm text-black/60 pb-1 wrap-break-word">
+                  <figcaption className="text-sm text-black/60 md:pb-1 wrap-break-word">
                     {article.imageWithCaption.fields.description ||
                       article.imageWithCaption.fields.title}
                   </figcaption>
@@ -149,36 +150,10 @@ export default async function NewsArticlePage({
           )}
 
           {(article.contentBlock4 || article.imageContentBlock4) && (
-            <div className="my-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-              {article.imageContentBlock4 &&
-                article.imageContentBlock4.fields && (
-                  <figure>
-                    <img
-                      src={`https:${article.imageContentBlock4.fields.file.url}`}
-                      alt={
-                        article.imageContentBlock4.fields.description ||
-                        article.imageContentBlock4.fields.title ||
-                        ""
-                      }
-                      className="w-full h-auto rounded-sm border border-black/15"
-                      loading="lazy"
-                    />
-                    {(article.imageContentBlock4.fields.description ||
-                      article.imageContentBlock4.fields.title) && (
-                      <figcaption className="mt-2 text-sm text-black/60">
-                        {article.imageContentBlock4.fields.description ||
-                          article.imageContentBlock4.fields.title}
-                      </figcaption>
-                    )}
-                  </figure>
-                )}
-
-              {article.contentBlock4 && article.contentBlock4.content && (
-                <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
-                  {documentToReactComponents(article.contentBlock4)}
-                </div>
-              )}
-            </div>
+            <NewsContentBlock4
+              imageContentBlock4={article.imageContentBlock4}
+              contentBlock4={article.contentBlock4}
+            />
           )}
 
           {article.acknowledgements && article.acknowledgements.content && (
