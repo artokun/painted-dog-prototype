@@ -281,7 +281,7 @@ export const Header = () => {
                 ref={newsRef}
                 className="hidden uppercase md:flex pointer-events-auto"
               >
-                <ThreeLink animatedUnderline href="/contact">
+                <ThreeLink animatedUnderline href="/news">
                   News
                 </ThreeLink>
               </div>

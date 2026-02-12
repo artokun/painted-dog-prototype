@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import type { Document } from "@contentful/rich-text-types";
+import { Footer } from "@/app/components/Footer";
 
 export async function generateMetadata({
   params,
@@ -214,6 +215,7 @@ export default async function NewsArticlePage({
           )}
         </article>
       </div>
+      <Footer />
     </div>
   );
 }

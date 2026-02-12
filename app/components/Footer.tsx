@@ -130,7 +130,7 @@ export const Footer = () => {
               <ThreeLink href="/newsletter" noUnderline>
                 Newsletter
               </ThreeLink>
-              <ThreeLink href="/newsletter" noUnderline>
+              <ThreeLink href="/" noUnderline>
                 Browse Stack
               </ThreeLink>
             </div>

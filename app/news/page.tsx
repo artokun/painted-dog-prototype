@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getNewsCategories, getNewsPage } from "@/lib/news";
 import { cn } from "@/lib/utils";
+import { Footer } from "@/app/components/Footer";
 
 const PAGE_SIZE = 9;
 
@@ -140,16 +141,23 @@ export default async function NewsArchivePage({
                     <h2 className="text-lg md:text-xl font-medium leading-snug">
                       {item.title}
                     </h2>
-                    <span className="text-lg md:text-xl leading-none opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
+                    <span className="hidden md:block text-lg md:text-xl leading-none opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
                       →
                     </span>
                   </div>
+                  
+                  {item.excerpt && (
+                    <p className="mt-2 text-sm text-black/80 leading-relaxed line-clamp-2 md:hidden">
+                      <span className="mr-2">—</span>
+                      {item.excerpt}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="relative mt-2 overflow-hidden">
                 {item.excerpt && (
-                  <div className="absolute inset-x-0 top-0 px-4 py-3 max-h-16 overflow-hidden translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                  <div className="hidden md:block absolute inset-x-0 top-0 px-4 py-3 max-h-16 overflow-hidden translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
                     <p className="text-sm md:text-base text-black/80 leading-relaxed line-clamp-2">
                       <span className="mr-2">—</span>
                       {item.excerpt}
@@ -157,7 +165,7 @@ export default async function NewsArchivePage({
                   </div>
                 )}
                 
-                <div className="transition-transform duration-300 group-hover:translate-y-16">
+                <div className="md:transition-transform md:duration-300 md:group-hover:translate-y-16">
                   {item.coverImageUrl ? (
                     <img
                       src={item.coverImageUrl}
@@ -229,6 +237,7 @@ export default async function NewsArchivePage({
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
