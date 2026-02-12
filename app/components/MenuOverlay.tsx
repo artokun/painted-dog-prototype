@@ -128,12 +128,19 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
   const style = useSpring({
     opacity: visible ? 1 : 0,
     x: visible ? 0 : 100,
-    delay: visible ? 300 : 50,
+    delay: visible ? 300 : 0, // Remove delay on close
+    config: visible
+      ? { tension: 280, friction: 60 } // Smooth open
+      : { tension: 400, friction: 40, clamp: true }, // Fast close with clamp
     onStart: () => {
-      setShowContent(true);
+      if (visible) {
+        setShowContent(true);
+      }
     },
     onRest: () => {
-      setShowContent(visible);
+      if (!visible) {
+        setShowContent(false);
+      }
     },
   });
 
@@ -182,20 +189,20 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 .
                 <ThreeLink
                   href="/login"
-                  className="text-[18px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
+                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
                   noUnderline
                 >
                   Login
                 </ThreeLink>
                 <ThreeLink
                   href="/dashboard"
-                  className="text-[18px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
+                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
                   noUnderline
                 >
                   Account
                 </ThreeLink>
                 <button
-                  className="text-[18px] md:text-[32px] font-medium hover:opacity-70 transition-opacity hover:cursor-pointer"
+                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity hover:cursor-pointer"
                   onClick={openCart}
                 >
                   Cart
@@ -213,7 +220,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               <div className="flex flex-col md:flex-row  gap-6 md:gap-8 w-full border-y">
                 <div className="flex-1 flex flex-col py-8 gap-2">
                   <ThreeLink
-                    className="text-[24px] md:text-[32px] font-bold"
+                    className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
                     href="/for-readers-writers#readers"
                   >
@@ -228,7 +235,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 </div>
                 <div className="flex-1 flex flex-col py-8 border-t md:border-l">
                   <ThreeLink
-                    className="text-[24px] md:text-[32px] font-bold"
+                    className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
                     href="/for-readers-writers#writers"
                   >
@@ -246,21 +253,21 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 <nav className="flex gap-4">
                   <ThreeLink
                     href="/about"
-                    className="text-[24px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
+                    className="text-[24px] md:text-[32px] font-semibold hover:opacity-70 transition-opacity"
                     noUnderline
                   >
                     About
                   </ThreeLink>
                   <ThreeLink
                     href="/contact"
-                    className="text-[24px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
+                    className="text-[24px] md:text-[32px] font-semibold hover:opacity-70 transition-opacity"
                     noUnderline
                   >
                     Contact
                   </ThreeLink>
                   <ThreeLink
                     href="/blog"
-                    className="text-[24px] md:text-[32px] font-medium hover:opacity-70 transition-opacity"
+                    className="text-[24px] md:text-[32px] font-semibold hover:opacity-70 transition-opacity"
                     noUnderline
                   >
                     News
@@ -269,14 +276,14 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 <nav className="flex gap-4 text-center">
                   <ThreeLink
                     href="/privacy"
-                    className="text-base  hover:opacity-70 transition-opacity"
+                    className="text-[13px] hover:opacity-70 transition-opacity"
                     noUnderline
                   >
                     Privacy
                   </ThreeLink>
                   <ThreeLink
                     href="/legal"
-                    className="text-base  hover:opacity-70 transition-opacity"
+                    className="text-[13px]  hover:opacity-70 transition-opacity"
                     noUnderline
                   >
                     Legal

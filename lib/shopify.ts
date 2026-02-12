@@ -169,8 +169,6 @@ export async function createCart(
 
     const data = await response.json();
 
-    console.log("Cart create response:", data);
-
     if (data.errors) {
       console.error("GraphQL errors:", data.errors);
       return null;
@@ -308,7 +306,6 @@ export async function loginCustomer(email: string, password: string) {
     });
 
     const data = await response.json();
-    console.log("Login customer response:", data);
 
     if (data.errors) {
       console.error("GraphQL errors:", data.errors);
@@ -372,7 +369,6 @@ export async function getCustomer(accessToken: string) {
     });
 
     const data = await response.json();
-    console.log("Get customer response:", data);
 
     if (data.errors) {
       return { success: false, errors: data.errors };

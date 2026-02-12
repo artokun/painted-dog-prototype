@@ -4,17 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSnapshot } from "valtio";
 import { authStore, logout } from "@/app/store/authStore";
+// import {
+//   getCustomerOrders,
+//   getCustomerAddresses,
+//   updateCustomerAddress,
+//   updateCustomerProfile,
+// } from "@/lib/shopify";
+
 import {
   getCustomerOrders,
   getCustomerAddresses,
   updateCustomerAddress,
   updateCustomerProfile,
-} from "@/lib/shopify";
+} from "@/lib/shopify-client";
 import { globalStore } from "@/app/store/globalStore";
 import { useSpring } from "@react-spring/three";
 import { animated } from "@react-spring/web";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, Pencil } from "lucide-react";
 import Image from "next/image";
 
 export function Dashboard({ visible }: { visible: boolean }) {
@@ -98,7 +104,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
       <div className="mt-10  px-2  flex w-full mx-auto flex-col lg:pt-8 lg:px-20 md:flex-row">
         {/* Heading */}
         <div className="flex flex-col lg:max-w-[600px]">
-          <h2 className="text-[72px] leading-[72px]">Account</h2>
+          <h2 className="text-[72px] font-semibold leading-[72px]">Account</h2>
           <h4 className="text-[28px] w-[430px] lg:mt-8">
             Welcome to your account, <br></br>
             <span className="capitalize">
@@ -115,43 +121,49 @@ export function Dashboard({ visible }: { visible: boolean }) {
               <nav className="space-y-2">
                 <button
                   onClick={() => setActiveTab("profile")}
-                  className={`w-full text-left px-4 py-3 rounded transition-colors ${
+                  className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
                     activeTab === "profile"
-                      ? "font-bold"
-                      : "hover:bg-gray-50 hover:cursor-pointer"
+                      ? "font-semibold"
+                      : "hover:underline hover:cursor-pointer"
                   }`}
                 >
                   Profile
                 </button>
                 <button
                   onClick={() => setActiveTab("address")}
-                  className={`w-full text-left px-4 py-3 rounded transition-colors ${
+                  className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
                     activeTab === "address"
-                      ? "font-bold"
-                      : "hover:bg-gray-50 hover:cursor-pointer"
+                      ? "font-semibold"
+                      : "hover:underline hover:cursor-pointer"
                   }`}
                 >
                   Addresses
                 </button>
                 <button
                   onClick={() => setActiveTab("orders")}
-                  className={`w-full text-left px-4 py-3 rounded transition-colors ${
+                  className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
                     activeTab === "orders"
-                      ? "font-bold"
-                      : "hover:bg-gray-50 hover:cursor-pointer"
+                      ? "font-semibold"
+                      : "hover:underline hover:cursor-pointer"
                   }`}
                 >
                   Orders
                 </button>
                 <button
                   onClick={() => router.push("/contact")}
-                  className={`w-full flex gap-1 text-left px-4 py-3 rounded transition-colors hover:cursor-pointer`}
+                  className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded transition-colors hover:cursor-pointer`}
                 >
-                  Contact Us <ArrowUpRight />
+                  Contact us
+                  <Image
+                    src="/contact-arrow.svg"
+                    width={10}
+                    height={13}
+                    alt={"contact arrow"}
+                  />
                 </button>
                 <button
                   onClick={logout}
-                  className="w-full text-left px-4 py-3 rounded hover:bg-gray-50 transition-colors hover:cursor-pointer"
+                  className="w-full text-[18px] text-left px-4 py-3 rounded hover:bg-gray-50 transition-colors hover:cursor-pointer"
                 >
                   Log out
                 </button>
@@ -160,17 +172,6 @@ export function Dashboard({ visible }: { visible: boolean }) {
 
             {/* Main Content Area */}
             <div className="flex-1 p-8">
-              {/* Header with Edit button */}
-              {/* <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">
-                  {activeTab === "profile"
-                    ? "Profile"
-                    : activeTab === "address"
-                      ? "Addresses"
-                      : "Order History"}
-                </h1>
-              </div> */}
-
               {/* Content */}
               {activeTab === "profile" && (
                 <ProfileInfo user={auth.user} accessToken={auth.accessToken} />
@@ -285,30 +286,32 @@ function ProfileInfo({
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Profile</h1>
+        <h1 className="text-[18px] font-semibold">Profile</h1>
         <button
           onClick={() => setEditing(true)}
-          className="px-4 flex items-center gap-1 py-2 text-sm rounded hover:bg-gray-50"
+          className="flex text-[#A09E9A] items-center gap-1 py-2 text-sm rounded hover:underline"
         >
-          Edit <Pencil width={14} height={14} />
+          Edit
+          <Image
+            width={14}
+            height={14}
+            src={"/edit-pen.svg"}
+            alt={"edit pen"}
+          />
         </button>
       </div>
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-4 pb-2 border-b">
           <span className="text-gray-600">First Name</span>
-          <span className="text-right font-medium">
-            {user?.firstName || "N/A"}
-          </span>
+          <span className="text-right">{user?.firstName || "N/A"}</span>
         </div>
         <div className="grid grid-cols-2 gap-4 pb-2 border-b">
           <span className="text-gray-600">Surname</span>
-          <span className="text-right font-medium">
-            {user?.lastName || "N/A"}
-          </span>
+          <span className="text-right ">{user?.lastName || "N/A"}</span>
         </div>
         <div className="grid grid-cols-2 gap-4 pb-2 border-b">
           <span className="text-gray-600">Email Address</span>
-          <span className="text-right font-medium">{user?.email || "N/A"}</span>
+          <span className="text-right">{user?.email || "N/A"}</span>
         </div>
       </div>
     </>
@@ -439,22 +442,26 @@ function AddressInfo({ accessToken }: { accessToken: string | null }) {
             // Read view
             <>
               <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Address</h1>
+                <h1 className="text-[18px] font-semibold">Address</h1>
 
                 <button
                   onClick={() => startEditing(address)}
-                  className="px-4 flex items-center gap-1 py-2 text-sm rounded hover:bg-gray-50"
+                  className="flex text-[#A09E9A] items-center gap-1 py-2 text-sm rounded hover:underline"
                 >
-                  Edit <Pencil width={14} height={14} />
+                  Edit
+                  <Image
+                    width={14}
+                    height={14}
+                    src={"/edit-pen.svg"}
+                    alt={"edit pen"}
+                  />
                 </button>
               </div>
               <div className="space-y-2">
                 {address.address1 && (
                   <div className="grid grid-cols-2 gap-4 py-2 border-b">
                     <span className="text-gray-600">Street</span>
-                    <span className="text-right font-medium">
-                      {address.address1}
-                    </span>
+                    <span className="text-right">{address.address1}</span>
                   </div>
                 )}
                 {address.address2 && (

@@ -1,9 +1,9 @@
 import { PDButton } from "./ui/PDButton";
 import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { addToCart } from "@/app/store/cartStore";
-import { getProduct } from "@/lib/shopify"; // Use your existing function
+import { getProduct } from "@/lib/shopify-client";
 import { useState, useEffect } from "react";
-import { CartSidebar } from "@/app/components/ecommerce/CartSidebar"; // Import the sidebar
+import { CartSidebar } from "@/app/components/ecommerce/CartSidebar";
 import { openCart } from "../store/cartUIStore";
 
 interface PurchaseButtonsProps {
@@ -24,7 +24,7 @@ export function PurchaseButtons({
   layout = "horizontal",
   className = "",
   isMobile = false,
-  productHandle = "book-one",
+  productHandle = "bitterkomix-sketchbooks-journals",
 }: PurchaseButtonsProps) {
   const [product, setProduct] = useState<Product | null>(null); // Fixed!
   const [justAdded, setJustAdded] = useState(false);
