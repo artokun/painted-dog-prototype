@@ -123,7 +123,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
         onClick={handleSidebarClick} // Stop propagation
         className="fixed top-0 right-0 h-full w-full md:w-[30%] bg-[#F8F5EF] shadow-2xl z-110 flex flex-col translate-x-full p-2"
       >
-        <div className="border border-black">
+        <div className="border border-black h-full">
           {/* Header */}
           <div className="flex justify-between items-center p-6 ">
             <h2 className="text-2xl font-medium text-black leading-[33.60px]">
@@ -157,11 +157,8 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                           height={190}
                           alt={item.title}
                         />
-                        {/* <div
-                          className={`bg-[url(${item.image})] bg-cover w-[120px] h-[180px]`}
-                        ></div> */}
                       </>
-                      <div className="flex-1">
+                      <div className="flex flex-col gap-4 self-end justify-between">
                         <p className="font-medium text-lg text-black">
                           {item.title}
                         </p>
@@ -194,34 +191,6 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                         </div>
                       </div>
                     </div>
-
-                    {/* Quantity Controls */}
-                    {/* <div className="flex items-center justify-between">
-                      <div className="flex gap-1 items-center  rounded">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          className="px-4 py-2 bg-white border rounded-sm hover:bg-gray-100 transition-colors text-black"
-                        >
-                          −
-                        </button>
-                        <span className="px-4 py-2 bg-white border rounded-sm text-center font-medium text-black">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          className="px-4 py-2 bg-white border rounded-sm hover:bg-gray-100 transition-colors text-black"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <p className="font-bold text-lg text-black">
-                        R{(item.price * item.quantity).toFixed(2)}
-                      </p>
-                    </div> */}
                   </li>
                 ))}
               </ul>
