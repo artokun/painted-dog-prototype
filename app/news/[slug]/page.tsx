@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import type { Document } from "@contentful/rich-text-types";
 import { Footer } from "@/app/components/Footer";
+import { NewsParallaxHeader } from "@/app/components/NewsParallaxHeader";
 
 export async function generateMetadata({
   params,
@@ -38,31 +39,11 @@ export default async function NewsArticlePage({
   return (
     <div className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto">
       <div className="mx-auto w-full max-w-6xl px-5 md:px-20 pt-28 pb-24 text-black">
-        <header className="mt-10">
-          <h1 className="text-4xl md:text-5xl font-fields font-semibold leading-tight md:w-1/2">
-            {article.title}
-          </h1>
-
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
-            {article.excerpt ? (
-              <div className="text-xl md:text-2xl text-black leading-relaxed md:w-4/5 md:ml-auto flex gap-3">
-                <span className="shrink-0">—</span>
-                <span>{article.excerpt}</span>
-              </div>
-            ) : null}
-
-            {article.coverImageUrl ? (
-              <figure>
-                <img
-                  src={article.coverImageUrl}
-                  alt=""
-                  className="w-full h-auto max-h-[400px] object-cover rounded-sm border border-black/15"
-                  loading="lazy"
-                />
-              </figure>
-            ) : null}
-          </div>
-        </header>
+        <NewsParallaxHeader
+          title={article.title}
+          excerpt={article.excerpt}
+          coverImageUrl={article.coverImageUrl}
+        />
 
         <article className="mt-10 space-y-14 md:space-y-36 leading-relaxed">
           {article.summaryCopy && article.summaryCopy.content && (
