@@ -149,12 +149,12 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
               <ul className="space-y-6">
                 {cart.items.map((item) => (
                   <li key={item.id} className=" pb-6">
-                    <div className="flex justify-between items-start mb-3">
+                    <div className="flex gap-2 item-center justify-between items-start mb-3">
                       <>
                         <img
-                          src={item.image}
-                          width={120}
-                          height={180}
+                          src={"/Painted-dog-cover.png"}
+                          width={130}
+                          height={190}
                           alt={item.title}
                         />
                         {/* <div
