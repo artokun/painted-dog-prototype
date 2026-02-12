@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 import { useSnapshot } from "valtio";
 import { filterStore, FilterView } from "../store/filterStore";
@@ -17,7 +18,11 @@ import { authStore } from "@/app/store/authStore";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const MenuButton = () => {
+const MenuButton = ({
+  shouldStartCollapsed,
+}: {
+  shouldStartCollapsed: boolean;
+}) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
 
@@ -29,31 +34,43 @@ const MenuButton = () => {
   });
 
   return (
-    <button
-      onClick={() => (globalStore.isMenuOpen = !globalStore.isMenuOpen)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setIsPressed(false);
-      }}
-      onMouseDown={() => setIsPressed(true)}
-      className="appearance-none cursor-pointer relative inline-block overflow-hidden pb-1"
+    <div
+      style={
+        shouldStartCollapsed
+          ? { transform: "translateX(0px)", fontSize: 16 }
+          : { transform: "translateY(1rem) translateX(-5px)" }
+      }
+      id="menu-button-wrapper"
+      className="hidden md:flex gap-2 items-center text-black text-[24px] "
     >
-      Menu
-      <animated.span
-        className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
-        style={{
-          bottom: "5px",
-          width: underlineSpring.width.to((width) => `${width * 100}%`),
-          opacity: underlineSpring.opacity
-            .to([0, 1], [0, 10])
-            .to((opacity) => `${Math.min(opacity, 1)}`),
-          transform: underlineSpring.x.to((x) => `translateX(${x}%)`),
+      <button
+        onClick={() => (globalStore.isMenuOpen = !globalStore.isMenuOpen)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setIsPressed(false);
         }}
-      />
-    </button>
+        onMouseDown={() => setIsPressed(true)}
+        className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+      >
+        Menu
+        <animated.span
+          className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
+          style={{
+            bottom: "5px",
+            width: underlineSpring.width.to((width) => `${width * 100}%`),
+            opacity: underlineSpring.opacity
+              .to([0, 1], [0, 10])
+              .to((opacity) => `${Math.min(opacity, 1)}`),
+            transform: underlineSpring.x.to((x) => `translateX(${x}%)`),
+          }}
+        />
+      </button>
+    </div>
   );
 };
+
+// MenuButton.displayName = "MenuButton";
 
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
@@ -82,7 +99,7 @@ export const Header = () => {
   const newsRef = useRef<HTMLDivElement>(null);
   const newsletterRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const separatorRef = useRef<HTMLDivElement>(null);
+  const rightseparatorRef = useRef<HTMLDivElement>(null);
   const leftseparatorRef = useRef<HTMLDivElement>(null);
   const loginRef = useRef<HTMLDivElement>(null);
 
@@ -153,13 +170,20 @@ export const Header = () => {
 
       if (!activeScrollContainer) return;
 
+      // Calculate the offset based on actual element dimensions
+      const logoHeight = logoRef.current?.offsetHeight || 0;
+      const gap = 8; // gap between elements
+      const offsetY = logoHeight + gap;
+
       ctx = gsap.context(() => {
+        const menuElement = document.getElementById("menu-button-wrapper");
+
         const timeline = gsap.timeline({
           scrollTrigger: {
             trigger: activeScrollContainer,
             scroller: activeScrollContainer,
             start: "top top",
-            end: "+=300",
+            end: "+=400",
             scrub: 1,
           },
         });
@@ -170,7 +194,7 @@ export const Header = () => {
           {
             scale: 0.2,
             duration: 1,
-            y: -90,
+            y: -110,
           },
           0
         );
@@ -178,7 +202,8 @@ export const Header = () => {
         timeline.to(
           newsRef.current,
           {
-            x: 130,
+            x: 0,
+            fontSize: 16,
             duration: 1,
             y: 0,
           },
@@ -188,41 +213,47 @@ export const Header = () => {
         timeline.to(
           menuRef.current,
           {
-            x: -120,
-            duration: 1,
+            x: 0,
+            fontSize: 16,
             y: 0,
           },
           0
         );
+        timeline.to(menuElement, { x: 0, fontSize: 16, duration: 1, y: 0 }, 0);
 
         timeline.to(
           leftseparatorRef.current,
           {
-            x: -116,
+            x: 0,
             opacity: 1,
             duration: 1,
-            y: -1,
+            y: -2,
           },
           0
         );
 
         timeline.to(
-          separatorRef.current,
+          rightseparatorRef.current,
           {
-            x: -116,
+            x: 0,
             opacity: 1,
             duration: 1,
-            y: -1,
+            y: -2,
           },
           0
         );
 
         // Animate Newsletter moving up and to the right
-        timeline.to(
+
+        timeline.fromTo(
           newsletterRef.current,
           {
-            x: -90,
-            y: 0,
+            y: offsetY, // Start below the news item
+          },
+          {
+            x: 0,
+            y: 0, // Return to origin
+            fontSize: 16,
             duration: 1,
           },
           0
@@ -232,10 +263,39 @@ export const Header = () => {
         timeline.to(
           loginRef.current,
           {
-            x: 90,
+            x: 0,
             y: 0,
+            fontSize: 16,
             duration: 1,
           },
+          0
+        );
+
+        // Second timeline: Fade out menu (300-500px)
+        const fadeTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: activeScrollContainer,
+            scroller: activeScrollContainer,
+            start: "+=600", // Start after shrink completes
+            end: "+=400", // Fade over 400px of scroll
+            scrub: 1,
+          },
+        });
+
+        fadeTimeline.to(menuRef.current, { opacity: 0, duration: 1 }, 0);
+        fadeTimeline.to(newsRef.current, { opacity: 0, duration: 1 }, 0);
+        fadeTimeline.to(menuElement, { opacity: 0, duration: 1 }, 0);
+        fadeTimeline.to(newsletterRef.current, { opacity: 0, duration: 1 }, 0);
+        fadeTimeline.to(loginRef.current, { opacity: 0, duration: 1 }, 0);
+        fadeTimeline.to(logoRef.current, { opacity: 0, duration: 1 }, 0);
+        fadeTimeline.to(
+          leftseparatorRef.current,
+          { opacity: 0, duration: 1 },
+          0
+        );
+        fadeTimeline.to(
+          rightseparatorRef.current,
+          { opacity: 0, duration: 1 },
           0
         );
       });
@@ -247,7 +307,7 @@ export const Header = () => {
         ctx.revert();
       }
     };
-  }, [isRendered, isHomepage]);
+  }, [isRendered]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
@@ -256,12 +316,13 @@ export const Header = () => {
   return (
     <div
       className={cn(
-        "absolute top-0 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto gap-4 h-20 px-4 md:px-20"
+        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
       )}
     >
       <div className="flex-1 flex text-black">
         {!isBookFocused && (
           <>
+            {/* Mobile Logo */}
             <Link className="flex w-40 md:hidden" href="/">
               <Image
                 className="object-contain w-[190px]"
@@ -271,42 +332,48 @@ export const Header = () => {
                 width={190}
               />
             </Link>
-            <div className="hidden md:flex">
+
+            <div className="hidden md:flex gap-4 items-center flex-1">
+              {/* News */}
               <div
                 style={
                   shouldStartCollapsed
-                    ? { transform: "translateX(130px)" }
-                    : { transform: "translateX(-40px) translateY(0px)" }
+                    ? { transform: "translateX(0px)", fontSize: 16 }
+                    : { transform: "translateY(1rem) translateX(4px)" }
                 }
                 ref={newsRef}
-                className="hidden uppercase md:flex pointer-events-auto"
+                className="hidden text-[24px] md:flex pointer-events-auto"
               >
                 <ThreeLink animatedUnderline href="/contact">
-                  News
+                  <span className="uppercase">News</span>
                 </ThreeLink>
               </div>
-              {/* <div
+
+              {/* Left Separator */}
+              <div
                 style={
                   shouldStartCollapsed
-                    ? { opacity: 1, transform: "translateX(90px)" }
+                    ? { opacity: 1, transform: "translateX(0px)" }
                     : { opacity: 0 }
                 }
                 className="text-black "
                 ref={leftseparatorRef}
               >
                 <span>•</span>
-              </div> */}
+              </div>
+
+              {/* Newsletter */}
               <div
                 style={
                   shouldStartCollapsed
-                    ? { transform: "translateX(-90px)" }
-                    : { transform: "translateX(-90px) translateY(220px)" }
+                    ? { transform: "translateX(0px)", fontSize: 16 }
+                    : { transform: "translateX(-102px) translateY(270px)" }
                 }
                 ref={newsletterRef}
-                className="hidden uppercase md:flex pointer-events-auto"
+                className="hidden text-[24px] uppercase md:flex pointer-events-auto"
               >
                 <ThreeLink animatedUnderline href="/contact">
-                  Newsletter
+                  <span className="uppercase"> Newsletter</span>
                 </ThreeLink>
               </div>
             </div>
@@ -331,6 +398,8 @@ export const Header = () => {
           </span>
         </button>
       </div>
+
+      {/* Logo */}
       {!isBookFocused && !isMobile && (
         <div
           style={
@@ -340,7 +409,7 @@ export const Header = () => {
           }
           ref={logoRef}
           className={cn(
-            "fixed px-8 top-0 w-full left-0 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300",
+            "fixed px-8 top-4 w-full left-0 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300",
             !showHeader &&
               (isHomepage || isOverlayPage) &&
               "opacity-0 pointer-events-none"
@@ -348,7 +417,7 @@ export const Header = () => {
         >
           <Link href="/">
             <Image
-              className="object-cover w-[140px]  md:w-full"
+              className="object-cover w-[140px]  md:w-full 2xl:max-w-[1320] 2xl:mx-auto"
               src="/logo-dog-inline.png"
               alt="Logo"
               height={6120}
@@ -357,61 +426,58 @@ export const Header = () => {
           </Link>
         </div>
       )}
+
       <div
         className={cn(
-          "gap-2 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
+          "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
           isBookFocused && "opacity-0 delay-600 pointer-events-none"
         )}
       >
+        {/* Login */}
         <div
           style={
             shouldStartCollapsed
-              ? { transform: "translateX(90px)" }
-              : { transform: "translateX(90px) translateY(230px)" }
+              ? { transform: "translateX(0px)", fontSize: 16 }
+              : { transform: "translateX(102px) translateY(270px)" }
           }
           ref={loginRef}
-          className="hidden uppercase md:flex gap-2 items-center text-black"
+          className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
         >
           {auth?.isLoggedIn ? (
             <>
               <ThreeLink animatedUnderline href="/dashboard">
-                Account
+                <span className="uppercase"> Account</span>
               </ThreeLink>
             </>
           ) : (
             <ThreeLink animatedUnderline href="/login">
-              Log In
+              <span className="uppercase"> Log In</span>
             </ThreeLink>
           )}
         </div>
+
+        {/* Right Separator */}
         <div
           style={
             shouldStartCollapsed
-              ? { transform: "translateX(-120px)" }
-              : { transform: "translateX(20px)" }
-          }
-          ref={menuRef}
-          className="hidden md:flex gap-2 items-center text-black"
-        >
-          {/* <CartButton /> */}
-          <MenuButton />
-        </div>
-        {/* <div
-          style={
-            shouldStartCollapsed
-              ? { opacity: 1, transform: "translateX(90px)" }
+              ? { opacity: 1, transform: "translateX(0px) translateY(-2px)" }
               : { opacity: 0 }
           }
-          className="text-black"
-          ref={separatorRef}
+          className="text-black "
+          ref={rightseparatorRef}
         >
           <span>•</span>
-        </div> */}
+        </div>
+
+        {/* Menu Button */}
+        <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+
+        {/* Mobile Menu Button */}
         <div className="md:hidden flex gap-2 items-center text-black">
-          <MenuButton />
+          <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
         </div>
       </div>
-      <div className="hidden! invisible">
+      <div className="invisible!">
         <Leva
           collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
           isRoot
