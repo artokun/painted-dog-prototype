@@ -52,7 +52,22 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         return;
       }
 
-      // Step 3: Save to auth store
+      // Step 3: Create server-side session (httpOnly cookie)
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: {
+            email: customerResult.customer.email,
+            firstName: customerResult.customer.firstName,
+            lastName: customerResult.customer.lastName,
+            customerId: customerResult.customer.id,
+          },
+          accessToken: loginResult.accessToken,
+        }),
+      });
+
+      // Step 4: Save to auth store (client-side state)
       login(
         {
           email: customerResult.customer.email,
@@ -63,7 +78,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         loginResult.accessToken
       );
 
-      // Step 4: Redirect
+      // Step 5: Redirect
       router.push("/");
     } catch (err) {
       setError("An unexpected error occurred");
@@ -108,7 +123,22 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         return;
       }
 
-      // Step 4: Save to auth store
+      // Step 4: Create server-side session (httpOnly cookie)
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: {
+            email: customerResult.customer.email,
+            firstName: customerResult.customer.firstName,
+            lastName: customerResult.customer.lastName,
+            customerId: customerResult.customer.id,
+          },
+          accessToken: loginResult.accessToken,
+        }),
+      });
+
+      // Step 5: Save to auth store (client-side state)
       login(
         {
           email: customerResult.customer.email,
@@ -119,7 +149,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         loginResult.accessToken
       );
 
-      // Step 5: Redirect
+      // Step 6: Redirect
       router.push("/");
     } catch (err) {
       setError("An unexpected error occurred");

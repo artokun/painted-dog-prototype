@@ -64,10 +64,10 @@ export function Dashboard({ visible }: { visible: boolean }) {
 
   //Redirect if not logged in
   useEffect(() => {
-    if (!auth.isLoggedIn) {
+    if (auth.hydrated && !auth.isLoggedIn) {
       router.push("/");
     }
-  }, [auth.isLoggedIn, router]);
+  }, [auth.hydrated, auth.isLoggedIn, router]);
 
   // // Fetch orders on mount
   useEffect(() => {
@@ -86,9 +86,18 @@ export function Dashboard({ visible }: { visible: boolean }) {
     }
   }, [auth.accessToken]);
 
+  if (!auth.hydrated) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-[#e7d7bf]">
+        <p className="text-black">Loading...</p>
+      </div>
+    );
+  }
+
   if (!auth.isLoggedIn) {
     return null;
   }
+
   return (
     <animated.div
       ref={containerRef}
