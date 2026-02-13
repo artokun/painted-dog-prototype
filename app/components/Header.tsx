@@ -194,7 +194,7 @@ export const Header = () => {
           {
             scale: 0.2,
             duration: 1,
-            y: -110,
+            y: -120,
           },
           0
         );
@@ -271,7 +271,7 @@ export const Header = () => {
           0
         );
 
-        // Second timeline: Fade out menu (300-500px)
+        // Second timeline: Fade out menu (400-600px)
         const fadeTimeline = gsap.timeline({
           scrollTrigger: {
             trigger: activeScrollContainer,
@@ -404,7 +404,7 @@ export const Header = () => {
         <div
           style={
             shouldStartCollapsed
-              ? { transform: "translate(0px, -90px) scale(0.2, 0.2)" }
+              ? { transform: "translate(0px, -110px) scale(0.2, 0.2)" }
               : undefined
           }
           ref={logoRef}
@@ -418,7 +418,7 @@ export const Header = () => {
           <Link href="/">
             <Image
               className="object-cover w-[140px]  md:w-full 2xl:max-w-[1320] 2xl:mx-auto"
-              src="/logo-dog-inline.png"
+              src="/logo-dog-inline-hd.png"
               alt="Logo"
               height={6120}
               width={1340}

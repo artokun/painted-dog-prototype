@@ -183,7 +183,9 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         visible && "pointer-events-auto"
       )}
     >
-      <div className="pd_login-wrapper w-[464px] bg-white p-6 rotate-0 filter drop-shadow-xl lg:-rotate-1 scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180">
+      <div
+        className={`pd_login-wrapper ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter drop-shadow-xl lg:-rotate-1 scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180`}
+      >
         {/* header items */}
         <div className="flex justify-between gap-4">
           <p className="font-bold">Account</p>
@@ -220,7 +222,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
                   required
                 />
-                <label className="absolute text-base left-0 ml-1 -translate-y-4 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
+                <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
                   First Name
                 </label>
               </div>
@@ -232,7 +234,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
                   required
                 />
-                <label className="absolute text-base left-0 ml-1 -translate-y-4 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
+                <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
                   Last Name
                 </label>
               </div>
@@ -247,7 +249,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
               className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
               required
             />
-            <label className="absolute text-base left-0 ml-1 -translate-y-4 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
+            <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
               Email your address
             </label>
           </div>
@@ -260,7 +262,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
               className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
               required
             />
-            <label className="absolute text-base left-0 ml-1 -translate-y-4 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
+            <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
               Password
             </label>
           </div>
