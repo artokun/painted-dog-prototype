@@ -622,9 +622,7 @@ function OrderHistory({
     return (
       <div className="text-center py-8 text-gray-600">
         <p className="text-lg mb-2">No orders yet</p>
-        <p className="text-sm">
-          Start shopping to see your order history here!
-        </p>
+        <p className="text-sm">Start shopping to see your order history here</p>
       </div>
     );
   }

@@ -239,7 +239,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               </div>
 
               {/* for writers reader links */}
-              <div className="flex flex-col md:flex-row  gap-6 md:gap-8 w-full border-y">
+              <div className="flex flex-col md:flex-row  gap-6 w-full border-y">
                 <div className="flex-1 flex flex-col py-8 gap-2">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
@@ -255,7 +255,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     Browse Stack
                   </ThreeLink>
                 </div>
-                <div className="flex-1 flex flex-col py-8 border-t md:border-l">
+                <div className="flex-1 flex flex-col py-8 md:border-l">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
@@ -322,7 +322,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           <div className="flex h-full w-full content-center items-center  -z-10 absolute top-0 left ">
             <p
               ref={textRef}
-              className="text-[45px] text-[#000000] opacity-[.03] font-bold max-w-[1134px] mx-auto"
+              className="text-[45px] text-[#000000] opacity-[.03] font-semibold max-w-[1134px] mx-auto"
             >
               Painted Dog Press is an independent book publisher of fiction and
               narrative non-fiction. We develop and nurture quality literature
@@ -331,7 +331,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               conventional publisher. Our efforts are strengthened by tech
               innovation and human-first technology. Not spotted, or mottled,
               but painted. Painted Dog is a curated press. My Dog, Spot. A
-              painted dog can be many things— Read About Us →
+              painted dog can be many things — Read About Us →
             </p>
           </div>
         </div>

@@ -93,7 +93,7 @@ export function PurchaseButtons({
             tall={shouldBeTall}
           >
             <ShoppingCartIcon className="w-5 h-5 -mt-0.5" />
-            {justAdded ? "✓ Added!" : `Add to Cart - R${product.price}`}
+            {justAdded ? " Added" : `Add to Cart - R${product.price}`}
           </PDButton>
         ) : null}
 
