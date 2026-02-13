@@ -80,7 +80,7 @@ export const Footer = () => {
       <footer className="relative min-h-[216px] bg-[#F9F6F0] overflow-hidden pointer-events-auto p-[5px] text-black w-full max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
           {/* logo column */}
-          <div className="flex row-span-2  p-4 md:flex-row md:row-span-2 justify-center gap-6 md:gap-10 items-center relative border-2 md:border-r border-b-0 md:border-b-2 border-black flex-1 h-full min-h-[196px] ">
+          <div className="flex row-span-2  py-6 px-10 md:flex-row md:row-span-2 justify-center gap-6 md:gap-10 items-center relative border-2 md:border-r border-b-0 md:border-b-2 border-black flex-1 h-full min-h-[196px] ">
             <div className="flex flex-col w-full justify-between h-full">
               <ThreeLink href="/">
                 <Image
@@ -118,7 +118,7 @@ export const Footer = () => {
           </div>
 
           {/* center column */}
-          <div className="flex flex-col px-4 py-8  justify-center items-center gap-4 [&>button]:transition-colors flex-1 border-l-2 border-t md:border-l-0 border-r-2 md:border-t-2 md:border-b md:border-r border-black h-full md:min-h-[196px]">
+          <div className="flex flex-col px-12 py-6  justify-center items-center gap-4 [&>button]:transition-colors flex-1 border-l-2 border-t md:border-l-0 border-r-2 md:border-t-2 md:border-b md:border-r border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-bold"
@@ -137,7 +137,7 @@ export const Footer = () => {
           </div>
 
           {/* right column */}
-          <div className="flex flex-col px-4 py-8 justify-center items-center gap-4 [&>button]:transition-colors flex-1 border-t border-b border-r-2 border-l-2 border-black h-full md:md:border-t-2 md:border-l-0 md:min-h-[196px]">
+          <div className="flex flex-col px-12 py-6 justify-center items-center gap-4 [&>button]:transition-colors flex-1 border-t border-b border-r-2 border-l-2 border-black h-full md:md:border-t-2 md:border-l-0 md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-bold"
@@ -153,24 +153,24 @@ export const Footer = () => {
           </div>
 
           {/* Bottom navigation - spans 2 columns  */}
-          <div className="flex flex-col md:flex-row p-6 col-auto md:col-span-2 border-l-2 border-b-2 border-r-2 md:border-l-0">
-            <div className="flex gap-2 menu-section">
+          <div className="flex flex-col md:flex-row px-12 py-6 col-auto md:col-span-2 border-l-2 border-b-2 border-r-2 md:border-l-0">
+            <div className="flex gap-4 justify-around menu-section">
               <ThreeLink
-                className="text-[28px] font-semibold"
+                className="md:text-[32px] text-base font-semibold"
                 href="/about"
                 noUnderline
               >
                 About
               </ThreeLink>
               <ThreeLink
-                className="text-[28px] font-semibold"
+                className="md:text-[32px] text-base font-semibold"
                 href="/contact"
                 noUnderline
               >
                 Contact
               </ThreeLink>
               <ThreeLink
-                className="text-[28px] font-semibold"
+                className="md:text-[32px] text-base font-semibold"
                 href="/news"
                 noUnderline
               >
@@ -178,16 +178,17 @@ export const Footer = () => {
               </ThreeLink>
             </div>
 
-            <div className="flex gap-2 menu-section-legal mx-auto md:ml-auto!">
-              <ThreeLink className="text-xl" href="/legal" noUnderline>
-                Privacy
-              </ThreeLink>
-              <ThreeLink className="text-xl" href="/legal" noUnderline>
-                Legal
-              </ThreeLink>
+            <div className="flex flex-col   menu-section-legal mx-auto md:ml-auto md:mr-0 lg:gap-8 lg:flex-row">
+              <div className="flex gap-8 lg:gap-8">
+                <ThreeLink className="text-base" href="/legal" noUnderline>
+                  Privacy
+                </ThreeLink>
+                <ThreeLink className="text-base" href="/legal" noUnderline>
+                  Legal
+                </ThreeLink>
+              </div>
+              <SocialLinks />
             </div>
-
-            <SocialLinks />
           </div>
         </div>
       </footer>

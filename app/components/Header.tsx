@@ -41,7 +41,7 @@ const MenuButton = ({
           : { transform: "translateY(1rem) translateX(-5px)" }
       }
       id="menu-button-wrapper"
-      className="hidden md:flex gap-2 items-center text-black text-[24px] "
+      className=" gap-2 items-center text-black text-[24px] "
     >
       <button
         onClick={() => (globalStore.isMenuOpen = !globalStore.isMenuOpen)}
@@ -319,169 +319,171 @@ export const Header = () => {
         "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
       )}
     >
-      <div className="flex-1 flex text-black">
-        {!isBookFocused && (
-          <>
-            {/* Mobile Logo */}
-            <Link className="flex w-40 md:hidden" href="/">
+      <div className="flex w-full 2xl:max-w-[1320] mx-auto">
+        <div className="flex-1 flex text-black">
+          {!isBookFocused && (
+            <>
+              {/* Mobile Logo */}
+              <Link className="flex w-40 md:hidden" href="/">
+                <Image
+                  className="object-contain w-[190px] h-8 lg:h-auto"
+                  src="/logo-dog-inline.png"
+                  alt="Logo"
+                  height={90}
+                  width={190}
+                />
+              </Link>
+
+              <div className="hidden md:flex gap-4 items-center flex-1">
+                {/* News */}
+                <div
+                  style={
+                    shouldStartCollapsed
+                      ? { transform: "translateX(0px)", fontSize: 16 }
+                      : { transform: "translateY(1rem) translateX(4px)" }
+                  }
+                  ref={newsRef}
+                  className="hidden text-[24px] md:flex pointer-events-auto"
+                >
+                  <ThreeLink animatedUnderline href="/contact">
+                    <span className="uppercase">News</span>
+                  </ThreeLink>
+                </div>
+
+                {/* Left Separator */}
+                <div
+                  style={
+                    shouldStartCollapsed
+                      ? { opacity: 1, transform: "translateX(0px)" }
+                      : { opacity: 0 }
+                  }
+                  className="text-black "
+                  ref={leftseparatorRef}
+                >
+                  <span>•</span>
+                </div>
+                {/* Newsletter */}
+                <div
+                  style={
+                    shouldStartCollapsed
+                      ? { transform: "translateX(0px)", fontSize: 16 }
+                      : { transform: "translateX(-102px) translateY(270px)" }
+                  }
+                  ref={newsletterRef}
+                  className="hidden text-[24px] uppercase md:flex pointer-events-auto"
+                >
+                  <ThreeLink animatedUnderline href="/contact">
+                    <span className="uppercase"> Newsletter</span>
+                  </ThreeLink>
+                </div>
+              </div>
+            </>
+          )}
+
+          <button
+            className={cn(
+              "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
+              isBookFocused &&
+                showBackButton &&
+                showHeader &&
+                "opacity-100 translate-x-0 delay-400 pointer-events-auto"
+            )}
+            onClick={handleBackButtonClick}
+          >
+            <span className="relative w-6 h-[18px] [svg]:w-full [svg]:h-full group-hover:animate-[arrow-bounce_1s_ease-in-out_infinite]">
+              <BackIcon />
+            </span>
+            <span className="text-[19px] font-medium">
+              back to {isGridMode ? "grid" : "stack"}
+            </span>
+          </button>
+        </div>
+
+        {/* Logo */}
+        {!isBookFocused && !isMobile && (
+          <div
+            style={
+              shouldStartCollapsed
+                ? { transform: "translate(0px, -110px) scale(0.2, 0.2)" }
+                : undefined
+            }
+            ref={logoRef}
+            className={cn(
+              "fixed px-8 top-4 w-full left-0 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300",
+              !showHeader &&
+                (isHomepage || isOverlayPage) &&
+                "opacity-0 pointer-events-none"
+            )}
+          >
+            <Link href="/">
               <Image
-                className="object-contain w-[190px]"
-                src="/logo-dog-inline.png"
+                className="object-cover w-[140px]  md:w-full 2xl:max-w-[1320] 2xl:mx-auto"
+                src="/logo-dog-inline-hd.png"
                 alt="Logo"
-                height={90}
-                width={190}
+                height={6120}
+                width={1340}
               />
             </Link>
-
-            <div className="hidden md:flex gap-4 items-center flex-1">
-              {/* News */}
-              <div
-                style={
-                  shouldStartCollapsed
-                    ? { transform: "translateX(0px)", fontSize: 16 }
-                    : { transform: "translateY(1rem) translateX(4px)" }
-                }
-                ref={newsRef}
-                className="hidden text-[24px] md:flex pointer-events-auto"
-              >
-                <ThreeLink animatedUnderline href="/contact">
-                  <span className="uppercase">News</span>
-                </ThreeLink>
-              </div>
-
-              {/* Left Separator */}
-              <div
-                style={
-                  shouldStartCollapsed
-                    ? { opacity: 1, transform: "translateX(0px)" }
-                    : { opacity: 0 }
-                }
-                className="text-black "
-                ref={leftseparatorRef}
-              >
-                <span>•</span>
-              </div>
-
-              {/* Newsletter */}
-              <div
-                style={
-                  shouldStartCollapsed
-                    ? { transform: "translateX(0px)", fontSize: 16 }
-                    : { transform: "translateX(-102px) translateY(270px)" }
-                }
-                ref={newsletterRef}
-                className="hidden text-[24px] uppercase md:flex pointer-events-auto"
-              >
-                <ThreeLink animatedUnderline href="/contact">
-                  <span className="uppercase"> Newsletter</span>
-                </ThreeLink>
-              </div>
-            </div>
-          </>
+          </div>
         )}
 
-        <button
-          className={cn(
-            "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
-            isBookFocused &&
-              showBackButton &&
-              showHeader &&
-              "opacity-100 translate-x-0 delay-400 pointer-events-auto"
-          )}
-          onClick={handleBackButtonClick}
-        >
-          <span className="relative w-6 h-[18px] [svg]:w-full [svg]:h-full group-hover:animate-[arrow-bounce_1s_ease-in-out_infinite]">
-            <BackIcon />
-          </span>
-          <span className="text-[19px] font-medium">
-            back to {isGridMode ? "grid" : "stack"}
-          </span>
-        </button>
-      </div>
-
-      {/* Logo */}
-      {!isBookFocused && !isMobile && (
         <div
-          style={
-            shouldStartCollapsed
-              ? { transform: "translate(0px, -110px) scale(0.2, 0.2)" }
-              : undefined
-          }
-          ref={logoRef}
           className={cn(
-            "fixed px-8 top-4 w-full left-0 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300",
-            !showHeader &&
-              (isHomepage || isOverlayPage) &&
-              "opacity-0 pointer-events-none"
+            "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
+            isBookFocused && "opacity-0 delay-600 pointer-events-none"
           )}
         >
-          <Link href="/">
-            <Image
-              className="object-cover w-[140px]  md:w-full 2xl:max-w-[1320] 2xl:mx-auto"
-              src="/logo-dog-inline-hd.png"
-              alt="Logo"
-              height={6120}
-              width={1340}
-            />
-          </Link>
-        </div>
-      )}
-
-      <div
-        className={cn(
-          "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-          isBookFocused && "opacity-0 delay-600 pointer-events-none"
-        )}
-      >
-        {/* Login */}
-        <div
-          style={
-            shouldStartCollapsed
-              ? { transform: "translateX(0px)", fontSize: 16 }
-              : { transform: "translateX(102px) translateY(270px)" }
-          }
-          ref={loginRef}
-          className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
-        >
-          {auth?.isLoggedIn ? (
-            <>
-              <ThreeLink animatedUnderline href="/dashboard">
-                <span className="uppercase"> Account</span>
+          {/* Login */}
+          <div
+            style={
+              shouldStartCollapsed
+                ? { transform: "translateX(0px)", fontSize: 16 }
+                : { transform: "translateX(102px) translateY(267px)" }
+            }
+            ref={loginRef}
+            className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
+          >
+            {auth?.isLoggedIn ? (
+              <>
+                <ThreeLink animatedUnderline href="/dashboard">
+                  <span className="uppercase"> Account</span>
+                </ThreeLink>
+              </>
+            ) : (
+              <ThreeLink animatedUnderline href="/login">
+                <span className="uppercase"> Log In</span>
               </ThreeLink>
-            </>
-          ) : (
-            <ThreeLink animatedUnderline href="/login">
-              <span className="uppercase"> Log In</span>
-            </ThreeLink>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Right Separator */}
-        <div
-          style={
-            shouldStartCollapsed
-              ? { opacity: 1, transform: "translateX(0px) translateY(-2px)" }
-              : { opacity: 0 }
-          }
-          className="text-black "
-          ref={rightseparatorRef}
-        >
-          <span>•</span>
-        </div>
+          {/* Right Separator */}
+          <div
+            style={
+              shouldStartCollapsed
+                ? { opacity: 1, transform: "translateX(0px) translateY(-2px)" }
+                : { opacity: 0 }
+            }
+            className="text-black hidden md:flex"
+            ref={rightseparatorRef}
+          >
+            <span>•</span>
+          </div>
 
-        {/* Menu Button */}
-        <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex gap-2 items-center text-black">
-          <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+          {/* Menu Button */}
+          <div className="hidden md:flex gap-2 items-center text-black">
+            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+          </div>
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex -mt-8 gap-2 items-center text-black">
+            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+          </div>
         </div>
-      </div>
-      <div className="invisible!">
-        <Leva
-          collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
-          isRoot
-        />
+        <div className="invisible!">
+          <Leva
+            collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
+            isRoot
+          />
+        </div>
       </div>
     </div>
   );

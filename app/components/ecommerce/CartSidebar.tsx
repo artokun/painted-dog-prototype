@@ -121,7 +121,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
       <div
         ref={sidebarRef}
         onClick={handleSidebarClick} // Stop propagation
-        className="fixed top-0 right-0 h-full w-full md:w-[30%] bg-[#F8F5EF] shadow-2xl z-110 flex flex-col translate-x-full p-2"
+        className="fixed top-0 right-0 h-full w-full md:w-[50%] bg-[#F8F5EF] shadow-2xl z-110 flex flex-col translate-x-full p-2"
       >
         <div className="border border-black h-full">
           {/* Header */}
@@ -149,7 +149,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
               <ul className="space-y-6">
                 {cart.items.map((item) => (
                   <li key={item.id} className=" pb-6">
-                    <div className="flex gap-2 item-center justify-between items-start mb-3">
+                    <div className="flex flex-col gap-2 item-center justify-between items-start mb-3">
                       <>
                         <img
                           src={"/Painted-dog-cover.png"}

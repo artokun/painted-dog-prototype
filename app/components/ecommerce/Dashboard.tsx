@@ -4,13 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSnapshot } from "valtio";
 import { authStore, logout } from "@/app/store/authStore";
-// import {
-//   getCustomerOrders,
-//   getCustomerAddresses,
-//   updateCustomerAddress,
-//   updateCustomerProfile,
-// } from "@/lib/shopify";
-
 import {
   getCustomerOrders,
   getCustomerAddresses,
@@ -31,7 +24,13 @@ export function Dashboard({ visible }: { visible: boolean }) {
   const [activeTab, setActiveTab] = useState<"orders" | "profile" | "address">(
     "orders"
   );
+  const [showMobileMenu, setShowMobileMenu] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMobileMenuClick = (tab: "orders" | "profile" | "address") => {
+    setActiveTab(tab);
+    setShowMobileMenu(false);
+  };
 
   // Track scroll position and smooth scroll to top on navigation away
   useEffect(() => {
@@ -90,7 +89,6 @@ export function Dashboard({ visible }: { visible: boolean }) {
   if (!auth.isLoggedIn) {
     return null;
   }
-
   return (
     <animated.div
       ref={containerRef}
@@ -101,10 +99,12 @@ export function Dashboard({ visible }: { visible: boolean }) {
         visible && "pointer-events-auto"
       )}
     >
-      <div className="mt-10  px-2  flex w-full mx-auto flex-col lg:pt-8 lg:px-20 md:flex-row">
+      <div className="mt-40 md:mt-10 px-4  flex w-full mx-auto flex-col lg:pt-8 lg:px-20 lg:flex-row">
         {/* Heading */}
-        <div className="flex flex-col lg:max-w-[600px]">
-          <h2 className="text-[72px] font-semibold leading-[72px]">Account</h2>
+        <div className="flex gap-3  flex-col lg:max-w-[600px] pb-8">
+          <h2 className="text-[48px] md:text-[72px] font-semibold leading-[72px]">
+            Account
+          </h2>
           <h4 className="text-[28px] w-[430px] lg:mt-8">
             Welcome to your account, <br></br>
             <span className="capitalize">
@@ -116,8 +116,86 @@ export function Dashboard({ visible }: { visible: boolean }) {
         {/* Main Container */}
         <div className="w-full mx-auto">
           <div className="bg-white  shadow-lg overflow-hidden flex h-[500px]">
+            {/* MOBILE: Menu or Content */}
+            <div className="flex-1 lg:hidden p-6">
+              {showMobileMenu ? (
+                /* Mobile Navigation Menu */
+                <nav className="space-y-0">
+                  <button
+                    onClick={() => handleMobileMenuClick("profile")}
+                    className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                  >
+                    Profile
+                    <span className="text-xl">›</span>
+                  </button>
+                  <button
+                    onClick={() => handleMobileMenuClick("address")}
+                    className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                  >
+                    Addresses
+                    <span className="text-xl">›</span>
+                  </button>
+                  <button
+                    onClick={() => handleMobileMenuClick("orders")}
+                    className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                  >
+                    Orders
+                    <span className="text-xl">›</span>
+                  </button>
+                  <button
+                    onClick={() => router.push("/contact")}
+                    className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                  >
+                    Contact us
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                  >
+                    Log out
+                  </button>
+                </nav>
+              ) : (
+                /* Mobile Content with Back Button */
+                <div>
+                  <button
+                    onClick={() => setShowMobileMenu(true)}
+                    className="flex items-center gap-2 mb-6 text-[16px] hover:underline"
+                  >
+                    <span className="text-xl">‹</span> Back to account menu
+                  </button>
+
+                  {activeTab === "profile" && (
+                    <ProfileInfo
+                      user={auth.user}
+                      accessToken={auth.accessToken}
+                    />
+                  )}
+                  {activeTab === "address" && (
+                    <AddressInfo accessToken={auth.accessToken} />
+                  )}
+                  {activeTab === "orders" && (
+                    <OrderHistory orders={orders} loading={loading} />
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Sidebar Navigation */}
-            <div className="pd_sidenav w-64  p-6 relative after:absolute after:w-px after:h-[86%] after:right-0 after:top-[7%] after:bg-black">
+            <div className="pd_sidenav hidden  w-64  p-6 relative after:absolute after:w-px after:h-[86%] after:right-0 after:top-[7%] after:bg-black lg:flex">
               <nav className="space-y-2">
                 <button
                   onClick={() => setActiveTab("profile")}
@@ -171,7 +249,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 p-8">
+            <div className="flex-1 p-8 hidden lg:flex lg:flex-col">
               {/* Content */}
               {activeTab === "profile" && (
                 <ProfileInfo user={auth.user} accessToken={auth.accessToken} />

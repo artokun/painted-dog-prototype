@@ -14,6 +14,7 @@ import { openCart } from "@/app/store/cartUIStore"; // Import open function
 // import { useMediaQuery } from "usehooks-ts";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/dist/SplitText";
+import SocialLiniks from "./ecommerce/SocialLiniks";
 
 // Register the plugin
 gsap.registerPlugin(SplitText);
@@ -169,7 +170,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           >
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
-              <div className="flex flex-col md:flex-row justify-between w-full px-[41px] py-8">
+              <div className="flex flex-col items-center md:flex-row justify-between w-full px-6 md:px-[41px] py-8">
                 <button
                   onClick={handleClose}
                   className="p-2 flex md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
@@ -186,27 +187,48 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     className="w-full h-full"
                   />
                 </ThreeLink>
-                .
                 <ThreeLink
                   href="/login"
-                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                  className="text-[18px] uppercase item-center hidden md:flex md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
                   noUnderline
                 >
                   Login
                 </ThreeLink>
                 <ThreeLink
                   href="/dashboard"
-                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                  className="text-[18px] hidden md:flex uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
                   noUnderline
                 >
                   Account
                 </ThreeLink>
                 <button
-                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity hover:cursor-pointer"
+                  className="text-[18px] uppercase hidden md:flex md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity hover:cursor-pointer"
                   onClick={openCart}
                 >
                   Cart
                 </button>
+                <div className="flex flex-row gap-5  justify-between w-full pt-8 md:hidden">
+                  <ThreeLink
+                    href="/login"
+                    className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                    noUnderline
+                  >
+                    Login
+                  </ThreeLink>
+                  <ThreeLink
+                    href="/dashboard"
+                    className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                    noUnderline
+                  >
+                    Account
+                  </ThreeLink>
+                  <button
+                    className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity hover:cursor-pointer"
+                    onClick={openCart}
+                  >
+                    Cart
+                  </button>
+                </div>
                 <button
                   onClick={handleClose}
                   className="p-2 hidden md:flex items-center hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
@@ -289,6 +311,9 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     Legal
                   </ThreeLink>
                 </nav>
+                <div className="flex md:hidden">
+                  <SocialLiniks />
+                </div>
               </div>
             </div>
           </div>

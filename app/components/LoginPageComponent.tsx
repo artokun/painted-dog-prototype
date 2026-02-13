@@ -217,7 +217,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                 <input
                   type="text"
                   value={firstName}
-                  placeholder=""
+                  placeholder="Enter your first name"
                   onChange={(e) => setFirstName(e.target.value)}
                   className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
                   required
@@ -230,6 +230,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                 <input
                   type="text"
                   value={lastName}
+                  placeholder="Enter your last name"
                   onChange={(e) => setLastName(e.target.value)}
                   className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
                   required
@@ -250,7 +251,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
               required
             />
             <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
-              Email your address
+              Email your email address
             </label>
           </div>
           <div className="relative">
