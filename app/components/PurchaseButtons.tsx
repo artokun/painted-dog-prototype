@@ -92,19 +92,9 @@ export function PurchaseButtons({
             tall={shouldBeTall}
           >
             <ShoppingCartIcon className="w-5 h-5 -mt-0.5" />
-            {justAdded ? " Added" : `Add to Cart - R${product.price}`}
+            {justAdded ? " Added" : `Add to Cart`}
           </PDButton>
         ) : null}
-
-        <PDButton
-          href="https://flyleaf.co.za/product/bitterkomix-sketchbooks-journals/"
-          className="w-full"
-          target="_blank"
-          primary
-          tall={shouldBeTall}
-        >
-          <ShoppingCartIcon className="w-5 h-5 -mt-0.5" /> Buy for R760
-        </PDButton>
 
         <PDButton
           href="https://stellenboschbooks.co.za/products/bitterkomix-sketchbooks-and-journals-a-kannemeyer-c-botes"
