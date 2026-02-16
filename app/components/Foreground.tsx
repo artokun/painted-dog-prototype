@@ -20,6 +20,7 @@ import { LoginPageComponent } from "./LoginPageComponent";
 import { Dashboard } from "./ecommerce/Dashboard";
 import { cartUIStore, closeCart } from "../store/cartUIStore";
 import { CartSidebar } from "./ecommerce/CartSidebar";
+import { hydrateAuth } from "../store/authStore";
 
 export const Foreground = () => {
   const router = useRouter();
@@ -39,6 +40,11 @@ export const Foreground = () => {
 
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;
+
+  // Restore auth session from httpOnly cookie on mount
+  useEffect(() => {
+    hydrateAuth();
+  }, []);
 
   // This sets the current route to the pathname when the pathname changes
   useEffect(() => {

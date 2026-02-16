@@ -14,61 +14,62 @@ import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
-import { openCart } from "@/app/store/cartUIStore"; // Import open function
+import { openCart } from "@/app/store/cartUIStore";
+import SocialLinks from "./ecommerce/SocialLiniks";
 
 export const Footer = () => {
   const { focusedBookId } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const someBookIsFocused = focusedBookId !== null;
 
-  const SocialLinks = () => {
-    return (
-      <div className="flex gap-2 mt-2 md:mt-0 mx-auto md:ml-auto justify-center items-center [&>button]:hover:text-gray-500 [&>button]:transition-colors [&svg]:w-full [&svg]:h-full">
-        <ThreeLink
-          href="https://www.facebook.com/profile.php?id=61581186237434"
-          className="w-4.5 h-4.5"
-          target="_blank"
-        >
-          <Facebook />
-        </ThreeLink>
-        <ThreeLink
-          href="https://www.instagram.com/painted_dog_press/"
-          className="w-4.5 h-4.5"
-          target="_blank"
-        >
-          <Instagram />
-        </ThreeLink>
-        <ThreeLink
-          href="https://www.youtube.com/@PaintedDogPress"
-          className="w-4.5 h-4.5"
-          target="_blank"
-        >
-          <YouTube />
-        </ThreeLink>
-        <ThreeLink
-          href="https://www.tiktok.com/@painteddogpress?lang=en"
-          className="w-4.5 h-4.5"
-          target="_blank"
-        >
-          <TikTok />
-        </ThreeLink>
-        <ThreeLink
-          href="https://bsky.app/profile/painteddogpress.bsky.social"
-          className="w-4.5 h-4.5"
-          target="_blank"
-        >
-          <Bluesky />
-        </ThreeLink>
-        <ThreeLink
-          href="https://x.com/painteddogpress"
-          className="w-4.5 h-4.5"
-          target="_blank"
-        >
-          <XTwitter />
-        </ThreeLink>
-      </div>
-    );
-  };
+  // const SocialLinks = () => {
+  //   return (
+  //     <div className="flex gap-2 mt-2 md:mt-0 mx-auto md:ml-auto justify-center items-center [&>button]:hover:text-gray-500 [&>button]:transition-colors [&svg]:w-full [&svg]:h-full">
+  //       <ThreeLink
+  //         href="https://www.facebook.com/profile.php?id=61581186237434"
+  //         className="w-4.5 h-4.5"
+  //         target="_blank"
+  //       >
+  //         <Facebook />
+  //       </ThreeLink>
+  //       <ThreeLink
+  //         href="https://www.instagram.com/painted_dog_press/"
+  //         className="w-4.5 h-4.5"
+  //         target="_blank"
+  //       >
+  //         <Instagram />
+  //       </ThreeLink>
+  //       <ThreeLink
+  //         href="https://www.youtube.com/@PaintedDogPress"
+  //         className="w-4.5 h-4.5"
+  //         target="_blank"
+  //       >
+  //         <YouTube />
+  //       </ThreeLink>
+  //       <ThreeLink
+  //         href="https://www.tiktok.com/@painteddogpress?lang=en"
+  //         className="w-4.5 h-4.5"
+  //         target="_blank"
+  //       >
+  //         <TikTok />
+  //       </ThreeLink>
+  //       <ThreeLink
+  //         href="https://bsky.app/profile/painteddogpress.bsky.social"
+  //         className="w-4.5 h-4.5"
+  //         target="_blank"
+  //       >
+  //         <Bluesky />
+  //       </ThreeLink>
+  //       <ThreeLink
+  //         href="https://x.com/painteddogpress"
+  //         className="w-4.5 h-4.5"
+  //         target="_blank"
+  //       >
+  //         <XTwitter />
+  //       </ThreeLink>
+  //     </div>
+  //   );
+  // };
 
   return (
     <section
@@ -78,9 +79,9 @@ export const Footer = () => {
       )}
     >
       <footer className="relative min-h-[216px] bg-[#F9F6F0] overflow-hidden pointer-events-auto p-[5px] text-black w-full max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
-          {/* logo column */}
-          <div className="flex row-span-2  p-4 md:flex-row md:row-span-2 justify-center gap-6 md:gap-10 items-center relative border-2 md:border-r border-b-0 md:border-b-2 border-black flex-1 h-full min-h-[196px] ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
+          {/* logo column - Full width on mobile and tablet, 1/3 on desktop */}
+          <div className="flex py-6 px-10 justify-center gap-6 md:gap-10 items-center relative border-2 border-b-0 md:border-b lg:border-r-0 lg:border-b-2 border-black flex-1 h-full min-h-[196px] md:col-span-2 lg:col-span-1 lg:row-span-3">
             <div className="flex flex-col w-full justify-between h-full">
               <ThreeLink href="/">
                 <Image
@@ -88,7 +89,7 @@ export const Footer = () => {
                   alt="Logo"
                   width={320}
                   height={149}
-                  className="w-full h-full object-contain min-w-[120px] min-h-[120px]"
+                  className="w-full h-full object-cover"
                 />
               </ThreeLink>
 
@@ -117,8 +118,8 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* center column */}
-          <div className="flex flex-col px-4 py-8  justify-center items-center gap-4 [&>button]:transition-colors flex-1 border-l-2 border-t md:border-l-0 border-r-2 md:border-t-2 md:border-b md:border-r border-black h-full md:min-h-[196px]">
+          {/* center column - "For Readers" */}
+          <div className="flex flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t-2 border-l border-r md:border-r lg:border-l  lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-bold"
@@ -136,8 +137,8 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* right column */}
-          <div className="flex flex-col px-4 py-8 justify-center items-center gap-4 [&>button]:transition-colors flex-1 border-t border-b border-r-2 border-l-2 border-black h-full md:md:border-t-2 md:border-l-0 md:min-h-[196px]">
+          {/* right column - "For Writers" */}
+          <div className="flex flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t-2 border-l-2 border-r-2 lg:border-t-2 lg:border-l-0 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-bold"
@@ -152,25 +153,25 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Bottom navigation - spans 2 columns  */}
-          <div className="flex flex-col md:flex-row p-6 col-auto md:col-span-2 border-l-2 border-b-2 border-r-2 md:border-l-0">
-            <div className="flex gap-2 menu-section">
+          {/* Bottom navigation - Full width on all screens */}
+          <div className="flex flex-col xl:flex-row px-12 py-6 md:col-span-2 lg:col-span-2 border-t border-l-2 border-b-2 border-r-2 lg:border-l">
+            <div className="flex gap-4 justify-around menu-section">
               <ThreeLink
-                className="text-[28px] font-semibold"
+                className="md:text-[32px] text-base font-semibold"
                 href="/about"
                 noUnderline
               >
                 About
               </ThreeLink>
               <ThreeLink
-                className="text-[28px] font-semibold"
+                className="md:text-[32px] text-base font-semibold"
                 href="/contact"
                 noUnderline
               >
                 Contact
               </ThreeLink>
               <ThreeLink
-                className="text-[28px] font-semibold"
+                className="md:text-[32px] text-base font-semibold"
                 href="/news"
                 noUnderline
               >
@@ -178,16 +179,17 @@ export const Footer = () => {
               </ThreeLink>
             </div>
 
-            <div className="flex gap-2 menu-section-legal mx-auto md:ml-auto!">
-              <ThreeLink className="text-xl" href="/legal" noUnderline>
-                Privacy
-              </ThreeLink>
-              <ThreeLink className="text-xl" href="/legal" noUnderline>
-                Legal
-              </ThreeLink>
+            <div className="flex flex-col menu-section-legal mx-auto xl:ml-auto md:mr-0 lg:gap-8 lg:flex-row">
+              <div className="flex gap-8 lg:gap-8">
+                <ThreeLink className="text-base" href="/legal" noUnderline>
+                  Privacy
+                </ThreeLink>
+                <ThreeLink className="text-base" href="/legal" noUnderline>
+                  Legal
+                </ThreeLink>
+              </div>
+              <SocialLinks />
             </div>
-
-            <SocialLinks />
           </div>
         </div>
       </footer>

@@ -3,7 +3,6 @@ import { ShoppingCartIcon } from "./icons/ShoppingCart";
 import { addToCart } from "@/app/store/cartStore";
 import { getProduct } from "@/lib/shopify-client";
 import { useState, useEffect } from "react";
-import { CartSidebar } from "@/app/components/ecommerce/CartSidebar";
 import { openCart } from "../store/cartUIStore";
 
 interface PurchaseButtonsProps {
@@ -93,7 +92,7 @@ export function PurchaseButtons({
             tall={shouldBeTall}
           >
             <ShoppingCartIcon className="w-5 h-5 -mt-0.5" />
-            {justAdded ? "✓ Added!" : `Add to Cart - R${product.price}`}
+            {justAdded ? " Added" : `Add to Cart - R${product.price}`}
           </PDButton>
         ) : null}
 
@@ -139,9 +138,6 @@ export function PurchaseButtons({
           Also available in-store at select Exclusive Books.
         </p>
       </div>
-
-      {/* Cart Sidebar */}
-      <CartSidebar isOpen={showCart} onClose={() => setShowCart(false)} />
     </>
   );
 }

@@ -4,13 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSnapshot } from "valtio";
 import { authStore, logout } from "@/app/store/authStore";
-// import {
-//   getCustomerOrders,
-//   getCustomerAddresses,
-//   updateCustomerAddress,
-//   updateCustomerProfile,
-// } from "@/lib/shopify";
-
 import {
   getCustomerOrders,
   getCustomerAddresses,
@@ -31,7 +24,13 @@ export function Dashboard({ visible }: { visible: boolean }) {
   const [activeTab, setActiveTab] = useState<"orders" | "profile" | "address">(
     "orders"
   );
+  const [showMobileMenu, setShowMobileMenu] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMobileMenuClick = (tab: "orders" | "profile" | "address") => {
+    setActiveTab(tab);
+    setShowMobileMenu(false);
+  };
 
   // Track scroll position and smooth scroll to top on navigation away
   useEffect(() => {
@@ -65,10 +64,10 @@ export function Dashboard({ visible }: { visible: boolean }) {
 
   //Redirect if not logged in
   useEffect(() => {
-    if (!auth.isLoggedIn) {
+    if (auth.hydrated && !auth.isLoggedIn) {
       router.push("/");
     }
-  }, [auth.isLoggedIn, router]);
+  }, [auth.hydrated, auth.isLoggedIn, router]);
 
   // // Fetch orders on mount
   useEffect(() => {
@@ -87,6 +86,14 @@ export function Dashboard({ visible }: { visible: boolean }) {
     }
   }, [auth.accessToken]);
 
+  if (!auth.hydrated) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-[#e7d7bf]">
+        <p className="text-black">Loading...</p>
+      </div>
+    );
+  }
+
   if (!auth.isLoggedIn) {
     return null;
   }
@@ -101,87 +108,172 @@ export function Dashboard({ visible }: { visible: boolean }) {
         visible && "pointer-events-auto"
       )}
     >
-      <div className="mt-10  px-2  flex w-full mx-auto flex-col lg:pt-8 lg:px-20 md:flex-row">
-        {/* Heading */}
-        <div className="flex flex-col lg:max-w-[600px]">
-          <h2 className="text-[72px] font-semibold leading-[72px]">Account</h2>
-          <h4 className="text-[28px] w-[430px] lg:mt-8">
-            Welcome to your account, <br></br>
-            <span className="capitalize">
-              {auth.isLoggedIn && auth.user?.firstName}
-            </span>
-          </h4>
-        </div>
+      <div className="flex w-full 2xl:max-w-[1320] mx-auto">
+        <div className="mt-40 md:mt-10 px-4 flex w-full mx-auto flex-col lg:pt-8 lg:flex-row lg:px-10">
+          {/* Heading */}
+          <div className="flex gap-3  flex-col max-w-auto lg:max-w-[600px] pb-8">
+            <h2 className="text-[48px] md:text-[72px] font-semibold leading-[72px]">
+              Account
+            </h2>
+            <h4 className="text-[28px] w-auto lg:w-[430px] lg:mt-8">
+              Welcome to your account, <br></br>
+              <span className="capitalize">
+                {auth.isLoggedIn && auth.user?.firstName}
+              </span>
+            </h4>
+          </div>
 
-        {/* Main Container */}
-        <div className="w-full mx-auto">
-          <div className="bg-white  shadow-lg overflow-hidden flex h-[500px]">
-            {/* Sidebar Navigation */}
-            <div className="pd_sidenav w-64  p-6 relative after:absolute after:w-px after:h-[86%] after:right-0 after:top-[7%] after:bg-black">
-              <nav className="space-y-2">
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
-                    activeTab === "profile"
-                      ? "font-semibold"
-                      : "hover:underline hover:cursor-pointer"
-                  }`}
-                >
-                  Profile
-                </button>
-                <button
-                  onClick={() => setActiveTab("address")}
-                  className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
-                    activeTab === "address"
-                      ? "font-semibold"
-                      : "hover:underline hover:cursor-pointer"
-                  }`}
-                >
-                  Addresses
-                </button>
-                <button
-                  onClick={() => setActiveTab("orders")}
-                  className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
-                    activeTab === "orders"
-                      ? "font-semibold"
-                      : "hover:underline hover:cursor-pointer"
-                  }`}
-                >
-                  Orders
-                </button>
-                <button
-                  onClick={() => router.push("/contact")}
-                  className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded transition-colors hover:cursor-pointer`}
-                >
-                  Contact us
-                  <Image
-                    src="/contact-arrow.svg"
-                    width={10}
-                    height={13}
-                    alt={"contact arrow"}
+          {/* Main Container */}
+          <div className="w-full mx-auto">
+            <div className="bg-white  shadow-lg overflow-hidden flex h-[500px]">
+              {/* MOBILE: Menu or Content */}
+              <div className="flex-1 lg:hidden p-6">
+                {showMobileMenu ? (
+                  /* Mobile Navigation Menu */
+                  <nav className="space-y-0">
+                    <button
+                      onClick={() => handleMobileMenuClick("profile")}
+                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                    >
+                      Profile
+                      <span className="text-xl">›</span>
+                    </button>
+                    <button
+                      onClick={() => handleMobileMenuClick("address")}
+                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                    >
+                      Addresses
+                      <span className="text-xl">›</span>
+                    </button>
+                    <button
+                      onClick={() => handleMobileMenuClick("orders")}
+                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                    >
+                      Orders
+                      <span className="text-xl">›</span>
+                    </button>
+                    <button
+                      onClick={() => router.push("/contact")}
+                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                    >
+                      Contact us
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={logout}
+                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                    >
+                      Log out
+                    </button>
+                  </nav>
+                ) : (
+                  /* Mobile Content with Back Button */
+                  <div>
+                    <button
+                      onClick={() => setShowMobileMenu(true)}
+                      className="flex items-center gap-2 mb-6 text-[16px] hover:underline"
+                    >
+                      <span className="text-xl">‹</span> Back to account menu
+                    </button>
+
+                    {activeTab === "profile" && (
+                      <ProfileInfo
+                        user={auth.user}
+                        accessToken={auth.accessToken}
+                      />
+                    )}
+                    {activeTab === "address" && (
+                      <AddressInfo accessToken={auth.accessToken} />
+                    )}
+                    {activeTab === "orders" && (
+                      <OrderHistory orders={orders} loading={loading} />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Sidebar Navigation */}
+              <div className="pd_sidenav hidden  w-64  p-6 relative after:absolute after:w-px after:h-[86%] after:right-0 after:top-[7%] after:bg-black lg:flex">
+                <nav className="space-y-2">
+                  <button
+                    onClick={() => setActiveTab("profile")}
+                    className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
+                      activeTab === "profile"
+                        ? "font-semibold"
+                        : "hover:underline hover:cursor-pointer"
+                    }`}
+                  >
+                    Profile
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("address")}
+                    className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
+                      activeTab === "address"
+                        ? "font-semibold"
+                        : "hover:underline hover:cursor-pointer"
+                    }`}
+                  >
+                    Addresses
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("orders")}
+                    className={`w-full text-[18px] text-left px-4 py-3 rounded transition-colors ${
+                      activeTab === "orders"
+                        ? "font-semibold"
+                        : "hover:underline hover:cursor-pointer"
+                    }`}
+                  >
+                    Orders
+                  </button>
+                  <button
+                    onClick={() => router.push("/contact")}
+                    className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded transition-colors hover:cursor-pointer`}
+                  >
+                    Contact us
+                    <Image
+                      src="/contact-arrow.svg"
+                      width={10}
+                      height={13}
+                      alt={"contact arrow"}
+                    />
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="w-full text-[18px] text-left px-4 py-3 rounded hover:bg-gray-50 transition-colors hover:cursor-pointer"
+                  >
+                    Log out
+                  </button>
+                </nav>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="flex-1 p-8 hidden lg:flex lg:flex-col">
+                {/* Content */}
+                {activeTab === "profile" && (
+                  <ProfileInfo
+                    user={auth.user}
+                    accessToken={auth.accessToken}
                   />
-                </button>
-                <button
-                  onClick={logout}
-                  className="w-full text-[18px] text-left px-4 py-3 rounded hover:bg-gray-50 transition-colors hover:cursor-pointer"
-                >
-                  Log out
-                </button>
-              </nav>
-            </div>
-
-            {/* Main Content Area */}
-            <div className="flex-1 p-8">
-              {/* Content */}
-              {activeTab === "profile" && (
-                <ProfileInfo user={auth.user} accessToken={auth.accessToken} />
-              )}
-              {activeTab === "address" && (
-                <AddressInfo accessToken={auth.accessToken} />
-              )}
-              {activeTab === "orders" && (
-                <OrderHistory orders={orders} loading={loading} />
-              )}
+                )}
+                {activeTab === "address" && (
+                  <AddressInfo accessToken={auth.accessToken} />
+                )}
+                {activeTab === "orders" && (
+                  <OrderHistory orders={orders} loading={loading} />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -530,9 +622,7 @@ function OrderHistory({
     return (
       <div className="text-center py-8 text-gray-600">
         <p className="text-lg mb-2">No orders yet</p>
-        <p className="text-sm">
-          Start shopping to see your order history here!
-        </p>
+        <p className="text-sm">Start shopping to see your order history here</p>
       </div>
     );
   }

@@ -14,6 +14,7 @@ import { openCart } from "@/app/store/cartUIStore"; // Import open function
 // import { useMediaQuery } from "usehooks-ts";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/dist/SplitText";
+import SocialLiniks from "./ecommerce/SocialLiniks";
 
 // Register the plugin
 gsap.registerPlugin(SplitText);
@@ -52,57 +53,57 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
     };
   }, [visible]);
 
-  useEffect(() => {
-    if (!textRef.current || !visible || !showContent) return;
+    useEffect(() => {
+        if (!textRef.current || !visible || !showContent) return;
 
-    // Small delay to ensure DOM is ready after showContent becomes true
-    const timeoutId = setTimeout(() => {
-      if (!textRef.current) return;
+        let split: SplitText | null = null;
 
-      // Split the text into characters
-      const split = new SplitText(textRef.current, {
-        type: "chars",
-        charsClass: "char",
-      });
+        const timeoutId = setTimeout(() => {
+            if (!textRef.current) return;
 
-      // Set initial state
-      gsap.set(split.chars, {
-        opacity: 0,
-        y: 20,
-        rotationX: -90,
-      });
+            // Split into words AND chars - preserves word boundaries
+            split = new SplitText(textRef.current, {
+                type: "words, chars",
+                wordsClass: "word",
+                charsClass: "char",
+            });
 
-      // Animate each character
-      gsap.to(split.chars, {
-        opacity: 1,
-        y: 0,
-        rotationX: 0,
-        duration: 0.8,
-        stagger: 0.03,
-        ease: "back.out(1.7)",
-        delay: 0.3,
-      });
+            // Keep words together
+            gsap.set(split.words, {
+                display: "inline-block",
+            });
 
-      gsap.to(menuRef, {
-        opacity: 1,
-        y: 0,
-        rotationX: -100,
-        duration: 0.8,
-        stagger: 0.03,
-        ease: "back.out(1.7)",
-        delay: 0.3,
-      });
+            gsap.set(split.chars, {
+                opacity: 0,
+                y: 20,
+                rotationX: -90,
+            });
 
-      // Store split instance for cleanup
-      return () => {
-        split.revert();
-      };
-    }, 50); // Small delay to ensure DOM is updated
+            gsap.to(split.chars, {
+                opacity: 1,
+                y: 0,
+                rotationX: 0,
+                duration: 0.8,
+                stagger: 0.03,
+                ease: "back.out(1.7)",
+                delay: 0.3,
+            });
 
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [visible, showContent]);
+            // Note: menuRef needs .current if it's a ref
+            gsap.to(menuRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "back.out(1.7)",
+                delay: 0.3,
+            });
+        }, 50);
+
+        return () => {
+            clearTimeout(timeoutId);
+            split?.revert();
+        };
+    }, [visible, showContent]);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -169,7 +170,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           >
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
-              <div className="flex flex-col md:flex-row justify-between w-full px-[41px] py-8">
+              <div className="flex flex-col items-center md:flex-row justify-between w-full px-6 md:px-[41px] py-8">
                 <button
                   onClick={handleClose}
                   className="p-2 flex md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
@@ -186,27 +187,48 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     className="w-full h-full"
                   />
                 </ThreeLink>
-                .
                 <ThreeLink
                   href="/login"
-                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                  className="text-[18px] uppercase item-center hidden md:flex md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
                   noUnderline
                 >
                   Login
                 </ThreeLink>
                 <ThreeLink
                   href="/dashboard"
-                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                  className="text-[18px] hidden md:flex uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
                   noUnderline
                 >
                   Account
                 </ThreeLink>
                 <button
-                  className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity hover:cursor-pointer"
+                  className="text-[18px] uppercase hidden md:flex md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity hover:cursor-pointer"
                   onClick={openCart}
                 >
                   Cart
                 </button>
+                <div className="flex flex-row gap-5  justify-between w-full pt-8 md:hidden">
+                  <ThreeLink
+                    href="/login"
+                    className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                    noUnderline
+                  >
+                    Login
+                  </ThreeLink>
+                  <ThreeLink
+                    href="/dashboard"
+                    className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                    noUnderline
+                  >
+                    Account
+                  </ThreeLink>
+                  <button
+                    className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity hover:cursor-pointer"
+                    onClick={openCart}
+                  >
+                    Cart
+                  </button>
+                </div>
                 <button
                   onClick={handleClose}
                   className="p-2 hidden md:flex items-center hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
@@ -217,7 +239,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               </div>
 
               {/* for writers reader links */}
-              <div className="flex flex-col md:flex-row  gap-6 md:gap-8 w-full border-y">
+              <div className="flex flex-col md:flex-row  gap-6 w-full border-y">
                 <div className="flex-1 flex flex-col py-8 gap-2">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
@@ -233,7 +255,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     Browse Stack
                   </ThreeLink>
                 </div>
-                <div className="flex-1 flex flex-col py-8 border-t md:border-l">
+                <div className="flex-1 flex flex-col py-8 md:border-l">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
@@ -289,6 +311,9 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     Legal
                   </ThreeLink>
                 </nav>
+                <div className="flex md:hidden">
+                  <SocialLiniks />
+                </div>
               </div>
             </div>
           </div>
@@ -297,7 +322,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           <div className="flex h-full w-full content-center items-center  -z-10 absolute top-0 left ">
             <p
               ref={textRef}
-              className="text-[45px] text-[#000000] opacity-[.03] font-bold max-w-[1134px] mx-auto"
+              className="text-[45px] text-[#000000] opacity-[.03] font-semibold max-w-[1134px] mx-auto"
             >
               Painted Dog Press is an independent book publisher of fiction and
               narrative non-fiction. We develop and nurture quality literature
@@ -306,7 +331,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               conventional publisher. Our efforts are strengthened by tech
               innovation and human-first technology. Not spotted, or mottled,
               but painted. Painted Dog is a curated press. My Dog, Spot. A
-              painted dog can be many things— Read About Us →
+              painted dog can be many things — Read About Us
             </p>
           </div>
         </div>

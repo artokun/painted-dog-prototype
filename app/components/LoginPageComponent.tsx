@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { globalStore } from "../store/globalStore";
 import { useRouter } from "next/navigation";
 import { login } from "@/app/store/authStore";
-// import { createCustomer, loginCustomer, getCustomer } from "@/lib/shopify";
 import {
   createCustomer,
   loginCustomer,
@@ -52,7 +51,22 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         return;
       }
 
-      // Step 3: Save to auth store
+      // Step 3: Create server-side session (httpOnly cookie)
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: {
+            email: customerResult.customer.email,
+            firstName: customerResult.customer.firstName,
+            lastName: customerResult.customer.lastName,
+            customerId: customerResult.customer.id,
+          },
+          accessToken: loginResult.accessToken,
+        }),
+      });
+
+      // Step 4: Save to auth store (client-side state)
       login(
         {
           email: customerResult.customer.email,
@@ -63,7 +77,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         loginResult.accessToken
       );
 
-      // Step 4: Redirect
+      // Step 5: Redirect
       router.push("/");
     } catch (err) {
       setError("An unexpected error occurred");
@@ -108,7 +122,22 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         return;
       }
 
-      // Step 4: Save to auth store
+      // Step 4: Create server-side session (httpOnly cookie)
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: {
+            email: customerResult.customer.email,
+            firstName: customerResult.customer.firstName,
+            lastName: customerResult.customer.lastName,
+            customerId: customerResult.customer.id,
+          },
+          accessToken: loginResult.accessToken,
+        }),
+      });
+
+      // Step 5: Save to auth store (client-side state)
       login(
         {
           email: customerResult.customer.email,
@@ -119,7 +148,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         loginResult.accessToken
       );
 
-      // Step 5: Redirect
+      // Step 6: Redirect
       router.push("/");
     } catch (err) {
       setError("An unexpected error occurred");
@@ -213,59 +242,66 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           {/* SignUp */}
           {!isLogin && (
             <>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={firstName}
-                  placeholder=""
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
-                  required
-                />
-                <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
-                  First Name
+              <div className="border-b border-black pb-1">
+                <label className="flex gap-1 items-center">
+                  <span>First Name*</span>
+                  <input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Enter first name"
+                    className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
+                    type="text"
+                    name="firstName"
+                    required
+                  />
                 </label>
               </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
-                  required
-                />
-                <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
-                  Last Name
+              <div className="border-b border-black pb-1">
+                <label className="flex gap-1 items-center">
+                  <span>Last Name*</span>
+                  <input
+                    type="text"
+                    value={lastName}
+                    placeholder="Enter your last name"
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
+                    name="lastName"
+                    required
+                  />
                 </label>
               </div>
             </>
           )}
-          <div className="relative">
-            <input
-              type="email"
-              value={email}
-              placeholder="Enter email address"
-              onChange={(e) => setEmail(e.target.value)}
-              className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
-              required
-            />
-            <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
-              Email your address
+          <div className="border-b border-black pb-1">
+            <label className="flex gap-1 items-center">
+              <span>Email your email address*</span>
+              <input
+                type="email"
+                value={email}
+                placeholder="Enter email address"
+                onChange={(e) => setEmail(e.target.value)}
+                className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
+                name="email"
+                required
+              />
             </label>
           </div>
-          <div className="relative">
-            <input
-              type="password"
-              value={password}
-              placeholder="Enter your password"
-              onChange={(e) => setPassword(e.target.value)}
-              className="peer w-full border-b px-3 py-2 placeholder:text-gray-500 placeholder:text-right focus:outline-none"
-              required
-            />
-            <label className="absolute text-base left-0 ml-1 translate-y-1 mt-2 bg-white px-1 duration-100 ease-linear peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:ml-1 peer-focus:-translate-y-6 peer-focus:px-1 peer-focus:text-sm">
-              Password
+
+          <div className="border-b border-black pb-1">
+            <label className="flex gap-1 items-center">
+              <span>Password*</span>
+              <input
+                type="password"
+                value={password}
+                placeholder="Enter your password"
+                onChange={(e) => setPassword(e.target.value)}
+                className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
+                name="password"
+                required
+              />
             </label>
           </div>
+
           <button
             type="submit"
             disabled={!email || !password}
@@ -274,7 +310,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
             {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
           </button>
           <div className="w-full text-center py-1 relative ">
-            <p className="after:top-[50%] after:bg-[#000000] after:absolute after:right-8 after:w-[25%] after:h-px after:bg-red after:content-['*'] before:top-[50%] before:absolute before:left-8 before:w-[25%] before:h-px before:content-['*'] before:bg-[#000000]">
+            <p className="after:top-[50%] after:bg-[#000000] after:absolute after:right-8 after:w-[25%] after:h-px after:bg-red after:content-[''] before:top-[50%] before:absolute before:left-8 before:w-[25%] before:h-px before:content-[''] before:bg-[#000000]">
               or
             </p>
           </div>
