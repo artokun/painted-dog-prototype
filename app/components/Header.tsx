@@ -474,60 +474,52 @@ export const Header = () => {
           isBookFocused && "opacity-0 delay-600 pointer-events-none"
         )}
       >
-
+        {/* Cart */}
         <div
-          className={cn(
-            "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-            isBookFocused && "opacity-0 delay-600 pointer-events-none"
-          )}
+          ref={cartRef}
+          className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
         >
-          {/* Cart */}
-          <div
-            ref={cartRef}
-            className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
-          >
-            <button className="uppercase" onClick={openCart}>
-              <span> Cart</span>
-            </button>
-          </div>
-          <div ref={cartseparatorRef} className="text-black hidden md:flex">
-            <span>•</span>
-          </div>
-          {/* Login */}
-          <div
-            ref={loginRef}
-            className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
-          >
-            {auth?.isLoggedIn ? (
-              <>
-                <ThreeLink animatedUnderline href="/dashboard">
-                  <span className="uppercase"> Account</span>
-                </ThreeLink>
-              </>
-            ) : (
-              <ThreeLink animatedUnderline href="/login">
-                <span className="uppercase"> Log In</span>
+          <button className="uppercase" onClick={openCart}>
+            <span> Cart</span>
+          </button>
+        </div>
+        <div ref={cartseparatorRef} className="text-black hidden md:flex">
+          <span>•</span>
+        </div>
+        {/* Login */}
+        <div
+          ref={loginRef}
+          className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
+        >
+          {auth?.isLoggedIn ? (
+            <>
+              <ThreeLink animatedUnderline href="/dashboard">
+                <span className="uppercase"> Account</span>
               </ThreeLink>
-            )}
-          </div>
-
-          {/* Right Separator */}
-          <div className="text-black hidden md:flex" ref={rightseparatorRef}>
-            <span>•</span>
-          </div>
-
-          {/* Menu Button */}
-          <div className="hidden md:flex gap-2 items-center text-black">
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
-          </div>
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex -mt-8 gap-2 items-center text-black">
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
-          </div>
+            </>
+          ) : (
+            <ThreeLink animatedUnderline href="/login">
+              <span className="uppercase"> Log In</span>
+            </ThreeLink>
+          )}
         </div>
-        <div className="invisible!">
-          <Leva hidden />
+
+        {/* Right Separator */}
+        <div className="text-black hidden md:flex" ref={rightseparatorRef}>
+          <span>•</span>
         </div>
+
+        {/* Menu Button */}
+        <div className="hidden md:flex gap-2 items-center text-black">
+          <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+        </div>
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex -mt-8 gap-2 items-center text-black">
+          <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+        </div>
+      </div>
+      <div className="invisible!">
+        <Leva hidden />
       </div>
     </div>
   );
