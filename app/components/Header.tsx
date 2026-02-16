@@ -421,105 +421,59 @@ export const Header = () => {
           </div>
         )}
 
-        <button
-          className={cn(
-            "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
-            isBookFocused &&
-              showBackButton &&
-              showHeader &&
-              "opacity-100 translate-x-0 delay-400 pointer-events-auto"
-          )}
-          onClick={handleBackButtonClick}
-        >
-          <span className="relative w-6 h-[18px] [svg]:w-full [svg]:h-full group-hover:animate-[arrow-bounce_1s_ease-in-out_infinite]">
-            <BackIcon />
-          </span>
-          <span className="text-[19px] font-medium">
-            back to {isGridMode ? "grid" : "stack"}
-          </span>
-        </button>
-      </div>
-
-      {/* Logo */}
-      {!isBookFocused && !isMobile && (
         <div
-          style={
-            shouldStartCollapsed
-              ? { transform: `translate(0px), ${logoYOffset}px` }
-              : undefined
-          }
-          ref={logoRef}
           className={cn(
-            "fixed px-8 pt-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300 xl:pt-0",
-            !showHeader &&
-              (isHomepage || isOverlayPage) &&
-              "opacity-0 pointer-events-none"
+            "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
+            isBookFocused && "opacity-0 delay-600 pointer-events-none"
           )}
         >
-          <Link href="/">
-            <Image
-              className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
-              src="/logo-dog-inline-hd.png"
-              alt="Logo"
-              height={6120}
-              width={1340}
-            />
-          </Link>
-        </div>
-      )}
-
-      <div
-        className={cn(
-          "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-          isBookFocused && "opacity-0 delay-600 pointer-events-none"
-        )}
-      >
-        {/* Cart */}
-        <div
-          ref={cartRef}
-          className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
-        >
-          <button className="uppercase" onClick={openCart}>
-            <span> Cart</span>
-          </button>
-        </div>
-        <div ref={cartseparatorRef} className="text-black hidden md:flex">
-          <span>•</span>
-        </div>
-        {/* Login */}
-        <div
-          ref={loginRef}
-          className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
-        >
-          {auth?.isLoggedIn ? (
-            <>
-              <ThreeLink animatedUnderline href="/dashboard">
-                <span className="uppercase"> Account</span>
+          {/* Cart */}
+          <div
+            ref={cartRef}
+            className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
+          >
+            <button className="uppercase" onClick={openCart}>
+              <span> Cart</span>
+            </button>
+          </div>
+          <div ref={cartseparatorRef} className="text-black hidden md:flex">
+            <span>•</span>
+          </div>
+          {/* Login */}
+          <div
+            ref={loginRef}
+            className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
+          >
+            {auth?.isLoggedIn ? (
+              <>
+                <ThreeLink animatedUnderline href="/dashboard">
+                  <span className="uppercase"> Account</span>
+                </ThreeLink>
+              </>
+            ) : (
+              <ThreeLink animatedUnderline href="/login">
+                <span className="uppercase"> Log In</span>
               </ThreeLink>
-            </>
-          ) : (
-            <ThreeLink animatedUnderline href="/login">
-              <span className="uppercase"> Log In</span>
-            </ThreeLink>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Right Separator */}
-        <div className="text-black hidden md:flex" ref={rightseparatorRef}>
-          <span>•</span>
-        </div>
+          {/* Right Separator */}
+          <div className="text-black hidden md:flex" ref={rightseparatorRef}>
+            <span>•</span>
+          </div>
 
-        {/* Menu Button */}
-        <div className="hidden md:flex gap-2 items-center text-black">
-          <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+          {/* Menu Button */}
+          <div className="hidden md:flex gap-2 items-center text-black">
+            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+          </div>
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex -mt-8 gap-2 items-center text-black">
+            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+          </div>
         </div>
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex -mt-8 gap-2 items-center text-black">
-          <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+        <div className="invisible!">
+          <Leva hidden />
         </div>
-      </div>
-      <div className="invisible!">
-        <Leva hidden />
       </div>
     </div>
   );
