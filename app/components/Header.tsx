@@ -15,6 +15,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { animated, useSpring } from "@react-spring/web";
 import { authStore } from "@/app/store/authStore";
+import { openCart } from "@/app/store/cartUIStore"; // Import open function
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,8 +38,8 @@ const MenuButton = ({
     <div
       style={
         shouldStartCollapsed
-          ? { transform: "translateX(0px)", fontSize: 16 }
-          : { transform: "translateY(1rem) translateX(-5px)" }
+          ? { transform: "translateX(-0.16rem)", fontSize: 16 }
+          : { transform: "translateY(1rem) translateX(-0.16rem)" }
       }
       id="menu-button-wrapper"
       className=" gap-2 items-center text-black text-[24px] "
@@ -70,8 +71,6 @@ const MenuButton = ({
   );
 };
 
-// MenuButton.displayName = "MenuButton";
-
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
   const { isRendered, focusedBookId } = useSnapshot(bookStore);
@@ -86,7 +85,9 @@ export const Header = () => {
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 765px)");
+  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
+
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [levaLoaded, setLevaLoaded] = useState(false);
   const auth = useSnapshot(authStore);
@@ -98,10 +99,13 @@ export const Header = () => {
   const logoRef = useRef<HTMLDivElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
   const newsletterRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
   const rightseparatorRef = useRef<HTMLDivElement>(null);
   const leftseparatorRef = useRef<HTMLDivElement>(null);
   const loginRef = useRef<HTMLDivElement>(null);
+  const cartRef = useRef<HTMLDivElement>(null);
+  const cartseparatorRef = useRef<HTMLDivElement>(null);
+
+  const logoYOffset = isMobile ? -90 : isTablet ? -90 : -90;
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -148,156 +152,164 @@ export const Header = () => {
     };
   }, [isRendered, isMobile, isBookPage, isBookFocused]);
 
-  // Hide header when overlay pages are scrolled past 50px
-  // useEffect(() => {
-  //   if (isOverlayPage) {
-  //     setShowHeader(overlayScrollPosition <= 50);
-  //   }
-  // }, [isOverlayPage, overlayScrollPosition]);
-
   // GSAP Scroll Animation
   useEffect(() => {
-    if (!isRendered || !isHomepage) return;
+    if (!isRendered) return;
 
     let ctx: gsap.Context | null = null;
 
     const timeoutId = setTimeout(() => {
-      let activeScrollContainer: HTMLDivElement | null = null;
-
-      if (scrollContainerRef.current) {
-        activeScrollContainer = scrollContainerRef.current;
-      }
-
-      if (!activeScrollContainer) return;
-
-      // Calculate the offset based on actual element dimensions
-      const logoHeight = logoRef.current?.offsetHeight || 0;
-      const gap = 8; // gap between elements
-      const offsetY = logoHeight + gap;
-
       ctx = gsap.context(() => {
         const menuElement = document.getElementById("menu-button-wrapper");
 
-        const timeline = gsap.timeline({
-          scrollTrigger: {
+        if (shouldStartCollapsed) {
+          // Set everything to collapsed state immediately without animation
+          gsap.set(logoRef.current, { scale: 0.2, y: -110 });
+          gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0 });
+          gsap.set(menuElement, { x: 0, fontSize: 16, y: 0 });
+          gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
+          gsap.set(rightseparatorRef.current, { x: 0, opacity: 1, y: -2 });
+          gsap.set(cartseparatorRef.current, { x: 0, opacity: 1, y: -2 });
+          gsap.set(newsletterRef.current, { x: 0, y: 0, fontSize: 16 });
+          gsap.set(loginRef.current, { x: 0, y: 0, fontSize: 16 });
+          gsap.set(cartRef.current, { x: 0, y: 0, opacity: 1, fontSize: 16 });
+        } else if (isHomepage) {
+          // Only run scroll animations on homepage
+          let activeScrollContainer: HTMLDivElement | null = null;
+
+          if (scrollContainerRef.current) {
+            activeScrollContainer = scrollContainerRef.current;
+          }
+
+          if (!activeScrollContainer) return;
+
+          // Create scroll-triggered animation timeline
+          const timeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: activeScrollContainer,
+              scroller: activeScrollContainer,
+              start: "top top",
+              end: "+=400",
+              scrub: 1,
+            },
+          });
+
+          // Animate logo scale down
+          timeline.fromTo(
+            logoRef.current,
+            { scale: 1, y: 0 },
+            { scale: 0.2, duration: 1, y: logoYOffset },
+            0
+          );
+
+          timeline.fromTo(
+            newsRef.current,
+            { x: "0.16rem", y: "1rem", fontSize: 24 },
+            { x: 0, fontSize: 16, duration: 1, y: 0 },
+            0
+          );
+
+          timeline.fromTo(
+            menuElement,
+            { x: "-0.16rem", y: "1rem", fontSize: 24 },
+            { x: 0, fontSize: 16, duration: 1, y: 0 },
+            0
+          );
+
+          timeline.fromTo(
+            leftseparatorRef.current,
+            { x: 0, opacity: 0, y: 0 },
+            { x: 0, opacity: 1, duration: 1, y: -2 },
+            0
+          );
+
+          timeline.fromTo(
+            rightseparatorRef.current,
+            { x: 0, opacity: 0, y: 0 },
+            { x: 0, opacity: 1, duration: 1, y: -2 },
+            0
+          );
+
+          timeline.fromTo(
+            cartseparatorRef.current,
+            { x: 0, opacity: 0, y: 0 },
+            { x: 0, opacity: 1, duration: 1, y: -2 },
+            0
+          );
+
+          timeline.fromTo(
+            newsletterRef.current,
+            { x: "-6.5rem", y: "16.875rem", fontSize: 24 },
+            { x: 0, y: 0, fontSize: 16, duration: 1 },
+            0
+          );
+
+          timeline.fromTo(
+            loginRef.current,
+            { x: "6.5rem", y: "16.875rem", fontSize: 24 },
+            { x: 0, y: 0, fontSize: 16, duration: 1 },
+            0
+          );
+
+          timeline.fromTo(
+            cartRef.current,
+            { x: 0, opacity: 0 },
+            { x: 0, y: 0, opacity: 1, duration: 1, fontSize: 16 },
+            0
+          );
+
+          // NEW: Scroll direction-based fade (OPACITY ONLY)
+          let lastScrollY = 0;
+
+          ScrollTrigger.create({
             trigger: activeScrollContainer,
             scroller: activeScrollContainer,
             start: "top top",
-            end: "+=400",
-            scrub: 1,
-          },
-        });
+            end: "max",
+            onUpdate: (self) => {
+              const currentScrollY = self.scroll();
+              const isScrollingDown = currentScrollY > lastScrollY;
 
-        // Animate logo scale down
-        timeline.to(
-          logoRef.current,
-          {
-            scale: 0.2,
-            duration: 1,
-            y: -120,
-          },
-          0
-        );
+              // Collect all valid refs (filter out nulls)
+              const elementsToAnimate = [
+                newsRef.current,
+                menuElement,
+                newsletterRef.current,
+                loginRef.current,
+                logoRef.current,
+                cartRef.current,
+                leftseparatorRef.current,
+                rightseparatorRef.current,
+                cartseparatorRef.current,
+              ].filter((el) => el !== null);
 
-        timeline.to(
-          newsRef.current,
-          {
-            x: 0,
-            fontSize: 16,
-            duration: 1,
-            y: 0,
-          },
-          0
-        );
+              // If scrolled past 600px
+              if (currentScrollY > 600) {
+                if (isScrollingDown) {
+                  // Fade out when scrolling down
+                  gsap.to(elementsToAnimate, {
+                    opacity: 0,
+                    duration: 0.3,
+                  });
+                } else {
+                  // Fade in when scrolling up
+                  gsap.to(elementsToAnimate, {
+                    opacity: 1,
+                    duration: 0.3,
+                  });
+                }
+              } else {
+                // Always visible before 600px
+                gsap.to(elementsToAnimate, {
+                  opacity: 1,
+                  duration: 0.2,
+                });
+              }
 
-        timeline.to(
-          menuRef.current,
-          {
-            x: 0,
-            fontSize: 16,
-            y: 0,
-          },
-          0
-        );
-        timeline.to(menuElement, { x: 0, fontSize: 16, duration: 1, y: 0 }, 0);
-
-        timeline.to(
-          leftseparatorRef.current,
-          {
-            x: 0,
-            opacity: 1,
-            duration: 1,
-            y: -2,
-          },
-          0
-        );
-
-        timeline.to(
-          rightseparatorRef.current,
-          {
-            x: 0,
-            opacity: 1,
-            duration: 1,
-            y: -2,
-          },
-          0
-        );
-
-        // Animate Newsletter moving up and to the right
-
-        timeline.fromTo(
-          newsletterRef.current,
-          {
-            y: offsetY, // Start below the news item
-          },
-          {
-            x: 0,
-            y: 0, // Return to origin
-            fontSize: 16,
-            duration: 1,
-          },
-          0
-        );
-
-        // Animate Login/SignUp moving up and to the left
-        timeline.to(
-          loginRef.current,
-          {
-            x: 0,
-            y: 0,
-            fontSize: 16,
-            duration: 1,
-          },
-          0
-        );
-
-        // Second timeline: Fade out menu (400-600px)
-        const fadeTimeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: activeScrollContainer,
-            scroller: activeScrollContainer,
-            start: "+=600", // Start after shrink completes
-            end: "+=400", // Fade over 400px of scroll
-            scrub: 1,
-          },
-        });
-
-        fadeTimeline.to(menuRef.current, { opacity: 0, duration: 1 }, 0);
-        fadeTimeline.to(newsRef.current, { opacity: 0, duration: 1 }, 0);
-        fadeTimeline.to(menuElement, { opacity: 0, duration: 1 }, 0);
-        fadeTimeline.to(newsletterRef.current, { opacity: 0, duration: 1 }, 0);
-        fadeTimeline.to(loginRef.current, { opacity: 0, duration: 1 }, 0);
-        fadeTimeline.to(logoRef.current, { opacity: 0, duration: 1 }, 0);
-        fadeTimeline.to(
-          leftseparatorRef.current,
-          { opacity: 0, duration: 1 },
-          0
-        );
-        fadeTimeline.to(
-          rightseparatorRef.current,
-          { opacity: 0, duration: 1 },
-          0
-        );
+              lastScrollY = currentScrollY;
+            },
+          });
+        }
       });
     }, 100);
 
@@ -307,7 +319,7 @@ export const Header = () => {
         ctx.revert();
       }
     };
-  }, [isRendered]);
+  }, [isRendered, shouldStartCollapsed, isHomepage]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
@@ -326,7 +338,7 @@ export const Header = () => {
               {/* Mobile Logo */}
               <Link className="flex w-40 md:hidden" href="/">
                 <Image
-                  className="object-contain w-[190px] h-8 lg:h-auto"
+                  className="object-contain w-auto lg:h-auto"
                   src="/logo-dog-inline.png"
                   alt="Logo"
                   height={90}
@@ -337,11 +349,6 @@ export const Header = () => {
               <div className="hidden md:flex gap-4 items-center flex-1">
                 {/* News */}
                 <div
-                  style={
-                    shouldStartCollapsed
-                      ? { transform: "translateX(0px)", fontSize: 16 }
-                      : { transform: "translateY(1rem) translateX(4px)" }
-                  }
                   ref={newsRef}
                   className="hidden text-[24px] md:flex pointer-events-auto"
                 >
@@ -351,24 +358,11 @@ export const Header = () => {
                 </div>
 
                 {/* Left Separator */}
-                <div
-                  style={
-                    shouldStartCollapsed
-                      ? { opacity: 1, transform: "translateX(0px)" }
-                      : { opacity: 0 }
-                  }
-                  className="text-black "
-                  ref={leftseparatorRef}
-                >
+                <div className="text-black" ref={leftseparatorRef}>
                   <span>•</span>
                 </div>
                 {/* Newsletter */}
                 <div
-                  style={
-                    shouldStartCollapsed
-                      ? { transform: "translateX(0px)", fontSize: 16 }
-                      : { transform: "translateX(-102px) translateY(270px)" }
-                  }
                   ref={newsletterRef}
                   className="hidden text-[24px] uppercase md:flex pointer-events-auto"
                 >
@@ -404,12 +398,12 @@ export const Header = () => {
           <div
             style={
               shouldStartCollapsed
-                ? { transform: "translate(0px, -110px) scale(0.2, 0.2)" }
+                ? { transform: `translate(0px), ${logoYOffset}px` }
                 : undefined
             }
             ref={logoRef}
             className={cn(
-              "fixed px-8 top-4 w-full left-0 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300",
+              "fixed px-8 pt-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300 xl:pt-0",
               !showHeader &&
                 (isHomepage || isOverlayPage) &&
                 "opacity-0 pointer-events-none"
@@ -417,7 +411,7 @@ export const Header = () => {
           >
             <Link href="/">
               <Image
-                className="object-cover w-[140px]  md:w-full 2xl:max-w-[1320] 2xl:mx-auto"
+                className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
                 src="/logo-dog-inline-hd.png"
                 alt="Logo"
                 height={6120}
@@ -433,13 +427,20 @@ export const Header = () => {
             isBookFocused && "opacity-0 delay-600 pointer-events-none"
           )}
         >
+          {/* Cart */}
+          <div
+            ref={cartRef}
+            className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
+          >
+            <button className="uppercase" onClick={openCart}>
+              <span> Cart</span>
+            </button>
+          </div>
+          <div ref={cartseparatorRef} className="text-black hidden md:flex">
+            <span>•</span>
+          </div>
           {/* Login */}
           <div
-            style={
-              shouldStartCollapsed
-                ? { transform: "translateX(0px)", fontSize: 16 }
-                : { transform: "translateX(102px) translateY(267px)" }
-            }
             ref={loginRef}
             className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
           >
@@ -457,15 +458,7 @@ export const Header = () => {
           </div>
 
           {/* Right Separator */}
-          <div
-            style={
-              shouldStartCollapsed
-                ? { opacity: 1, transform: "translateX(0px) translateY(-2px)" }
-                : { opacity: 0 }
-            }
-            className="text-black hidden md:flex"
-            ref={rightseparatorRef}
-          >
+          <div className="text-black hidden md:flex" ref={rightseparatorRef}>
             <span>•</span>
           </div>
 
@@ -479,10 +472,7 @@ export const Header = () => {
           </div>
         </div>
         <div className="invisible!">
-          <Leva
-            collapsed={{ collapsed: isCollapsed, onChange: setIsCollapsed }}
-            isRoot
-          />
+          <Leva hidden />
         </div>
       </div>
     </div>

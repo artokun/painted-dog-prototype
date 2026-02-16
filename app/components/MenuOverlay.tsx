@@ -53,57 +53,57 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
     };
   }, [visible]);
 
-  useEffect(() => {
-    if (!textRef.current || !visible || !showContent) return;
+    useEffect(() => {
+        if (!textRef.current || !visible || !showContent) return;
 
-    // Small delay to ensure DOM is ready after showContent becomes true
-    const timeoutId = setTimeout(() => {
-      if (!textRef.current) return;
+        let split: SplitText | null = null;
 
-      // Split the text into characters
-      const split = new SplitText(textRef.current, {
-        type: "chars",
-        charsClass: "char",
-      });
+        const timeoutId = setTimeout(() => {
+            if (!textRef.current) return;
 
-      // Set initial state
-      gsap.set(split.chars, {
-        opacity: 0,
-        y: 20,
-        rotationX: -90,
-      });
+            // Split into words AND chars - preserves word boundaries
+            split = new SplitText(textRef.current, {
+                type: "words, chars",
+                wordsClass: "word",
+                charsClass: "char",
+            });
 
-      // Animate each character
-      gsap.to(split.chars, {
-        opacity: 1,
-        y: 0,
-        rotationX: 0,
-        duration: 0.8,
-        stagger: 0.03,
-        ease: "back.out(1.7)",
-        delay: 0.3,
-      });
+            // Keep words together
+            gsap.set(split.words, {
+                display: "inline-block",
+            });
 
-      gsap.to(menuRef, {
-        opacity: 1,
-        y: 0,
-        rotationX: -100,
-        duration: 0.8,
-        stagger: 0.03,
-        ease: "back.out(1.7)",
-        delay: 0.3,
-      });
+            gsap.set(split.chars, {
+                opacity: 0,
+                y: 20,
+                rotationX: -90,
+            });
 
-      // Store split instance for cleanup
-      return () => {
-        split.revert();
-      };
-    }, 50); // Small delay to ensure DOM is updated
+            gsap.to(split.chars, {
+                opacity: 1,
+                y: 0,
+                rotationX: 0,
+                duration: 0.8,
+                stagger: 0.03,
+                ease: "back.out(1.7)",
+                delay: 0.3,
+            });
 
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [visible, showContent]);
+            // Note: menuRef needs .current if it's a ref
+            gsap.to(menuRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "back.out(1.7)",
+                delay: 0.3,
+            });
+        }, 50);
+
+        return () => {
+            clearTimeout(timeoutId);
+            split?.revert();
+        };
+    }, [visible, showContent]);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -331,7 +331,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               conventional publisher. Our efforts are strengthened by tech
               innovation and human-first technology. Not spotted, or mottled,
               but painted. Painted Dog is a curated press. My Dog, Spot. A
-              painted dog can be many things — Read About Us →
+              painted dog can be many things — Read About Us
             </p>
           </div>
         </div>

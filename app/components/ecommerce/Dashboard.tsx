@@ -109,13 +109,13 @@ export function Dashboard({ visible }: { visible: boolean }) {
       )}
     >
       <div className="flex w-full 2xl:max-w-[1320] mx-auto">
-        <div className="mt-40 md:mt-10 px-4  flex w-full mx-auto flex-col lg:pt-8 lg:px-20 lg:flex-row">
+        <div className="mt-40 md:mt-10 px-4 flex w-full mx-auto flex-col lg:pt-8 lg:flex-row lg:px-10">
           {/* Heading */}
-          <div className="flex gap-3  flex-col lg:max-w-[600px] pb-8">
+          <div className="flex gap-3  flex-col max-w-auto lg:max-w-[600px] pb-8">
             <h2 className="text-[48px] md:text-[72px] font-semibold leading-[72px]">
               Account
             </h2>
-            <h4 className="text-[28px] w-[430px] lg:mt-8">
+            <h4 className="text-[28px] w-auto lg:w-[430px] lg:mt-8">
               Welcome to your account, <br></br>
               <span className="capitalize">
                 {auth.isLoggedIn && auth.user?.firstName}
