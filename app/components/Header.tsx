@@ -38,7 +38,7 @@ const MenuButton = ({
     <div
       style={
         shouldStartCollapsed
-          ? { transform: "translateX(-0.16rem)", fontSize: 16 }
+          ? { transform: "translateX(-0.16rem) translateY(1rem)" }
           : { transform: "translateY(1rem) translateX(-0.16rem)" }
       }
       id="menu-button-wrapper"
@@ -104,8 +104,8 @@ export const Header = () => {
   const loginRef = useRef<HTMLDivElement>(null);
   const cartRef = useRef<HTMLDivElement>(null);
   const cartseparatorRef = useRef<HTMLDivElement>(null);
-    const mobileLogoRef = useRef<HTMLAnchorElement>(null);
-    const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileLogoRef = useRef<HTMLAnchorElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const logoYOffset = isMobile ? -90 : isTablet ? -90 : -90;
 
@@ -166,7 +166,7 @@ export const Header = () => {
 
         if (shouldStartCollapsed) {
           // Set everything to collapsed state immediately without animation
-          gsap.set(logoRef.current, { scale: 0.2, y: -110 });
+          gsap.set(logoRef.current, { scale: 0.2, y: "-6.875rem" });
           gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0 });
           gsap.set(menuElement, { x: 0, fontSize: 16, y: 0 });
           gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
@@ -283,8 +283,8 @@ export const Header = () => {
                 leftseparatorRef.current,
                 rightseparatorRef.current,
                 cartseparatorRef.current,
-                  mobileLogoRef.current,
-                  mobileMenuRef.current,
+                mobileLogoRef.current,
+                mobileMenuRef.current,
               ].filter((el) => el !== null);
 
               // If scrolled past 600px
@@ -340,7 +340,11 @@ export const Header = () => {
           {!isBookFocused && (
             <>
               {/* Mobile Logo */}
-              <Link  ref={mobileLogoRef} className="flex w-40 md:hidden" href="/">
+              <Link
+                ref={mobileLogoRef}
+                className="flex w-40 md:hidden"
+                href="/"
+              >
                 <Image
                   className="object-contain w-auto lg:h-auto"
                   src="/logo-dog-inline.png"
@@ -433,9 +437,13 @@ export const Header = () => {
         >
           {/* Cart */}
           <div
-              style={shouldStartCollapsed ? { transform: 'translateY(-2rem)' } : undefined}
+            style={
+              shouldStartCollapsed
+                ? { transform: "translateY(-2rem)" }
+                : undefined
+            }
             ref={cartRef}
-            className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
+            className="hidden text-[24px] self-baseline uppercase md:flex pointer-events-auto text-black"
           >
             <button className="uppercase" onClick={openCart}>
               <span> Cart</span>
@@ -472,7 +480,10 @@ export const Header = () => {
             <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
           </div>
           {/* Mobile Menu Button */}
-          <div  ref={mobileMenuRef} className="md:hidden flex -mt-8 gap-2 items-center text-black">
+          <div
+            ref={mobileMenuRef}
+            className="md:hidden flex -mt-8 gap-2 items-center text-black"
+          >
             <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
           </div>
         </div>
