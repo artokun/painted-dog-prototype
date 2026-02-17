@@ -225,12 +225,13 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
             alt="Painted Dog"
           />
         </div>
-
         <h1 className="text-[62px] py-5 font-semibold text-center">
           {isLogin ? "Login" : "Sign Up"}
         </h1>
         <p className="text-center pb-4 text-[#1A1A1A]">
-          Enter your email address, then login using a button below.
+          {isLogin
+            ? " Enter your email address, then login using a button below."
+            : "Create your account by filling in the details below"}
         </p>
         {/* Error message */}
         {error && (
@@ -244,7 +245,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
             <>
               <div className="border-b border-black pb-1">
                 <label className="flex gap-1 items-center">
-                  <span>First Name*</span>
+                  <span>First Name</span>
                   <input
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -258,7 +259,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
               </div>
               <div className="border-b border-black pb-1">
                 <label className="flex gap-1 items-center">
-                  <span>Last Name*</span>
+                  <span>Last Name</span>
                   <input
                     type="text"
                     value={lastName}
@@ -274,7 +275,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           )}
           <div className="border-b border-black pb-1">
             <label className="flex gap-1 items-center">
-              <span>Email your email address*</span>
+              <span>Email address*</span>
               <input
                 type="email"
                 value={email}
@@ -289,7 +290,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
 
           <div className="border-b border-black pb-1">
             <label className="flex gap-1 items-center">
-              <span>Password*</span>
+              <span>Password</span>
               <input
                 type="password"
                 value={password}
