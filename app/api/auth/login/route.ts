@@ -3,7 +3,7 @@ import { createSession } from "@/lib/auth/session";
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, accessToken } = await request.json();
+    const { user, accessToken, rememberMe } = await request.json();
 
     // Create server-side session
     await createSession({
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       provider: "shopify",
       shopifyCustomerId: user.customerId,
       shopifyAccessToken: accessToken,
-    });
+    }, rememberMe);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -104,6 +104,8 @@ export const Header = () => {
   const loginRef = useRef<HTMLDivElement>(null);
   const cartRef = useRef<HTMLDivElement>(null);
   const cartseparatorRef = useRef<HTMLDivElement>(null);
+    const mobileLogoRef = useRef<HTMLAnchorElement>(null);
+    const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const logoYOffset = isMobile ? -90 : isTablet ? -90 : -90;
 
@@ -253,7 +255,7 @@ export const Header = () => {
 
           timeline.fromTo(
             cartRef.current,
-            { x: 0, opacity: 0 },
+            { x: 0, y: "16.875rem", opacity: 0, fontSize: 24 },
             { x: 0, y: 0, opacity: 1, duration: 1, fontSize: 16 },
             0
           );
@@ -281,6 +283,8 @@ export const Header = () => {
                 leftseparatorRef.current,
                 rightseparatorRef.current,
                 cartseparatorRef.current,
+                  mobileLogoRef.current,
+                  mobileMenuRef.current,
               ].filter((el) => el !== null);
 
               // If scrolled past 600px
@@ -336,7 +340,7 @@ export const Header = () => {
           {!isBookFocused && (
             <>
               {/* Mobile Logo */}
-              <Link className="flex w-40 md:hidden" href="/">
+              <Link  ref={mobileLogoRef} className="flex w-40 md:hidden" href="/">
                 <Image
                   className="object-contain w-auto lg:h-auto"
                   src="/logo-dog-inline.png"
@@ -429,6 +433,7 @@ export const Header = () => {
         >
           {/* Cart */}
           <div
+              style={shouldStartCollapsed ? { transform: 'translateY(-2rem)' } : undefined}
             ref={cartRef}
             className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
           >
@@ -467,7 +472,7 @@ export const Header = () => {
             <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
           </div>
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex -mt-8 gap-2 items-center text-black">
+          <div  ref={mobileMenuRef} className="md:hidden flex -mt-8 gap-2 items-center text-black">
             <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
           </div>
         </div>

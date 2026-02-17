@@ -12,6 +12,7 @@ import {
 import { authStore } from "@/app/store/authStore";
 import { createCart } from "@/lib/shopify-client";
 import { X } from "lucide-react";
+import {globalStore} from "@/app/store/globalStore";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -69,13 +70,13 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
     }
   };
 
-  const handleCheckout = async () => {
-    // AUTH CHECK - Redirect using window.location instead of useRouter
-    if (!auth.isLoggedIn) {
-      onClose();
-      window.location.href = "/login";
-      return;
-    }
+    const handleCheckout = async () => {
+        // AUTH CHECK - Use globalStore to navigate
+        if (!auth.isLoggedIn) {
+            onClose();
+            globalStore.currentRoute = "/login";
+            return;
+        }
 
     setIsCheckingOut(true);
 

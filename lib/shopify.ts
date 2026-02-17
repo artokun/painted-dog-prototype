@@ -1,6 +1,6 @@
-const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const storefrontAccessToken =
-  process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+  process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
 async function ShopifyData(query: string) {
   const URL = `https://${domain}/api/2026-01/graphql.json`;
@@ -21,9 +21,9 @@ async function ShopifyData(query: string) {
 }
 
 export async function getAllProducts() {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const query = `
     {
@@ -129,9 +129,9 @@ export async function getProduct(handle: string) {
 export async function createCart(
   lineItems: { merchandiseId: string; quantity: number }[]
 ) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const cartCreateMutation = `
     mutation cartCreate($input: CartInput!) {
@@ -193,9 +193,9 @@ export async function createCustomer(
   firstName?: string,
   lastName?: string
 ) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const mutation = `
     mutation customerCreate($input: CustomerCreateInput!) {
@@ -265,9 +265,9 @@ export async function createCustomer(
 
 // Login customer and get access token
 export async function loginCustomer(email: string, password: string) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const mutation = `
     mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
@@ -336,9 +336,9 @@ export async function loginCustomer(email: string, password: string) {
 
 // Get customer info using access token
 export async function getCustomer(accessToken: string) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const query = `
     query getCustomer($customerAccessToken: String!) {
@@ -383,9 +383,9 @@ export async function getCustomer(accessToken: string) {
 
 // Get customer orders
 export async function getCustomerOrders(accessToken: string) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const query = `
     query getCustomerOrders($customerAccessToken: String!) {
@@ -468,9 +468,9 @@ totalShippingPrice {
 
 // Get customer addresses
 export async function getCustomerAddresses(accessToken: string) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const query = `
     query getCustomerAddresses($customerAccessToken: String!) {
@@ -536,7 +536,7 @@ export async function createCustomerAdmin(
   firstName?: string,
   lastName?: string
 ) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
   const response = await fetch(
@@ -578,9 +578,9 @@ export async function updateCustomerProfile(
   lastName: string,
   email: string
 ) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const mutation = `
     mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
@@ -646,9 +646,9 @@ export async function updateCustomerAddress(
     phone?: string;
   }
 ) {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const domain = process.env.SHOPIFY_STORE_DOMAIN;
   const storefrontAccessToken =
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
   const mutation = `
     mutation customerAddressUpdate($customerAccessToken: String!, $id: ID!, $address: MailingAddressInput!) {
@@ -708,4 +708,146 @@ export async function updateCustomerAddress(
   } catch (error) {
     return { success: false, errors: [{ message: "Network error" }] };
   }
+}
+
+// Password Recovery: Send recovery email
+export async function customerRecover(email: string) {
+    const domain = process.env.SHOPIFY_STORE_DOMAIN;
+    const storefrontAccessToken =
+        process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+    const mutation = `
+    mutation customerRecover($email: String!) {
+      customerRecover(email: $email) {
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+    const variables = {
+        email,
+    };
+
+    try {
+        const response = await fetch(`https://${domain}/api/2026-01/graphql.json`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Storefront-Access-Token": storefrontAccessToken!,
+            },
+            body: JSON.stringify({
+                query: mutation,
+                variables,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.errors) {
+            console.error("GraphQL errors:", data.errors);
+            return { success: false, errors: data.errors };
+        }
+
+        if (data.data?.customerRecover?.customerUserErrors?.length > 0) {
+            console.error(
+                "Recovery errors:",
+                data.data.customerRecover.customerUserErrors
+            );
+            return {
+                success: false,
+                errors: data.data.customerRecover.customerUserErrors,
+            };
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error sending recovery email:", error);
+        return { success: false, errors: [{ message: "Network error" }] };
+    }
+}
+
+// Password Reset: Set new password using reset token
+export async function customerReset(
+    resetUrl: string,
+    password: string
+) {
+    const domain = process.env.SHOPIFY_STORE_DOMAIN;
+    const storefrontAccessToken =
+        process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+    // Extract the reset token and customer ID from the Shopify reset URL
+    // URL format: https://your-store.myshopify.com/account/reset/{customer_id}/{token}
+    const urlParts = resetUrl.split('/');
+    const token = urlParts[urlParts.length - 1];
+    const customerId = urlParts[urlParts.length - 2];
+
+    const mutation = `
+    mutation customerResetByUrl($resetUrl: URL!, $password: String!) {
+      customerResetByUrl(resetUrl: $resetUrl, password: $password) {
+        customer {
+          id
+        }
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+    const variables = {
+        resetUrl,
+        password,
+    };
+
+    try {
+        const response = await fetch(`https://${domain}/api/2026-01/graphql.json`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Storefront-Access-Token": storefrontAccessToken!,
+            },
+            body: JSON.stringify({
+                query: mutation,
+                variables,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.errors) {
+            console.error("GraphQL errors:", data.errors);
+            return { success: false, errors: data.errors };
+        }
+
+        if (data.data?.customerResetByUrl?.customerUserErrors?.length > 0) {
+            console.error(
+                "Reset errors:",
+                data.data.customerResetByUrl.customerUserErrors
+            );
+            return {
+                success: false,
+                errors: data.data.customerResetByUrl.customerUserErrors,
+            };
+        }
+
+        // Return the new access token so user can be auto-logged in after reset
+        return {
+            success: true,
+            accessToken: data.data.customerResetByUrl.customerAccessToken?.accessToken,
+            customer: data.data.customerResetByUrl.customer,
+        };
+    } catch (error) {
+        console.error("Error resetting password:", error);
+        return { success: false, errors: [{ message: "Network error" }] };
+    }
 }

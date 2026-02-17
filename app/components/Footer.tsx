@@ -22,55 +22,6 @@ export const Footer = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const someBookIsFocused = focusedBookId !== null;
 
-  // const SocialLinks = () => {
-  //   return (
-  //     <div className="flex gap-2 mt-2 md:mt-0 mx-auto md:ml-auto justify-center items-center [&>button]:hover:text-gray-500 [&>button]:transition-colors [&svg]:w-full [&svg]:h-full">
-  //       <ThreeLink
-  //         href="https://www.facebook.com/profile.php?id=61581186237434"
-  //         className="w-4.5 h-4.5"
-  //         target="_blank"
-  //       >
-  //         <Facebook />
-  //       </ThreeLink>
-  //       <ThreeLink
-  //         href="https://www.instagram.com/painted_dog_press/"
-  //         className="w-4.5 h-4.5"
-  //         target="_blank"
-  //       >
-  //         <Instagram />
-  //       </ThreeLink>
-  //       <ThreeLink
-  //         href="https://www.youtube.com/@PaintedDogPress"
-  //         className="w-4.5 h-4.5"
-  //         target="_blank"
-  //       >
-  //         <YouTube />
-  //       </ThreeLink>
-  //       <ThreeLink
-  //         href="https://www.tiktok.com/@painteddogpress?lang=en"
-  //         className="w-4.5 h-4.5"
-  //         target="_blank"
-  //       >
-  //         <TikTok />
-  //       </ThreeLink>
-  //       <ThreeLink
-  //         href="https://bsky.app/profile/painteddogpress.bsky.social"
-  //         className="w-4.5 h-4.5"
-  //         target="_blank"
-  //       >
-  //         <Bluesky />
-  //       </ThreeLink>
-  //       <ThreeLink
-  //         href="https://x.com/painteddogpress"
-  //         className="w-4.5 h-4.5"
-  //         target="_blank"
-  //       >
-  //         <XTwitter />
-  //       </ThreeLink>
-  //     </div>
-  //   );
-  // };
-
   return (
     <section
       className={cn(
@@ -119,7 +70,7 @@ export const Footer = () => {
           </div>
 
           {/* center column - "For Readers" */}
-          <div className="flex flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t-2 border-l border-r md:border-r lg:border-l  lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
+          <div className="flex flex-col  border-l-2 border-r-2  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t-1 md:border-t-0 border-l border-r md:border-r lg:border-l  lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-bold"
@@ -138,7 +89,7 @@ export const Footer = () => {
           </div>
 
           {/* right column - "For Writers" */}
-          <div className="flex flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t-2 border-l-2 border-r-2 lg:border-t-2 lg:border-l-0 border-black h-full md:min-h-[196px]">
+          <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-l-0 md:border-t-0 border-l-2 border-r-2 lg:border-t-2 lg:border-l-0 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-bold"
