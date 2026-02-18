@@ -22,6 +22,16 @@ export type {
 } from "./generated/Type3sYm5RaSUV7kLx6CvgMNn8";
 
 export type {
+  TypeAbout,
+  TypeAboutFields,
+  TypeAboutSkeleton,
+  TypeAboutWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypeAboutWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypeAboutWithAllLocalesResponse,
+  TypeAboutWithoutLinkResolutionResponse,
+  TypeAboutWithoutUnresolvableLinksResponse,
+} from "./generated/TypeAbout";
+export type {
   TypeAuthor,
   TypeAuthorFields,
   TypeAuthorSkeleton,
@@ -123,3 +133,14 @@ export type {
   TypeNewsCategoryWithoutLinkResolutionResponse,
   TypeNewsCategoryWithoutUnresolvableLinksResponse,
 } from "./generated/TypeNewsCategory";
+
+export type {
+  TypePeople,
+  TypePeopleFields,
+  TypePeopleSkeleton,
+  TypePeopleWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypePeopleWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypePeopleWithAllLocalesResponse,
+  TypePeopleWithoutLinkResolutionResponse,
+  TypePeopleWithoutUnresolvableLinksResponse,
+} from "./generated/TypePeople";
