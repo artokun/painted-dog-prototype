@@ -1,14 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import {
-  Instagram,
-  Facebook,
-  YouTube,
-  TikTok,
-  XTwitter,
-  Bluesky,
-} from "./icons/social";
 import { ThreeLink } from "./ThreeLink";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
@@ -16,11 +8,13 @@ import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { openCart } from "@/app/store/cartUIStore";
 import SocialLinks from "./ecommerce/SocialLiniks";
+import { authStore, logout } from "../store/authStore";
 
 export const Footer = () => {
   const { focusedBookId } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const someBookIsFocused = focusedBookId !== null;
+  const auth = useSnapshot(authStore);
 
   return (
     <section
@@ -45,13 +39,20 @@ export const Footer = () => {
               </ThreeLink>
 
               <div className="flex justify-between">
-                <ThreeLink
-                  className="text-xl font-medium"
-                  noUnderline
-                  href="/login"
-                >
-                  Login
-                </ThreeLink>
+                {auth.isLoggedIn ? (
+                  <button className="text-xl font-medium hover:cursor-pointer">
+                    Log Out
+                  </button>
+                ) : (
+                  <ThreeLink
+                    className="text-xl font-medium"
+                    noUnderline
+                    href="/login"
+                  >
+                    Login
+                  </ThreeLink>
+                )}
+
                 <ThreeLink
                   className="text-xl font-medium"
                   noUnderline

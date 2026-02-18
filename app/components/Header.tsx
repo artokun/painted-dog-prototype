@@ -166,14 +166,19 @@ export const Header = () => {
 
         if (shouldStartCollapsed) {
           // Set everything to collapsed state immediately without animation
-          gsap.set(logoRef.current, { scale: 0.2, y: "-6.875rem" });
-          gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0 });
-          gsap.set(menuElement, { x: 0, fontSize: 16, y: 0 });
+          gsap.set(logoRef.current, { scale: 0.2, y: -110, opacity: 1 });
+          gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0, opacity: 1 });
+          gsap.set(menuElement, { x: 0, fontSize: 16, y: 0, opacity: 1 });
           gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
           gsap.set(rightseparatorRef.current, { x: 0, opacity: 1, y: -2 });
           gsap.set(cartseparatorRef.current, { x: 0, opacity: 1, y: -2 });
-          gsap.set(newsletterRef.current, { x: 0, y: 0, fontSize: 16 });
-          gsap.set(loginRef.current, { x: 0, y: 0, fontSize: 16 });
+          gsap.set(newsletterRef.current, {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            fontSize: 16,
+          });
+          gsap.set(loginRef.current, { x: 0, y: 0, opacity: 1, fontSize: 16 });
           gsap.set(cartRef.current, { x: 0, y: 0, opacity: 1, fontSize: 16 });
         } else if (isHomepage) {
           // Only run scroll animations on homepage
@@ -417,7 +422,7 @@ export const Header = () => {
                 "opacity-0 pointer-events-none"
             )}
           >
-            <Link href="/">
+            <ThreeLink href="/">
               <Image
                 className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
                 src="/logo-dog-inline-hd.png"
@@ -425,7 +430,7 @@ export const Header = () => {
                 height={6120}
                 width={1340}
               />
-            </Link>
+            </ThreeLink>
           </div>
         )}
 
@@ -443,7 +448,7 @@ export const Header = () => {
                 : undefined
             }
             ref={cartRef}
-            className="hidden text-[24px] self-baseline uppercase md:flex pointer-events-auto text-black"
+            className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
           >
             <button className="uppercase" onClick={openCart}>
               <span> Cart</span>
@@ -482,7 +487,7 @@ export const Header = () => {
           {/* Mobile Menu Button */}
           <div
             ref={mobileMenuRef}
-            className="md:hidden flex -mt-8 gap-2 items-center text-black"
+            className="md:hidden flex text-[24px] -mt-8 gap-2 items-center text-black"
           >
             <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
           </div>
