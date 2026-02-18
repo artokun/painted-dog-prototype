@@ -15,487 +15,464 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { animated, useSpring } from "@react-spring/web";
 import { authStore } from "@/app/store/authStore";
-import { openCart } from "@/app/store/cartUIStore"; // Import open function
+import { openCart } from "@/app/store/cartUIStore";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const MenuButton = ({
-  shouldStartCollapsed,
-}: {
-  shouldStartCollapsed: boolean;
+                        shouldStartCollapsed,
+                    }: {
+    shouldStartCollapsed: boolean;
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isPressed, setIsPressed] = useState(false);
 
-  const underlineSpring = useSpring({
-    width: isPressed ? 1 : isHovered ? 1 : -0.0001,
-    x: isPressed ? 100 : 0,
-    opacity: isHovered && !isPressed ? 1 : 0,
-    config: { tension: 400, friction: 25, mass: 1 },
-  });
+    const underlineSpring = useSpring({
+        width: isPressed ? 1 : isHovered ? 1 : -0.0001,
+        x: isPressed ? 100 : 0,
+        opacity: isHovered && !isPressed ? 1 : 0,
+        config: { tension: 400, friction: 25, mass: 1 },
+    });
 
-  return (
-    <div
-      style={
-        shouldStartCollapsed
-          ? { transform: "translateX(-0.16rem) translateY(1rem)" }
-          : { transform: "translateY(1rem) translateX(-0.16rem)" }
-      }
-      id="menu-button-wrapper"
-      className=" gap-2 items-center text-black text-[24px] "
-    >
-      <button
-        onClick={() => (globalStore.isMenuOpen = !globalStore.isMenuOpen)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          setIsPressed(false);
-        }}
-        onMouseDown={() => setIsPressed(true)}
-        className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
-      >
-        Menu
-        <animated.span
-          className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
-          style={{
-            bottom: "5px",
-            width: underlineSpring.width.to((width) => `${width * 100}%`),
-            opacity: underlineSpring.opacity
-              .to([0, 1], [0, 10])
-              .to((opacity) => `${Math.min(opacity, 1)}`),
-            transform: underlineSpring.x.to((x) => `translateX(${x}%)`),
-          }}
-        />
-      </button>
-    </div>
-  );
+    return (
+        <div
+            style={
+                shouldStartCollapsed
+                    ? { transform: "translateX(-0.16rem) translateY(1rem)", }
+                    : { transform: "translateY(1rem) translateX(-0.16rem)" }
+            }
+            id="menu-button-wrapper"
+            className="gap-2 items-center text-black text-[24px]"
+        >
+            <button
+                onClick={() => (globalStore.isMenuOpen = !globalStore.isMenuOpen)}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => {
+                    setIsHovered(false);
+                    setIsPressed(false);
+                }}
+                onMouseDown={() => setIsPressed(true)}
+                className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+            >
+                Menu
+                <animated.span
+                    className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
+                    style={{
+                        bottom: "5px",
+                        width: underlineSpring.width.to((width) => `${width * 100}%`),
+                        opacity: underlineSpring.opacity
+                            .to([0, 1], [0, 10])
+                            .to((opacity) => `${Math.min(opacity, 1)}`),
+                        transform: underlineSpring.x.to((x) => `translateX(${x}%)`),
+                    }}
+                />
+            </button>
+        </div>
+    );
 };
 
 export const Header = () => {
-  const { view } = useSnapshot(filterStore);
-  const { isRendered, focusedBookId } = useSnapshot(bookStore);
-  const { currentRoute, overlayScrollPosition } = useSnapshot(globalStore);
-  const isGridMode = view === FilterView.Grid;
-  const isBookPage = currentRoute.startsWith("/books/");
-  const isHomepage = currentRoute === "/";
-  const isContactPage = currentRoute === "/contact";
-  const isLegalPage = currentRoute === "/legal";
-  const isLoginPage = currentRoute === "/login";
-  const isOverlayPage = isContactPage || isLegalPage || isLoginPage;
-  const isBookFocused = focusedBookId !== null;
-  const [showHeader, setShowHeader] = useState(true);
-  const [showBackButton, setShowBackButton] = useState(true);
-  const isMobile = useMediaQuery("(max-width: 765px)");
-  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
+    const { view } = useSnapshot(filterStore);
+    const { isRendered, focusedBookId } = useSnapshot(bookStore);
+    const { currentRoute } = useSnapshot(globalStore);
+    const isGridMode = view === FilterView.Grid;
+    const isBookPage = currentRoute.startsWith("/books/");
+    const isHomepage = currentRoute === "/";
+    const isContactPage = currentRoute === "/contact";
+    const isLegalPage = currentRoute === "/legal";
+    const isLoginPage = currentRoute === "/login";
+    const isOverlayPage = isContactPage || isLegalPage || isLoginPage;
+    const isBookFocused = focusedBookId !== null;
+    const [showHeader, setShowHeader] = useState(true);
+    const [showBackButton, setShowBackButton] = useState(true);
+    const isMobile = useMediaQuery("(max-width: 765px)");
+    const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [levaLoaded, setLevaLoaded] = useState(false);
-  const auth = useSnapshot(authStore);
+    const [levaLoaded, setLevaLoaded] = useState(false);
+    const auth = useSnapshot(authStore);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const mobileBookPageContentRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const mobileBookPageContentRef = useRef<HTMLDivElement>(null);
 
-  // GSAP refs
-  const logoRef = useRef<HTMLDivElement>(null);
-  const newsRef = useRef<HTMLDivElement>(null);
-  const newsletterRef = useRef<HTMLDivElement>(null);
-  const rightseparatorRef = useRef<HTMLDivElement>(null);
-  const leftseparatorRef = useRef<HTMLDivElement>(null);
-  const loginRef = useRef<HTMLDivElement>(null);
-  const cartRef = useRef<HTMLDivElement>(null);
-  const cartseparatorRef = useRef<HTMLDivElement>(null);
-  const mobileLogoRef = useRef<HTMLAnchorElement>(null);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
+    // Single ref for entire nav (for fade animation)
+    const navRef = useRef<HTMLDivElement>(null);
 
-  const logoYOffset = isMobile ? -90 : isTablet ? -90 : -90;
+    // Individual refs (for collapse positioning only)
+    const logoRef = useRef<HTMLDivElement>(null);
+    const newsRef = useRef<HTMLDivElement>(null);
+    const newsletterRef = useRef<HTMLDivElement>(null);
+    const rightseparatorRef = useRef<HTMLDivElement>(null);
+    const leftseparatorRef = useRef<HTMLDivElement>(null);
+    const loginRef = useRef<HTMLDivElement>(null);
+    const cartRef = useRef<HTMLDivElement>(null);
+    const cartseparatorRef = useRef<HTMLDivElement>(null);
 
-  const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
-    currentRoute !== "/"
-  );
+    // Track header hidden state
+    const isHeaderHiddenRef = useRef(false);
+    const lastScrollYRef = useRef(0);
 
-  useEffect(() => {
-    setShouldStartCollapsed(currentRoute !== "/");
-  }, [currentRoute]);
+    const logoYOffset = isMobile ? -90 : isTablet ? -90 : -90;
 
-  useEffect(() => {
-    if (!isRendered) return;
-    scrollContainerRef.current = document.getElementById(
-      "scroll-el"
-    ) as HTMLDivElement;
-    mobileBookPageContentRef.current = document.getElementById(
-      "mobile-book-page-content"
-    ) as HTMLDivElement;
+    const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
+        currentRoute !== "/"
+    );
 
-    // TODO: remove this after accelerated launch
-    setTimeout(() => {
-      setLevaLoaded(true);
-    }, 1000);
+    useEffect(() => {
+        setShouldStartCollapsed(currentRoute !== "/");
+    }, [currentRoute]);
 
-    // hide header after 100px of scroll from top
-    const handleScroll = () => {
-      // if (scrollContainerRef.current) {
-      //   setShowHeader(scrollContainerRef.current.scrollTop <= 300);
-      // }
-      if (mobileBookPageContentRef.current) {
-        setShowBackButton(mobileBookPageContentRef.current.scrollTop <= 300);
-      }
-    };
-
-    // scrollContainerRef.current?.addEventListener("scroll", handleScroll);
-    mobileBookPageContentRef.current?.addEventListener("scroll", handleScroll);
-    return () => {
-      // scrollContainerRef.current?.removeEventListener("scroll", handleScroll);
-      mobileBookPageContentRef.current?.removeEventListener(
-        "scroll",
-        handleScroll
-      );
-      setShowBackButton(true);
-      // setShowHeader(true);
-    };
-  }, [isRendered, isMobile, isBookPage, isBookFocused]);
-
-  // GSAP Scroll Animation
-  useEffect(() => {
-    if (!isRendered) return;
-
-    let ctx: gsap.Context | null = null;
-
-    const timeoutId = setTimeout(() => {
-      ctx = gsap.context(() => {
-        const menuElement = document.getElementById("menu-button-wrapper");
-
-        if (shouldStartCollapsed) {
-          // Set everything to collapsed state immediately without animation
-          gsap.set(logoRef.current, { scale: 0.2, y: -110, opacity: 1 });
-          gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0, opacity: 1 });
-          gsap.set(menuElement, { x: 0, fontSize: 16, y: 0, opacity: 1 });
-          gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
-          gsap.set(rightseparatorRef.current, { x: 0, opacity: 1, y: -2 });
-          gsap.set(cartseparatorRef.current, { x: 0, opacity: 1, y: -2 });
-          gsap.set(newsletterRef.current, {
-            x: 0,
-            y: 0,
-            opacity: 1,
-            fontSize: 16,
-          });
-          gsap.set(loginRef.current, { x: 0, y: 0, opacity: 1, fontSize: 16 });
-          gsap.set(cartRef.current, { x: 0, y: 0, opacity: 1, fontSize: 16 });
-        } else if (isHomepage) {
-          // Only run scroll animations on homepage
-          let activeScrollContainer: HTMLDivElement | null = null;
-
-          if (scrollContainerRef.current) {
-            activeScrollContainer = scrollContainerRef.current;
-          }
-
-          if (!activeScrollContainer) return;
-
-          // Create scroll-triggered animation timeline
-          const timeline = gsap.timeline({
-            scrollTrigger: {
-              trigger: activeScrollContainer,
-              scroller: activeScrollContainer,
-              start: "top top",
-              end: "+=400",
-              scrub: 1,
-            },
-          });
-
-          // Animate logo scale down
-          timeline.fromTo(
-            logoRef.current,
-            { scale: 1, y: 0 },
-            { scale: 0.2, duration: 1, y: logoYOffset },
-            0
-          );
-
-          timeline.fromTo(
-            newsRef.current,
-            { x: "0.16rem", y: "1rem", fontSize: 24 },
-            { x: 0, fontSize: 16, duration: 1, y: 0 },
-            0
-          );
-
-          timeline.fromTo(
-            menuElement,
-            { x: "-0.16rem", y: "1rem", fontSize: 24 },
-            { x: 0, fontSize: 16, duration: 1, y: 0 },
-            0
-          );
-
-          timeline.fromTo(
-            leftseparatorRef.current,
-            { x: 0, opacity: 0, y: 0 },
-            { x: 0, opacity: 1, duration: 1, y: -2 },
-            0
-          );
-
-          timeline.fromTo(
-            rightseparatorRef.current,
-            { x: 0, opacity: 0, y: 0 },
-            { x: 0, opacity: 1, duration: 1, y: -2 },
-            0
-          );
-
-          timeline.fromTo(
-            cartseparatorRef.current,
-            { x: 0, opacity: 0, y: 0 },
-            { x: 0, opacity: 1, duration: 1, y: -2 },
-            0
-          );
-
-          timeline.fromTo(
-            newsletterRef.current,
-            { x: "-6.5rem", y: "16.875rem", fontSize: 24 },
-            { x: 0, y: 0, fontSize: 16, duration: 1 },
-            0
-          );
-
-          timeline.fromTo(
-            loginRef.current,
-            { x: "6.5rem", y: "16.875rem", fontSize: 24 },
-            { x: 0, y: 0, fontSize: 16, duration: 1 },
-            0
-          );
-
-          timeline.fromTo(
-            cartRef.current,
-            { x: 0, y: "16.875rem", opacity: 0, fontSize: 24 },
-            { x: 0, y: 0, opacity: 1, duration: 1, fontSize: 16 },
-            0
-          );
-
-          // NEW: Scroll direction-based fade (OPACITY ONLY)
-          let lastScrollY = 0;
-
-          ScrollTrigger.create({
-            trigger: activeScrollContainer,
-            scroller: activeScrollContainer,
-            start: "top top",
-            end: "max",
-            onUpdate: (self) => {
-              const currentScrollY = self.scroll();
-              const isScrollingDown = currentScrollY > lastScrollY;
-
-              // Collect all valid refs (filter out nulls)
-              const elementsToAnimate = [
-                newsRef.current,
-                menuElement,
-                newsletterRef.current,
-                loginRef.current,
-                logoRef.current,
-                cartRef.current,
-                leftseparatorRef.current,
-                rightseparatorRef.current,
-                cartseparatorRef.current,
-                mobileLogoRef.current,
-                mobileMenuRef.current,
-              ].filter((el) => el !== null);
-
-              // If scrolled past 600px
-              if (currentScrollY > 600) {
-                if (isScrollingDown) {
-                  // Fade out when scrolling down
-                  gsap.to(elementsToAnimate, {
-                    opacity: 0,
-                    duration: 0.3,
-                  });
-                } else {
-                  // Fade in when scrolling up
-                  gsap.to(elementsToAnimate, {
-                    opacity: 1,
-                    duration: 0.3,
-                  });
-                }
-              } else {
-                // Always visible before 600px
-                gsap.to(elementsToAnimate, {
-                  opacity: 1,
-                  duration: 0.2,
-                });
-              }
-
-              lastScrollY = currentScrollY;
-            },
-          });
+    // Reset nav opacity when route changes
+    useEffect(() => {
+        if (navRef.current) {
+            gsap.killTweensOf(navRef.current);
+            gsap.set(navRef.current, { opacity: 1 });
         }
-      });
-    }, 100);
+        isHeaderHiddenRef.current = false;
+        lastScrollYRef.current = 0;
+    }, [currentRoute]);
 
-    return () => {
-      clearTimeout(timeoutId);
-      if (ctx) {
-        ctx.revert();
-      }
+    useEffect(() => {
+        if (!isRendered) return;
+        scrollContainerRef.current = document.getElementById(
+            "scroll-el"
+        ) as HTMLDivElement;
+        mobileBookPageContentRef.current = document.getElementById(
+            "mobile-book-page-content"
+        ) as HTMLDivElement;
+
+        setTimeout(() => {
+            setLevaLoaded(true);
+        }, 1000);
+
+        const handleScroll = () => {
+            if (mobileBookPageContentRef.current) {
+                setShowBackButton(mobileBookPageContentRef.current.scrollTop <= 300);
+            }
+        };
+
+        mobileBookPageContentRef.current?.addEventListener("scroll", handleScroll);
+        return () => {
+            mobileBookPageContentRef.current?.removeEventListener(
+                "scroll",
+                handleScroll
+            );
+            setShowBackButton(true);
+        };
+    }, [isRendered, isMobile, isBookPage, isBookFocused]);
+
+    // GSAP Scroll Animation
+    useEffect(() => {
+        if (!isRendered) return;
+
+        let ctx: gsap.Context | null = null;
+
+        const timeoutId = setTimeout(() => {
+            ctx = gsap.context(() => {
+                const menuElement = document.getElementById("menu-button-wrapper");
+
+                if (shouldStartCollapsed) {
+                    // Set everything to collapsed state immediately
+                    gsap.set(logoRef.current, { scale: 0.2, y: -110 });
+                    gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0 });
+                    gsap.set(menuElement, { x: 0, fontSize: 16, y: 0 });
+                    gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
+                    gsap.set(rightseparatorRef.current, { x: 0, opacity: 1, y: -2 });
+                    gsap.set(cartseparatorRef.current, { x: 0, opacity: 1, y: -2 });
+                    gsap.set(newsletterRef.current, { x: 0, y: 0, fontSize: 16 });
+                    gsap.set(loginRef.current, { x: 0, y: 0, fontSize: 16 });
+                    gsap.set(cartRef.current, { x: 0, y: 0, opacity: 1, fontSize: 16 });
+                    // Ensure nav is visible
+                    gsap.set(navRef.current, { opacity: 1 });
+                } else if (isHomepage) {
+                    let activeScrollContainer: HTMLDivElement | null = null;
+
+                    if (scrollContainerRef.current) {
+                        activeScrollContainer = scrollContainerRef.current;
+                    }
+
+                    if (!activeScrollContainer) return;
+
+                    // Collapse animation timeline
+                    const timeline = gsap.timeline({
+                        scrollTrigger: {
+                            trigger: activeScrollContainer,
+                            scroller: activeScrollContainer,
+                            start: "top top",
+                            end: "+=400",
+                            scrub: 1,
+                        },
+                    });
+
+                    timeline.fromTo(
+                        logoRef.current,
+                        { scale: 1, y: 0 },
+                        { scale: 0.2, duration: 1, y: logoYOffset },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        newsRef.current,
+                        { x: "0.16rem", y: "1rem", fontSize: 24 },
+                        { x: 0, fontSize: 16, duration: 1, y: 0 },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        menuElement,
+                        { x: "-0.16rem", y: "1rem", fontSize: 24 },
+                        { x: 0, fontSize: 16, duration: 1, y: 0 },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        leftseparatorRef.current,
+                        { x: 0, opacity: 0, y: 0 },
+                        { x: 0, opacity: 1, duration: 1, y: -2 },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        rightseparatorRef.current,
+                        { x: 0, opacity: 0, y: 0 },
+                        { x: 0, opacity: 1, duration: 1, y: -2 },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        cartseparatorRef.current,
+                        { x: 0, opacity: 0, y: 0 },
+                        { x: 0, opacity: 1, duration: 1, y: -2 },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        newsletterRef.current,
+                        { x: "-6.5rem", y: "16.875rem", fontSize: 24 },
+                        { x: 0, y: 0, fontSize: 16, duration: 1 },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        loginRef.current,
+                        { x: "6.5rem", y: "16.875rem", fontSize: 24 },
+                        { x: 0, y: 0, fontSize: 16, duration: 1 },
+                        0
+                    );
+
+                    timeline.fromTo(
+                        cartRef.current,
+                        { x: 0, y: "16.875rem", opacity: 0, fontSize: 24 },
+                        { x: 0, y: 0, opacity: 1, duration: 1, fontSize: 16 },
+                        0
+                    );
+
+                    // Scroll direction fade - single nav container
+                    ScrollTrigger.create({
+                        trigger: activeScrollContainer,
+                        scroller: activeScrollContainer,
+                        start: "top top",
+                        end: "max",
+                        onUpdate: (self) => {
+                            const currentScrollY = self.scroll();
+                            const scrollDelta = currentScrollY - lastScrollYRef.current;
+                            const minScrollDelta = 5;
+
+                            if (currentScrollY > 600) {
+                                // Scrolling down - hide
+                                if (scrollDelta > minScrollDelta && !isHeaderHiddenRef.current) {
+                                    isHeaderHiddenRef.current = true;
+                                    gsap.to(navRef.current, {
+                                        opacity: 0,
+                                        duration: 0.3,
+                                        overwrite: true,
+                                    });
+                                }
+                                // Scrolling up - show
+                                else if (scrollDelta < -minScrollDelta && isHeaderHiddenRef.current) {
+                                    isHeaderHiddenRef.current = false;
+                                    gsap.to(navRef.current, {
+                                        opacity: 1,
+                                        duration: 0.3,
+                                        overwrite: true,
+                                    });
+                                }
+                            } else if (isHeaderHiddenRef.current) {
+                                // Always visible before 600px
+                                isHeaderHiddenRef.current = false;
+                                gsap.to(navRef.current, {
+                                    opacity: 1,
+                                    duration: 0.2,
+                                    overwrite: true,
+                                });
+                            }
+
+                            lastScrollYRef.current = currentScrollY;
+                        },
+                    });
+                }
+            });
+        }, 100);
+
+        return () => {
+            clearTimeout(timeoutId);
+            if (ctx) ctx.revert();
+            ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+        };
+    }, [isRendered, shouldStartCollapsed, isHomepage, logoYOffset]);
+
+    const handleBackButtonClick = () => {
+        bookStore.focusedBookId = null;
     };
-  }, [isRendered, shouldStartCollapsed, isHomepage]);
 
-  const handleBackButtonClick = () => {
-    bookStore.focusedBookId = null;
-  };
-
-  return (
-    <div
-      className={cn(
-        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
-      )}
-    >
-      <div className="flex w-full 2xl:max-w-[1320] mx-auto">
-        <div className="flex-1 flex text-black">
-          {!isBookFocused && (
-            <>
-              {/* Mobile Logo */}
-              <Link
-                ref={mobileLogoRef}
-                className="flex w-40 md:hidden"
-                href="/"
-              >
-                <Image
-                  className="object-contain w-auto lg:h-auto"
-                  src="/logo-dog-inline.png"
-                  alt="Logo"
-                  height={90}
-                  width={190}
-                />
-              </Link>
-
-              <div className="hidden md:flex gap-4 items-center flex-1">
-                {/* News */}
-                <div
-                  ref={newsRef}
-                  className="hidden text-[24px] md:flex pointer-events-auto"
-                >
-                  <ThreeLink animatedUnderline href="/contact">
-                    <span className="uppercase">News</span>
-                  </ThreeLink>
-                </div>
-
-                {/* Left Separator */}
-                <div className="text-black" ref={leftseparatorRef}>
-                  <span>•</span>
-                </div>
-                {/* Newsletter */}
-                <div
-                  ref={newsletterRef}
-                  className="hidden text-[24px] uppercase md:flex pointer-events-auto"
-                >
-                  <ThreeLink animatedUnderline href="/contact">
-                    <span className="uppercase"> Newsletter</span>
-                  </ThreeLink>
-                </div>
-              </div>
-            </>
-          )}
-
-          <button
+    return (
+        <div
             className={cn(
-              "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
-              isBookFocused &&
-                showBackButton &&
-                showHeader &&
-                "opacity-100 translate-x-0 delay-400 pointer-events-auto"
+                "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
             )}
-            onClick={handleBackButtonClick}
-          >
+        >
+            {/* Single nav container for fade animation */}
+            <div ref={navRef} className="flex w-full 2xl:max-w-[1320] mx-auto">
+                <div className="flex-1 flex text-black">
+                    {!isBookFocused && (
+                        <>
+                            {/* Mobile Logo */}
+                            <Link className="flex w-40 md:hidden" href="/">
+                                <Image
+                                    className="object-contain w-auto lg:h-auto"
+                                    src="/logo-dog-inline.png"
+                                    alt="Logo"
+                                    height={90}
+                                    width={190}
+                                />
+                            </Link>
+
+                            <div className="hidden md:flex gap-4 items-center flex-1">
+                                {/* News */}
+                                <div
+                                    ref={newsRef}
+                                    className="hidden text-[24px] md:flex pointer-events-auto"
+                                >
+                                    <ThreeLink animatedUnderline href="/contact">
+                                        <span className="uppercase">News</span>
+                                    </ThreeLink>
+                                </div>
+
+                                {/* Left Separator */}
+                                <div className="text-black items-center" ref={leftseparatorRef}>
+                                    <span>•</span>
+                                </div>
+                                {/* Newsletter */}
+                                <div
+                                    ref={newsletterRef}
+                                    className="hidden text-[24px] uppercase md:flex pointer-events-auto"
+                                >
+                                    <ThreeLink animatedUnderline href="/contact">
+                                        <span className="uppercase">Newsletter</span>
+                                    </ThreeLink>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    <button
+                        className={cn(
+                            "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
+                            isBookFocused &&
+                            showBackButton &&
+                            showHeader &&
+                            "opacity-100 translate-x-0 delay-400 pointer-events-auto"
+                        )}
+                        onClick={handleBackButtonClick}
+                    >
             <span className="relative w-6 h-[18px] [svg]:w-full [svg]:h-full group-hover:animate-[arrow-bounce_1s_ease-in-out_infinite]">
               <BackIcon />
             </span>
-            <span className="text-[19px] font-medium">
+                        <span className="text-[19px] font-medium">
               back to {isGridMode ? "grid" : "stack"}
             </span>
-          </button>
+                    </button>
+                </div>
+
+                {/* Logo */}
+                {!isBookFocused && !isMobile && (
+                    <div
+                        style={
+                            shouldStartCollapsed
+                                ? { transform: `translate(0px, ${logoYOffset}px)` }
+                                : undefined
+                        }
+                        ref={logoRef}
+                        className={cn(
+                            "fixed px-8 pt-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
+                            !showHeader &&
+                            (isHomepage || isOverlayPage) &&
+                            "opacity-0 pointer-events-none"
+                        )}
+                    >
+                        <ThreeLink href="/">
+                            <Image
+                                className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
+                                src="/logo-dog-inline-hd.png"
+                                alt="Logo"
+                                height={6120}
+                                width={1340}
+                            />
+                        </ThreeLink>
+                    </div>
+                )}
+
+                <div
+                    className={cn(
+                        "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
+                        isBookFocused && "opacity-0 delay-600 pointer-events-none"
+                    )}
+                >
+                    {/* Cart */}
+                    <div
+                        ref={cartRef}
+                        className="hidden text-[24px] uppercase md:flex items-center pointer-events-auto text-black"
+                    >
+                        <button className="uppercase" onClick={openCart}>
+                            <span>Cart</span>
+                        </button>
+                    </div>
+                    <div ref={cartseparatorRef} className="text-black hidden md:flex items-center">
+                        <span>•</span>
+                    </div>
+                    {/* Login */}
+                    <div
+                        ref={loginRef}
+                        className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
+                    >
+                        {auth?.isLoggedIn ? (
+                            <ThreeLink animatedUnderline href="/dashboard">
+                                <span className="uppercase">Account</span>
+                            </ThreeLink>
+                        ) : (
+                            <ThreeLink animatedUnderline href="/login">
+                                <span className="uppercase">Log In</span>
+                            </ThreeLink>
+                        )}
+                    </div>
+
+                    {/* Right Separator */}
+                    <div className="text-black hidden md:flex items-center" ref={rightseparatorRef}>
+                        <span>•</span>
+                    </div>
+
+                    {/* Menu Button */}
+                    <div className="hidden md:flex gap-2 items-center text-black">
+                        <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+                    </div>
+                    {/* Mobile Menu Button */}
+                    <div className="md:hidden flex text-[24px] -mt-8 gap-2 items-center text-black">
+                        <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+                    </div>
+                </div>
+                <div className="invisible!">
+                    <Leva hidden />
+                </div>
+            </div>
         </div>
-
-        {/* Logo */}
-        {!isBookFocused && !isMobile && (
-          <div
-            style={
-              shouldStartCollapsed
-                ? { transform: `translate(0px), ${logoYOffset}px` }
-                : undefined
-            }
-            ref={logoRef}
-            className={cn(
-              "fixed px-8 pt-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields  font-semibold transition-opacity duration-300 xl:pt-0",
-              !showHeader &&
-                (isHomepage || isOverlayPage) &&
-                "opacity-0 pointer-events-none"
-            )}
-          >
-            <ThreeLink href="/">
-              <Image
-                className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
-                src="/logo-dog-inline-hd.png"
-                alt="Logo"
-                height={6120}
-                width={1340}
-              />
-            </ThreeLink>
-          </div>
-        )}
-
-        <div
-          className={cn(
-            "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-            isBookFocused && "opacity-0 delay-600 pointer-events-none"
-          )}
-        >
-          {/* Cart */}
-          <div
-            style={
-              shouldStartCollapsed
-                ? { transform: "translateY(-2rem)" }
-                : undefined
-            }
-            ref={cartRef}
-            className="hidden text-[24px] uppercase md:flex pointer-events-auto text-black"
-          >
-            <button className="uppercase" onClick={openCart}>
-              <span> Cart</span>
-            </button>
-          </div>
-          <div ref={cartseparatorRef} className="text-black hidden md:flex">
-            <span>•</span>
-          </div>
-          {/* Login */}
-          <div
-            ref={loginRef}
-            className="hidden text-[24px] uppercase md:flex gap-2 items-center text-black"
-          >
-            {auth?.isLoggedIn ? (
-              <>
-                <ThreeLink animatedUnderline href="/dashboard">
-                  <span className="uppercase"> Account</span>
-                </ThreeLink>
-              </>
-            ) : (
-              <ThreeLink animatedUnderline href="/login">
-                <span className="uppercase"> Log In</span>
-              </ThreeLink>
-            )}
-          </div>
-
-          {/* Right Separator */}
-          <div className="text-black hidden md:flex" ref={rightseparatorRef}>
-            <span>•</span>
-          </div>
-
-          {/* Menu Button */}
-          <div className="hidden md:flex gap-2 items-center text-black">
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
-          </div>
-          {/* Mobile Menu Button */}
-          <div
-            ref={mobileMenuRef}
-            className="md:hidden flex text-[24px] -mt-8 gap-2 items-center text-black"
-          >
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
-          </div>
-        </div>
-        <div className="invisible!">
-          <Leva hidden />
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
