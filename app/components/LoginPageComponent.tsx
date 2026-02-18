@@ -90,7 +90,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         const result = await createCustomer(
           data.email,
           data.password,
-          data.firstName,
+          data.firstName
         );
 
         if (!result.success) {
@@ -223,7 +223,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         </h1>
         <p className="text-center pb-4 text-[#1A1A1A]">
           {isLogin
-            ? "Enter your email address, then login using a button below."
+            ? "Enter your email address and password, then login using a button below."
             : "Create your account by filling in the details below."}
         </p>
 
@@ -264,7 +264,6 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   </span>
                 )}
               </div>
-
             </>
           )}
 
@@ -304,19 +303,19 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   minLength: isLogin
                     ? undefined
                     : {
-                      value: 8,
-                      message: "Password must be at least 8 characters",
-                    },
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
                   validate: isLogin
                     ? undefined
                     : {
-                      hasLetter: (value) =>
-                        /[A-Za-z]/.test(value) ||
-                        "Password must contain at least one letter",
-                      hasNumber: (value) =>
-                        /[0-9]/.test(value) ||
-                        "Password must contain at least one number",
-                    },
+                        hasLetter: (value) =>
+                          /[A-Za-z]/.test(value) ||
+                          "Password must contain at least one letter",
+                        hasNumber: (value) =>
+                          /[0-9]/.test(value) ||
+                          "Password must contain at least one number",
+                      },
                 })}
               />
             </label>
@@ -325,7 +324,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                 {errors.password.message}
               </span>
             )}
-            {!isLogin && !errors.password && (
+            {!errors.password && (
               <p className="text-xs text-gray-500 mt-1">
                 Minimum 8 characters, at least one letter and one number
               </p>
