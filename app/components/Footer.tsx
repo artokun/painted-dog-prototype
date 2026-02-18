@@ -40,7 +40,10 @@ export const Footer = () => {
 
               <div className="flex justify-between">
                 {auth.isLoggedIn ? (
-                  <button className="text-xl font-medium hover:cursor-pointer">
+                  <button
+                    className="text-xl font-medium hover:cursor-pointer"
+                    onClick={logout}
+                  >
                     Log Out
                   </button>
                 ) : (
