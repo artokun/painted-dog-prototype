@@ -223,7 +223,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         </h1>
         <p className="text-center pb-4 text-[#1A1A1A]">
           {isLogin
-            ? "Enter your email address and password, then login using a button below."
+            ? "Enter your email and password, then login using the button below."
             : "Create your account by filling in the details below."}
         </p>
 
