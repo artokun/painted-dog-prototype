@@ -239,8 +239,50 @@ export async function updateCustomerAddress(
   }
 }
 
+
 // ============================================
-// ADMIN API (Keep using server-side lib/shopify.ts)
+// PASSWORD RECOVERY
 // ============================================
-// Note: createCustomerAdmin should stay in lib/shopify.ts
-// because it uses SHOPIFY_ADMIN_ACCESS_TOKEN which is already secure
+
+// Request password reset email
+export async function recoverCustomerPassword(email: string) {
+  try {
+    const response = await fetch("/api/shopify/customer/recover", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error("Error requesting password reset:", error);
+    return { success: false, errors: [{ message: "Network error" }] };
+  }
+}
+
+// Reset password using token from email
+export async function resetCustomerPassword(
+  resetUrl: string,
+  password: string
+) {
+  try {
+    const response = await fetch("/api/shopify/customer/reset", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ resetUrl, password }),
+    });
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return { success: false, errors: [{ message: "Network error" }] };
+  }
+}

@@ -1,21 +1,12 @@
-// import { cookies } from "next/headers";
-// import { verifyJWT, SessionPayload } from "./jwt";
-
-// export const SESSION_COOKIE = "pd_session";
-
-// export async function getSession(): Promise<SessionPayload | null> {
-//   const cookieStore = await cookies();
-//   const token = cookieStore.get(SESSION_COOKIE)?.value;
-//   if (!token) return null;
-//   return verifyJWT(token);
-// }
 
 import { JWTPayload, SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
 export const SESSION_COOKIE = "pd_session";
 const SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const COOKIE_MAX_AGE_LONG = 60 * 60 * 24 * 30; // 30 days
+const COOKIE_MAX_AGE_SHORT = 60 * 60 * 24; // 24 hours
+
 
 export interface SessionPayload {
   email: string;
@@ -27,11 +18,16 @@ export interface SessionPayload {
   shopifyAccessToken?: string;
 }
 
-export async function createSession(payload: SessionPayload) {
+export async function createSession(payload: SessionPayload, rememberMe: boolean = false) {
+
+  // Choose expiration based on rememberMe
+  const expiresIn = rememberMe ? "30d" : "24h";
+  const maxAge = rememberMe ? COOKIE_MAX_AGE_LONG : COOKIE_MAX_AGE_SHORT;
+
   const token = await new SignJWT({ ...payload } as JWTPayload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("30d")
+    .setExpirationTime(expiresIn)
     .sign(SECRET);
 
   const cookieStore = await cookies();
@@ -39,7 +35,7 @@ export async function createSession(payload: SessionPayload) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: COOKIE_MAX_AGE,
+    maxAge: maxAge,
     path: "/",
   });
 

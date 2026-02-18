@@ -22,6 +22,11 @@ import { cartUIStore, closeCart } from "../store/cartUIStore";
 import { CartSidebar } from "./ecommerce/CartSidebar";
 import { hydrateAuth } from "../store/authStore";
 import type { AboutContent } from "@/lib/about";
+import { ForgotPasswordModal } from "./ForgotPasswordModal"; // NEW
+import { forgotPasswordStore, closeForgotPassword } from "../store/forgotPasswordStore";
+import {ResetPasswordModal} from "@/app/components/ResetPasswordModal"; // NEW
+import { openResetPassword } from "@/app/store/resetPasswordStore";
+
 
 export const Foreground = () => {
   const router = useRouter();
@@ -31,6 +36,7 @@ export const Foreground = () => {
   const { isOpen: isCartOpen } = useSnapshot(cartUIStore); // Subscribe to cart state
   
   const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
+  const { isOpen: isForgotPasswordOpen } = useSnapshot(forgotPasswordStore);
 
   const isAboutPage = currentRoute === "/about";
   const isContactPage = currentRoute === "/contact";
@@ -122,6 +128,19 @@ export const Foreground = () => {
     };
   }, [pathname]);
 
+
+// Inside the component, add this useEffect:
+    useEffect(() => {
+        // Detect reset password URL
+        const match = pathname.match(/^\/account\/reset\/([^/]+)\/([^/]+)$/);
+        if (match) {
+            const [, customerId, token] = match;
+            openResetPassword(customerId, token);
+            // Navigate to home so URL is clean
+            router.push("/");
+        }
+    }, [pathname]);
+
   return (
     <div
       id="foreground"
@@ -141,7 +160,13 @@ export const Foreground = () => {
 
       {/* Cart Sidebar - Single instance at top level */}
       <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
-      <Loader />
+
+        {/*Forgot Password Modal */}
+      <ForgotPasswordModal isOpen={isForgotPasswordOpen} onClose={closeForgotPassword} />
+
+        <ResetPasswordModal />
+
+        <Loader />
     </div>
   );
 };
