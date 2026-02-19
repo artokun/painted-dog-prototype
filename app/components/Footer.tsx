@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import {
   Instagram,
   Facebook,
@@ -16,11 +17,13 @@ import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { openCart } from "@/app/store/cartUIStore";
 import SocialLinks from "./ecommerce/SocialLiniks";
+import { NewsletterModal } from "./NewsletterModal";
 
 export const Footer = () => {
   const { focusedBookId } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const someBookIsFocused = focusedBookId !== null;
+  const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
 
   return (
     <section
@@ -79,9 +82,11 @@ export const Footer = () => {
               >
                 For Readers
               </ThreeLink>
-              <ThreeLink href="/newsletter" noUnderline>
+              <button
+                onClick={() => setIsNewsletterModalOpen(true)}
+              >
                 Newsletter
-              </ThreeLink>
+              </button>
               <ThreeLink href="/" noUnderline>
                 Browse Stack
               </ThreeLink>
@@ -144,6 +149,10 @@ export const Footer = () => {
           </div>
         </div>
       </footer>
+      <NewsletterModal
+        isOpen={isNewsletterModalOpen}
+        onClose={() => setIsNewsletterModalOpen(false)}
+      />
     </section>
   );
 };

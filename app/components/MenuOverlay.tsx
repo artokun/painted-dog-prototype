@@ -10,6 +10,7 @@ import { useSnapshot } from "valtio";
 import { globalStore } from "../store/globalStore";
 import { CloseIcon } from "./icons/Close";
 import { openCart } from "@/app/store/cartUIStore"; // Import open function
+import { NewsletterModal } from "./NewsletterModal";
 
 // import { useMediaQuery } from "usehooks-ts";
 import { gsap } from "gsap";
@@ -21,6 +22,7 @@ gsap.registerPlugin(SplitText);
 
 export const MenuOverlay = ({ visible }: { visible: boolean }) => {
   const [showContent, setShowContent] = useState(false);
+  const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
   const menuRef = useRef<HTMLParagraphElement>(null);
@@ -248,10 +250,13 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   >
                     For Readers
                   </ThreeLink>
-                  <ThreeLink href="/newsletter" noUnderline>
+                  <button
+                    onClick={() => setIsNewsletterModalOpen(true)}
+                    className="text-left hover:underline"
+                  >
                     Newsletter
-                  </ThreeLink>
-                  <ThreeLink href="/newsletter" noUnderline>
+                  </button>
+                  <ThreeLink href="/" noUnderline>
                     Browse Stack
                   </ThreeLink>
                 </div>
@@ -336,6 +341,10 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           </div>
         </div>
       )}
+      <NewsletterModal
+        isOpen={isNewsletterModalOpen}
+        onClose={() => setIsNewsletterModalOpen(false)}
+      />
     </animated.div>
   );
 };
