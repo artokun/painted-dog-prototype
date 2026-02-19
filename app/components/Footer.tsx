@@ -18,12 +18,14 @@ import { useMediaQuery } from "usehooks-ts";
 import { openCart } from "@/app/store/cartUIStore";
 import SocialLinks from "./ecommerce/SocialLiniks";
 import { NewsletterModal } from "./NewsletterModal";
+import { authStore, logout } from "../store/authStore";
 
 export const Footer = () => {
   const { focusedBookId } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const someBookIsFocused = focusedBookId !== null;
   const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
+  const auth = useSnapshot(authStore);
 
   return (
     <section
@@ -48,13 +50,23 @@ export const Footer = () => {
               </ThreeLink>
 
               <div className="flex justify-between">
-                <ThreeLink
-                  className="text-xl font-medium"
-                  noUnderline
-                  href="/login"
-                >
-                  Login
-                </ThreeLink>
+                {auth.isLoggedIn ? (
+                  <button
+                    className="text-xl font-medium hover:cursor-pointer"
+                    onClick={logout}
+                  >
+                    Log Out
+                  </button>
+                ) : (
+                  <ThreeLink
+                    className="text-xl font-medium"
+                    noUnderline
+                    href="/login"
+                  >
+                    Login
+                  </ThreeLink>
+                )}
+
                 <ThreeLink
                   className="text-xl font-medium"
                   noUnderline

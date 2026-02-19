@@ -6,11 +6,6 @@ import { cn } from "@/lib/utils";
 import { globalStore } from "../store/globalStore";
 import { useRouter } from "next/navigation";
 import { login } from "@/app/store/authStore";
-import {
-  createCustomer,
-  loginCustomer,
-  getCustomer,
-} from "@/lib/shopify-client";
 import Image from "next/image";
 import { openForgotPassword } from "../store/forgotPasswordStore";
 import { useForm } from "react-hook-form";
@@ -43,104 +38,78 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
     setError("");
 
     try {
-      if (isLogin) {
-        // Login flow
-        const loginResult = await loginCustomer(data.email, data.password);
+        if (isLogin) {
+            // Single API call - login + get customer + create session
+            const response = await fetch("/api/shopify/customer/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: data.email,
+                    password: data.password,
+                    rememberMe: data.rememberMe,
+                }),
+            });
 
-        if (!loginResult.success) {
-          setError(loginResult.errors?.[0]?.message || "Login failed");
-          setLoading(false);
-          return;
-        }
+            const result = await response.json();
 
-        const customerResult = await getCustomer(loginResult.accessToken);
+            if (!result.success) {
+                setError(result.errors?.[0]?.message || "Login failed");
+                setLoading(false);
+                return;
+            }
 
-        if (!customerResult.success) {
-          setError("Failed to fetch customer details");
-          setLoading(false);
-          return;
-        }
+            // Update client state only (session already created server-side)
+            login(
+                {
+                    email: result.customer.email,
+                    firstName: result.customer.firstName,
+                    customerId: result.customer.id,
+                },
+                result.accessToken
+            );
 
-        await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user: {
-              email: customerResult.customer.email,
-              firstName: customerResult.customer.firstName,
-              customerId: customerResult.customer.id,
-            },
-            accessToken: loginResult.accessToken,
-            rememberMe: data.rememberMe,
-          }),
-        });
+            router.push("/");
 
-        login(
-          {
-            email: customerResult.customer.email,
-            firstName: customerResult.customer.firstName,
-            customerId: customerResult.customer.id,
-          },
-          loginResult.accessToken
-        );
-
-        router.push("/");
       } else {
-        // Signup flow
-        const result = await createCustomer(
-          data.email,
-          data.password,
-          data.firstName,
-        );
+            // Single API call - create + login + session
+            const response = await fetch("/api/shopify/customer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: data.email,
+                    password: data.password,
+                    firstName: data.firstName,
+                    rememberMe: data.rememberMe,
+                }),
+            });
 
-        if (!result.success) {
-          setError(result.errors?.[0]?.message || "Signup failed");
-          setLoading(false);
-          return;
-        }
+            const result = await response.json();
 
-        const loginResult = await loginCustomer(data.email, data.password);
+            if (!result.success) {
+                setError(result.errors?.[0]?.message || "Signup failed");
+                setLoading(false);
+                return;
+            }
 
-        if (!loginResult.success) {
-          setError("Account created! Please login.");
-          setIsLogin(true);
-          setLoading(false);
-          return;
-        }
+            // If no accessToken, account created but auto-login failed
+            if (!result.accessToken) {
+                setError(result.message || "Account created! Please login.");
+                setIsLogin(true);
+                setLoading(false);
+                return;
+            }
 
-        const customerResult = await getCustomer(loginResult.accessToken);
+            // Update client state (session already created server-side)
+            login(
+                {
+                    email: result.customer.email,
+                    firstName: result.customer.firstName,
+                    customerId: result.customer.id,
+                },
+                result.accessToken
+            );
 
-        if (!customerResult.success) {
-          setError("Account created! Please login.");
-          setIsLogin(true);
-          setLoading(false);
-          return;
-        }
-
-        await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user: {
-              email: customerResult.customer.email,
-              firstName: customerResult.customer.firstName,
-              customerId: customerResult.customer.id,
-            },
-            accessToken: loginResult.accessToken,
-            rememberMe: data.rememberMe,
-          }),
-        });
-
-        login(
-          {
-            email: customerResult.customer.email,
-            firstName: customerResult.customer.firstName,
-            customerId: customerResult.customer.id,
-          },
-          loginResult.accessToken
-        );
-
-        router.push("/");
+            router.push("/");
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -223,7 +192,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         </h1>
         <p className="text-center pb-4 text-[#1A1A1A]">
           {isLogin
-            ? "Enter your email address, then login using a button below."
+            ? "Enter your email and password, then login using the button below."
             : "Create your account by filling in the details below."}
         </p>
 
