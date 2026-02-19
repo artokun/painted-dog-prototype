@@ -24,6 +24,8 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasAutoScrolled = useRef(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -70,12 +72,15 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           },
           result.accessToken
         );
+        setLoginSuccess(true);
 
         if (cartUi.returnToCartAfterLogin) {
+          setSuccessMessage("Opening your cart");
           setReturnToCart(false);
           openCart();
         } else {
-          router.push("/");
+          setSuccessMessage("Redirecting...");
+          setTimeout(() => router.push("/"), 500);
         }
       } else {
         // Single API call - create + login + session
@@ -331,10 +336,16 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || loginSuccess}
             className="w-full bg-[#FF] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)] text-base font-medium mt-4 px-6 py-4 text-[#1A1A1A] border-[#1A1A1A] rounded hover:bg-white transition-colors disabled:bg-[#F2EFE9] disabled:opacity-50 disabled:hover:cursor-not-allowed outline -outline-offset-1 outline-Ink"
           >
-            {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
+            {loading
+              ? "Please wait..."
+              : loginSuccess
+                ? successMessage
+                : isLogin
+                  ? "Login"
+                  : "Sign Up"}
           </button>
 
           <div className="w-full text-center py-1 relative ">
