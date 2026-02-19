@@ -11,8 +11,8 @@ import {
 } from "@/app/store/cartStore";
 import { authStore } from "@/app/store/authStore";
 import { createCart } from "@/lib/shopify-client";
-import { X } from "lucide-react";
-import {globalStore} from "@/app/store/globalStore";
+import { globalStore } from "@/app/store/globalStore";
+import { setReturnToCart } from "@/app/store/cartUIStore";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -70,13 +70,13 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
     }
   };
 
-    const handleCheckout = async () => {
-        // AUTH CHECK - Use globalStore to navigate
-        if (!auth.isLoggedIn) {
-            onClose();
-            globalStore.currentRoute = "/login";
-            return;
-        }
+  const handleCheckout = async () => {
+    if (!auth.isLoggedIn || !auth.accessToken) {
+      onClose();
+      setReturnToCart(true);
+      globalStore.currentRoute = "/login";
+      return;
+    }
 
     setIsCheckingOut(true);
 
@@ -86,7 +86,8 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
     }));
 
     try {
-      const shopifyCart = await createCart(lineItems);
+      // Pass the access token to attach customer identity
+      const shopifyCart = await createCart(lineItems, auth?.accessToken);
 
       if (shopifyCart && shopifyCart.checkoutUrl) {
         window.location.href = shopifyCart.checkoutUrl;

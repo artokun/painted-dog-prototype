@@ -125,7 +125,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
 
           {/* Main Container */}
           <div className="w-full mx-auto">
-            <div className="bg-white  shadow-lg overflow-hidden flex h-[500px]">
+            <div className="torn-all-sm torn-shadow bg-white  flex h-[500px]">
               {/* MOBILE: Menu or Content */}
               <div className="flex-1 lg:hidden p-6">
                 {showMobileMenu ? (

@@ -6,7 +6,7 @@ const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 // POST - Create a new cart
 export async function POST(request: NextRequest) {
   try {
-    const { lineItems } = await request.json();
+    const { lineItems, customerAccessToken } = await request.json();
 
     if (!lineItems || !Array.isArray(lineItems)) {
       return NextResponse.json(
@@ -33,6 +33,12 @@ export async function POST(request: NextRequest) {
     const variables = {
       input: {
         lines: lineItems,
+        // Attach customer if logged in
+        ...(customerAccessToken && {
+          buyerIdentity: {
+            customerAccessToken: customerAccessToken,
+          },
+        }),
       },
     };
 

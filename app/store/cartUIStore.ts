@@ -2,6 +2,7 @@ import { proxy } from "valtio";
 
 export const cartUIStore = proxy({
   isOpen: false,
+  returnToCartAfterLogin: false,
 });
 
 export const openCart = () => {
@@ -10,4 +11,8 @@ export const openCart = () => {
 
 export const closeCart = () => {
   cartUIStore.isOpen = false;
+};
+
+export const setReturnToCart = (value: boolean) => {
+  cartUIStore.returnToCartAfterLogin = value;
 };

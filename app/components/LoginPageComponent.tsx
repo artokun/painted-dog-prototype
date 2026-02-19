@@ -9,6 +9,8 @@ import { login } from "@/app/store/authStore";
 import Image from "next/image";
 import { openForgotPassword } from "../store/forgotPasswordStore";
 import { useForm } from "react-hook-form";
+import { useSnapshot } from "valtio";
+import { cartUIStore, openCart, setReturnToCart } from "../store/cartUIStore";
 
 interface FormData {
   firstName?: string;
@@ -25,6 +27,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const cartUi = useSnapshot(cartUIStore);
 
   const {
     register,
@@ -38,78 +41,82 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
     setError("");
 
     try {
-        if (isLogin) {
-            // Single API call - login + get customer + create session
-            const response = await fetch("/api/shopify/customer/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password,
-                    rememberMe: data.rememberMe,
-                }),
-            });
+      if (isLogin) {
+        // Single API call - login + get customer + create session
+        const response = await fetch("/api/shopify/customer/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+            rememberMe: data.rememberMe,
+          }),
+        });
 
-            const result = await response.json();
+        const result = await response.json();
 
-            if (!result.success) {
-                setError(result.errors?.[0]?.message || "Login failed");
-                setLoading(false);
-                return;
-            }
+        if (!result.success) {
+          setError(result.errors?.[0]?.message || "Login failed");
+          setLoading(false);
+          return;
+        }
 
-            // Update client state only (session already created server-side)
-            login(
-                {
-                    email: result.customer.email,
-                    firstName: result.customer.firstName,
-                    customerId: result.customer.id,
-                },
-                result.accessToken
-            );
+        // Update client state only (session already created server-side)
+        login(
+          {
+            email: result.customer.email,
+            firstName: result.customer.firstName,
+            customerId: result.customer.id,
+          },
+          result.accessToken
+        );
 
-            router.push("/");
-
+        if (cartUi.returnToCartAfterLogin) {
+          setReturnToCart(false);
+          openCart();
+        } else {
+          router.push("/");
+        }
       } else {
-            // Single API call - create + login + session
-            const response = await fetch("/api/shopify/customer", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password,
-                    firstName: data.firstName,
-                    rememberMe: data.rememberMe,
-                }),
-            });
+        // Single API call - create + login + session
+        const response = await fetch("/api/shopify/customer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+            firstName: data.firstName,
+            rememberMe: data.rememberMe,
+          }),
+        });
 
-            const result = await response.json();
+        const result = await response.json();
 
-            if (!result.success) {
-                setError(result.errors?.[0]?.message || "Signup failed");
-                setLoading(false);
-                return;
-            }
+        if (!result.success) {
+          setError(result.errors?.[0]?.message || "Signup failed");
+          setLoading(false);
+          return;
+        }
 
-            // If no accessToken, account created but auto-login failed
-            if (!result.accessToken) {
-                setError(result.message || "Account created! Please login.");
-                setIsLogin(true);
-                setLoading(false);
-                return;
-            }
+        // If no accessToken, account created but auto-login failed
+        if (!result.accessToken) {
+          setError(result.message || "Account created! Please login.");
+          setIsLogin(true);
+          setLoading(false);
+          return;
+        }
 
-            // Update client state (session already created server-side)
-            login(
-                {
-                    email: result.customer.email,
-                    firstName: result.customer.firstName,
-                    customerId: result.customer.id,
-                },
-                result.accessToken
-            );
+        // Update client state (session already created server-side)
+        login(
+          {
+            email: result.customer.email,
+            firstName: result.customer.firstName,
+            customerId: result.customer.id,
+          },
+          result.accessToken
+        );
 
-            router.push("/");
+        router.push("/");
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -233,7 +240,6 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   </span>
                 )}
               </div>
-
             </>
           )}
 
@@ -273,19 +279,19 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   minLength: isLogin
                     ? undefined
                     : {
-                      value: 8,
-                      message: "Password must be at least 8 characters",
-                    },
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
                   validate: isLogin
                     ? undefined
                     : {
-                      hasLetter: (value) =>
-                        /[A-Za-z]/.test(value) ||
-                        "Password must contain at least one letter",
-                      hasNumber: (value) =>
-                        /[0-9]/.test(value) ||
-                        "Password must contain at least one number",
-                    },
+                        hasLetter: (value) =>
+                          /[A-Za-z]/.test(value) ||
+                          "Password must contain at least one letter",
+                        hasNumber: (value) =>
+                          /[0-9]/.test(value) ||
+                          "Password must contain at least one number",
+                      },
                 })}
               />
             </label>

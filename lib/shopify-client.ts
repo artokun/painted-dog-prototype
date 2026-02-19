@@ -45,7 +45,8 @@ export async function getProduct(handle: string) {
 
 // Create a new cart
 export async function createCart(
-  lineItems: { merchandiseId: string; quantity: number }[]
+  lineItems: { merchandiseId: string; quantity: number }[],
+  customerAccessToken?: string
 ) {
   try {
     const response = await fetch("/api/shopify/cart", {
@@ -53,7 +54,7 @@ export async function createCart(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ lineItems }),
+      body: JSON.stringify({ lineItems, customerAccessToken }),
     });
 
     const data = await response.json();
@@ -238,7 +239,6 @@ export async function updateCustomerAddress(
     return { success: false, errors: [{ message: "Network error" }] };
   }
 }
-
 
 // ============================================
 // PASSWORD RECOVERY
