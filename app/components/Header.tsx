@@ -16,6 +16,7 @@ import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { animated, useSpring } from "@react-spring/web";
 import { authStore } from "@/app/store/authStore";
 import { openCart } from "@/app/store/cartUIStore";
+import { NewsletterModal } from "./NewsletterModal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -90,6 +91,7 @@ export const Header = () => {
 
     const [levaLoaded, setLevaLoaded] = useState(false);
     const auth = useSnapshot(authStore);
+    const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const mobileBookPageContentRef = useRef<HTMLDivElement>(null);
@@ -352,7 +354,7 @@ export const Header = () => {
                                     ref={newsRef}
                                     className="hidden text-[24px] md:flex pointer-events-auto"
                                 >
-                                    <ThreeLink animatedUnderline href="/contact">
+                                    <ThreeLink animatedUnderline href="/news">
                                         <span className="uppercase">News</span>
                                     </ThreeLink>
                                 </div>
@@ -366,9 +368,12 @@ export const Header = () => {
                                     ref={newsletterRef}
                                     className="hidden text-[24px] uppercase md:flex pointer-events-auto"
                                 >
-                                    <ThreeLink animatedUnderline href="/contact">
+                                    <button
+                                        onClick={() => setIsNewsletterModalOpen(true)}
+                                        className="uppercase cursor-pointer"
+                                    >
                                         <span className="uppercase">Newsletter</span>
-                                    </ThreeLink>
+                                    </button>
                                 </div>
                             </div>
                         </>
@@ -473,6 +478,10 @@ export const Header = () => {
                     <Leva hidden />
                 </div>
             </div>
+            <NewsletterModal
+                isOpen={isNewsletterModalOpen}
+                onClose={() => setIsNewsletterModalOpen(false)}
+            />
         </div>
     );
 };

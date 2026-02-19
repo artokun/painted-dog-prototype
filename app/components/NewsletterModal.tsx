@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useTransition } from "react";
 import { X } from "lucide-react";
@@ -29,9 +30,15 @@ export const NewsletterModal = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const [mounted, setMounted] = useState(false);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const {
     register,
@@ -46,9 +53,7 @@ export const NewsletterModal = ({
 
     if (isOpen) {
       // Scroll to top when modal opens
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }, 0);
+      window.scrollTo(0, 0);
       
       // Fade in overlay
       gsap.to(overlayRef.current, {
@@ -113,11 +118,12 @@ export const NewsletterModal = ({
   };
 
   if (!isOpen) return null;
+  if (!mounted) return null;
 
-  return (
+  const modalContent = (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-200 flex items-center justify-end bg-black/50 backdrop-blur-sm pointer-events-auto opacity-0"
+      className="fixed inset-0 z-[9999] flex items-center justify-end bg-black/50 backdrop-blur-sm pointer-events-auto opacity-0"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -125,7 +131,7 @@ export const NewsletterModal = ({
     >
       <div
         ref={modalRef}
-        className="relative w-full md:w-[30%] h-full bg-white p-6 md:p-10 shadow-2xl overflow-y-auto flex flex-col justify-center"
+        className="relative w-full md:w-[30%] h-full bg-white p-6 md:p-10 shadow-2xl overflow-y-auto flex flex-col"
         style={{ transform: "translateX(100%)" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -140,66 +146,70 @@ export const NewsletterModal = ({
         </button>
 
         {isSuccess ? (
-          <div className="flex flex-col gap-6">
-            <h3
-              id="newsletter-modal-title"
-              className="text-3xl md:text-4xl font-bold text-[#1A1A1A]"
-            >
-              Welcome aboard
-            </h3>
-            <p className="text-base leading-relaxed text-gray-700">
-              You&apos;re now subscribed to the Painted Dog Press newsletter.
-              Check your inbox for a confirmation email.
-            </p>
-            <PDButton onClick={handleClose} className="mt-4" primary>
-              Close
-            </PDButton>
-          </div>
-        ) : (
-          <form
-            className="flex flex-col gap-6"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <div className="space-y-4">
+          <div className="flex flex-col h-full justify-between">
+            <div>
               <h3
                 id="newsletter-modal-title"
-                className="text-3xl md:text-4xl font-bold text-[#1A1A1A]"
+                className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mt-8 mb-6"
+              >
+                Welcome aboard
+              </h3>
+              <p className="text-base leading-relaxed text-gray-700">
+                You&apos;re now subscribed to the Painted Dog Press newsletter.
+                Check your inbox for a confirmation email.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 mb-8">
+              <PDButton onClick={handleClose} primary>
+                Close
+              </PDButton>
+            </div>
+          </div>
+        ) : (
+          <form className="flex flex-col h-full justify-between" onSubmit={handleSubmit(onSubmit)}>
+            <div>
+              <h3
+                id="newsletter-modal-title"
+                className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mt-8 mb-6"
               >
                 Join the painted dog newsletter
               </h3>
-              <p className="text-base leading-relaxed text-gray-700">
-                We share early release information, early access to launch
-                parties, books we’re reading, insights into the world of
-                publishing, and events in the international and local literary
-                scenes. Not to be missed. </p>
-			<p className="text-base leading-relaxed text-gray-700">	
-				Get a taste of the most recent
-                newsletter, and subscribe by entering your details below:
-              </p>
+              <div className="space-y-4 mb-6">
+                <p className="text-base leading-relaxed text-gray-700">
+                  We share early release information, early access to launch
+                  parties, books we&apos;re reading, insights into the world of
+                  publishing, and events in the international and local literary
+                  scenes. Not to be missed.
+                </p>
+                <p className="text-base leading-relaxed text-gray-700">
+                  Get a taste of the most recent newsletter, and subscribe by entering your details below:
+                </p>
+              </div>
+              <div className="w-full space-y-2">
+                <label className="flex gap-1 items-center border-b border-black/20 pb-2">
+                  <span className="text-base text-[#1A1A1A]">Email</span>
+                  <input
+                    type="email"
+                    id="newsletter-email"
+                    placeholder="Enter email here"
+                    className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-right text-right placeholder:text-[#1A1A1A] placeholder:opacity-40"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Please enter a valid email address",
+                      },
+                    })}
+                  />
+                </label>
+                {errors.email && (
+                  <span className="text-red-500 text-sm mt-1 block">
+                    {errors.email.message}
+                  </span>
+                )}
+              </div>
             </div>
-
-            <div className="w-full space-y-2">
-              <PDInput
-                label="Email address"
-                type="email"
-                id="newsletter-email"
-                placeholder="your@email.com"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Please enter a valid email address",
-                  },
-                })}
-              />
-              {errors.email && (
-                <span className="text-red-500 text-sm mt-1 block">
-                  {errors.email.message}
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 mb-8">
               <PDInput
                 type="checkbox"
                 id="newsletter-consent"
@@ -226,7 +236,6 @@ export const NewsletterModal = ({
                   {errors.consent.message}
                 </span>
               )}
-
               <PDButton
                 type="submit"
                 primary
@@ -244,4 +253,6 @@ export const NewsletterModal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };

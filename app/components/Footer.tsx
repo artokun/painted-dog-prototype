@@ -85,7 +85,7 @@ export const Footer = () => {
           </div>
 
           {/* center column - "For Readers" */}
-          <div className="flex flex-col  border-l-2 border-r-2  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t-1 md:border-t-0 border-l border-r md:border-r lg:border-l  lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
+          <div className="flex flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t md:border-t-0 border-l border-r md:border-r lg:border-l lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-bold"
@@ -96,6 +96,7 @@ export const Footer = () => {
               </ThreeLink>
               <button
                 onClick={() => setIsNewsletterModalOpen(true)}
+				className="cursor-pointer"
               >
                 Newsletter
               </button>

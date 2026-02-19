@@ -252,7 +252,10 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   </ThreeLink>
                   <button
                     onClick={() => setIsNewsletterModalOpen(true)}
-                    className="text-left hover:underline"
+                    className="cursor-pointer"
+                    type="button"
+                    tabIndex={0}
+                    aria-label="Open newsletter modal"
                   >
                     Newsletter
                   </button>
