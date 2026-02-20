@@ -10,12 +10,7 @@ import Image from "next/image";
 import { openForgotPassword } from "../store/forgotPasswordStore";
 import { useForm } from "react-hook-form";
 import { useSnapshot } from "valtio";
-import {
-  cartUIStore,
-  openCart,
-  setProceedToCheckout,
-  setReturnToCart,
-} from "../store/cartUIStore";
+import { cartUIStore, setProceedToCheckout } from "../store/cartUIStore";
 import { cartStore } from "../store/cartStore";
 import { createCart } from "@/lib/shopify-client";
 
@@ -38,6 +33,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
   const [error, setError] = useState("");
   const cartUi = useSnapshot(cartUIStore);
   const cart = useSnapshot(cartStore);
+  const global = useSnapshot(globalStore);
 
   const {
     register,
@@ -97,8 +93,12 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
             window.location.href = shopifyCart.checkoutUrl;
           }
         } else {
+          const returnTo =
+            global.previousRoute === "/login" ? "/" : global.previousRoute;
           setSuccessMessage("Redirecting...");
-          setTimeout(() => router.push("/"), 500);
+          setTimeout(() => {
+            globalStore.currentRoute = returnTo;
+          }, 500);
         }
       } else {
         // Single API call - create + login + session

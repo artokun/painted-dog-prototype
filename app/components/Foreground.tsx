@@ -22,10 +22,12 @@ import { cartUIStore, closeCart } from "../store/cartUIStore";
 import { CartSidebar } from "./ecommerce/CartSidebar";
 import { hydrateAuth } from "../store/authStore";
 import { ForgotPasswordModal } from "./ForgotPasswordModal"; // NEW
-import { forgotPasswordStore, closeForgotPassword } from "../store/forgotPasswordStore";
-import {ResetPasswordModal} from "@/app/components/ResetPasswordModal"; // NEW
+import {
+  forgotPasswordStore,
+  closeForgotPassword,
+} from "../store/forgotPasswordStore";
+import { ResetPasswordModal } from "@/app/components/ResetPasswordModal"; // NEW
 import { openResetPassword } from "@/app/store/resetPasswordStore";
-
 
 export const Foreground = () => {
   const router = useRouter();
@@ -57,6 +59,11 @@ export const Foreground = () => {
     if (!pathname.startsWith("/books/")) {
       bookStore.focusedBookId = null;
     }
+
+    if (pathname !== "/login") {
+      globalStore.previousRoute = globalStore.currentRoute;
+    }
+
     globalStore.currentRoute = pathname;
   }, [pathname]);
 
@@ -109,18 +116,17 @@ export const Foreground = () => {
     };
   }, [pathname]);
 
-
-// Inside the component, add this useEffect:
-    useEffect(() => {
-        // Detect reset password URL
-        const match = pathname.match(/^\/account\/reset\/([^/]+)\/([^/]+)$/);
-        if (match) {
-            const [, customerId, token] = match;
-            openResetPassword(customerId, token);
-            // Navigate to home so URL is clean
-            router.push("/");
-        }
-    }, [pathname]);
+  // Inside the component, add this useEffect:
+  useEffect(() => {
+    // Detect reset password URL
+    const match = pathname.match(/^\/account\/reset\/([^/]+)\/([^/]+)$/);
+    if (match) {
+      const [, customerId, token] = match;
+      openResetPassword(customerId, token);
+      // Navigate to home so URL is clean
+      router.push("/");
+    }
+  }, [pathname]);
 
   return (
     <div
@@ -142,12 +148,15 @@ export const Foreground = () => {
       {/* Cart Sidebar - Single instance at top level */}
       <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
 
-        {/*Forgot Password Modal */}
-      <ForgotPasswordModal isOpen={isForgotPasswordOpen} onClose={closeForgotPassword} />
+      {/*Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={closeForgotPassword}
+      />
 
-        <ResetPasswordModal />
+      <ResetPasswordModal />
 
-        <Loader />
+      <Loader />
     </div>
   );
 };
