@@ -12,7 +12,7 @@ import {
 import { authStore } from "@/app/store/authStore";
 import { createCart } from "@/lib/shopify-client";
 import { globalStore } from "@/app/store/globalStore";
-import { setReturnToCart } from "@/app/store/cartUIStore";
+import { setProceedToCheckout } from "@/app/store/cartUIStore";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -73,7 +73,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
   const handleCheckout = async () => {
     if (!auth.isLoggedIn || !auth.accessToken) {
       onClose();
-      setReturnToCart(true);
+      setProceedToCheckout(true);
       globalStore.currentRoute = "/login";
       return;
     }

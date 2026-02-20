@@ -10,7 +10,14 @@ import Image from "next/image";
 import { openForgotPassword } from "../store/forgotPasswordStore";
 import { useForm } from "react-hook-form";
 import { useSnapshot } from "valtio";
-import { cartUIStore, openCart, setReturnToCart } from "../store/cartUIStore";
+import {
+  cartUIStore,
+  openCart,
+  setProceedToCheckout,
+  setReturnToCart,
+} from "../store/cartUIStore";
+import { cartStore } from "../store/cartStore";
+import { createCart } from "@/lib/shopify-client";
 
 interface FormData {
   firstName?: string;
@@ -30,6 +37,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const cartUi = useSnapshot(cartUIStore);
+  const cart = useSnapshot(cartStore);
 
   const {
     register,
@@ -44,7 +52,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
 
     try {
       if (isLogin) {
-        // Single API call - login + get customer + create session
+        // login
         const response = await fetch("/api/shopify/customer/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -63,7 +71,6 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           return;
         }
 
-        // Update client state only (session already created server-side)
         login(
           {
             email: result.customer.email,
@@ -72,12 +79,23 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           },
           result.accessToken
         );
+
         setLoginSuccess(true);
 
-        if (cartUi.returnToCartAfterLogin) {
-          setSuccessMessage("Opening your cart");
-          setReturnToCart(false);
-          openCart();
+        if (cartUi.proceedToCheckoutAfterLogin) {
+          setSuccessMessage("Proceeding to checkout..");
+          setProceedToCheckout(false);
+
+          const lineItems = cart.items.map((item) => ({
+            merchandiseId: item.id,
+            quantity: item.quantity,
+          }));
+
+          const shopifyCart = await createCart(lineItems, result.accessToken);
+
+          if (shopifyCart?.checkoutUrl) {
+            window.location.href = shopifyCart.checkoutUrl;
+          }
         } else {
           setSuccessMessage("Redirecting...");
           setTimeout(() => router.push("/"), 500);

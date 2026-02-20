@@ -129,7 +129,14 @@ export const Header = () => {
     }
     isHeaderHiddenRef.current = false;
     lastScrollYRef.current = 0;
-  }, [currentRoute]);
+
+    if (isHomepage) {
+      const scrollEl = document.getElementById("scroll-el");
+      if (scrollEl) {
+        scrollEl.scrollTop = 0;
+      }
+    }
+  }, [currentRoute, isHomepage]);
 
   useEffect(() => {
     if (!isRendered) return;
