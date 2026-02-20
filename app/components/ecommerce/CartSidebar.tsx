@@ -227,7 +227,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
               <button
                 onClick={handleCheckout}
                 disabled={isCheckingOut}
-                className="w-full border text-black py-3 rounded hover:bg-white cursor-pointer disabled:bg-gray-400 transition-colors font-medium mb-3"
+                className="w-full border text-black py-3 rounded hover:bg-white cursor-pointer disabled:bg-black disabled:text-white transition-colors font-medium mb-3"
               >
                 {isCheckingOut
                   ? "Loading..."
