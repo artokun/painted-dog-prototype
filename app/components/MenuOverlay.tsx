@@ -166,8 +166,10 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           {/* Menu Content */}
           <div
             ref={menuRef}
-            className="flex torn-all-xs flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]"
+            className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]"
           >
+            <div className="torn-right"></div>
+            <div className="torn-bottom"></div>
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
               <div className="flex flex-col items-center md:flex-row justify-between w-full px-6 md:px-[41px] py-8">
