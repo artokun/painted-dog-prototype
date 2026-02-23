@@ -111,7 +111,7 @@ export const Header = () => {
   const isHeaderHiddenRef = useRef(false);
   const lastScrollYRef = useRef(0);
 
-  const logoYOffset = isMobile ? -1 : isTablet ? -100 : -100;
+  const logoYOffset = isMobile ? "0rem" : isTablet ? "-4rem" : "-6.5rem";
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -179,7 +179,7 @@ export const Header = () => {
 
         if (shouldStartCollapsed) {
           // Set everything to collapsed state immediately
-          gsap.set(logoRef.current, { scale: 0.2, y: -110 });
+          gsap.set(logoRef.current, { scale: 0.2, y: "-1rem" });
           gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0 });
           gsap.set(menuElement, { x: 0, fontSize: 16, y: 0 });
           gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
@@ -213,7 +213,7 @@ export const Header = () => {
           timeline.fromTo(
             logoRef.current,
             { scale: 1, y: 0 },
-            { scale: 0.2, duration: 1, y: "0rem" },
+            { scale: 0.2, duration: 1, y: logoYOffset },
             0
           );
 
@@ -411,7 +411,7 @@ export const Header = () => {
           <div
             style={
               shouldStartCollapsed
-                ? { transform: `translateX(-0.16rem) translateY(-0rem)` }
+                ? { transform: `translateX(-0.16rem) translateY(-2rem)` }
                 : undefined
             }
             ref={logoRef}

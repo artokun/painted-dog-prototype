@@ -23,7 +23,9 @@ export const Footer = () => {
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
-      <footer className="relative min-h-[216px] bg-[#F9F6F0] overflow-hidden pointer-events-auto p-[5px] text-black w-full max-w-7xl">
+      <footer className="relative min-h-[216px] torn-paper  bg-[#F9F6F0] pointer-events-auto p-[5px] text-black w-full max-w-7xl">
+        <div className="torn-right"></div>
+        <div className="torn-bottom"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
           {/* logo column - Full width on mobile and tablet, 1/3 on desktop */}
           <div className="flex py-6 px-10 justify-center gap-6 md:gap-10 items-center relative border-2 border-b-0 md:border-b lg:border-r-0 lg:border-b-2 border-black flex-1 h-full min-h-[196px] md:col-span-2 lg:col-span-1 lg:row-span-3">
