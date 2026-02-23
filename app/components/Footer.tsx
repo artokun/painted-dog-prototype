@@ -77,7 +77,7 @@ export const Footer = () => {
           <div className="flex flex-col  border-l-2 border-r-2  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t-1 md:border-t-0 border-l border-r md:border-r lg:border-l  lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
-                className="text-[32px] font-bold"
+                className="text-[32px] font-semibold"
                 noUnderline
                 href="/contact"
               >
@@ -96,7 +96,7 @@ export const Footer = () => {
           <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-l-0 md:border-t-0 border-l-2 border-r-2 lg:border-t-2 lg:border-l-0 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
-                className="text-[32px] font-bold"
+                className="text-[32px] font-semibold"
                 noUnderline
                 href="/contact"
               >

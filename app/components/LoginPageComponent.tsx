@@ -208,7 +208,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
         className={`pd_login-wrapper ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter drop-shadow-xl lg:-rotate-1 scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180`}
       >
         <div className="flex justify-between gap-4">
-          <p className="font-bold">Account</p>
+          <p className="font-semibold">Account</p>
           <Image
             src={"/logo-dog-stacked.png"}
             width={87}

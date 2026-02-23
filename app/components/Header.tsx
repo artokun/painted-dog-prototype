@@ -111,7 +111,7 @@ export const Header = () => {
   const isHeaderHiddenRef = useRef(false);
   const lastScrollYRef = useRef(0);
 
-  const logoYOffset = isMobile ? -90 : isTablet ? -90 : -90;
+  const logoYOffset = isMobile ? -1 : isTablet ? -100 : -100;
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -213,7 +213,7 @@ export const Header = () => {
           timeline.fromTo(
             logoRef.current,
             { scale: 1, y: 0 },
-            { scale: 0.2, duration: 1, y: logoYOffset },
+            { scale: 0.2, duration: 1, y: "0rem" },
             0
           );
 
@@ -411,7 +411,7 @@ export const Header = () => {
           <div
             style={
               shouldStartCollapsed
-                ? { transform: `translate(0px, ${logoYOffset}px)` }
+                ? { transform: `translateX(-0.16rem) translateY(-0rem)` }
                 : undefined
             }
             ref={logoRef}

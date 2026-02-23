@@ -667,7 +667,7 @@ function OrderHistory({
                         alt="product"
                       />
                     )}
-                    <span className="font-bold text-[24px]">
+                    <span className="font-semibold text-[24px]">
                       {item.node.title}
                     </span>
                   </div>
@@ -696,8 +696,8 @@ function OrderHistory({
           {/* Total — outside the map, renders once per order */}
           <div className="space-y-2 mt-3 pt-3 border-t">
             <div className="flex justify-between text-sm">
-              <span className="font-bold text-[18px]">Total</span>
-              <span className="text-[18px] font-bold">
+              <span className="font-semibold text-[18px]">Total</span>
+              <span className="text-[18px] font-semibold">
                 R{parseFloat(order.totalPrice.amount).toFixed(2)}
               </span>
             </div>
