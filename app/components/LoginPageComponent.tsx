@@ -9,6 +9,10 @@ import { login } from "@/app/store/authStore";
 import Image from "next/image";
 import { openForgotPassword } from "../store/forgotPasswordStore";
 import { useForm } from "react-hook-form";
+import { useSnapshot } from "valtio";
+import { cartUIStore, setProceedToCheckout } from "../store/cartUIStore";
+import { cartStore } from "../store/cartStore";
+import { createCart } from "@/lib/shopify-client";
 
 interface FormData {
   firstName?: string;
@@ -22,9 +26,14 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasAutoScrolled = useRef(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const cartUi = useSnapshot(cartUIStore);
+  const cart = useSnapshot(cartStore);
+  const global = useSnapshot(globalStore);
 
   const {
     register,
@@ -38,78 +47,99 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
     setError("");
 
     try {
-        if (isLogin) {
-            // Single API call - login + get customer + create session
-            const response = await fetch("/api/shopify/customer/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password,
-                    rememberMe: data.rememberMe,
-                }),
-            });
+      if (isLogin) {
+        // login
+        const response = await fetch("/api/shopify/customer/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+            rememberMe: data.rememberMe,
+          }),
+        });
 
-            const result = await response.json();
+        const result = await response.json();
 
-            if (!result.success) {
-                setError(result.errors?.[0]?.message || "Login failed");
-                setLoading(false);
-                return;
-            }
+        if (!result.success) {
+          setError(result.errors?.[0]?.message || "Login failed");
+          setLoading(false);
+          return;
+        }
 
-            // Update client state only (session already created server-side)
-            login(
-                {
-                    email: result.customer.email,
-                    firstName: result.customer.firstName,
-                    customerId: result.customer.id,
-                },
-                result.accessToken
-            );
+        login(
+          {
+            email: result.customer.email,
+            firstName: result.customer.firstName,
+            customerId: result.customer.id,
+          },
+          result.accessToken
+        );
 
-            router.push("/");
+        setLoginSuccess(true);
 
+        if (cartUi.proceedToCheckoutAfterLogin) {
+          setSuccessMessage("Proceeding to checkout..");
+          setProceedToCheckout(false);
+
+          const lineItems = cart.items.map((item) => ({
+            merchandiseId: item.id,
+            quantity: item.quantity,
+          }));
+
+          const shopifyCart = await createCart(lineItems, result.accessToken);
+
+          if (shopifyCart?.checkoutUrl) {
+            window.location.href = shopifyCart.checkoutUrl;
+          }
+        } else {
+          const returnTo =
+            global.previousRoute === "/login" ? "/" : global.previousRoute;
+          setSuccessMessage("Redirecting...");
+          setTimeout(() => {
+            globalStore.currentRoute = returnTo;
+          }, 500);
+        }
       } else {
-            // Single API call - create + login + session
-            const response = await fetch("/api/shopify/customer", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password,
-                    firstName: data.firstName,
-                    rememberMe: data.rememberMe,
-                }),
-            });
+        // Single API call - create + login + session
+        const response = await fetch("/api/shopify/customer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+            firstName: data.firstName,
+            rememberMe: data.rememberMe,
+          }),
+        });
 
-            const result = await response.json();
+        const result = await response.json();
 
-            if (!result.success) {
-                setError(result.errors?.[0]?.message || "Signup failed");
-                setLoading(false);
-                return;
-            }
+        if (!result.success) {
+          setError(result.errors?.[0]?.message || "Signup failed");
+          setLoading(false);
+          return;
+        }
 
-            // If no accessToken, account created but auto-login failed
-            if (!result.accessToken) {
-                setError(result.message || "Account created! Please login.");
-                setIsLogin(true);
-                setLoading(false);
-                return;
-            }
+        // If no accessToken, account created but auto-login failed
+        if (!result.accessToken) {
+          setError(result.message || "Account created! Please login.");
+          setIsLogin(true);
+          setLoading(false);
+          return;
+        }
 
-            // Update client state (session already created server-side)
-            login(
-                {
-                    email: result.customer.email,
-                    firstName: result.customer.firstName,
-                    customerId: result.customer.id,
-                },
-                result.accessToken
-            );
+        // Update client state (session already created server-side)
+        login(
+          {
+            email: result.customer.email,
+            firstName: result.customer.firstName,
+            customerId: result.customer.id,
+          },
+          result.accessToken
+        );
 
-            router.push("/");
+        router.push("/");
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -170,15 +200,15 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
       ref={scrollContainerRef}
       id="login-page-scroll-container"
       className={cn(
-        "absolute flex items-center justify-center inset-0 h-dvh w-dvw pt-0 pointer-events-none text-black z-10 overflow-y-auto overflow-x-hidden bg-[#f6ead6]",
+        "absolute pt-16 flex items-center justify-center inset-0 h-dvh w-dvw pointer-events-none drop-shadow-xl text-black z-10 overflow-y-auto overflow-x-hidden bg-[#f6ead6]",
         visible && "pointer-events-auto"
       )}
     >
       <div
-        className={`pd_login-wrapper ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter drop-shadow-xl lg:-rotate-1 scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180`}
+        className={`pd_login-wrapper ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter scale-[.70] md:scale-100 lg:-rotate-1 lg:scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180`}
       >
         <div className="flex justify-between gap-4">
-          <p className="font-bold">Account</p>
+          <p className="font-semibold">Account</p>
           <Image
             src={"/logo-dog-stacked.png"}
             width={87}
@@ -233,7 +263,6 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   </span>
                 )}
               </div>
-
             </>
           )}
 
@@ -273,19 +302,19 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   minLength: isLogin
                     ? undefined
                     : {
-                      value: 8,
-                      message: "Password must be at least 8 characters",
-                    },
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
                   validate: isLogin
                     ? undefined
                     : {
-                      hasLetter: (value) =>
-                        /[A-Za-z]/.test(value) ||
-                        "Password must contain at least one letter",
-                      hasNumber: (value) =>
-                        /[0-9]/.test(value) ||
-                        "Password must contain at least one number",
-                    },
+                        hasLetter: (value) =>
+                          /[A-Za-z]/.test(value) ||
+                          "Password must contain at least one letter",
+                        hasNumber: (value) =>
+                          /[0-9]/.test(value) ||
+                          "Password must contain at least one number",
+                      },
                 })}
               />
             </label>
@@ -293,11 +322,6 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
               <span className="text-red-500 text-sm mt-1 block">
                 {errors.password.message}
               </span>
-            )}
-            {!isLogin && !errors.password && (
-              <p className="text-xs text-gray-500 mt-1">
-                Minimum 8 characters, at least one letter and one number
-              </p>
             )}
           </div>
 
@@ -325,10 +349,16 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || loginSuccess}
             className="w-full bg-[#FF] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)] text-base font-medium mt-4 px-6 py-4 text-[#1A1A1A] border-[#1A1A1A] rounded hover:bg-white transition-colors disabled:bg-[#F2EFE9] disabled:opacity-50 disabled:hover:cursor-not-allowed outline -outline-offset-1 outline-Ink"
           >
-            {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
+            {loading
+              ? "Please wait..."
+              : loginSuccess
+                ? successMessage
+                : isLogin
+                  ? "Login"
+                  : "Sign Up"}
           </button>
 
           <div className="w-full text-center py-1 relative ">

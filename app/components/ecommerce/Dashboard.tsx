@@ -104,7 +104,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
       id="dasboard-page-scroll-container"
       style={style}
       className={cn(
-        "absolute inset-0 flex items-center h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden bg-[#e7d7bf]",
+        "absolute inset-0 pt-16 lg:pt-0 flex items-center h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden bg-[#e7d7bf]",
         visible && "pointer-events-auto"
       )}
     >
@@ -115,7 +115,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
             <h2 className="text-[48px] md:text-[72px] font-semibold leading-[72px]">
               Account
             </h2>
-            <h4 className="text-[28px] w-auto lg:w-[430px] lg:mt-8">
+            <h4 className="text-[25px] md:text-[28px] w-auto lg:w-[430px] lg:mt-8">
               Welcome to your account, <br></br>
               <span className="capitalize">
                 {auth.isLoggedIn && auth.user?.firstName}
@@ -124,8 +124,10 @@ export function Dashboard({ visible }: { visible: boolean }) {
           </div>
 
           {/* Main Container */}
-          <div className="w-full mx-auto">
-            <div className="bg-white  shadow-lg overflow-hidden flex h-[500px]">
+          <div className="w-full mx-auto torn-paper">
+            <div className="torn-right"></div>
+            <div className="torn-bottom"></div>
+            <div className=" bg-white  flex h-[500px]">
               {/* MOBILE: Menu or Content */}
               <div className="flex-1 lg:hidden p-6">
                 {showMobileMenu ? (
@@ -665,7 +667,7 @@ function OrderHistory({
                         alt="product"
                       />
                     )}
-                    <span className="font-bold text-[24px]">
+                    <span className="font-semibold text-[24px]">
                       {item.node.title}
                     </span>
                   </div>
@@ -694,8 +696,8 @@ function OrderHistory({
           {/* Total — outside the map, renders once per order */}
           <div className="space-y-2 mt-3 pt-3 border-t">
             <div className="flex justify-between text-sm">
-              <span className="font-bold text-[18px]">Total</span>
-              <span className="text-[18px] font-bold">
+              <span className="font-semibold text-[18px]">Total</span>
+              <span className="text-[18px] font-semibold">
                 R{parseFloat(order.totalPrice.amount).toFixed(2)}
               </span>
             </div>

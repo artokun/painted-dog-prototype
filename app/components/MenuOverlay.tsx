@@ -55,57 +55,57 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
     };
   }, [visible]);
 
-    useEffect(() => {
-        if (!textRef.current || !visible || !showContent) return;
+  useEffect(() => {
+    if (!textRef.current || !visible || !showContent) return;
 
-        let split: SplitText | null = null;
+    let split: SplitText | null = null;
 
-        const timeoutId = setTimeout(() => {
-            if (!textRef.current) return;
+    const timeoutId = setTimeout(() => {
+      if (!textRef.current) return;
 
-            // Split into words AND chars - preserves word boundaries
-            split = new SplitText(textRef.current, {
-                type: "words, chars",
-                wordsClass: "word",
-                charsClass: "char",
-            });
+      // Split into words AND chars - preserves word boundaries
+      split = new SplitText(textRef.current, {
+        type: "words, chars",
+        wordsClass: "word",
+        charsClass: "char",
+      });
 
-            // Keep words together
-            gsap.set(split.words, {
-                display: "inline-block",
-            });
+      // Keep words together
+      gsap.set(split.words, {
+        display: "inline-block",
+      });
 
-            gsap.set(split.chars, {
-                opacity: 0,
-                y: 20,
-                rotationX: -90,
-            });
+      gsap.set(split.chars, {
+        opacity: 0,
+        y: 20,
+        rotationX: -90,
+      });
 
-            gsap.to(split.chars, {
-                opacity: 1,
-                y: 0,
-                rotationX: 0,
-                duration: 0.8,
-                stagger: 0.03,
-                ease: "back.out(1.7)",
-                delay: 0.3,
-            });
+      gsap.to(split.chars, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 0.8,
+        stagger: 0.03,
+        ease: "back.out(1.7)",
+        delay: 0.3,
+      });
 
-            // Note: menuRef needs .current if it's a ref
-            gsap.to(menuRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: "back.out(1.7)",
-                delay: 0.3,
-            });
-        }, 50);
+      // Note: menuRef needs .current if it's a ref
+      gsap.to(menuRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "back.out(1.7)",
+        delay: 0.3,
+      });
+    }, 50);
 
-        return () => {
-            clearTimeout(timeoutId);
-            split?.revert();
-        };
-    }, [visible, showContent]);
+    return () => {
+      clearTimeout(timeoutId);
+      split?.revert();
+    };
+  }, [visible, showContent]);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -168,8 +168,10 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           {/* Menu Content */}
           <div
             ref={menuRef}
-            className="flex flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]"
+            className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]"
           >
+            <div className="torn-right"></div>
+            <div className="torn-bottom"></div>
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
               <div className="flex flex-col items-center md:flex-row justify-between w-full px-6 md:px-[41px] py-8">
