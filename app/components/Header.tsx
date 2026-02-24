@@ -52,7 +52,7 @@ const MenuButton = ({
           setIsPressed(false);
         }}
         onMouseDown={() => setIsPressed(true)}
-        className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+        className="appearance-none normalcase md:uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
       >
         Menu
         <animated.span
@@ -254,14 +254,14 @@ export const Header = () => {
 
           timeline.fromTo(
             newsletterRef.current,
-            { x: "-6.5rem", y: "16.875rem", fontSize: 24 },
+            { x: "-6.5rem", y: "16rem", fontSize: 24 },
             { x: 0, y: 0, fontSize: 16, duration: 1 },
             0
           );
 
           timeline.fromTo(
             loginRef.current,
-            { x: "6.5rem", y: "16.875rem", fontSize: 24 },
+            { x: "6.5rem", y: "16rem", fontSize: 24 },
             { x: 0, y: 0, fontSize: 16, duration: 1 },
             0
           );
@@ -351,7 +351,7 @@ export const Header = () => {
               {/* Mobile Logo */}
               <Link className="flex w-40 md:hidden" href="/">
                 <Image
-                  className="object-contain w-auto lg:h-auto"
+                  className="object-contain w-110 lg:h-auto"
                   src="/logo-dog-inline.png"
                   alt="Logo"
                   height={90}
@@ -424,7 +424,7 @@ export const Header = () => {
           >
             <ThreeLink href="/">
               <Image
-                className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
+                className="md:w-auto 2xl:max-w-[1900] xl:mx-auto 2xl:mx-auto"
                 src="/logo-dog-inline-hd.png"
                 alt="Logo"
                 height={6120}
