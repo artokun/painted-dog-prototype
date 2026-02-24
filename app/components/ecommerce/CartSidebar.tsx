@@ -123,127 +123,131 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
       <div
         ref={sidebarRef}
         onClick={handleSidebarClick} // Stop propagation
-        className="fixed top-0 right-0 h-full w-full md:w-[50%] lg:w-[35%] bg-[#F8F5EF] shadow-2xl z-110 flex flex-col translate-x-full p-4 md:h-[91%] md:my-8 md:mr-8"
+        className="fixed top-0 right-0 h-full w-full z-110 md:w-[50%] lg:w-110 translate-x-full p-4"
       >
-        <div className="border border-black h-full">
-          {/* Header */}
-          <div className="flex justify-between items-center p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-semibold text-black">Added to Cart</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-black transition-colors text-2xl w-8 h-8 flex items-center justify-center"
-            >
-              ✕
-            </button>
-          </div>
+        <div className=" bg-[#F9F6F0] h-full w-full shadow-2xl z-110 flex flex-col p-1">
+          <div className="border flex-1 border-black h-full relative">
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-black">
+              <h2 className="text-2xl font-semibold text-black">
+                Added to Cart
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-black hover:text-black font-bold transition-colors text-[16px] w-8 h-8 flex items-center justify-center"
+              >
+                ✕
+              </button>
+            </div>
 
-          {/* Cart Items - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-6">
-            {cart.items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                <p className="text-lg">Your cart is empty</p>
-                <p className="text-sm mt-2">Add some items to get started!</p>
-              </div>
-            ) : (
-              <ul className="space-y-6">
-                {cart.items.map((item) => (
-                  <li key={item.id} className=" pb-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex gap-3 flex-row">
-                        <div
-                          className="w-[220px] h-[190px] bg-cover bg-center"
-                          style={{ backgroundImage: `url(${item.image})` }}
-                          role="img"
-                          aria-label={item.title}
-                        />
-                        <div className="flex flex-col gap-4 justify-end">
-                          <div className="flex items-start justify-between">
-                            <p className="font-semibold text-lg text-black w-3/6">
-                              {item.title}
+            {/* Cart Items - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {cart.items.length === 0 ? (
+                <div className="flex flex-col items-start justify-center h-full text-black">
+                  <p className="text-lg">Your cart is empty</p>
+                  <p className="text-sm mt-2">Add some items to get started!</p>
+                </div>
+              ) : (
+                <ul className="space-y-6">
+                  {cart.items.map((item) => (
+                    <li key={item.id} className=" pb-6">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex gap-3 flex-row">
+                          <div
+                            className="w-full md:w-[200px] h-[190px] bg-contain bg-top bg-no-repeat"
+                            style={{ backgroundImage: `url(${item.image})` }}
+                            role="img"
+                            aria-label={item.title}
+                          />
+                          <div className="flex flex-col gap-4 justify-end">
+                            <div className="flex items-start ">
+                              <p className="text-[13px] font-semibold md:text-lg text-black w-3/6">
+                                {item.title}
+                              </p>
+                              <button
+                                onClick={() => removeFromCart(item.id)}
+                                className="text-xs md:text-[13px] text-red-600 hover:text-red-800 transition-colors underline w-[50px] ml-auto lg:mr-4"
+                              >
+                                Remove
+                              </button>
+                            </div>
+
+                            <p className="text-lg md:text-[20px] text-black mt-1">
+                              R{item.price.toFixed(2)}
                             </p>
-                            <button
-                              onClick={() => removeFromCart(item.id)}
-                              className="text-xs text-red-600 hover:text-red-800 transition-colors underline"
-                            >
-                              Remove
-                            </button>
-                          </div>
 
-                          <p className="text-[20px] text-black mt-1">
-                            R{item.price.toFixed(2)}
-                          </p>
-
-                          {/* Quantity Controls */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center border border-gray-300 rounded">
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity - 1)
-                                }
-                                className="px-4 py-2 hover:bg-gray-100 transition-colors text-black border "
-                              >
-                                −
-                              </button>
-                              <span className="px-6 py-2 min-w-[60px] text-center font-medium border text-black">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
-                                }
-                                className="px-4 py-2 hover:bg-gray-100 transition-colors text-black border"
-                              >
-                                +
-                              </button>
+                            {/* Quantity Controls */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center border gap-1 border-gray-300 rounded">
+                                <button
+                                  onClick={() =>
+                                    updateQuantity(item.id, item.quantity - 1)
+                                  }
+                                  className="px-4 py-2 bg-white hover:bg-gray-100 transition-colors text-black border "
+                                >
+                                  −
+                                </button>
+                                <span className="px-4 py-2 bg-white text-center font-medium border text-black">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() =>
+                                    updateQuantity(item.id, item.quantity + 1)
+                                  }
+                                  className="px-4 py-2 bg-white hover:bg-gray-100 transition-colors text-black border"
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Footer - Checkout Section */}
+            {cart.items.length > 0 && (
+              <div className="absolute bottom-0 w-full border-t border-black p-6 bg-[#F8F5EF]">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-[24px] font-medium text-black">
+                    Total:
+                  </span>
+                  <span className="text-[24px] font-medium text-black">
+                    R{getTotalPrice().toFixed(2)}
+                  </span>
+                </div>
+
+                {/* {!auth.isLoggedIn && (
+                  <p className="text-sm text-gray-600 mb-3 text-center">
+                    Please login to checkout
+                  </p>
+                )} */}
+
+                <button
+                  onClick={handleCheckout}
+                  disabled={isCheckingOut}
+                  className={`w-full border text-black py-3 rounded hover:bg-white cursor-pointer disabled:bg-black disabled:text-white transition-colors font-medium mb-3 ${auth.isLoggedIn ? "bg-white" : "grayscale"}`}
+                >
+                  {isCheckingOut
+                    ? "Loading..."
+                    : auth.isLoggedIn
+                      ? "Proceed to Checkout"
+                      : "Login to Checkout"}
+                </button>
+
+                <button
+                  onClick={clearCart}
+                  className="w-full border border-black text-black py-3 rounded hover:bg-white hover:cursor-pointer transition-colors font-medium"
+                >
+                  Clear Cart
+                </button>
+              </div>
             )}
           </div>
-
-          {/* Footer - Checkout Section */}
-          {cart.items.length > 0 && (
-            <div className="border-t border-gray-200 p-6 bg-[#F8F5EF]">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-[24px] font-medium text-black">
-                  Total:
-                </span>
-                <span className="text-[24px] font-medium text-black">
-                  R{getTotalPrice().toFixed(2)}
-                </span>
-              </div>
-
-              {!auth.isLoggedIn && (
-                <p className="text-sm text-gray-600 mb-3 text-center">
-                  Please login to checkout
-                </p>
-              )}
-
-              <button
-                onClick={handleCheckout}
-                disabled={isCheckingOut}
-                className="w-full border text-black py-3 rounded hover:bg-white cursor-pointer disabled:bg-black disabled:text-white transition-colors font-medium mb-3"
-              >
-                {isCheckingOut
-                  ? "Loading..."
-                  : auth.isLoggedIn
-                    ? "Proceed to Checkout"
-                    : "Login to Checkout"}
-              </button>
-
-              <button
-                onClick={clearCart}
-                className="w-full border border-black text-black py-3 rounded hover:bg-white hover:cursor-pointer transition-colors font-medium"
-              >
-                Clear Cart
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

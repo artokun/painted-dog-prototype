@@ -86,7 +86,7 @@ export const Header = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
   const isMobile = useMediaQuery("(max-width: 765px)");
-  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
+  const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
 
   const [levaLoaded, setLevaLoaded] = useState(false);
   const auth = useSnapshot(authStore);
@@ -111,7 +111,7 @@ export const Header = () => {
   const isHeaderHiddenRef = useRef(false);
   const lastScrollYRef = useRef(0);
 
-  const logoYOffset = isMobile ? "0rem" : isTablet ? "-4rem" : "-6.5rem";
+  const logoYOffset = isMobile ? "0rem" : isTablet ? "-5rem" : "-6.5rem";
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -179,7 +179,7 @@ export const Header = () => {
 
         if (shouldStartCollapsed) {
           // Set everything to collapsed state immediately
-          gsap.set(logoRef.current, { scale: 0.2, y: "-1rem" });
+          gsap.set(logoRef.current, { scale: 0.2, y: logoYOffset });
           gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0 });
           gsap.set(menuElement, { x: 0, fontSize: 16, y: 0 });
           gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
@@ -445,7 +445,10 @@ export const Header = () => {
             ref={cartRef}
             className="hidden text-[24px] self-start uppercase md:flex items-center pointer-events-auto text-black"
           >
-            <button className="uppercase" onClick={openCart}>
+            <button
+              className="uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
+              onClick={openCart}
+            >
               <span>Cart</span>
             </button>
           </div>

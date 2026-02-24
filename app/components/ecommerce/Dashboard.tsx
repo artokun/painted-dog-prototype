@@ -104,7 +104,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
       id="dasboard-page-scroll-container"
       style={style}
       className={cn(
-        "absolute inset-0 flex items-center h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden bg-[#e7d7bf]",
+        "absolute inset-0 pt-16 lg:pt-0 flex items-center h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden bg-[#e7d7bf]",
         visible && "pointer-events-auto"
       )}
     >
@@ -115,7 +115,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
             <h2 className="text-[48px] md:text-[72px] font-semibold leading-[72px]">
               Account
             </h2>
-            <h4 className="text-[28px] w-auto lg:w-[430px] lg:mt-8">
+            <h4 className="text-[25px] md:text-[28px] w-auto lg:w-[430px] lg:mt-8">
               Welcome to your account, <br></br>
               <span className="capitalize">
                 {auth.isLoggedIn && auth.user?.firstName}
