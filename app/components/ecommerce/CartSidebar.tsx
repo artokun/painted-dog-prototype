@@ -159,9 +159,12 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                             role="img"
                             aria-label={item.title}
                           />
-                          <div className="flex flex-col gap-4 justify-end">
-                            <div className="flex items-start ">
-                              <p className="text-[13px] font-semibold md:text-lg text-black w-3/6">
+                          <div className="flex flex-col ">
+                            <p className="text-[11px] font-regular text-black ">
+                              {item.author}
+                            </p>
+                            <div className="flex items-start flex-row">
+                              <p className="text-[13px] font-semibold md:text-lg text-black w-full md:w-3/6">
                                 {item.title}
                               </p>
                               <button
@@ -183,23 +186,25 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                                   onClick={() =>
                                     updateQuantity(item.id, item.quantity - 1)
                                   }
-                                  className="px-4 py-2 bg-white hover:bg-gray-100 transition-colors text-black border "
+                                  className="w-[35px] h-[35px] bg-white hover:bg-gray-100 transition-colors text-black border "
                                 >
                                   −
                                 </button>
-                                <span className="px-4 py-2 bg-white text-center font-medium border text-black">
+                                <span className="flex items-center justify-center w-[35px] h-[35px] bg-white text-center font-medium border text-black">
                                   {item.quantity}
                                 </span>
                                 <button
                                   onClick={() =>
                                     updateQuantity(item.id, item.quantity + 1)
                                   }
-                                  className="px-4 py-2 bg-white hover:bg-gray-100 transition-colors text-black border"
+                                  className="w-[35px] h-[35px] bg-white hover:bg-gray-100 transition-colors text-black border"
                                 >
                                   +
                                 </button>
                               </div>
                             </div>
+
+                            {/* <p className="text-black">{JSON.stringify(item)}</p> */}
                           </div>
                         </div>
                       </div>

@@ -6,6 +6,7 @@ interface CartItem {
   price: number;
   quantity: number;
   image?: string;
+  author?: string;
 }
 
 interface CartStore {

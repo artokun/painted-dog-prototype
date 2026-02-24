@@ -17,6 +17,7 @@ interface Product {
   title: string;
   price: number;
   image?: string;
+  author?: string;
 }
 
 export function PurchaseButtons({
@@ -49,6 +50,7 @@ export function PurchaseButtons({
             title: data.title,
             price: parseFloat(data.variants.edges[0]?.node.price.amount),
             image: data.images.edges[0]?.node.url,
+            author: data.author?.value,
           });
         }
       } catch (error) {
@@ -68,6 +70,7 @@ export function PurchaseButtons({
         title: product.title,
         price: product.price,
         image: product.image,
+        author: product.author,
       });
 
       setJustAdded(true);
