@@ -132,7 +132,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
       )}
     >
       {showContent && (
-        <div className="flex flex-col h-full md:justify-center md:px-4 xl:px-0 min-h-full lg:pt-[104px]">
+        <div className="flex flex-col h-full md:justify-center md:px-4 xl:px-0 min-h-full pt-[104px] md:pt-0">
           {/* Close Button */}
 
           {/* Menu Content */}
