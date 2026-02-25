@@ -151,8 +151,8 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
                 Welcome aboard
               </h3>
               <p className="text-base leading-relaxed text-[#1A1A1A]">
-                You'&apos;'re now subscribed to the Painted Dog Press
-                newsletter. Check your inbox for a confirmation email.
+                You&apos;re now subscribed to the Painted Dog Press newsletter.
+                Check your inbox for a confirmation email.
               </p>
             </div>
             <div className="flex flex-col gap-4 mb-8">
@@ -176,7 +176,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
               <div className="space-y-4 mb-6">
                 <p className="text-base leading-relaxed text-[#1A1A1A]">
                   We share early release information, early access to launch
-                  parties, books we're reading, insights into the world of
+                  parties, books we&apos;re reading, insights into the world of
                   publishing, and events in the international and local literary
                   scenes. Not to be missed.
                 </p>
