@@ -77,6 +77,7 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
   return (
     <animated.div
       ref={containerRef}
+      id="contact-page-scroll-container"
       style={style}
       className={cn(
         "absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden",
@@ -183,11 +184,11 @@ const FormSelector = ({
         style={styles}
         className={cn(
           "flex flex-col rounded-sm border border-black font-medium cursor-pointer transition-all duration-100 overflow-hidden",
-          "hover:translate-y-[-2px] hover:shadow-md",
-          isOpen && "shadow-md translate-y-[-2px]"
+          "hover:-translate-y-0.5 hover:shadow-md",
+          isOpen && "shadow-md -translate-y-0.5"
         )}
       >
-        <div 
+        <div
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center justify-between w-full px-4 py-3 text-left"
         >
@@ -202,12 +203,7 @@ const FormSelector = ({
               isOpen && "rotate-180"
             )}
           >
-            <path
-              fill="none"
-              stroke="black"
-              strokeWidth="1"
-              d="M3 5l3 3 3-3"
-            />
+            <path fill="none" stroke="black" strokeWidth="1" d="M3 5l3 3 3-3" />
           </svg>
         </div>
         {isOpen && (
@@ -237,7 +233,6 @@ const FormSelector = ({
   );
 };
 
-
 const ContactPage = ({
   onSuccess,
   tab,
@@ -248,11 +243,11 @@ const ContactPage = ({
   setTab: (tab: Tab) => void;
 }) => {
   return (
-    <>
-      <h1 className="md:text-5xl text-4xl font-medium md:py-20 py-12">
+    <div className="md:py-20 py-12">
+      <h1 className="text-center md:text-5xl text-4xl font-medium md:py-20 py-12">
         Contact
       </h1>
-      <p className="max-w-md text-center md:leading-loose px-2">
+      <p className="mx-auto max-w-md text-center md:leading-loose px-2">
         Whether you are an aspiring writer, a reviewer, an influencer, or you
         have discovered interesting reviews of our works in publications or on
         BookTok we&apos;d love to hear from you. Select a form type to begin.
@@ -262,7 +257,7 @@ const ContactPage = ({
         <FormSelector tab={tab} setTab={setTab} />
       </div>
       <div className="flex gap-[100px] w-full md:py-20">
-        <aside className="hidden md:flex flex-col items-end gap-4 flex-0 min-w-[224px] border-r border-black pr-8 h-fit sticky top-[80px]">
+        <aside className="hidden md:flex flex-col items-end gap-4 flex-0 min-w-56 border-r border-black pr-8 h-fit sticky top-20">
           <h3 className="text-3xl">Form Type</h3>
           <ul className="flex flex-col gap-2">
             <TabButton
@@ -284,9 +279,9 @@ const ContactPage = ({
           {tab === Tab.Submission && <SubmissionForm onSuccess={onSuccess} />}
         </section>
       </div>
-      <div className="border-b border-black w-full max-w-[400px] mx-auto h-[1px] pt-20 md:pt-3" />
+      <div className="border-b border-black w-full max-w-[400px] mx-auto h-px pt-20 md:pt-3" />
       <div className="flex gap-[100px] w-full md:py-20 pt-18">
-        <aside className="hidden md:flex flex-col items-end gap-4 flex-0 min-w-[224px] pr-8 h-fit">
+        <aside className="hidden md:flex flex-col items-end gap-4 flex-0 min-w-56 pr-8 h-fit">
           <h3 className="text-3xl font-medium">Email us</h3>
         </aside>
         <section className="flex-1">
@@ -297,7 +292,7 @@ const ContactPage = ({
           </ThreeLink>
         </section>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -332,8 +327,8 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   useEffect(() => {
     if (errors.file && fileInputRef.current) {
       fileInputRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
+        behavior: "smooth",
+        block: "center",
       });
     }
   }, [errors.file]);
@@ -369,41 +364,66 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
         formData.append("recaptchaToken", recaptchaToken);
 
         const result = await submitSubmissionForm(formData);
-        
+
         // Handle newsletter subscription if present
-        if (result.newsletterSubscription && result.newsletterSubscription.redirectUrl) {
-          window.open(result.newsletterSubscription.redirectUrl, '_blank', 'noopener,noreferrer');
+        if (
+          result.newsletterSubscription &&
+          result.newsletterSubscription.redirectUrl
+        ) {
+          window.open(
+            result.newsletterSubscription.redirectUrl,
+            "_blank",
+            "noopener,noreferrer"
+          );
         }
-        
+
         onSuccess();
         reset();
         setRecaptchaToken(null);
         recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
-        
+
         // Handle different types of errors gracefully
         if (error instanceof Error) {
           // Check if it's a validation error or other server error
           const errorMessage = error.message;
-          
+
           // Handle specific validation errors
-          if (errorMessage.includes("phone") || errorMessage.includes("Phone")) {
-            setServerError("Please check your phone number format and try again.");
-          } else if (errorMessage.includes("email") || errorMessage.includes("Email")) {
+          if (
+            errorMessage.includes("phone") ||
+            errorMessage.includes("Phone")
+          ) {
+            setServerError(
+              "Please check your phone number format and try again."
+            );
+          } else if (
+            errorMessage.includes("email") ||
+            errorMessage.includes("Email")
+          ) {
             setServerError("Please check your email address and try again.");
-          } else if (errorMessage.includes("file") || errorMessage.includes("File")) {
-            setServerError("There was an issue with your file upload. Please check the file size and format.");
-          } else if (errorMessage.includes("reCAPTCHA") || errorMessage.includes("recaptcha")) {
+          } else if (
+            errorMessage.includes("file") ||
+            errorMessage.includes("File")
+          ) {
+            setServerError(
+              "There was an issue with your file upload. Please check the file size and format."
+            );
+          } else if (
+            errorMessage.includes("reCAPTCHA") ||
+            errorMessage.includes("recaptcha")
+          ) {
             setRecaptchaError(errorMessage);
           } else {
             // Generic server error
-            setServerError(errorMessage || "Something went wrong. Please try again.");
+            setServerError(
+              errorMessage || "Something went wrong. Please try again."
+            );
           }
         } else {
           setServerError("An unexpected error occurred. Please try again.");
         }
-        
+
         // Reset reCAPTCHA on error
         setRecaptchaToken(null);
         recaptchaRef.current?.reset();
@@ -531,7 +551,8 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 required: "Phone number is required",
                 pattern: {
                   value: /^[\+]?[\d\s\-\(\)\.]{10,20}$/,
-                  message: "Please enter a valid phone number (10-20 characters)",
+                  message:
+                    "Please enter a valid phone number (10-20 characters)",
                 },
               })}
             />
@@ -678,7 +699,9 @@ const SubmissionForm = ({ onSuccess }: { onSuccess: () => void }) => {
             <span className="text-red-500 text-sm">{recaptchaError}</span>
           )}
           {serverError && (
-            <span className="text-red-500 text-sm font-medium">{serverError}</span>
+            <span className="text-red-500 text-sm font-medium">
+              {serverError}
+            </span>
           )}
         </fieldset>
         <p>
@@ -768,37 +791,52 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
         formData.append("recaptchaToken", recaptchaToken);
 
         const result = await submitContactForm(formData);
-        
+
         // Handle newsletter subscription if present
-        if (result.newsletterSubscription && result.newsletterSubscription.redirectUrl) {
-          window.open(result.newsletterSubscription.redirectUrl, '_blank', 'noopener,noreferrer');
+        if (
+          result.newsletterSubscription &&
+          result.newsletterSubscription.redirectUrl
+        ) {
+          window.open(
+            result.newsletterSubscription.redirectUrl,
+            "_blank",
+            "noopener,noreferrer"
+          );
         }
-        
+
         onSuccess();
         reset();
         setRecaptchaToken(null);
         recaptchaRef.current?.reset();
       } catch (error) {
         console.error("Form submission error:", error);
-        
+
         // Handle different types of errors gracefully
         if (error instanceof Error) {
           // Check if it's a validation error or other server error
           const errorMessage = error.message;
-          
+
           // Handle specific validation errors
-          if (errorMessage.includes("email") || errorMessage.includes("Email")) {
+          if (
+            errorMessage.includes("email") ||
+            errorMessage.includes("Email")
+          ) {
             setServerError("Please check your email address and try again.");
-          } else if (errorMessage.includes("reCAPTCHA") || errorMessage.includes("recaptcha")) {
+          } else if (
+            errorMessage.includes("reCAPTCHA") ||
+            errorMessage.includes("recaptcha")
+          ) {
             setRecaptchaError(errorMessage);
           } else {
             // Generic server error
-            setServerError(errorMessage || "Something went wrong. Please try again.");
+            setServerError(
+              errorMessage || "Something went wrong. Please try again."
+            );
           }
         } else {
           setServerError("An unexpected error occurred. Please try again.");
         }
-        
+
         // Reset reCAPTCHA on error
         setRecaptchaToken(null);
         recaptchaRef.current?.reset();
@@ -965,7 +1003,9 @@ const GeneralForm = ({ onSuccess }: { onSuccess: () => void }) => {
           <span className="text-red-500 text-sm">{recaptchaError}</span>
         )}
         {serverError && (
-          <span className="text-red-500 text-sm font-medium">{serverError}</span>
+          <span className="text-red-500 text-sm font-medium">
+            {serverError}
+          </span>
         )}
       </fieldset>
       <fieldset className="flex">

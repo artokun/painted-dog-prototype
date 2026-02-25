@@ -142,7 +142,10 @@ export default function BookPageContent() {
           book={book}
         />
         <div className="mt-10 pointer-events-auto">
-          <PurchaseButtons layout="vertical" className="flex flex-wrap flex-col xl:flex-row gap-3" />
+          <PurchaseButtons
+            layout="vertical"
+            className="flex flex-wrap flex-col xl:flex-row gap-3"
+          />
         </div>
       </animated.section>
 

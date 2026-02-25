@@ -166,6 +166,7 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
     <animated.div
       style={style}
       ref={scrollContainerRef}
+      id="legal-page-scroll-container"
       className={cn(
         "absolute inset-0 h-dvh w-dvw pointer-events-none text-black z-10 overflow-y-auto overflow-x-hidden",
         visible && "pointer-events-auto"

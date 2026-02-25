@@ -52,7 +52,7 @@ export default function App() {
 
   return (
     <Selection>
-      {showStats && <Stats />}
+      {/* {showStats && <Stats />} */}
       <Effects enabled={effectsEnabled} />
       <Skybox />
       <Lights />

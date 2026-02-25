@@ -11,14 +11,14 @@ const CORRECT_PASSWORD = "The-Quick-Spotted-Dog";
 const AUTH_STORAGE_KEY = "painted-dog-auth";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useSnapshot(authStore);
+  // const { isAuthenticated } = useSnapshot(authStore);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
     if (storedAuth === "true") {
-      authStore.isAuthenticated = true;
+      // authStore.isAuthenticated = true;
     }
   }, []);
 
@@ -26,7 +26,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     e.preventDefault();
 
     if (password === CORRECT_PASSWORD) {
-      authStore.isAuthenticated = true;
+      // authStore.isAuthenticated = true;
       localStorage.setItem(AUTH_STORAGE_KEY, "true");
       setError(false);
     } else {
@@ -35,15 +35,15 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     }
   };
 
-  if (isAuthenticated) {
-    return (
-      <>
-        <Middle />
-        {children}
-        <Foreground />
-      </>
-    );
-  }
+  // if (isAuthenticated) {
+  //   return (
+  //     <>
+  //       <Middle />
+  //       {children}
+  //       <Foreground />
+  //     </>
+  //   );
+  // }
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center z-100">

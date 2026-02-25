@@ -5,7 +5,7 @@ import { FloatingBar } from "./FloatingBar";
 import { Loader } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
@@ -14,24 +14,75 @@ import { ContactPageContent } from "./ContactPageContent";
 import { LegalPageContent } from "./LegalPageContent";
 import { NotFoundContent } from "./NotFoundContent";
 import { Cursor } from "./Cursor";
+import { MenuOverlay } from "./MenuOverlay";
+import { AboutPageContent } from "./AboutPageContent";
+import { LoginPageComponent } from "./LoginPageComponent";
+import { Dashboard } from "./ecommerce/Dashboard";
+import { cartUIStore, closeCart } from "../store/cartUIStore";
+import { CartSidebar } from "./ecommerce/CartSidebar";
+import { hydrateAuth } from "../store/authStore";
+import type { AboutContent } from "@/lib/about";
+import { ForgotPasswordModal } from "./ForgotPasswordModal"; // NEW
+import {
+  forgotPasswordStore,
+  closeForgotPassword,
+} from "../store/forgotPasswordStore";
+import { ResetPasswordModal } from "@/app/components/ResetPasswordModal"; // NEW
+import { openResetPassword } from "@/app/store/resetPasswordStore";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isRendered } = useSnapshot(bookStore);
-  const { currentRoute } = useSnapshot(globalStore);
+  const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
+  const { isOpen: isCartOpen } = useSnapshot(cartUIStore); // Subscribe to cart state
+  
+  const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
+  const { isOpen: isForgotPasswordOpen } = useSnapshot(forgotPasswordStore);
+
+  const isAboutPage = currentRoute === "/about";
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
+  const isLoginPage = currentRoute === "/login";
+  const isDashboardPage = currentRoute === "/dashboard";
+
   const isNotFound = currentRoute === "/not-found";
+  // const [wasVisible, setWasVisible] = useState(visible);
 
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;
+
+  // Restore auth session from httpOnly cookie on mount
+  useEffect(() => {
+    hydrateAuth();
+  }, []);
+
+  // Fetch about content when needed
+  useEffect(() => {
+    if (isAboutPage) {
+      fetch("/api/about?t=" + Date.now()) // Cache bust
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.data) {
+            setAboutContent(data.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch about content:", error);
+        });
+    }
+  }, [isAboutPage]);
 
   // This sets the current route to the pathname when the pathname changes
   useEffect(() => {
     if (!pathname.startsWith("/books/")) {
       bookStore.focusedBookId = null;
     }
+
+    if (pathname !== "/login") {
+      globalStore.previousRoute = globalStore.currentRoute;
+    }
+
     globalStore.currentRoute = pathname;
   }, [pathname]);
 
@@ -84,6 +135,18 @@ export const Foreground = () => {
     };
   }, [pathname]);
 
+  // Inside the component, add this useEffect:
+  useEffect(() => {
+    // Detect reset password URL
+    const match = pathname.match(/^\/account\/reset\/([^/]+)\/([^/]+)$/);
+    if (match) {
+      const [, customerId, token] = match;
+      openResetPassword(customerId, token);
+      // Navigate to home so URL is clean
+      router.push("/");
+    }
+  }, [pathname]);
+
   return (
     <div
       id="foreground"
@@ -93,9 +156,25 @@ export const Foreground = () => {
       {showFloatingBar && <FloatingBar />}
       <BookPageContent />
       <Cursor />
+      <AboutPageContent visible={isAboutPage} aboutContent={aboutContent} />
       <ContactPageContent visible={isContactPage} />
       <LegalPageContent visible={isLegalPage} />
+      <LoginPageComponent visible={isLoginPage} />
+      <Dashboard visible={isDashboardPage} />
       <NotFoundContent visible={isNotFound} />
+      <MenuOverlay visible={isMenuOpen} />
+
+      {/* Cart Sidebar - Single instance at top level */}
+      <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
+
+      {/*Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={closeForgotPassword}
+      />
+
+      <ResetPasswordModal />
+
       <Loader />
     </div>
   );

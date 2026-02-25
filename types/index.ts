@@ -22,6 +22,16 @@ export type {
 } from "./generated/Type3sYm5RaSUV7kLx6CvgMNn8";
 
 export type {
+  TypeAbout,
+  TypeAboutFields,
+  TypeAboutSkeleton,
+  TypeAboutWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypeAboutWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypeAboutWithAllLocalesResponse,
+  TypeAboutWithoutLinkResolutionResponse,
+  TypeAboutWithoutUnresolvableLinksResponse,
+} from "./generated/TypeAbout";
+export type {
   TypeAuthor,
   TypeAuthorFields,
   TypeAuthorSkeleton,
@@ -101,3 +111,36 @@ export type {
   TypePriceWithoutLinkResolutionResponse,
   TypePriceWithoutUnresolvableLinksResponse,
 } from "./generated/TypePrice";
+
+export type {
+  TypeNewsArticle,
+  TypeNewsArticleFields,
+  TypeNewsArticleSkeleton,
+  TypeNewsArticleWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypeNewsArticleWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypeNewsArticleWithAllLocalesResponse,
+  TypeNewsArticleWithoutLinkResolutionResponse,
+  TypeNewsArticleWithoutUnresolvableLinksResponse,
+} from "./generated/TypeNewsArticle";
+
+export type {
+  TypeNewsCategory,
+  TypeNewsCategoryFields,
+  TypeNewsCategorySkeleton,
+  TypeNewsCategoryWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypeNewsCategoryWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypeNewsCategoryWithAllLocalesResponse,
+  TypeNewsCategoryWithoutLinkResolutionResponse,
+  TypeNewsCategoryWithoutUnresolvableLinksResponse,
+} from "./generated/TypeNewsCategory";
+
+export type {
+  TypePeople,
+  TypePeopleFields,
+  TypePeopleSkeleton,
+  TypePeopleWithAllLocalesAndWithoutLinkResolutionResponse,
+  TypePeopleWithAllLocalesAndWithoutUnresolvableLinksResponse,
+  TypePeopleWithAllLocalesResponse,
+  TypePeopleWithoutLinkResolutionResponse,
+  TypePeopleWithoutUnresolvableLinksResponse,
+} from "./generated/TypePeople";
