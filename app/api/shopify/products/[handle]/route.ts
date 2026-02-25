@@ -19,6 +19,9 @@ export async function GET(
           handle
           description
           descriptionHtml
+          author: metafield(namespace: "custom", key: "author"){
+            value
+          }
           priceRange {
             minVariantPrice {
               amount

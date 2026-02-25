@@ -15,6 +15,9 @@ export async function GET(request: NextRequest) {
               title
               handle
               description
+              author: metafield(namespace: "custom", key: "author"){
+                value
+              }
               priceRange {
                 minVariantPrice {
                   amount

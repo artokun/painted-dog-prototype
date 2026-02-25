@@ -222,58 +222,80 @@ export const Header = () => {
           timeline.fromTo(
             newsRef.current,
             { x: "0.16rem", y: "1rem", fontSize: 24 },
-            { x: 0, fontSize: 16, duration: 1, y: 0 },
+            { x: 0, fontSize: 16, duration: 0.35, y: 0 },
             0
           );
 
           timeline.fromTo(
             menuElement,
             { x: "-0.16rem", y: "1rem", fontSize: 24 },
-            { x: 0, fontSize: 16, duration: 1, y: 0 },
+            { x: 0, fontSize: 16, duration: 0.35, y: 0 },
             0
           );
 
+          // Separators: stay hidden during collapse, fade in only after menu items are in place
           timeline.fromTo(
             leftseparatorRef.current,
-            { x: 0, opacity: 0, y: 0 },
-            { x: 0, opacity: 1, duration: 1, y: -2 },
-            0
+            { opacity: 0, y: 0 },
+            { opacity: 1, duration: 0.15, y: -2 },
+            0.85
           );
 
           timeline.fromTo(
             rightseparatorRef.current,
-            { x: 0, opacity: 0, y: 0 },
-            { x: 0, opacity: 1, duration: 1, y: -2 },
-            0
+            { opacity: 0, y: 0 },
+            { opacity: 1, duration: 0.15, y: -2 },
+            0.85
           );
 
           timeline.fromTo(
             cartseparatorRef.current,
-            { x: 0, opacity: 0, y: 0 },
-            { x: 0, opacity: 1, duration: 1, y: -2 },
-            0
+            { opacity: 0, y: 0 },
+            { opacity: 1, duration: 0.15, y: -2 },
+            0.85
           );
 
-          timeline.fromTo(
+          // Set expanded starting positions before timeline
+          gsap.set(newsletterRef.current, {
+            x: "-6.5rem",
+            y: "16.875rem",
+            fontSize: 24,
+            opacity: 1,
+          });
+          gsap.set(loginRef.current, {
+            x: "6.5rem",
+            y: "16.875rem",
+            fontSize: 24,
+            opacity: 1,
+          });
+          gsap.set(cartRef.current, {
+            x: 0,
+            y: "16.875rem",
+            fontSize: 24,
+            opacity: 0,
+          });
+
+          // Newsletter: fade out at expanded position → snap → fade in at collapsed
+          timeline.to(newsletterRef.current, { opacity: 0, duration: 0.1 }, 0);
+          timeline.set(
             newsletterRef.current,
-            { x: "-6.5rem", y: "16.875rem", fontSize: 24 },
-            { x: 0, y: 0, fontSize: 16, duration: 1 },
-            0
+            { x: 0, y: 0, fontSize: 16 },
+            0.12
+          );
+          timeline.to(
+            newsletterRef.current,
+            { opacity: 1, duration: 0.2 },
+            0.15
           );
 
-          timeline.fromTo(
-            loginRef.current,
-            { x: "6.5rem", y: "16.875rem", fontSize: 24 },
-            { x: 0, y: 0, fontSize: 16, duration: 1 },
-            0
-          );
+          // Login: fade out at expanded position → snap → fade in at collapsed
+          timeline.to(loginRef.current, { opacity: 0, duration: 0.1 }, 0);
+          timeline.set(loginRef.current, { x: 0, y: 0, fontSize: 16 }, 0.12);
+          timeline.to(loginRef.current, { opacity: 1, duration: 0.2 }, 0.15);
 
-          timeline.fromTo(
-            cartRef.current,
-            { x: 0, y: "16.875rem", opacity: 0, fontSize: 24 },
-            { x: 0, y: 0, opacity: 1, duration: 1, fontSize: 16 },
-            0
-          );
+          // Cart: already hidden, snap position → fade in at collapsed
+          timeline.set(cartRef.current, { x: 0, y: 0, fontSize: 16 }, 0.12);
+          timeline.to(cartRef.current, { opacity: 1, duration: 0.2 }, 0.15);
 
           // Scroll direction fade - single nav container
           ScrollTrigger.create({
