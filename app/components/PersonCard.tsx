@@ -12,24 +12,27 @@ const renderOptions = {
 
 export const PersonCard = ({ person }: { person: Person }) => {
   return (
-    <div className="border-b border-gray-200 pb-12 mb-12 last:border-0 last:pb-0 last:mb-0">
+    <div className="pb-12 mb-12 last:pb-0 last:mb-0">
+      <h3 className="text-[32px] font-fields font-semibold leading-tight mb-2">
+        {person.name}
+      </h3>
+      <div className="border-b border-black mb-4"></div>
       <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
-        <div>
-          <h3 className="text-[32px] font-fields font-semibold leading-tight mb-2">{person.name}</h3>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
           {person.links && person.links.length > 0 && (
-            <div className="grid grid-cols-3 gap-x-4 gap-y-1">
+            <>
               {person.links.map((link, index) => (
                 <a
                   key={index}
                   href={link.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm underline hover:no-underline"
+                  className="text-sm"
                 >
                   {link.text}
                 </a>
               ))}
-            </div>
+            </>
           )}
         </div>
         {person.description && person.description.content && (

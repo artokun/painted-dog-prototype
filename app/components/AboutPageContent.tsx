@@ -116,8 +116,7 @@ const TabButton = ({
     >
       <span
         className={cn(
-          "transition-all duration-300 hover:-translate-x-1",
-          active && "underline font-medium hover:-translate-x-7"
+          !active && "underline opacity-30"
         )}
       >
         {children}
@@ -168,7 +167,7 @@ const MobileTabSelector = ({
           Friends
         </TabButton>
       </ul>
-      <p className="text-base text-[38px] font-montserrat max-w-[400px]">
+      <p className="text-[38px] font-fields">
         {getTabDescription()}
       </p>
     </div>
@@ -235,7 +234,7 @@ const AboutPage = ({
       </div>
       <div className="flex gap-[100px] w-full md:py-20">
         <aside className="hidden md:flex flex-col items-start gap-4 flex-0 min-w-[500px] pr-8 h-fit sticky top-20">
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-2 pb-14">
             <TabButton
               active={tab === Tab.About}
               onClick={() => setTab(Tab.About)}
@@ -246,7 +245,7 @@ const AboutPage = ({
               active={tab === Tab.WhoWeAre}
               onClick={() => setTab(Tab.WhoWeAre)}
             >
-              Who we are
+              Who We Are
             </TabButton>
             <TabButton
               active={tab === Tab.Friends}
@@ -255,7 +254,7 @@ const AboutPage = ({
               Friends
             </TabButton>
           </ul>
-          <p className="text-base font-montserrat mt-8 max-w-[400px]">
+          <p className="text-[38px] font-fields">
             {getTabDescription()}
           </p>
         </aside>

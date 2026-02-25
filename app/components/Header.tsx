@@ -92,6 +92,15 @@ export const Header = () => {
     const [levaLoaded, setLevaLoaded] = useState(false);
     const auth = useSnapshot(authStore);
     const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
+  const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
+  const [isNewsletterPressed, setIsNewsletterPressed] = useState(false);
+
+  const newsletterUnderlineSpring = useSpring({
+    width: isNewsletterPressed ? 1 : isNewsletterHovered ? 1 : -0.0001,
+    x: isNewsletterPressed ? 100 : 0,
+    opacity: isNewsletterHovered && !isNewsletterPressed ? 1 : 0,
+    config: { tension: 400, friction: 25, mass: 1 },
+  });
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const mobileBookPageContentRef = useRef<HTMLDivElement>(null);
@@ -405,9 +414,26 @@ export const Header = () => {
                 >
                   <button
                     onClick={() => setIsNewsletterModalOpen(true)}
-                    className="uppercase cursor-pointer"
+                    onMouseEnter={() => setIsNewsletterHovered(true)}
+                    onMouseLeave={() => {
+                      setIsNewsletterHovered(false);
+                      setIsNewsletterPressed(false);
+                    }}
+                    onMouseDown={() => setIsNewsletterPressed(true)}
+                    className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
                   >
                     <span className="uppercase">Newsletter</span>
+                    <animated.span
+                      className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
+                      style={{
+                        bottom: "5px",
+                        width: newsletterUnderlineSpring.width.to((width) => `${width * 100}%`),
+                        opacity: newsletterUnderlineSpring.opacity
+                          .to([0, 1], [0, 10])
+                          .to((opacity) => `${Math.min(opacity, 1)}`),
+                        transform: newsletterUnderlineSpring.x.to((x) => `translateX(${x}%)`),
+                      }}
+                    />
                   </button>
                 </div>
               </div>

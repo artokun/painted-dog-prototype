@@ -23,10 +23,7 @@ interface FormData {
   consent: boolean;
 }
 
-export const NewsletterModal = ({
-  isOpen,
-  onClose,
-}: NewsletterModalProps) => {
+export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -54,7 +51,7 @@ export const NewsletterModal = ({
     if (isOpen) {
       // Scroll to top when modal opens
       window.scrollTo(0, 0);
-      
+
       // Fade in overlay
       gsap.to(overlayRef.current, {
         opacity: 1,
@@ -91,10 +88,10 @@ export const NewsletterModal = ({
         formData.append("consent", data.consent ? "on" : "");
 
         const response = await subscribeToNewsletter(formData);
-        
+
         if (response.success && response.redirectUrl) {
           // Open Substack subscription in new window
-          window.open(response.redirectUrl, '_blank', 'noopener,noreferrer');
+          window.open(response.redirectUrl, "_blank", "noopener,noreferrer");
           setIsSuccess(true);
           reset();
         }
@@ -123,7 +120,7 @@ export const NewsletterModal = ({
   const modalContent = (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9999] flex items-center justify-end bg-black/50 backdrop-blur-sm pointer-events-auto opacity-0"
+      className="fixed inset-0 z-9999 flex items-center justify-end bg-transparent pointer-events-auto opacity-0 md:w-464px px-8 py-6"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -131,14 +128,13 @@ export const NewsletterModal = ({
     >
       <div
         ref={modalRef}
-        className="relative w-full md:w-[30%] h-full bg-white p-6 md:p-10 shadow-2xl overflow-y-auto flex flex-col"
-        style={{ transform: "translateX(100%)" }}
+        className="relative w-full md:w-[464px] h-full bg-[#F9F6F0] border-2 border-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-6 md:p-10 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          className="absolute top-4 right-4 text-black cursor-pointer"
           aria-label="Close"
           type="button"
         >
@@ -147,16 +143,16 @@ export const NewsletterModal = ({
 
         {isSuccess ? (
           <div className="flex flex-col h-full justify-between">
-            <div>
+            <div className="flex flex-col gap-8">
               <h3
                 id="newsletter-modal-title"
-                className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mt-8 mb-6"
+                className="text-[24px] font-medium text-[#1A1A1A]"
               >
                 Welcome aboard
               </h3>
-              <p className="text-base leading-relaxed text-gray-700">
-                You&apos;re now subscribed to the Painted Dog Press newsletter.
-                Check your inbox for a confirmation email.
+              <p className="text-base leading-relaxed text-[#1A1A1A]">
+                You'&apos;'re now subscribed to the Painted Dog Press
+                newsletter. Check your inbox for a confirmation email.
               </p>
             </div>
             <div className="flex flex-col gap-4 mb-8">
@@ -166,23 +162,27 @@ export const NewsletterModal = ({
             </div>
           </div>
         ) : (
-          <form className="flex flex-col h-full justify-between" onSubmit={handleSubmit(onSubmit)}>
-            <div>
+          <form
+            className="flex flex-col h-full justify-between"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <div className="flex flex-col gap-8">
               <h3
                 id="newsletter-modal-title"
-                className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mt-8 mb-6"
+                className="text-[24px] font-medium text-[#1A1A1A]"
               >
                 Join the painted dog newsletter
               </h3>
               <div className="space-y-4 mb-6">
-                <p className="text-base leading-relaxed text-gray-700">
+                <p className="text-base leading-relaxed text-[#1A1A1A]">
                   We share early release information, early access to launch
-                  parties, books we&apos;re reading, insights into the world of
+                  parties, books we're reading, insights into the world of
                   publishing, and events in the international and local literary
                   scenes. Not to be missed.
                 </p>
-                <p className="text-base leading-relaxed text-gray-700">
-                  Get a taste of the most recent newsletter, and subscribe by entering your details below:
+                <p className="text-base leading-relaxed text-[#1A1A1A]">
+                  Get a taste of the most recent newsletter, and subscribe by
+                  entering your details below:
                 </p>
               </div>
               <div className="w-full space-y-2">
@@ -210,6 +210,16 @@ export const NewsletterModal = ({
               </div>
             </div>
             <div className="flex flex-col gap-6 mb-8">
+              <a
+                href="/legal#privacy-data-collection"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClose();
+                }}
+                className="font-montserrat text-sm cursor-pointer text-[#1A1A1A]"
+              >
+                View our privacy policy here
+              </a>
               <PDInput
                 type="checkbox"
                 id="newsletter-consent"
@@ -217,18 +227,8 @@ export const NewsletterModal = ({
                   required: "You must agree to our privacy policy to continue",
                 })}
               >
-                <span className="text-sm text-gray-600 leading-relaxed">
-                  I agree to the{" "}
-                  <ThreeLink
-                    href="/legal#privacy-data-collection"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleClose();
-                    }}
-                    className="underline cursor-pointer text-[#1A1A1A]"
-                  >
-                    privacy policy
-                  </ThreeLink>
+                <span className="text-sm font-montserrat  text-[#1A1A1A] leading-relaxed">
+                  Do you consent to our privacy policy?
                 </span>
               </PDInput>
               {errors.consent && (
@@ -245,7 +245,7 @@ export const NewsletterModal = ({
                   isPending && "opacity-50 cursor-not-allowed"
                 )}
               >
-                {isPending ? "Subscribing..." : "Subscribe"}
+                {isPending ? "Subscribing..." : "Sign Up"}
               </PDButton>
             </div>
           </form>
