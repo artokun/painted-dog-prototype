@@ -135,28 +135,28 @@ export function Dashboard({ visible }: { visible: boolean }) {
                   <nav className="space-y-0">
                     <button
                       onClick={() => handleMobileMenuClick("profile")}
-                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                      className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
                     >
                       Profile
                       <span className="text-xl">›</span>
                     </button>
                     <button
                       onClick={() => handleMobileMenuClick("address")}
-                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                      className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
                     >
                       Addresses
                       <span className="text-xl">›</span>
                     </button>
                     <button
                       onClick={() => handleMobileMenuClick("orders")}
-                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                      className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
                     >
                       Orders
                       <span className="text-xl">›</span>
                     </button>
                     <button
                       onClick={() => router.push("/contact")}
-                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                      className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
                     >
                       Contact us
                       <svg
@@ -175,7 +175,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
                     </button>
                     <button
                       onClick={logout}
-                      className="w-full text-[18px] text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                      className="w-full text-[18px] text-left px-4 py-3 transition-colors"
                     >
                       Log out
                     </button>
@@ -241,7 +241,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
                   </button>
                   <button
                     onClick={() => router.push("/contact")}
-                    className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded transition-colors hover:cursor-pointer`}
+                    className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded hover:underline transition-colors hover:cursor-pointer`}
                   >
                     Contact us
                     <Image
@@ -253,7 +253,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
                   </button>
                   <button
                     onClick={logout}
-                    className="w-full text-[18px] text-left px-4 py-3 rounded hover:bg-gray-50 transition-colors hover:cursor-pointer"
+                    className="w-full hover:underline text-[18px] text-left px-4 py-3 rounded transition-colors hover:cursor-pointer"
                   >
                     Log out
                   </button>
