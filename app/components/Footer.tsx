@@ -1,6 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
+import {
+  Instagram,
+  Facebook,
+  YouTube,
+  TikTok,
+  XTwitter,
+  Bluesky,
+} from "./icons/social";
 import { ThreeLink } from "./ThreeLink";
 import { useSnapshot } from "valtio";
 import { bookStore } from "../store/bookStore";
@@ -8,12 +17,14 @@ import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { openCart } from "@/app/store/cartUIStore";
 import SocialLinks from "./ecommerce/SocialLiniks";
+import { NewsletterModal } from "./NewsletterModal";
 import { authStore, logout } from "../store/authStore";
 
 export const Footer = () => {
   const { focusedBookId } = useSnapshot(bookStore);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const someBookIsFocused = focusedBookId !== null;
+  const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
   const auth = useSnapshot(authStore);
 
   return (
@@ -76,7 +87,7 @@ export const Footer = () => {
           </div>
 
           {/* center column - "For Readers" */}
-          <div className="flex flex-col  border-l-2 border-r-2  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t-1 md:border-t-0 border-l border-r md:border-r lg:border-l  lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
+          <div className="flex flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t md:border-t-0 border-l border-r md:border-r lg:border-l lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-semibold"
@@ -85,10 +96,13 @@ export const Footer = () => {
               >
                 For Readers
               </ThreeLink>
-              <ThreeLink href="/newsletter" noUnderline>
+              <button
+                onClick={() => setIsNewsletterModalOpen(true)}
+				className="cursor-pointer"
+              >
                 Newsletter
-              </ThreeLink>
-              <ThreeLink href="/newsletter" noUnderline>
+              </button>
+              <ThreeLink href="/" noUnderline>
                 Browse Stack
               </ThreeLink>
             </div>
@@ -150,6 +164,10 @@ export const Footer = () => {
           </div>
         </div>
       </footer>
+      <NewsletterModal
+        isOpen={isNewsletterModalOpen}
+        onClose={() => setIsNewsletterModalOpen(false)}
+      />
     </section>
   );
 };

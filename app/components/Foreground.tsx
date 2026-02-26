@@ -21,6 +21,7 @@ import { Dashboard } from "./ecommerce/Dashboard";
 import { cartUIStore, closeCart } from "../store/cartUIStore";
 import { CartSidebar } from "./ecommerce/CartSidebar";
 import { hydrateAuth } from "../store/authStore";
+import type { AboutContent } from "@/lib/about";
 import { ForgotPasswordModal } from "./ForgotPasswordModal"; // NEW
 import {
   forgotPasswordStore,
@@ -35,6 +36,8 @@ export const Foreground = () => {
   const { isRendered } = useSnapshot(bookStore);
   const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
   const { isOpen: isCartOpen } = useSnapshot(cartUIStore); // Subscribe to cart state
+  
+  const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
   const { isOpen: isForgotPasswordOpen } = useSnapshot(forgotPasswordStore);
 
   const isAboutPage = currentRoute === "/about";
@@ -53,6 +56,22 @@ export const Foreground = () => {
   useEffect(() => {
     hydrateAuth();
   }, []);
+
+  // Fetch about content when needed
+  useEffect(() => {
+    if (isAboutPage) {
+      fetch("/api/about?t=" + Date.now()) // Cache bust
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.data) {
+            setAboutContent(data.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch about content:", error);
+        });
+    }
+  }, [isAboutPage]);
 
   // This sets the current route to the pathname when the pathname changes
   useEffect(() => {
@@ -137,7 +156,7 @@ export const Foreground = () => {
       {showFloatingBar && <FloatingBar />}
       <BookPageContent />
       <Cursor />
-      <AboutPageContent visible={isAboutPage} />
+      <AboutPageContent visible={isAboutPage} aboutContent={aboutContent} />
       <ContactPageContent visible={isContactPage} />
       <LegalPageContent visible={isLegalPage} />
       <LoginPageComponent visible={isLoginPage} />
