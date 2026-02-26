@@ -192,7 +192,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
                     type="email"
                     id="newsletter-email"
                     placeholder="Enter email here"
-                    className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-right text-right placeholder:text-[#1A1A1A] placeholder:opacity-40"
+                    className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-right text-right placeholder:text-[#1A1A1A] placeholder:opacity-40 text-[#1A1A1A]"
                     {...register("email", {
                       required: "Email is required",
                       pattern: {
