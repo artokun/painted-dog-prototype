@@ -53,7 +53,7 @@ const MenuButton = ({
           setIsPressed(false);
         }}
         onMouseDown={() => setIsPressed(true)}
-        className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+        className="appearance-none md:uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
       >
         Menu
         <animated.span
@@ -108,6 +108,9 @@ export const Header = () => {
   // Single ref for entire nav (for fade animation)
   const navRef = useRef<HTMLDivElement>(null);
 
+  // Ref for outermost header container (for slide animation)
+  const headerRef = useRef<HTMLDivElement>(null);
+
   // Individual refs (for collapse positioning only)
   const logoRef = useRef<HTMLDivElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
@@ -122,7 +125,7 @@ export const Header = () => {
   const isHeaderHiddenRef = useRef(false);
   const lastScrollYRef = useRef(0);
 
-  const logoYOffset = isMobile ? "0rem" : isTablet ? "-5rem" : "-6.5rem";
+  const logoYOffset = isMobile ? "0rem" : isTablet ? "-4rem" : "-6.5rem";
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -132,11 +135,15 @@ export const Header = () => {
     setShouldStartCollapsed(currentRoute !== "/");
   }, [currentRoute]);
 
-  // Reset nav opacity when route changes
+  // Reset nav position when route changes
   useEffect(() => {
     if (navRef.current) {
       gsap.killTweensOf(navRef.current);
       gsap.set(navRef.current, { opacity: 1 });
+    }
+    if (headerRef.current) {
+      gsap.killTweensOf(headerRef.current);
+      gsap.set(headerRef.current, { y: 0 });
     }
     isHeaderHiddenRef.current = false;
     lastScrollYRef.current = 0;
@@ -183,6 +190,8 @@ export const Header = () => {
     if (!isRendered) return;
 
     let ctx: gsap.Context | null = null;
+    let scrollContainer: HTMLDivElement | null = null;
+    let directionScrollHandler: (() => void) | null = null;
 
     const timeoutId = setTimeout(() => {
       ctx = gsap.context(() => {
@@ -217,7 +226,7 @@ export const Header = () => {
               scroller: activeScrollContainer,
               start: "top top",
               end: "+=400",
-              scrub: 1,
+              toggleActions: "play none none reverse",
             },
           });
 
@@ -306,55 +315,56 @@ export const Header = () => {
           timeline.set(cartRef.current, { x: 0, y: 0, fontSize: 16 }, 0.12);
           timeline.to(cartRef.current, { opacity: 1, duration: 0.2 }, 0.15);
 
-          // Scroll direction fade - single nav container
-          ScrollTrigger.create({
-            trigger: activeScrollContainer,
-            scroller: activeScrollContainer,
-            start: "top top",
-            end: "max",
-            onUpdate: (self) => {
-              const currentScrollY = self.scroll();
-              const scrollDelta = currentScrollY - lastScrollYRef.current;
-              const minScrollDelta = 5;
+          // Scroll direction slide - simulated sticky behavior
+          // Direct scroll listener for immediate direction detection
+          const handleDirectionScroll = () => {
+            const currentScrollY = activeScrollContainer.scrollTop;
 
-              if (currentScrollY > 600) {
-                // Scrolling down - hide
-                if (
-                  scrollDelta > minScrollDelta &&
-                  !isHeaderHiddenRef.current
-                ) {
-                  isHeaderHiddenRef.current = true;
-                  gsap.to(navRef.current, {
-                    opacity: 0,
-                    duration: 0.3,
-                    overwrite: true,
-                  });
-                }
-                // Scrolling up - show
-                else if (
-                  scrollDelta < -minScrollDelta &&
-                  isHeaderHiddenRef.current
-                ) {
-                  isHeaderHiddenRef.current = false;
-                  gsap.to(navRef.current, {
-                    opacity: 1,
-                    duration: 0.3,
-                    overwrite: true,
-                  });
-                }
-              } else if (isHeaderHiddenRef.current) {
-                // Always visible before 600px
+            if (currentScrollY > 400) {
+              if (
+                currentScrollY > lastScrollYRef.current &&
+                !isHeaderHiddenRef.current
+              ) {
+                // Scrolling down - slide header up off-screen
+                isHeaderHiddenRef.current = true;
+                gsap.to(headerRef.current, {
+                  y: "-10rem",
+                  duration: 0.3,
+                  ease: "power2.in",
+                  overwrite: true,
+                });
+              } else if (
+                currentScrollY < lastScrollYRef.current &&
+                isHeaderHiddenRef.current
+              ) {
+                // Scrolling up - slide header back down
                 isHeaderHiddenRef.current = false;
-                gsap.to(navRef.current, {
-                  opacity: 1,
-                  duration: 0.2,
+                gsap.to(headerRef.current, {
+                  y: 0,
+                  duration: 0.4,
+                  ease: "power2.out",
                   overwrite: true,
                 });
               }
+            } else if (isHeaderHiddenRef.current) {
+              // Always visible before collapse completes
+              isHeaderHiddenRef.current = false;
+              gsap.to(headerRef.current, {
+                y: 0,
+                duration: 0.2,
+                overwrite: true,
+              });
+            }
 
-              lastScrollYRef.current = currentScrollY;
-            },
-          });
+            lastScrollYRef.current = currentScrollY;
+          };
+
+          scrollContainer = activeScrollContainer;
+          directionScrollHandler = handleDirectionScroll;
+          activeScrollContainer.addEventListener(
+            "scroll",
+            handleDirectionScroll
+          );
         }
       });
     }, 100);
@@ -362,6 +372,9 @@ export const Header = () => {
     return () => {
       clearTimeout(timeoutId);
       if (ctx) ctx.revert();
+      if (scrollContainer && directionScrollHandler) {
+        scrollContainer.removeEventListener("scroll", directionScrollHandler);
+      }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, [isRendered, shouldStartCollapsed, isHomepage, logoYOffset]);
@@ -372,6 +385,7 @@ export const Header = () => {
 
   return (
     <div
+      ref={headerRef}
       className={cn(
         "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
       )}
@@ -469,7 +483,7 @@ export const Header = () => {
             }
             ref={logoRef}
             className={cn(
-              "fixed px-8 pt-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
+              "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
               !showHeader &&
                 (isHomepage || isOverlayPage) &&
                 "opacity-0 pointer-events-none"

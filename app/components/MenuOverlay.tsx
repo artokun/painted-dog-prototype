@@ -241,13 +241,17 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
-                    href="/for-readers-writers#writers"
+                    href="#"
                   >
-                    For Writers
+                    <span> For Writers</span>
                   </ThreeLink>
 
-                  <ThreeLink href="/contact" noUnderline>
-                    Submissions
+                  <ThreeLink
+                    className="w-fit mx-auto"
+                    href="/contact"
+                    animatedUnderline
+                  >
+                    <span>Submissions</span>
                   </ThreeLink>
                 </div>
               </div>
@@ -281,14 +285,14 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   <ThreeLink
                     href="/privacy"
                     className="text-[13px] hover:opacity-70 transition-opacity"
-                    noUnderline
+                    animatedUnderline
                   >
                     Privacy
                   </ThreeLink>
                   <ThreeLink
                     href="/legal"
                     className="text-[13px]  hover:opacity-70 transition-opacity"
-                    noUnderline
+                    animatedUnderline
                   >
                     Legal
                   </ThreeLink>

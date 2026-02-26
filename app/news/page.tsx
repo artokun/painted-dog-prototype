@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getNewsCategories, getNewsPage } from "@/lib/news";
 import { cn } from "@/lib/utils";
 import { Footer } from "@/app/components/Footer";
@@ -68,33 +69,33 @@ export default async function NewsArchivePage({
 
   return (
     <div className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto">
-      <div className="mx-auto w-full max-w-6xl px-5 md:px-20 pt-28 pb-24 text-black">
-        <header>
+      <div className="w-full px-5 md:px-8 pb-7 text-black"> 
+        <header className=" pt-20  pb-40">
           <div className="w-full flex flex-col gap-6">
-            <div className="w-full grid grid-cols-5 gap-8 items-center">
-              <div className="leading-none col-span-2 flex justify-center gap-4">
-                <p className="text-[32px] md:text-[120px] tracking-[-0.04em] font-fields font-semibold">
+            <div className="w-full grid grid-cols-3 gap-7 items-center">
+              <div className="leading-none col-span-1 flex justify-center gap-4">
+                <p className="text-[32px] md:text-[72px] tracking-[-0.04em] font-fields font-semibold">
                   {total}
                 </p>
               </div>
 
-              <div className="col-span-3">
-                <h1 className="text-[32px] md:text-5xl font-fields font-semibold leading-none">
-                  {activeCategory ? `News — ${activeCategory.name}` : "News"}
+              <div className="col-span-2">
+                <h1 className="text-[32px] md:text-[72px] font-fields font-semibold leading-none">
+                  {activeCategory && typeof activeCategory.name === "string"
+                    ? `News — ${activeCategory.name}`
+                    : "News"}
                 </h1>
               </div>
             </div>
 
-            <div className="w-full grid grid-cols-5 gap-8">
-              <div className="col-span-2"></div>
-              <div className="col-span-3 flex flex-wrap gap-4">
+            <div className="w-full grid grid-cols-3 gap-8">
+              <div className="col-span-1"></div>
+              <div className="col-span-2 flex flex-wrap gap-4">
                 <Link
                   href={buildNewsHref({ page: 1 })}
                   className={cn(
-                    "text-base transition-all hover:text-lg",
-                    !categorySlug
-                      ? "underline decoration-2"
-                      : "hover:underline"
+                    "text-base",
+                    !categorySlug ? "underline decoration-2" : "hover:underline"
                   )}
                 >
                   All
@@ -106,10 +107,8 @@ export default async function NewsArchivePage({
                       key={cat.id}
                       href={buildNewsHref({ page: 1, category: cat.slug })}
                       className={cn(
-                        "text-base transition-all hover:text-lg",
-                        active
-                          ? "underline decoration-2"
-                          : "hover:underline"
+                        "text-base",
+                        active ? "underline decoration-2" : "hover:underline"
                       )}
                     >
                       {cat.name}
@@ -126,55 +125,47 @@ export default async function NewsArchivePage({
             <Link
               key={item.id}
               href={`/news/${item.slug}`}
-              className={cn(
-                "group flex flex-col gap-3 cursor-pointer",
-                "text-black"
-              )}
+              className={cn("group flex flex-col cursor-pointer text-black")}
             >
               <div className="flex items-start gap-4">
-                <p className="text-xs md:text-sm text-black/60 whitespace-nowrap mt-0.5">
+                <p className="text-xs md:text-sm text-black whitespace-nowrap mt-0.5">
                   {formatCardDate(item.publishDate)}
                 </p>
 
                 <div className="flex-1">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <h2 className="text-lg md:text-xl font-medium leading-snug">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <h2 className="text-lg font-medium leading-snug">
                       {item.title}
                     </h2>
                     <span className="hidden md:block text-lg md:text-xl leading-none opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
                       →
                     </span>
                   </div>
-                  
                   {item.excerpt && (
-                    <p className="mt-2 text-sm text-black/80 leading-relaxed line-clamp-2 md:hidden">
-                      <span className="mr-2">—</span>
-                      {item.excerpt}
-                    </p>
+                    <div className="mt-2 md:mt-0 flex items-start md:max-h-0 md:overflow-hidden md:group-hover:max-h-16 md:group-hover:mt-2 md:transition-all md:duration-300">
+                      <span className="shrink-0 mr-2">—</span>
+                      <span className="text-sm md:text-base leading-relaxed line-clamp-2 font-semibold">
+                        {item.excerpt}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div className="relative mt-2 overflow-hidden">
-                {item.excerpt && (
-                  <div className="hidden md:block absolute inset-x-0 top-0 px-4 py-3 max-h-16 overflow-hidden translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
-                    <p className="text-sm md:text-base text-black/80 leading-relaxed line-clamp-2">
-                      <span className="mr-2">—</span>
-                      {item.excerpt}
-                    </p>
-                  </div>
-                )}
-                
-                <div className="md:transition-transform md:duration-300 md:group-hover:translate-y-16">
+              <div className="relative overflow-hidden mt-6">
+
+                <div className="md:transition-transform md:duration-300">
                   {item.coverImageUrl ? (
-                    <img
+                    <Image
                       src={item.coverImageUrl}
                       alt=""
-                      className="w-full h-64 object-cover"
+                      width={600}
+                      height={400}
+                      className="w-full object-cover transition-all duration-300 md:h-auto h-64"
                       loading="lazy"
                     />
                   ) : (
-                    <div className="w-full h-64 bg-[#F0D6B2]" />
+                    <div className="w-full bg-[#F0D6B2] transition-all duration-300 md:h-auto h-64" />
                   )}
                 </div>
               </div>
@@ -190,50 +181,51 @@ export default async function NewsArchivePage({
 
         {totalPages > 1 && (
           <div className="mt-12 flex items-center justify-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-              const isActive = pageNum === page;
-              
-              // Show first page, last page, current page, and pages around current
-              const showPage = 
-                pageNum === 1 || 
-                pageNum === totalPages || 
-                pageNum === page ||
-                pageNum === page - 1 ||
-                pageNum === page + 1;
-              
-              const showEllipsisBefore = pageNum === page - 2 && page > 3;
-              const showEllipsisAfter = pageNum === page + 2 && page < totalPages - 2;
-              
-              if (showEllipsisBefore || showEllipsisAfter) {
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (pageNum) => {
+                const isActive = pageNum === page;
+
+                // Show first page, last page, current page, and pages around current
+                const showPage =
+                  pageNum === 1 ||
+                  pageNum === totalPages ||
+                  pageNum === page ||
+                  pageNum === page - 1 ||
+                  pageNum === page + 1;
+
+                const showEllipsisBefore = pageNum === page - 2 && page > 3;
+                const showEllipsisAfter =
+                  pageNum === page + 2 && page < totalPages - 2;
+
+                if (showEllipsisBefore || showEllipsisAfter) {
+                  return (
+                    <span key={pageNum} className="px-2 text-black/40">
+                      ...
+                    </span>
+                  );
+                }
+
+                if (!showPage && pageNum !== page - 2 && pageNum !== page + 2) {
+                  return null;
+                }
+
                 return (
-                  <span key={pageNum} className="px-2 text-black/40">
-                    ...
-                  </span>
+                  <Link
+                    key={pageNum}
+                    href={buildNewsHref({
+                      page: pageNum,
+                      category: categorySlug,
+                    })}
+                    className={cn(
+                      "px-2 py-1 text-base transition-all hover:text-lg",
+                      isActive ? "underline decoration-2" : "hover:underline"
+                    )}
+                  >
+                    {pageNum}
+                  </Link>
                 );
               }
-              
-              if (!showPage && pageNum !== page - 2 && pageNum !== page + 2) {
-                return null;
-              }
-              
-              return (
-                <Link
-                  key={pageNum}
-                  href={buildNewsHref({
-                    page: pageNum,
-                    category: categorySlug,
-                  })}
-                  className={cn(
-                    "px-2 py-1 text-base transition-all hover:text-lg",
-                    isActive
-                      ? "underline decoration-2"
-                      : "hover:underline"
-                  )}
-                >
-                  {pageNum}
-                </Link>
-              );
-            })}
+            )}
           </div>
         )}
       </div>
