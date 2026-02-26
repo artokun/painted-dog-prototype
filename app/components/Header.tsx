@@ -91,11 +91,8 @@ export const Header = () => {
 
   const [levaLoaded, setLevaLoaded] = useState(false);
   const auth = useSnapshot(authStore);
-  // const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
   const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
   const [isNewsletterPressed, setIsNewsletterPressed] = useState(false);
-
-  const {} = useSnapshot(globalStore);
 
   const newsletterUnderlineSpring = useSpring({
     width: isNewsletterPressed ? 1 : isNewsletterHovered ? 1 : -0.0001,
@@ -187,7 +184,6 @@ export const Header = () => {
     };
   }, [isRendered, isMobile, isBookPage, isBookFocused]);
 
-  // GSAP Scroll Animation
   // GSAP Scroll Animation
   useEffect(() => {
     if (!isRendered) return;
@@ -349,7 +345,7 @@ export const Header = () => {
         const hideThreshold = isHomepage ? 400 : 100;
 
         const handleDirectionScroll = () => {
-          const currentScrollY = activeContainer!.scrollTop;
+          const currentScrollY = activeContainer.scrollTop;
 
           if (currentScrollY > hideThreshold) {
             if (
