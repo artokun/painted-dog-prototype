@@ -184,7 +184,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
       <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-px pt-10 md:pt-3 mb-10 md:mb-0" />
       <div className="flex flex-co  md:flex-row gap-20 md:gap-10 max-w-[540px] mx-auto px-8 md:px-0">
         <article className="flex-1 flex flex-col gap-4 text-center">
-          <h3 className="text-[32px] font-semibold">So, what's next ?</h3>
+          <h3 className="text-[32px] font-semibold">So, what&apos;s next ?</h3>
           <p>
             We have many a literary treat for book lovers of all kinds in the
             works. Join our newsletter community to be the first to get
