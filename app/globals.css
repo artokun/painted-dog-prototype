@@ -87,7 +87,7 @@ input:-webkit-autofill {
   --torn-shadown-offset-y: 2px;
   --torn-shadow-blur: 2px;
   --torn-shadow-color: rgba(0, 0, 0, 0.15);
-  --torn-bg: #ffffff;
+  --torn-bg: #f9f6f0;
   --torn-edge-width: 2px;
   --torn-left-clip-path: polygon(
     1% 0%,
