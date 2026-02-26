@@ -54,10 +54,19 @@ export default function RootLayout({
             id="loading-overlay"
             className={cn(
               "absolute opacity-100 transition-opacity duration-600",
-              "inset-0 bg-[#2F2F2F] flex items-center justify-center z-50"
+              "inset-0 bg-white flex items-center justify-center z-50"
             )}
           >
-            <Image src="/logo-dog.png" alt="Logo" width={200} height={200} />
+            <video
+              id="loading-video"
+              className="w-[300px] h-[300px] object-cover rounded-lg"
+              src={`/loading/${Math.floor(Math.random() * 3) + 1}.mp4`}
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+            {/* <Image src="/logo-dog.png" alt="Logo" width={200} height={200} /> */}
           </div>
         </main>
         <div id="portal-root" />

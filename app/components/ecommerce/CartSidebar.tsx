@@ -175,12 +175,12 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                               </button>
                             </div>
 
-                            <p className="text-lg md:text-[20px] text-black mt-1">
+                            <p className="text-lg  md:text-[20px] text-black mt-1">
                               R{item.price.toFixed(2)}
                             </p>
 
                             {/* Quantity Controls */}
-                            <div className="flex items-center justify-between">
+                            <div className="flex mt-2 items-center justify-between">
                               <div className="flex items-center border gap-1 border-gray-300 rounded">
                                 <button
                                   onClick={() =>
