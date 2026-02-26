@@ -160,10 +160,10 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                             aria-label={item.title}
                           />
                           <div className="flex flex-col ">
-                            <p className="text-[11px] font-regular text-black ">
+                            <p className="text-[11px] pb-1 font-regular text-black ">
                               {item.author}
                             </p>
-                            <div className="flex items-start flex-row">
+                            <div className="flex pb-1.5 items-start flex-row">
                               <p className="text-[13px] font-semibold md:text-lg text-black w-full md:w-3/6">
                                 {item.title}
                               </p>
