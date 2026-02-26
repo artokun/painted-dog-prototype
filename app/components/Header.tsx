@@ -75,7 +75,7 @@ const MenuButton = ({
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
   const { isRendered, focusedBookId } = useSnapshot(bookStore);
-  const { currentRoute } = useSnapshot(globalStore);
+  const { currentRoute, isNewsLetterModalOpen } = useSnapshot(globalStore);
   const isGridMode = view === FilterView.Grid;
   const isBookPage = currentRoute.startsWith("/books/");
   const isHomepage = currentRoute === "/";
@@ -89,11 +89,13 @@ export const Header = () => {
   const isMobile = useMediaQuery("(max-width: 765px)");
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
 
-    const [levaLoaded, setLevaLoaded] = useState(false);
-    const auth = useSnapshot(authStore);
-    const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
+  const [levaLoaded, setLevaLoaded] = useState(false);
+  const auth = useSnapshot(authStore);
+  // const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
   const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
   const [isNewsletterPressed, setIsNewsletterPressed] = useState(false);
+
+  const {} = useSnapshot(globalStore);
 
   const newsletterUnderlineSpring = useSpring({
     width: isNewsletterPressed ? 1 : isNewsletterHovered ? 1 : -0.0001,
@@ -185,6 +187,7 @@ export const Header = () => {
     };
   }, [isRendered, isMobile, isBookPage, isBookFocused]);
 
+  // GSAP Scroll Animation
   // GSAP Scroll Animation
   useEffect(() => {
     if (!isRendered) return;
@@ -314,58 +317,82 @@ export const Header = () => {
           // Cart: already hidden, snap position → fade in at collapsed
           timeline.set(cartRef.current, { x: 0, y: 0, fontSize: 16 }, 0.12);
           timeline.to(cartRef.current, { opacity: 1, duration: 0.2 }, 0.15);
+        }
 
-          // Scroll direction slide - simulated sticky behavior
-          // Direct scroll listener for immediate direction detection
-          const handleDirectionScroll = () => {
-            const currentScrollY = activeScrollContainer.scrollTop;
+        // Pick the correct scroll container based on current route
+        let activeContainer: HTMLDivElement | null = null;
 
-            if (currentScrollY > 400) {
-              if (
-                currentScrollY > lastScrollYRef.current &&
-                !isHeaderHiddenRef.current
-              ) {
-                // Scrolling down - slide header up off-screen
-                isHeaderHiddenRef.current = true;
-                gsap.to(headerRef.current, {
-                  y: "-10rem",
-                  duration: 0.3,
-                  ease: "power2.in",
-                  overwrite: true,
-                });
-              } else if (
-                currentScrollY < lastScrollYRef.current &&
-                isHeaderHiddenRef.current
-              ) {
-                // Scrolling up - slide header back down
-                isHeaderHiddenRef.current = false;
-                gsap.to(headerRef.current, {
-                  y: 0,
-                  duration: 0.4,
-                  ease: "power2.out",
-                  overwrite: true,
-                });
-              }
-            } else if (isHeaderHiddenRef.current) {
-              // Always visible before collapse completes
+        if (isHomepage) {
+          activeContainer =
+            scrollContainerRef.current ||
+            (document.getElementById("scroll-el") as HTMLDivElement | null);
+        } else {
+          const containerMap: Record<string, string> = {
+            "/about": "about-page-scroll-container",
+            "/contact": "contact-page-scroll-container",
+            "/legal": "legal-page-scroll-container",
+            "/login": "login-page-scroll-container",
+            "/dashboard": "dashboard-page-scroll-container",
+          };
+
+          const containerId = containerMap[currentRoute];
+          if (containerId) {
+            activeContainer = document.getElementById(
+              containerId
+            ) as HTMLDivElement | null;
+          }
+        }
+
+        if (!activeContainer) return;
+
+        // Homepage needs higher threshold so it doesn't fight the collapse animation
+        const hideThreshold = isHomepage ? 400 : 100;
+
+        const handleDirectionScroll = () => {
+          const currentScrollY = activeContainer!.scrollTop;
+
+          if (currentScrollY > hideThreshold) {
+            if (
+              currentScrollY > lastScrollYRef.current &&
+              !isHeaderHiddenRef.current
+            ) {
+              // Scrolling down - slide header up off-screen
+              isHeaderHiddenRef.current = true;
+              gsap.to(headerRef.current, {
+                y: "-10rem",
+                duration: 0.3,
+                ease: "power2.in",
+                overwrite: true,
+              });
+            } else if (
+              currentScrollY < lastScrollYRef.current &&
+              isHeaderHiddenRef.current
+            ) {
+              // Scrolling up - slide header back down
               isHeaderHiddenRef.current = false;
               gsap.to(headerRef.current, {
                 y: 0,
-                duration: 0.2,
+                duration: 0.4,
+                ease: "power2.out",
                 overwrite: true,
               });
             }
+          } else if (isHeaderHiddenRef.current) {
+            // Always visible near top of page
+            isHeaderHiddenRef.current = false;
+            gsap.to(headerRef.current, {
+              y: 0,
+              duration: 0.2,
+              overwrite: true,
+            });
+          }
 
-            lastScrollYRef.current = currentScrollY;
-          };
+          lastScrollYRef.current = currentScrollY;
+        };
 
-          scrollContainer = activeScrollContainer;
-          directionScrollHandler = handleDirectionScroll;
-          activeScrollContainer.addEventListener(
-            "scroll",
-            handleDirectionScroll
-          );
-        }
+        scrollContainer = activeContainer;
+        directionScrollHandler = handleDirectionScroll;
+        activeContainer.addEventListener("scroll", handleDirectionScroll);
       });
     }, 100);
 
@@ -377,7 +404,7 @@ export const Header = () => {
       }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, [isRendered, shouldStartCollapsed, isHomepage, logoYOffset]);
+  }, [isRendered, shouldStartCollapsed, isHomepage, logoYOffset, currentRoute]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
@@ -392,7 +419,7 @@ export const Header = () => {
     >
       {/* Single nav container for fade animation */}
       <div ref={navRef} className="flex w-full 2xl:max-w-[1320] mx-auto">
-        <div className="flex-1 flex text-black">
+        <div className="flex text-black z-[9]">
           {!isBookFocused && (
             <>
               {/* Mobile Logo */}
@@ -427,7 +454,7 @@ export const Header = () => {
                   className="hidden text-[24px] uppercase md:flex pointer-events-auto"
                 >
                   <button
-                    onClick={() => setIsNewsletterModalOpen(true)}
+                    onClick={() => (globalStore.isNewsLetterModalOpen = true)}
                     onMouseEnter={() => setIsNewsletterHovered(true)}
                     onMouseLeave={() => {
                       setIsNewsletterHovered(false);
@@ -441,11 +468,15 @@ export const Header = () => {
                       className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
                       style={{
                         bottom: "5px",
-                        width: newsletterUnderlineSpring.width.to((width) => `${width * 100}%`),
+                        width: newsletterUnderlineSpring.width.to(
+                          (width) => `${width * 100}%`
+                        ),
                         opacity: newsletterUnderlineSpring.opacity
                           .to([0, 1], [0, 10])
                           .to((opacity) => `${Math.min(opacity, 1)}`),
-                        transform: newsletterUnderlineSpring.x.to((x) => `translateX(${x}%)`),
+                        transform: newsletterUnderlineSpring.x.to(
+                          (x) => `translateX(${x}%)`
+                        ),
                       }}
                     />
                   </button>
@@ -563,8 +594,8 @@ export const Header = () => {
         </div>
       </div>
       <NewsletterModal
-        isOpen={isNewsletterModalOpen}
-        onClose={() => setIsNewsletterModalOpen(false)}
+        isOpen={isNewsLetterModalOpen}
+        onClose={() => (globalStore.isNewsLetterModalOpen = false)}
       />
     </div>
   );

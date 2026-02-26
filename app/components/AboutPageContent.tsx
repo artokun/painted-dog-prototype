@@ -16,10 +16,10 @@ enum Tab {
   Friends = "friends",
 }
 
-export const AboutPageContent = ({ 
+export const AboutPageContent = ({
   visible,
-  aboutContent
-}: { 
+  aboutContent,
+}: {
   visible: boolean;
   aboutContent: AboutContent | null;
 }) => {
@@ -77,7 +77,7 @@ export const AboutPageContent = ({
   return (
     <animated.div
       ref={containerRef}
-      id="contact-page-scroll-container"
+      id="about-page-scroll-container"
       style={style}
       className={cn(
         "bg-[#e7d7bf] absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden",
@@ -114,13 +114,7 @@ const TabButton = ({
       className="text-5xl md:text-7xl flex text-left cursor-pointer relative"
       onClick={onClick}
     >
-      <span
-        className={cn(
-          !active && "underline opacity-30"
-        )}
-      >
-        {children}
-      </span>
+      <span className={cn(!active && "underline opacity-30")}>{children}</span>
     </li>
   );
 };
@@ -148,10 +142,7 @@ const MobileTabSelector = ({
   return (
     <div className="flex flex-col gap-4">
       <ul className="flex flex-col gap-2">
-        <TabButton
-          active={tab === Tab.About}
-          onClick={() => setTab(Tab.About)}
-        >
+        <TabButton active={tab === Tab.About} onClick={() => setTab(Tab.About)}>
           About
         </TabButton>
         <TabButton
@@ -167,9 +158,7 @@ const MobileTabSelector = ({
           Friends
         </TabButton>
       </ul>
-      <p className="text-[38px] font-fields">
-        {getTabDescription()}
-      </p>
+      <p className="text-[38px] font-fields">{getTabDescription()}</p>
     </div>
   );
 };
@@ -190,7 +179,10 @@ const AboutPage = ({
   useEffect(() => {
     // Scroll to top of content
     if (contentTopRef.current) {
-      contentTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      contentTopRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
 
     // Animate paper section sliding up from below on mount and tab change
@@ -228,7 +220,7 @@ const AboutPage = ({
   return (
     <div className="md:py-20 py-12 w-full">
       <div ref={contentTopRef} className="absolute -top-20" />
-      
+
       <div className="md:hidden w-full py-12 flex flex-col gap-2">
         <MobileTabSelector tab={tab} setTab={setTab} />
       </div>
@@ -254,23 +246,21 @@ const AboutPage = ({
               Friends
             </TabButton>
           </ul>
-          <p className="text-[38px] font-fields">
-            {getTabDescription()}
-          </p>
+          <p className="text-[38px] font-fields">{getTabDescription()}</p>
         </aside>
-        <section 
+        <section
           ref={paperRef}
           className="flex-1 bg-[#f9f6f0] mt-16 p-8 prose prose-lg max-w-none"
         >
           {tab === Tab.About && (
             <div>
-              {aboutContent?.aboutTab && aboutContent.aboutTab.length > 0 && (
+              {(aboutContent?.aboutTab && aboutContent.aboutTab.length > 0 && (
                 <div className="space-y-8">
                   {aboutContent.aboutTab.map((person, index) => (
                     <PersonCardSimple key={index} person={person} />
                   ))}
                 </div>
-              ) || <p>No content available</p>}
+              )) || <p>No content available</p>}
             </div>
           )}
           {tab === Tab.WhoWeAre && (
@@ -301,9 +291,9 @@ const AboutPage = ({
           )}
         </section>
       </div>
-      <div 
+      <div
         ref={lineRef}
-        className="border-b border-black w-full max-w-[400px] mx-auto h-px pt-20 md:pt-3" 
+        className="border-b border-black w-full max-w-[400px] mx-auto h-px pt-20 md:pt-3"
       />
     </div>
   );

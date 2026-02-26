@@ -101,7 +101,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
   return (
     <animated.div
       ref={containerRef}
-      id="dasboard-page-scroll-container"
+      id="dashboard-page-scroll-container"
       style={style}
       className={cn(
         "absolute inset-0 pt-16 lg:pt-0 flex items-center h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden bg-[#e7d7bf]",

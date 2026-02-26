@@ -6,6 +6,7 @@ interface GlobalStore {
   scrollPages: number;
   overlayScrollPosition: number;
   isMenuOpen: boolean;
+  isNewsLetterModalOpen: boolean;
 }
 
 export const globalStore = proxy<GlobalStore>({
@@ -14,4 +15,5 @@ export const globalStore = proxy<GlobalStore>({
   scrollPages: 1.75, // Default value, will be updated dynamically
   overlayScrollPosition: 0,
   isMenuOpen: false,
+  isNewsLetterModalOpen: false,
 });

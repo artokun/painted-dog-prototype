@@ -16,8 +16,8 @@ import { Footer } from "./Footer";
 import { cn } from "@/lib/utils";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
-import { AddToCalendarButton } from "./ui/AddToCalendarButton";
-import { NewsletterForm } from "./ui/NewsletterForm";
+// import { AddToCalendarButton } from "./ui/AddToCalendarButton";
+// import { NewsletterForm } from "./ui/NewsletterForm";
 import { animated, useSpring } from "@react-spring/web";
 import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";
@@ -171,9 +171,8 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
             exclusive author interviews, book snippets and insider treats.
           </p>
           <PDButton
-            href="https://stellenboschbooks.co.za/products/bitterkomix-sketchbooks-and-journals-a-kannemeyer-c-botes"
+            onClick={() => (globalStore.isNewsLetterModalOpen = true)}
             className="w-full max-w-60 mx-auto"
-            target="_blank"
           >
             Sign Up for Newsletter
           </PDButton>
