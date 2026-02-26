@@ -24,6 +24,7 @@ import debounce from "lodash.debounce";
 import { useMediaQuery } from "usehooks-ts";
 import { PurchaseButtons } from "./PurchaseButtons";
 import { hydrateAuth } from "@/app/store/authStore";
+import { PDButton } from "./ui/PDButton";
 
 export const Middle = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -153,51 +154,33 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           <h3 className="text-xl font-medium">
             An expansive publication in full colour showcasing decades&apos;
             worth of illustration done in hundreds of sketchbooks and journals
-            by the creators of the biting satirical comic <i>Bitterkomix</i>.
+            by the creators of the biting satirical comic <u>Bitterkomix.</u>
           </h3>
-          <PurchaseButtons layout="horizontal" isMobile={isMobile} />
         </div>
         <div className="flex-1 gap-4 flex flex-col">
-          <h3 className="text-xl font-medium">Upcoming Events</h3>
-          <p className="text-md">
-            <i>Bitterkomix: Sketchbooks and Journals</i> will be launched at the
-            Book Lounge, Cape Town, on 5 December 2025. Please arrive 17:30 for
-            18:00.
-          </p>
-          <div className="mt-1">
-            <AddToCalendarButton
-              tall={isMobile}
-              className="w-full"
-              event={{
-                title: "Bitterkomix Launch - Book Lounge",
-                start: "20251205T153000Z",
-                end: "20251205T170000Z",
-                description:
-                  "The artists will be in conversation with Sean O'Toole about this collection featuring more than a thousand images from their sketchbooks and journals of the past 30+ years.",
-                location:
-                  "The Book Lounge, Cnr Buitenkant &, 71 Roeland St, Cape Town City Centre, Cape Town, 8001, South Africa",
-              }}
-            />
-          </div>
+          <PurchaseButtons layout="horizontal" isMobile={isMobile} />
         </div>
       </div>
       <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-px pt-10 md:pt-3 mb-10 md:mb-0" />
-      <div className="flex flex-col md:flex-row gap-20 md:gap-10 max-w-3xl mx-auto px-8 md:px-0">
-        <article className="flex-1 flex flex-col gap-4">
-          <h3 className="text-xl font-medium">New Publisher, New Tricks</h3>
+      <div className="flex flex-co  md:flex-row gap-20 md:gap-10 max-w-[540px] mx-auto px-8 md:px-0">
+        <article className="flex-1 flex flex-col gap-4 text-center">
+          <h3 className="text-[32px] font-semibold">So, what&apos;s next ?</h3>
           <p>
-            Painted Dog Press is a new independent book publisher of fiction and
-            non-fiction. Spearheaded by Fourie Botha (previously from Penguin
-            Random House SA) and John Hunt (TBWA/Hunt/Lascaris), the press will
-            develop and nurture quality literature and provide writers with a
-            publishing house that continually fosters and markets their work.
-            Painted Dog&apos;s efforts will be strengthened by tech innovation
-            and human-first technology.
+            We have many a literary treat for book lovers of all kinds in the
+            works. Join our newsletter community to be the first to get
+            exclusive author interviews, book snippets and insider treats.
           </p>
+          <PDButton
+            href="https://stellenboschbooks.co.za/products/bitterkomix-sketchbooks-and-journals-a-kannemeyer-c-botes"
+            className="w-full max-w-60 mx-auto"
+            target="_blank"
+          >
+            Sign Up for Newsletter
+          </PDButton>
         </article>
-        <article className="flex-1 flex flex-col gap-4">
+        {/* <article className="flex-1 flex flex-col gap-4">
           <NewsletterForm />
-        </article>
+        </article> */}
       </div>
       <Footer />
     </animated.section>

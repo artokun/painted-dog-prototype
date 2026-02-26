@@ -34,7 +34,7 @@ export const Footer = () => {
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
-      <footer className="relative min-h-[216px] torn-paper  bg-[#F9F6F0] pointer-events-auto p-[5px] text-black w-full ">
+      <footer className="relative min-h-[216px] torn-paper  bg-[#F9F6F0] pointer-events-auto p-[5px] text-black w-full max-w-[1600px]">
         <div className="torn-right"></div>
         <div className="torn-bottom"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
@@ -54,14 +54,14 @@ export const Footer = () => {
               <div className="flex justify-between">
                 {auth.isLoggedIn ? (
                   <button
-                    className="text-xl font-medium uppercase hover:cursor-pointer"
+                    className="text-base md:text-xl font-medium uppercase hover:cursor-pointer"
                     onClick={logout}
                   >
                     Log Out
                   </button>
                 ) : (
                   <ThreeLink
-                    className="text-xl font-medium uppercase"
+                    className="text-base md:text-xl font-medium uppercase"
                     noUnderline
                     href="/login"
                   >
@@ -70,14 +70,14 @@ export const Footer = () => {
                 )}
 
                 <ThreeLink
-                  className="text-xl font-medium uppercase"
+                  className="text-base md:text-xl font-medium uppercase"
                   noUnderline
                   href="/dashboard"
                 >
                   Account
                 </ThreeLink>
                 <button
-                  className="text-xl uppercase font-medium hover:cursor-pointer"
+                  className="text-base md:text-xl uppercase font-medium hover:cursor-pointer"
                   onClick={openCart}
                 >
                   Cart
