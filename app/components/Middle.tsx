@@ -16,8 +16,6 @@ import { Footer } from "./Footer";
 import { cn } from "@/lib/utils";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
-// import { AddToCalendarButton } from "./ui/AddToCalendarButton";
-// import { NewsletterForm } from "./ui/NewsletterForm";
 import { animated, useSpring } from "@react-spring/web";
 import { globalStore } from "@/app/store/globalStore";
 import debounce from "lodash.debounce";
