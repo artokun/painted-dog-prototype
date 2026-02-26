@@ -215,7 +215,7 @@ export const Header = () => {
               scroller: activeScrollContainer,
               start: "top top",
               end: "+=400",
-              toggleActions: "play none reverse reset",
+              toggleActions: "play none none reverse",
             },
           });
 
