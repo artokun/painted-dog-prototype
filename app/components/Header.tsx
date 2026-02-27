@@ -275,13 +275,13 @@ export const Header = () => {
           // Set expanded starting positions before timeline
           gsap.set(newsletterRef.current, {
             x: "-6.5rem",
-            y: "16.875rem",
+            y: "15.875rem",
             fontSize: 24,
             opacity: 1,
           });
           gsap.set(loginRef.current, {
             x: "6.5rem",
-            y: "16.875rem",
+            y: "15.875rem",
             fontSize: 24,
             opacity: 1,
           });

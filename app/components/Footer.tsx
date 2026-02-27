@@ -47,7 +47,7 @@ export const Footer = () => {
                   alt="Logo"
                   width={320}
                   height={149}
-                  className="w-full h-full object-cover md:w-[320px] md:mx-auto"
+                  className="w-full h-full object-cover md:w-[320px] md:mx-auto md:my-auto"
                 />
               </ThreeLink>
 
@@ -87,7 +87,7 @@ export const Footer = () => {
           </div>
 
           {/* center column - "For Readers" */}
-          <div className="flex flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t md:border-t-0 border-l border-r md:border-r lg:border-l lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
+          <div className="flex border-l-2 border-r-2 flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t md:border-t-0 md:border-r lg:border-l lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-semibold"
@@ -150,7 +150,7 @@ export const Footer = () => {
               </ThreeLink>
             </div>
 
-            <div className="flex flex-col menu-section-legal mx-auto xl:ml-auto md:mr-0 lg:gap-8 lg:flex-row">
+            <div className="flex flex-col menu-section-legal mx-auto xl:ml-auto lg:mr-0 lg:gap-8 lg:flex-row">
               <div className="flex gap-8 lg:gap-8">
                 <ThreeLink className="text-base" href="/legal" noUnderline>
                   Privacy
