@@ -47,7 +47,7 @@ export const Footer = () => {
                   alt="Logo"
                   width={320}
                   height={149}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover md:w-[320px] md:mx-auto"
                 />
               </ThreeLink>
 
@@ -98,7 +98,7 @@ export const Footer = () => {
               </ThreeLink>
               <button
                 onClick={() => setIsNewsletterModalOpen(true)}
-				className="cursor-pointer"
+                className="cursor-pointer"
               >
                 Newsletter
               </button>

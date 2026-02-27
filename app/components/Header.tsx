@@ -414,7 +414,7 @@ export const Header = () => {
       )}
     >
       {/* Single nav container for fade animation */}
-      <div ref={navRef} className="flex w-full 2xl:max-w-[1320] mx-auto">
+      <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
         <div className="flex text-black z-[9]">
           {!isBookFocused && (
             <>
@@ -518,7 +518,7 @@ export const Header = () => {
           >
             <ThreeLink href="/">
               <Image
-                className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
+                className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
                 src="/logo-dog-inline-hd.png"
                 alt="Logo"
                 height={6120}
