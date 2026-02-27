@@ -40,7 +40,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
           {/* logo column - Full width on mobile and tablet, 1/3 on desktop */}
           <div className="flex py-6 px-10 justify-center gap-6 items-center relative border-2 border-b-0 md:border-b lg:border-r-0 lg:border-b-2 border-black flex-1 h-full md:col-span-2 lg:col-span-1 lg:row-span-3">
-            <div className="flex flex-col w-full justify-between h-full">
+            <div className="flex flex-col w-full justify-between h-full gap-6">
               <ThreeLink href="/">
                 <Image
                   src="/logo-dog-footer.png"
