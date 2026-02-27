@@ -39,7 +39,7 @@ export const Footer = () => {
         <div className="torn-bottom"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
           {/* logo column - Full width on mobile and tablet, 1/3 on desktop */}
-          <div className="flex py-6 px-10 justify-center gap-6 md:gap-10 items-center relative border-2 border-b-0 md:border-b lg:border-r-0 lg:border-b-2 border-black flex-1 h-full min-h-[196px] md:col-span-2 lg:col-span-1 lg:row-span-3">
+          <div className="flex py-6 px-10 justify-center gap-6 items-center relative border-2 border-b-0 md:border-b lg:border-r-0 lg:border-b-2 border-black flex-1 h-full md:col-span-2 lg:col-span-1 lg:row-span-3">
             <div className="flex flex-col w-full justify-between h-full">
               <ThreeLink href="/">
                 <Image
@@ -47,7 +47,7 @@ export const Footer = () => {
                   alt="Logo"
                   width={320}
                   height={149}
-                  className="w-full h-full object-cover md:w-[320px] md:mx-auto md:my-auto"
+                  className="w-full h-full object-cover md:max-w-[310px] md:w-auto  md:mx-auto md:my-auto"
                 />
               </ThreeLink>
 
@@ -128,21 +128,21 @@ export const Footer = () => {
           <div className="flex flex-col xl:flex-row px-12 py-6 md:col-span-2 lg:col-span-2 border-t border-l-2 border-b-2 border-r-2 lg:border-l">
             <div className="flex gap-4 justify-around menu-section">
               <ThreeLink
-                className="md:text-[32px] text-base font-semibold"
+                className="md:text-[32px] md:leading-[100%]! text-base font-semibold"
                 href="/about"
                 noUnderline
               >
                 About
               </ThreeLink>
               <ThreeLink
-                className="md:text-[32px] text-base font-semibold"
+                className="md:text-[32px] md:leading-[100%]! text-base font-semibold"
                 href="/contact"
                 noUnderline
               >
                 Contact
               </ThreeLink>
               <ThreeLink
-                className="md:text-[32px] text-base font-semibold"
+                className="md:text-[32px] md:leading-[100%]! text-base font-semibold"
                 href="/news"
                 noUnderline
               >
