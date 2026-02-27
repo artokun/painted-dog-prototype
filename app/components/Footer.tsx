@@ -34,7 +34,7 @@ export const Footer = () => {
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
-      <footer className="relative min-h-[216px] torn-paper  bg-[#F9F6F0] pointer-events-auto p-[5px] text-black w-full max-w-[1600px]">
+      <footer className="relative min-h-[216px] torn-paper  bg-[#F9F6F0] pointer-events-auto p-4 text-black w-full max-w-[1600px]">
         <div className="torn-right"></div>
         <div className="torn-bottom"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
@@ -87,7 +87,7 @@ export const Footer = () => {
           </div>
 
           {/* center column - "For Readers" */}
-          <div className="flex border-l-2 border-r-2 flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t md:border-t-0 md:border-r lg:border-l lg:border-r lg:border-t-2 border-black h-full md:min-h-[196px]">
+          <div className="flex border-l-2 border-r-2 flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t md:border-t-0 md:border-r lg:border-l lg:border-r lg:border-t-2 border-black h-full">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-semibold"
@@ -109,7 +109,7 @@ export const Footer = () => {
           </div>
 
           {/* right column - "For Writers" */}
-          <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-l-0 md:border-t-0 border-l-2 border-r-2 lg:border-t-2 lg:border-l-0 border-black h-full md:min-h-[196px]">
+          <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-l-0 md:border-t-0 border-l-2 border-r-2 lg:border-t-2 lg:border-l-0 border-black h-full">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-semibold"
@@ -151,7 +151,7 @@ export const Footer = () => {
             </div>
 
             <div className="flex flex-col menu-section-legal mx-auto xl:ml-auto lg:mr-0 lg:gap-8 lg:flex-row">
-              <div className="flex gap-8 lg:gap-8">
+              <div className="flex gap-8 lg:gap-4">
                 <ThreeLink className="text-base" href="/legal" noUnderline>
                   Privacy
                 </ThreeLink>

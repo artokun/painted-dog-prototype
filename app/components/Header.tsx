@@ -232,7 +232,7 @@ export const Header = () => {
           timeline.fromTo(
             logoRef.current,
             { scale: 1, y: 0 },
-            { scale: 0.2, duration: 0.5, y: logoYOffset },
+            { scale: 0.2, duration: 0.25, y: logoYOffset },
             0
           );
 
