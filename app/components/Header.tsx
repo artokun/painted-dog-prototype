@@ -254,21 +254,21 @@ export const Header = () => {
           timeline.fromTo(
             leftseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
+            { opacity: 1, duration: 0.05, y: -2 },
             0.85
           );
 
           timeline.fromTo(
             rightseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
+            { opacity: 1, duration: 0.05, y: -2 },
             0.85
           );
 
           timeline.fromTo(
             cartseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
+            { opacity: 1, duration: 0.05, y: -2 },
             0.85
           );
 
