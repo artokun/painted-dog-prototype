@@ -68,8 +68,11 @@ export default async function NewsArchivePage({
   const paginatedItems = items.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
-    <div className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto">
-      <div className="w-full px-5 md:px-8 pb-7 text-black"> 
+    <div
+      id="news-page-scroll-container"
+      className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto"
+    >
+      <div className="w-full pt-20 px-5 md:px-8 pb-7 text-black">
         <header className=" pt-20  pb-40">
           <div className="w-full flex flex-col gap-6">
             <div className="w-full grid grid-cols-3 gap-7 items-center">
@@ -153,7 +156,6 @@ export default async function NewsArchivePage({
               </div>
 
               <div className="relative overflow-hidden mt-6">
-
                 <div className="md:transition-transform md:duration-300">
                   {item.coverImageUrl ? (
                     <Image

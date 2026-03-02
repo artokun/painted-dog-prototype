@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import type { Document } from "@contentful/rich-text-types";
 import { Footer } from "@/app/components/Footer";
 import { NewsParallaxHeader } from "@/app/components/NewsParallaxHeader";
 import { NewsContentBlock4 } from "@/app/components/NewsContentBlock4";
@@ -39,8 +38,11 @@ export default async function NewsArticlePage({
   if (!article) notFound();
 
   return (
-    <div className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto">
-      <div className="w-full px-5 md:px-8 pt-28 pb-24 text-black">
+    <div
+      id="news-slug-page-scroll-container"
+      className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto"
+    >
+      <div className="w-full px-5 md:px-8 pt-25 pb-24 text-black">
         <NewsParallaxHeader
           title={article.title}
           excerpt={article.excerpt}
@@ -49,8 +51,8 @@ export default async function NewsArticlePage({
 
         <article className="mt-10 leading-relaxed space-y-14 md:space-y-36">
           {article.summaryCopy && article.summaryCopy.content && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-              <div className="md:w-4/5 md:ml-auto">
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+              <div className="md:col-span-3 md:col-start-2">
                 <div className="prose max-w-none [&_p]:text-2xl [&_p]:text-black [&_p]:leading-relaxed [&_p]:font-medium">
                   {documentToReactComponents(article.summaryCopy)}
                 </div>
@@ -67,9 +69,8 @@ export default async function NewsArticlePage({
           )}
 
           {article.contentBlock1 && article.contentBlock1.content && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-              <div></div>
-              <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock1)}
               </div>
             </div>
@@ -91,7 +92,7 @@ export default async function NewsArticlePage({
               />
               {(article.fullWidthImage.fields.description ||
                 article.fullWidthImage.fields.title) && (
-                <figcaption className="mt-2 px-5 md:px-20 text-sm text-black/60">
+                <figcaption className="mt-2 px-5 md:px-8 text-sm text-black">
                   {article.fullWidthImage.fields.description ||
                     article.fullWidthImage.fields.title}
                 </figcaption>
@@ -100,17 +101,16 @@ export default async function NewsArticlePage({
           )}
 
           {article.contentBlock2 && article.contentBlock2.content && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-              <div></div>
-              <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock2)}
               </div>
             </div>
           )}
 
           {article.pullquote && (
-            <div className="grid grid-cols-1 gap-8 md:gap-12">
-              <div className="md:w-[90%] md:ml-auto">
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+              <div className="md:col-span-6 md:col-start-2">
                 <blockquote className="text-xl md:text-4xl text-black leading-relaxed text-center">
                   {article.pullquote}
                 </blockquote>
@@ -119,9 +119,8 @@ export default async function NewsArticlePage({
           )}
 
           {article.imageWithCaption && article.imageWithCaption.fields && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div></div>
-              <div className="flex flex-col md:grid md:grid-cols-[70%_30%] gap-4 md:items-end">
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+              <div className="md:col-span-6 md:col-start-2 flex flex-col md:grid md:grid-cols-[70%_30%] gap-4 md:items-end">
                 <Image
                   src={`https:${article.imageWithCaption.fields.file.url}`}
                   alt={
@@ -136,7 +135,7 @@ export default async function NewsArticlePage({
                 />
                 {(article.imageWithCaption.fields.description ||
                   article.imageWithCaption.fields.title) && (
-                  <figcaption className="text-sm text-black/60 md:pb-1 wrap-break-word">
+                  <figcaption className="text-sm text-black md:pb-1 wrap-break-word">
                     {article.imageWithCaption.fields.description ||
                       article.imageWithCaption.fields.title}
                   </figcaption>
@@ -146,9 +145,8 @@ export default async function NewsArticlePage({
           )}
 
           {article.contentBlock3 && article.contentBlock3.content && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-              <div></div>
-              <div className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock3)}
               </div>
             </div>
@@ -162,9 +160,8 @@ export default async function NewsArticlePage({
           )}
 
           {article.acknowledgements && article.acknowledgements.content && (
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div></div>
-              <div>
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-8 gap-6">
+              <div className="md:col-span-5 md:col-start-3 justify-end">
                 <h3 className="text-base mb-3">Acknowledgements</h3>
                 <div className="prose max-w-none [&_p]:text-sm [&_p]:text-black/70 [&_p]:leading-relaxed [&_p]:flex [&_p]:gap-3 [&_p]:before:content-['—'] [&_p]:before:shrink-0">
                   {documentToReactComponents(article.acknowledgements)}

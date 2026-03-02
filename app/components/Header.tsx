@@ -82,6 +82,8 @@ export const Header = () => {
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
   const isLoginPage = currentRoute === "/login";
+  const isNewsPage = currentRoute === "/news";
+  const isNewsSlugPage = currentRoute.startsWith("/news/");
   const isOverlayPage = isContactPage || isLegalPage || isLoginPage;
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
@@ -322,6 +324,11 @@ export const Header = () => {
           activeContainer =
             scrollContainerRef.current ||
             (document.getElementById("scroll-el") as HTMLDivElement | null);
+        } else if (isNewsSlugPage) {
+          // Handle news slug pages (e.g., /news/article-slug)
+          activeContainer = document.getElementById(
+            "news-slug-page-scroll-container"
+          ) as HTMLDivElement | null;
         } else {
           const containerMap: Record<string, string> = {
             "/about": "about-page-scroll-container",
@@ -329,6 +336,7 @@ export const Header = () => {
             "/legal": "legal-page-scroll-container",
             "/login": "login-page-scroll-container",
             "/dashboard": "dashboard-page-scroll-container",
+            "/news": "news-page-scroll-container",
           };
 
           const containerId = containerMap[currentRoute];
