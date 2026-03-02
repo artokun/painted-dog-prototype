@@ -86,7 +86,9 @@ export const Header = () => {
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
+  const isXtraLarge = useMediaQuery("(min-width: 1500px)");
   const isMobile = useMediaQuery("(max-width: 765px)");
+
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
 
   const [levaLoaded, setLevaLoaded] = useState(false);
@@ -223,7 +225,7 @@ export const Header = () => {
             scrollTrigger: {
               trigger: activeScrollContainer,
               scroller: activeScrollContainer,
-              start: "top top",
+              start: "+=60",
               end: "+=400",
               toggleActions: "play none none reverse",
             },
@@ -232,7 +234,7 @@ export const Header = () => {
           timeline.fromTo(
             logoRef.current,
             { scale: 1, y: 0 },
-            { scale: 0.2, duration: 0.25, y: logoYOffset },
+            { scale: 0.2, duration: 0.5, y: logoYOffset },
             0
           );
 
@@ -254,34 +256,34 @@ export const Header = () => {
           timeline.fromTo(
             leftseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.05, y: -2 },
-            0.85
+            { opacity: 1, duration: 0.15, y: -2 },
+            0
           );
 
           timeline.fromTo(
             rightseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.05, y: -2 },
-            0.85
+            { opacity: 1, duration: 0.15, y: -2 },
+            0
           );
 
           timeline.fromTo(
             cartseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.05, y: -2 },
-            0.85
+            { opacity: 1, duration: 0.15, y: -2 },
+            0
           );
 
           // Set expanded starting positions before timeline
           gsap.set(newsletterRef.current, {
             x: "-6.5rem",
-            y: "15.875rem",
+            y: isXtraLarge ? "18.875rem" : "15.875rem",
             fontSize: 24,
             opacity: 1,
           });
           gsap.set(loginRef.current, {
             x: "6.5rem",
-            y: "15.875rem",
+            y: isXtraLarge ? "18.875rem" : "15.875rem",
             fontSize: 24,
             opacity: 1,
           });
@@ -400,7 +402,14 @@ export const Header = () => {
       }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, [isRendered, shouldStartCollapsed, isHomepage, logoYOffset, currentRoute]);
+  }, [
+    isRendered,
+    shouldStartCollapsed,
+    isHomepage,
+    logoYOffset,
+    currentRoute,
+    isXtraLarge,
+  ]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
@@ -410,7 +419,7 @@ export const Header = () => {
     <div
       ref={headerRef}
       className={cn(
-        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
+        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-6 md:px-8"
       )}
     >
       {/* Single nav container for fade animation */}
@@ -421,11 +430,11 @@ export const Header = () => {
               {/* Mobile Logo */}
               <Link className="flex w-40 md:hidden" href="/">
                 <Image
-                  className="object-contain w-auto lg:h-auto"
+                  className="object-contain w-full lg:h-auto max-w-[192px]"
                   src="/logo-dog-inline.png"
                   alt="Logo"
                   height={90}
-                  width={190}
+                  width={192}
                 />
               </Link>
 
@@ -516,13 +525,13 @@ export const Header = () => {
                 "opacity-0 pointer-events-none"
             )}
           >
-            <ThreeLink href="/">
+            <ThreeLink className="w-full max-w-400" href="/">
               <Image
-                className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
+                className="w-full 2xl:max-w-[1600px]"
                 src="/logo-dog-inline-hd.png"
                 alt="Logo"
                 height={6120}
-                width={1340}
+                width={1600}
               />
             </ThreeLink>
           </div>
