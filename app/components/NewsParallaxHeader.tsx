@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -109,7 +110,7 @@ export function NewsParallaxHeader({
     <header ref={containerRef} className="mt-10">
       <h1
         ref={titleRef}
-        className="text-4xl md:text-5xl font-fields font-semibold leading-tight md:w-1/2"
+        className="text-4xl md:text-5xl font-fields leading-tight font-medium md:w-1/2"
       >
         {title}
       </h1>
@@ -126,12 +127,14 @@ export function NewsParallaxHeader({
         ) : null}
 
         {coverImageUrl ? (
-          <figure ref={imageRef}>
-            <img
+          <figure ref={imageRef} className="relative w-full max-h-[400px]">
+            <Image
               ref={imgElementRef}
               src={coverImageUrl}
               alt=""
-              className="w-full h-auto max-h-[400px] object-cover rounded-sm border border-black/15"
+              width={1200}
+              height={400}
+              className="w-full h-auto max-h-[400px] object-cover"
               loading="lazy"
             />
           </figure>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
@@ -96,8 +97,8 @@ export function NewsContentBlock4({
   return (
     <div ref={containerRef} className="my-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
       {imageContentBlock4 && imageContentBlock4.fields && (
-        <figure ref={imageRef}>
-          <img
+        <figure ref={imageRef} className="relative w-full">
+          <Image
             ref={imgElementRef}
             src={`https:${imageContentBlock4.fields.file.url}`}
             alt={
@@ -105,7 +106,9 @@ export function NewsContentBlock4({
               imageContentBlock4.fields.title ||
               ""
             }
-            className="w-full h-auto rounded-sm border border-black/15"
+            width={1200}
+            height={800}
+            className="w-full h-auto"
             loading="lazy"
           />
           {(imageContentBlock4.fields.description ||
