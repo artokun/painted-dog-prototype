@@ -155,6 +155,18 @@ export function Dashboard({ visible }: { visible: boolean }) {
                       <span className="text-xl">›</span>
                     </button>
                     <button
+                      onClick={() =>
+                        window.open(
+                          "https://painteddogpress.substack.com/action/disable_email",
+                          "_blank",
+                          "noopener"
+                        )
+                      }
+                      className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
+                    >
+                      Newsletter
+                    </button>
+                    <button
                       onClick={() => router.push("/contact")}
                       className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
                     >
@@ -238,6 +250,18 @@ export function Dashboard({ visible }: { visible: boolean }) {
                     }`}
                   >
                     Orders
+                  </button>
+                  <button
+                    onClick={() =>
+                      window.open(
+                        "https://painteddogpress.substack.com/action/disable_email",
+                        "_blank",
+                        "noopener"
+                      )
+                    }
+                    className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between  hover:underline transition-colors hover:cursor-pointer"
+                  >
+                    Newsletter
                   </button>
                   <button
                     onClick={() => router.push("/contact")}

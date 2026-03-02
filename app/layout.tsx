@@ -66,6 +66,7 @@ export default function RootLayout({
               muted
               playsInline
             />
+
             {/* <Image src="/logo-dog.png" alt="Logo" width={200} height={200} /> */}
           </div>
         </main>

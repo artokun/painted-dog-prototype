@@ -82,6 +82,8 @@ export const Header = () => {
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
   const isLoginPage = currentRoute === "/login";
+  const isNewsPage = currentRoute === "/news";
+  const isNewsSlugPage = currentRoute.startsWith("/news/");
   const isOverlayPage = isContactPage || isLegalPage || isLoginPage;
   const isBookFocused = focusedBookId !== null;
   const [showHeader, setShowHeader] = useState(true);
@@ -232,7 +234,7 @@ export const Header = () => {
           timeline.fromTo(
             logoRef.current,
             { scale: 1, y: 0 },
-            { scale: 0.2, duration: 1, y: logoYOffset },
+            { scale: 0.2, duration: 0.25, y: logoYOffset },
             0
           );
 
@@ -254,34 +256,34 @@ export const Header = () => {
           timeline.fromTo(
             leftseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
+            { opacity: 1, duration: 0.05, y: -2 },
             0.85
           );
 
           timeline.fromTo(
             rightseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
+            { opacity: 1, duration: 0.05, y: -2 },
             0.85
           );
 
           timeline.fromTo(
             cartseparatorRef.current,
             { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
+            { opacity: 1, duration: 0.05, y: -2 },
             0.85
           );
 
           // Set expanded starting positions before timeline
           gsap.set(newsletterRef.current, {
             x: "-6.5rem",
-            y: "16.875rem",
+            y: "15.875rem",
             fontSize: 24,
             opacity: 1,
           });
           gsap.set(loginRef.current, {
             x: "6.5rem",
-            y: "16.875rem",
+            y: "15.875rem",
             fontSize: 24,
             opacity: 1,
           });
@@ -322,6 +324,11 @@ export const Header = () => {
           activeContainer =
             scrollContainerRef.current ||
             (document.getElementById("scroll-el") as HTMLDivElement | null);
+        } else if (isNewsSlugPage) {
+          // Handle news slug pages (e.g., /news/article-slug)
+          activeContainer = document.getElementById(
+            "news-slug-page-scroll-container"
+          ) as HTMLDivElement | null;
         } else {
           const containerMap: Record<string, string> = {
             "/about": "about-page-scroll-container",
@@ -329,6 +336,7 @@ export const Header = () => {
             "/legal": "legal-page-scroll-container",
             "/login": "login-page-scroll-container",
             "/dashboard": "dashboard-page-scroll-container",
+            "/news": "news-page-scroll-container",
           };
 
           const containerId = containerMap[currentRoute];
@@ -414,7 +422,7 @@ export const Header = () => {
       )}
     >
       {/* Single nav container for fade animation */}
-      <div ref={navRef} className="flex w-full 2xl:max-w-[1320] mx-auto">
+      <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
         <div className="flex text-black z-[9]">
           {!isBookFocused && (
             <>
@@ -518,7 +526,7 @@ export const Header = () => {
           >
             <ThreeLink href="/">
               <Image
-                className="md:w-auto 2xl:max-w-[1320] xl:mx-auto 2xl:mx-auto"
+                className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
                 src="/logo-dog-inline-hd.png"
                 alt="Logo"
                 height={6120}

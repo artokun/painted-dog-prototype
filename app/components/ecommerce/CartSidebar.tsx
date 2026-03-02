@@ -128,7 +128,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
         <div className=" bg-[#F9F6F0] h-full w-full shadow-2xl z-110 flex flex-col p-1">
           <div className="border flex-1 border-black h-full relative">
             {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-black">
+            <div className="flex justify-between items-center p-8 border-b border-black">
               <h2 className="text-2xl font-semibold text-black">
                 Added to Cart
               </h2>
@@ -141,7 +141,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
             </div>
 
             {/* Cart Items - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-8">
               {cart.items.length === 0 ? (
                 <div className="flex flex-col items-start justify-center h-full text-black">
                   <p className="text-lg">Your cart is empty</p>
@@ -152,35 +152,37 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                   {cart.items.map((item) => (
                     <li key={item.id} className=" pb-6">
                       <div className="flex justify-between items-start mb-3">
-                        <div className="flex gap-3 flex-row">
+                        <div className="flex gap-4 flex-row">
                           <div
-                            className="w-full md:w-[200px] h-[190px] bg-contain bg-top bg-no-repeat"
+                            className="w-full md:w-[120px] bg-contain bg-top bg-no-repeat"
                             style={{ backgroundImage: `url(${item.image})` }}
                             role="img"
                             aria-label={item.title}
                           />
-                          <div className="flex flex-col ">
-                            <p className="text-[11px] pb-1 font-regular text-black ">
-                              {item.author}
-                            </p>
-                            <div className="flex pb-1.5 items-start flex-row">
-                              <p className="text-[13px] font-semibold md:text-lg text-black w-full md:w-3/6">
-                                {item.title}
+                          <div className="flex flex-col gap-4">
+                            <div className="flex items-start">
+                              <p className="text-[11px] font-regular text-black max-w-[148px]">
+                                {item.author}
                               </p>
                               <button
                                 onClick={() => removeFromCart(item.id)}
-                                className="text-xs md:text-[13px] text-red-600 hover:text-red-800 transition-colors underline w-[50px] ml-auto lg:mr-4"
+                                className="relative left-2.5 md:left-auto text-xs md:text-[13px] text-red-600 hover:text-red-800 transition-colors underline w-[50px] ml-auto "
                               >
                                 Remove
                               </button>
                             </div>
+                            <div className="flex items-start flex-row">
+                              <p className="text-[13px] leading-[120%] font-semibold md:text-lg text-black w-full md:w-3/6">
+                                {item.title}
+                              </p>
+                            </div>
 
-                            <p className="text-lg  md:text-[20px] text-black mt-1">
+                            <p className="text-lg  md:text-[20px] text-black">
                               R{item.price.toFixed(2)}
                             </p>
 
                             {/* Quantity Controls */}
-                            <div className="flex mt-2 items-center justify-between">
+                            <div className="flex items-center justify-between">
                               <div className="flex items-center border gap-1 border-gray-300 rounded">
                                 <button
                                   onClick={() =>

@@ -143,7 +143,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
       ref={ref}
       style={styles}
       className={cn(
-        "relative w-dvw top-[75dvh] text-black flex flex-col gap-10",
+        "relative w-dvw top-[75dvh] text-black flex flex-col gap-[64px]",
         !isHomePage && "pointer-events-none"
       )}
     >
@@ -152,14 +152,17 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
           <h3 className="text-xl font-medium">
             An expansive publication in full colour showcasing decades&apos;
             worth of illustration done in hundreds of sketchbooks and journals
-            by the creators of the biting satirical comic <u>Bitterkomix.</u>
+            by the creators of the biting satirical comic{" "}
+            <u>
+              <i>Bitterkomix.</i>
+            </u>
           </h3>
         </div>
         <div className="flex-1 gap-4 flex flex-col">
           <PurchaseButtons layout="horizontal" isMobile={isMobile} />
         </div>
       </div>
-      <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-px pt-10 md:pt-3 mb-10 md:mb-0" />
+      <div className="border-b border-black w-[calc(100dvw-64px)] max-w-[400px] mx-auto h-px md:mb-0" />
       <div className="flex flex-co  md:flex-row gap-20 md:gap-10 max-w-[540px] mx-auto px-8 md:px-0">
         <article className="flex-1 flex flex-col gap-4 text-center">
           <h3 className="text-[32px] font-semibold">So, what&apos;s next ?</h3>

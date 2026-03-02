@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -20,6 +21,7 @@ export function NewsParallaxHeader({
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const excerptRef = useRef<HTMLDivElement>(null);
+  const emdashRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLElement>(null);
   const imgElementRef = useRef<HTMLImageElement>(null);
 
@@ -48,8 +50,8 @@ export function NewsParallaxHeader({
       if (!scrollContainer) return;
 
       const ctx = gsap.context(() => {
-        // Animate title and excerpt - they move with scroll until threshold
-        gsap.to([titleRef.current, excerptRef.current], {
+        // Animate title - moves up with scroll
+        gsap.to(titleRef.current, {
           y: threshold,
           ease: "none",
           scrollTrigger: {
@@ -62,20 +64,35 @@ export function NewsParallaxHeader({
           },
         });
 
-        // Animate image - starts moving after threshold
+        // Animate excerpt and emdash - moves up less than title
+        const excerptElements = [excerptRef.current, emdashRef.current].filter(Boolean);
+        gsap.to(excerptElements, {
+          y: threshold * 0.3,
+          ease: "none",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top+=40",
+            end: `+=${threshold}`,
+            scrub: 0.05,
+            scroller: scrollContainer,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // Animate image - moves to align with summary section
         const summarySection = document.querySelector('article > div:first-child');
         if (summarySection && imageRef.current) {
           const imageTop = imageRef.current.offsetTop;
           const summaryTop = (summarySection as HTMLElement).offsetTop;
-          const distance = summaryTop - imageTop + 20;
+          const distance = summaryTop - imageTop - threshold * 0.3;
 
           gsap.to(imageRef.current, {
             y: distance,
             ease: "none",
             scrollTrigger: {
-              trigger: imageRef.current,
-              start: `top top+=40`,
-              end: `+=${distance}`,
+              trigger: containerRef.current,
+              start: "top top+=40",
+              end: `+=${Math.abs(distance) * 1.5}`,
               scrub: 0.05,
               scroller: scrollContainer,
               invalidateOnRefresh: true,
@@ -109,29 +126,36 @@ export function NewsParallaxHeader({
     <header ref={containerRef} className="mt-10">
       <h1
         ref={titleRef}
-        className="text-4xl md:text-5xl font-fields font-semibold leading-tight md:w-1/2"
+        className="text-4xl md:text-5xl font-fields leading-tight font-medium md:col-span-4 grid grid-cols-1 md:grid-cols-8"
       >
-        {title}
+        <span className="md:col-span-4">{title}</span>
       </h1>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-8 gap-6 items-start">
         {excerpt ? (
-          <div
-            ref={excerptRef}
-            className="text-xl md:text-2xl text-black leading-relaxed md:w-4/5 md:ml-auto flex gap-3"
-          >
-            <span className="shrink-0">—</span>
-            <span>{excerpt}</span>
-          </div>
+          <>
+            <div ref={emdashRef} className="hidden md:flex md:col-span-1 md:col-start-1 justify-end text-xl md:text-2xl text-black">
+              —
+            </div>
+            <div
+              ref={excerptRef}
+              className="text-xl md:text-2xl text-black leading-relaxed md:col-span-3 md:col-start-2 flex gap-3 md:gap-0"
+            >
+              <span className="shrink-0 md:hidden">—</span>
+              <span>{excerpt}</span>
+            </div>
+          </>
         ) : null}
 
         {coverImageUrl ? (
-          <figure ref={imageRef}>
-            <img
+          <figure ref={imageRef} className="relative w-full max-h-[400px] md:col-span-4 md:col-start-5 flex justify-center">
+            <Image
               ref={imgElementRef}
               src={coverImageUrl}
               alt=""
-              className="w-full h-auto max-h-[400px] object-cover rounded-sm border border-black/15"
+              width={1200}
+              height={400}
+              className="w-auto min-w-[480px] h-auto max-h-[664px] object-cover"
               loading="lazy"
             />
           </figure>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
@@ -94,10 +95,10 @@ export function NewsContentBlock4({
   }, [imageContentBlock4, contentBlock4]);
 
   return (
-    <div ref={containerRef} className="my-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+    <div ref={containerRef} className="my-8 grid grid-cols-1 md:grid-cols-8 gap-6 items-start">
       {imageContentBlock4 && imageContentBlock4.fields && (
-        <figure ref={imageRef}>
-          <img
+        <figure ref={imageRef} className="relative w-full md:col-span-4 flex flex-col items-center">
+          <Image
             ref={imgElementRef}
             src={`https:${imageContentBlock4.fields.file.url}`}
             alt={
@@ -105,12 +106,14 @@ export function NewsContentBlock4({
               imageContentBlock4.fields.title ||
               ""
             }
-            className="w-full h-auto rounded-sm border border-black/15"
+            width={1200}
+            height={800}
+            className="w-full max-w-[75%] h-auto max-h-[720px]"
             loading="lazy"
           />
           {(imageContentBlock4.fields.description ||
             imageContentBlock4.fields.title) && (
-            <figcaption className="mt-2 text-sm text-black/60">
+            <figcaption className="mt-2 text-sm text-black/60 max-w-[75%]">
               {imageContentBlock4.fields.description ||
                 imageContentBlock4.fields.title}
             </figcaption>
@@ -119,7 +122,7 @@ export function NewsContentBlock4({
       )}
 
       {contentBlock4 && contentBlock4.content && (
-        <div ref={contentRef} className="prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+        <div ref={contentRef} className="md:col-span-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
           {documentToReactComponents(contentBlock4)}
         </div>
       )}
