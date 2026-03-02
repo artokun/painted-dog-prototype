@@ -45,7 +45,7 @@ export const Footer = () => {
                 <Image
                   src="/logo-dog-footer.png"
                   alt="Logo"
-                  width={285}
+                  width={220}
                   height={149}
                   className="w-full h-full object-cover md:max-w-[310px] md:w-auto  md:mx-auto md:my-auto"
                 />
