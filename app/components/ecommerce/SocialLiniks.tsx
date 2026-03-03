@@ -11,7 +11,7 @@ import {
 
 function SocialLiniks() {
   return (
-    <div className="flex gap-2 mt-2 md:mt-0 mx-auto md:ml-auto justify-center items-center [&>button]:hover:text-gray-500 [&>button]:transition-colors [&svg]:w-full [&svg]:h-full">
+    <div className="flex gap-2 mt-2 mb-1 md:mt-0 mx-auto md:ml-auto justify-center items-center [&>button]:hover:text-gray-500 [&>button]:transition-colors [&svg]:w-full [&svg]:h-full">
       <ThreeLink
         href="https://www.facebook.com/profile.php?id=61581186237434"
         className="w-4.5 h-4.5"

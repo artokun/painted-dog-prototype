@@ -22,31 +22,31 @@ export const Footer = () => {
   return (
     <section
       className={cn(
-        "flex w-full items-center justify-center pointer-events-none px-4 pt-20 pb-4 md:pt-15 md:pb-6 transition-opacity duration-300 md:px-[32px]",
+        "flex w-full items-center justify-center pointer-events-none px-4 pt-20 pb-4 md:pt-15 md:pb-6 transition-opacity duration-300  md:px-[32px]",
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
-      <footer className="relative min-h-[216px] torn-paper  bg-[#F9F6F0] pointer-events-auto p-4 text-black w-full max-w-[1600px]">
+      <footer className=" relative min-h-[216px]  pointer-events-auto p-4 text-black w-full max-w-[1600px] torn-paper bg-[#F9F6F0]">
         <div className="torn-right"></div>
         <div className="torn-bottom"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full min-h-[206px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full">
           {/* logo column - Full width on mobile and tablet, 1/3 on desktop */}
           <div className="flex py-6 px-10 justify-center gap-6 items-center relative border-3 border-b-0 md:border-b lg:border-r-0 lg:border-b-3 border-black flex-1 h-full md:col-span-2 lg:col-span-1 lg:row-span-3">
             <div className="flex flex-col w-full justify-between h-full gap-6">
-              <ThreeLink href="/">
+              <ThreeLink className="flex h-[149px]" href="/">
                 <Image
                   src="/logo-dog-footer.png"
                   alt="Logo"
                   width={320}
                   height={149}
-                  className="object-cover h-[149px] md:mx-auto md:my-auto"
+                  className="w-auto h-full mx-auto object-fit"
                 />
               </ThreeLink>
 
               <div className="flex justify-between">
                 {auth.isLoggedIn ? (
                   <button
-                    className="text-lg font-semibold uppercase hover:cursor-pointer"
+                    className="text-lg font-semibold uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                     onClick={logout}
                   >
                     Log Out
@@ -54,7 +54,7 @@ export const Footer = () => {
                 ) : (
                   <ThreeLink
                     className="text-lg font-semibold uppercase"
-                    noUnderline
+                    animatedUnderline
                     href="/login"
                   >
                     Login
@@ -63,13 +63,13 @@ export const Footer = () => {
 
                 <ThreeLink
                   className="text-lg font-semibold uppercase"
-                  noUnderline
+                  animatedUnderline
                   href="/dashboard"
                 >
                   Account
                 </ThreeLink>
                 <button
-                  className="text-lg font-semibold uppercase hover:cursor-pointer"
+                  className="text-lg font-semibold uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                   onClick={openCart}
                 >
                   Cart
@@ -118,23 +118,23 @@ export const Footer = () => {
 
           {/* Bottom navigation - Full width on all screens */}
           <div className="flex flex-col xl:flex-row px-12 py-6 md:col-span-2 lg:col-span-2 border-t border-l-3 border-b-3 border-r-3 lg:border-l">
-            <div className="flex gap-4 justify-around menu-section">
+            <div className="flex gap-4 items-end justify-around menu-section pb-2 top-0 lg:relative lg:top-[15px]">
               <ThreeLink
-                className="md:text-[32px] md:leading-[100%]! text-base font-semibold"
+                className="md:text-[32px] leading-[41px] text-base font-semibold"
                 href="/about"
                 animatedUnderline
               >
                 About
               </ThreeLink>
               <ThreeLink
-                className="md:text-[32px] md:leading-[100%]! text-base font-semibold"
+                className="md:text-[32px] leading-[41px] text-base font-semibold"
                 href="/contact"
                 animatedUnderline
               >
                 Contact
               </ThreeLink>
               <ThreeLink
-                className="md:text-[32px] md:leading-[100%]! text-base font-semibold"
+                className="md:text-[32px] leading-[41px] text-base font-semibold"
                 href="/news"
                 animatedUnderline
               >
@@ -142,19 +142,19 @@ export const Footer = () => {
               </ThreeLink>
             </div>
 
-            <div className="flex gap-6 flex-col menu-section-legal mx-auto xl:ml-auto lg:mr-0 lg:gap-8 lg:flex-row">
+            <div className="flex gap-6 flex-col menu-section-legal mx-auto xl:ml-auto top-0 lg:relative lg:top-[15px] lg:mr-0 lg:gap-8 lg:flex-row">
               <div className="flex gap-8 lg:gap-4">
                 <ThreeLink
-                  className="text-base"
+                  className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                   href="/legal"
-                  animatedUnderline
+                  noUnderline
                 >
                   Privacy
                 </ThreeLink>
                 <ThreeLink
-                  className="text-base"
+                  className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                   href="/legal"
-                  animatedUnderline
+                  noUnderline
                 >
                   Legal
                 </ThreeLink>
@@ -164,6 +164,7 @@ export const Footer = () => {
           </div>
         </div>
       </footer>
+
       <NewsletterModal
         isOpen={isNewsletterModalOpen}
         onClose={() => setIsNewsletterModalOpen(false)}

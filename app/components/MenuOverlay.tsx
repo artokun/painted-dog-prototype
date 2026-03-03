@@ -152,14 +152,14 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   className="p-0  md:p-2  flex absolute right-[1rem] md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
                   aria-label="Close menu"
                 >
-                  <CloseIcon className="w-6 h-6" />
+                  <CloseIcon className="text-[24px] w-6 h-6 size-[24.42px]" />
                 </button>
-                <ThreeLink href="/">
+                <ThreeLink className="w-[90%] md:max-w-[180px]" href="/">
                   <Image
-                    src="/logo-dog-footer.png"
+                    src="/pp-overlay-logo.png"
                     alt="Logo"
-                    width={180}
-                    height={74}
+                    width={220}
+                    height={85}
                     className="w-full h-full"
                   />
                 </ThreeLink>
@@ -210,12 +210,12 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   className="p-2 hidden md:flex items-center hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
                   aria-label="Close menu"
                 >
-                  <CloseIcon className="w-6 h-6" />
+                  <CloseIcon className="size-[24.42px]" />
                 </button>
               </div>
 
               {/* for writers reader links */}
-              <div className="flex flex-col md:flex-row  gap-6 w-full border-y">
+              <div className="flex flex-col md:flex-row  w-full border-y">
                 <div className="flex-1 border-b md:border-b-0 flex flex-col py-8 gap-2">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
@@ -226,7 +226,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   </ThreeLink>
                   <button
                     onClick={() => setIsNewsletterModalOpen(true)}
-                    className="cursor-pointer"
+                    className="uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                     type="button"
                     tabIndex={0}
                     aria-label="Open newsletter modal"
@@ -308,7 +308,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           <div className="flex h-full w-full content-center items-center  -z-10 absolute top-0 left ">
             <p
               ref={textRef}
-              className="hidden text-center md:flex text-[45px] text-[#000000] opacity-[.03] font-semibold max-w-[1134px] mx-auto"
+              className="hidden text-center md:flex text-[56px] leading-normal text-[#000000] opacity-[.03] font-[500] max-w-[1134px] mx-auto"
             >
               Painted Dog Press is an independent book publisher of fiction and
               narrative non-fiction. We develop and nurture quality literature
