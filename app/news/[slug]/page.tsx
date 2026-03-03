@@ -161,7 +161,7 @@ export default async function NewsArticlePage({
 
           {article.acknowledgements && article.acknowledgements.content && (
             <div className="mt-16 grid grid-cols-1 md:grid-cols-8 gap-6">
-              <div className="md:col-span-5 md:col-start-3 justify-end">
+              <div className="md:col-span-4 md:col-start-4 items-end">
                 <h3 className="text-base mb-3">Acknowledgements</h3>
                 <div className="prose max-w-none [&_p]:text-sm [&_p]:text-black/70 [&_p]:leading-relaxed [&_p]:flex [&_p]:gap-3 [&_p]:before:content-['—'] [&_p]:before:shrink-0">
                   {documentToReactComponents(article.acknowledgements)}
