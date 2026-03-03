@@ -226,7 +226,7 @@ export const Header = () => {
               trigger: activeScrollContainer,
               scroller: activeScrollContainer,
               start: "+=60",
-              end: "+=400",
+              end: "+=61",
               toggleActions: "play none none reverse",
             },
           });
