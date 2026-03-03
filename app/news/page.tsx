@@ -75,7 +75,7 @@ export default async function NewsArchivePage({
       <div className="w-full pt-20 px-5 md:px-8 pb-7 text-black">
         <header className=" pt-20  pb-40">
           <div className="w-full flex flex-col gap-6">
-            <div className="w-full grid grid-cols-3 gap-7 items-center">
+            <div className="w-full grid grid-cols-3 gap-6 items-center">
               <div className="leading-none col-span-1 flex justify-center gap-4">
                 <p className="text-[32px] md:text-[72px] tracking-[-0.04em] font-fields font-semibold">
                   {total}
@@ -123,7 +123,7 @@ export default async function NewsArchivePage({
           </div>
         </header>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           {paginatedItems.map((item) => (
             <Link
               key={item.id}

@@ -146,10 +146,10 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
             <div className="torn-bottom"></div>
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
-              <div className="flex flex-col items-center md:flex-row justify-between w-full px-6 md:px-[41px] py-8">
+              <div className="flex flex-col items-center relative md:flex-row justify-between w-full px-6 md:px-[41px] py-8">
                 <button
                   onClick={handleClose}
-                  className="p-2 flex md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
+                  className="p-0  md:p-2  flex absolute right-[1rem] md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
                   aria-label="Close menu"
                 >
                   <CloseIcon className="w-6 h-6" />
