@@ -57,7 +57,7 @@ export default async function NewsArticlePage({
                   {documentToReactComponents(article.summaryCopy)}
                 </div>
                 {(article.author || article.photoCredit) && (
-                  <div className="mt-4 text-[16px] text-black/70 font-medium">
+                  <div className="mt-4 text-[16px] text-black font-medium">
                     {article.author && <div>Written by {article.author}</div>}
                     {article.photoCredit && (
                       <div>Leading image by {article.photoCredit}</div>
@@ -70,7 +70,7 @@ export default async function NewsArticlePage({
 
           {article.contentBlock1 && article.contentBlock1.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock1)}
               </div>
             </div>
@@ -102,7 +102,7 @@ export default async function NewsArticlePage({
 
           {article.contentBlock2 && article.contentBlock2.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock2)}
               </div>
             </div>
@@ -146,7 +146,7 @@ export default async function NewsArticlePage({
 
           {article.contentBlock3 && article.contentBlock3.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock3)}
               </div>
             </div>
@@ -163,7 +163,7 @@ export default async function NewsArticlePage({
             <div className="mt-16 grid grid-cols-1 md:grid-cols-8 gap-6">
               <div className="md:col-span-4 md:col-start-4 items-end">
                 <h3 className="text-base mb-3">Acknowledgements</h3>
-                <div className="prose max-w-none [&_p]:text-sm [&_p]:text-black/70 [&_p]:leading-relaxed [&_p]:flex [&_p]:gap-3 [&_p]:before:content-['—'] [&_p]:before:shrink-0">
+                <div className="prose max-w-none [&_p]:text-sm [&_p]:text-black [&_p]:leading-relaxed [&_p]:flex [&_p]:gap-3 [&_p]:before:content-['—'] [&_p]:before:shrink-0">
                   {documentToReactComponents(article.acknowledgements)}
                 </div>
               </div>

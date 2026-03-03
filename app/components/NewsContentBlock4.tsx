@@ -113,7 +113,7 @@ export function NewsContentBlock4({
           />
           {(imageContentBlock4.fields.description ||
             imageContentBlock4.fields.title) && (
-            <figcaption className="mt-2 text-sm text-black/60 max-w-[75%]">
+            <figcaption className="mt-2 text-sm text-black max-w-[75%]">
               {imageContentBlock4.fields.description ||
                 imageContentBlock4.fields.title}
             </figcaption>
@@ -122,7 +122,7 @@ export function NewsContentBlock4({
       )}
 
       {contentBlock4 && contentBlock4.content && (
-        <div ref={contentRef} className="md:col-span-3 prose prose-lg max-w-none [&_p]:text-black/80 [&_p]:leading-relaxed [&_p]:mb-14">
+        <div ref={contentRef} className="md:col-span-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
           {documentToReactComponents(contentBlock4)}
         </div>
       )}
