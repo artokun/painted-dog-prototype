@@ -226,14 +226,18 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   </ThreeLink>
                   <button
                     onClick={() => setIsNewsletterModalOpen(true)}
-                    className="uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
+                    className="w-fit mx-auto relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                     type="button"
                     tabIndex={0}
                     aria-label="Open newsletter modal"
                   >
                     Newsletter
                   </button>
-                  <ThreeLink href="/" noUnderline>
+                  <ThreeLink
+                    className="w-fit mx-auto"
+                    href="/"
+                    animatedUnderline
+                  >
                     Browse Stack
                   </ThreeLink>
                 </div>
