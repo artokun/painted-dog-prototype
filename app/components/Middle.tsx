@@ -147,7 +147,7 @@ const TempAcceleratedContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
         !isHomePage && "pointer-events-none"
       )}
     >
-      <div className="flex flex-col md:flex-row gap-12 justify-around mx-auto max-w-3xl px-8 md:px-0">
+      <div className="flex flex-col w-full lg:flex-row gap-12 justify-around max-w-[540px]  mx-auto lg:max-w-3xl px-8 md:px-0">
         <div className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">
             An expansive publication in full colour showcasing decades&apos;

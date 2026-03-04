@@ -200,12 +200,12 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
       ref={scrollContainerRef}
       id="login-page-scroll-container"
       className={cn(
-        "absolute pt-16 flex items-center justify-center inset-0 h-dvh w-dvw pointer-events-none drop-shadow-xl text-black z-10 overflow-y-auto overflow-x-hidden bg-[#f6ead6]",
+        "absolute pt-16 flex items-center justify-center inset-0 h-dvh w-dvw pointer-events-none  text-black z-10 overflow-y-auto overflow-x-hidden bg-[#f6ead6]",
         visible && "pointer-events-auto"
       )}
     >
       <div
-        className={`pd_login-wrapper ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter scale-[.70] md:scale-100 lg:-rotate-1 lg:scale-[.70] relative after:absolute after:-bottom-4 after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-4 before:left-0 before:h-4 before:w-full before:rotate-180`}
+        className={`pd_login-wrapper drop-shadow-xl ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter xl:-rotate-1 lg:scale-[.70] relative after:absolute after:-bottom-[15px] after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-[15px] before:left-0 before:h-4 before:w-full before:rotate-180`}
       >
         <div className="flex justify-between gap-4">
           <p className="font-semibold">Account</p>
