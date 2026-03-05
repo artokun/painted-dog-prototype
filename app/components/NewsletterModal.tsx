@@ -8,7 +8,6 @@ import { X } from "lucide-react";
 import gsap from "gsap";
 import { PDButton } from "./ui/PDButton";
 import { PDInput } from "./ui/PDInput";
-import { ThreeLink } from "./ThreeLink";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
@@ -128,7 +127,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
     >
       <div
         ref={modalRef}
-        className="relative w-full md:w-[464px] h-full bg-[#F9F6F0] border-2 border-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-6 md:p-10 flex flex-col"
+        className="relative w-full md:w-[464px] h-full bg-[#F9F6F0] border-2 border-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4 md:p-10 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -171,7 +170,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
                 id="newsletter-modal-title"
                 className="text-[24px] font-medium text-[#1A1A1A]"
               >
-                Join the painted dog newsletter
+                Join the Painted Dog newsletter
               </h3>
               <div className="space-y-4 mb-6">
                 <p className="text-base leading-relaxed text-[#1A1A1A]">
