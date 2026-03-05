@@ -129,7 +129,10 @@ export const Header = () => {
   );
 
   useEffect(() => {
-    setShouldStartCollapsed(currentRoute !== "/");
+    // Don't snap to collapsed when focusing a book — the fade-out wrapper handles it
+    if (!currentRoute.startsWith("/books/")) {
+      setShouldStartCollapsed(currentRoute !== "/");
+    }
   }, [currentRoute]);
 
   // Reset nav position when route changes
@@ -185,12 +188,16 @@ export const Header = () => {
 
     const collapseProgress = shouldStartCollapsed
       ? 1
-      : isHomepage
+      : isHomepage || isBookPage
         ? landingTransitionProgress
         : 1;
     const progress = Math.min(Math.max(collapseProgress, 0), 1);
-    const separatorProgress = Math.min(Math.max((progress - 0.85) / 0.15, 0), 1);
-    const cartProgress = Math.min(Math.max((progress - 0.15) / 0.85, 0), 1);
+    // Logo scales down in the first 50% of scroll
+    const logoProgress = Math.min(Math.max(progress / 0.5, 0), 1);
+    // Links reach final position in the first 25% of scroll
+    const linkProgress = Math.min(Math.max(progress / 0.25, 0), 1);
+    const separatorProgress = Math.min(Math.max((linkProgress - 0.6) / 0.4, 0), 1);
+    const cartProgress = Math.min(Math.max((linkProgress - 0.15) / 0.85, 0), 1);
     const mix = gsap.utils.interpolate;
     const menuElement = document.getElementById("menu-button-wrapper");
     const setStyles = (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
@@ -198,18 +205,18 @@ export const Header = () => {
     };
 
     setStyles(logoRef.current, {
-      scale: mix(1, 0.2, progress),
-      y: mix("0rem", logoYOffset, progress),
+      scale: mix(1, 0.2, logoProgress),
+      y: mix("0rem", logoYOffset, logoProgress),
     });
     setStyles(newsRef.current, {
-      x: mix("0.16rem", "0rem", progress),
-      y: mix("1rem", "0rem", progress),
-      fontSize: mix(24, 16, progress),
+      x: mix("0.16rem", "0rem", linkProgress),
+      y: mix("1rem", "0rem", linkProgress),
+      fontSize: mix(24, 16, linkProgress),
     });
     setStyles(menuElement, {
-      x: mix("-0.16rem", "0rem", progress),
-      y: mix("1rem", "0rem", progress),
-      fontSize: mix(24, 16, progress),
+      x: mix("-0.16rem", "0rem", linkProgress),
+      y: mix("1rem", "0rem", linkProgress),
+      fontSize: mix(24, 16, linkProgress),
     });
     setStyles(leftseparatorRef.current, {
       opacity: separatorProgress,
@@ -224,21 +231,21 @@ export const Header = () => {
       y: mix(0, -2, separatorProgress),
     });
     setStyles(newsletterRef.current, {
-      x: mix("-6.5rem", "0rem", progress),
-      y: mix("15.875rem", "0rem", progress),
-      fontSize: mix(24, 16, progress),
+      x: mix("-6.5rem", "0rem", linkProgress),
+      y: mix("15.875rem", "0rem", linkProgress),
+      fontSize: mix(24, 16, linkProgress),
       opacity: 1,
     });
     setStyles(loginRef.current, {
-      x: mix("6.5rem", "0rem", progress),
-      y: mix("15.875rem", "0rem", progress),
-      fontSize: mix(24, 16, progress),
+      x: mix("6.5rem", "0rem", linkProgress),
+      y: mix("15.875rem", "0rem", linkProgress),
+      fontSize: mix(24, 16, linkProgress),
       opacity: 1,
     });
     setStyles(cartRef.current, {
       x: 0,
-      y: mix("16.875rem", "0rem", progress),
-      fontSize: mix(24, 16, progress),
+      y: mix("16.875rem", "0rem", linkProgress),
+      fontSize: mix(24, 16, linkProgress),
       opacity: cartProgress,
     });
     setStyles(navRef.current, { opacity: 1 });
@@ -343,8 +350,13 @@ export const Header = () => {
       {/* Single nav container for fade animation */}
       <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
         <div className="flex text-black z-[9]">
-          {!isBookFocused && (
-            <>
+          <div
+            className="transition-all duration-500 ease-in-out"
+            style={{
+              opacity: isBookFocused ? 0 : 1,
+              pointerEvents: isBookFocused ? "none" : "auto",
+            }}
+          >
               {/* Mobile Logo */}
               <Link className="flex w-40 md:hidden" href="/">
                 <Image
@@ -405,8 +417,7 @@ export const Header = () => {
                   </button>
                 </div>
               </div>
-            </>
-          )}
+          </div>
 
           <button
             className={cn(
@@ -428,31 +439,40 @@ export const Header = () => {
         </div>
 
         {/* Logo */}
-        {!isBookFocused && !isMobile && (
+        {!isMobile && (
           <div
-            id="home-title-logo"
-            style={
-              shouldStartCollapsed
-                ? { transform: `translateX(-0.16rem) translateY(-2rem)` }
-                : undefined
-            }
-            ref={logoRef}
-            className={cn(
-              "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
-              !showHeader &&
-                (isHomepage || isOverlayPage) &&
-                "opacity-0 pointer-events-none"
-            )}
+            className="fixed inset-0 w-full transition-all duration-500 ease-in-out"
+            style={{
+              opacity: isBookFocused ? 0 : 1,
+              transform: isBookFocused ? "translateY(-3rem)" : "translateY(0)",
+              pointerEvents: isBookFocused ? "none" : "auto",
+            }}
           >
-            <ThreeLink href="/">
-              <Image
-                className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
-                src="/logo-dog-inline-hd.png"
-                alt="Logo"
-                height={6120}
-                width={1340}
-              />
-            </ThreeLink>
+            <div
+              id="home-title-logo"
+              style={
+                shouldStartCollapsed
+                  ? { transform: `translateX(-0.16rem) translateY(-2rem)` }
+                  : undefined
+              }
+              ref={logoRef}
+              className={cn(
+                "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
+                !showHeader &&
+                  (isHomepage || isOverlayPage) &&
+                  "opacity-0 pointer-events-none"
+              )}
+            >
+              <ThreeLink href="/">
+                <Image
+                  className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
+                  src="/logo-dog-inline-hd.png"
+                  alt="Logo"
+                  height={6120}
+                  width={1340}
+                />
+              </ThreeLink>
+            </div>
           </div>
         )}
 

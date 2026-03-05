@@ -108,6 +108,7 @@ export function CameraRig() {
   useEffect(() => {
     const st = scrollTriggerRef.current;
     if (!st || !rigRef.current) return;
+    const scrollEl = document.getElementById("scroll-container");
 
     if (focusedBookId !== null) {
       st.disable(false); // Pause without resetting ScrollTrigger state
@@ -116,19 +117,39 @@ export function CameraRig() {
         duration: 0.35,
         ease: "power2.out",
       });
+    } else if (currentRoute !== "/") {
+      // While on non-home routes, pin camera Y at the home top baseline
+      // so returning from focused state cannot inherit stale scroll progress.
+      st.disable(false);
+      gsap.to(rigRef.current.position, {
+        y: topLimit,
+        duration: 0.2,
+        ease: "power2.out",
+      });
     } else {
       st.enable(false); // Resume without resetting position
-      // Smoothly snap to current scroll position
-      const progress = st.progress;
+      // Use actual scrollTop instead of cached ScrollTrigger progress.
+      const maxScroll = scrollEl
+        ? scrollEl.scrollHeight - scrollEl.clientHeight
+        : 0;
+      const progress =
+        scrollEl && maxScroll > 0
+          ? Math.min(Math.max(scrollEl.scrollTop / maxScroll, 0), 1)
+          : 0;
       const targetY = topLimit + (bottomLimit - topLimit) * progress;
       gsap.to(rigRef.current.position, {
         y: targetY,
         duration: 0.5,
         ease: "power2.out",
-        onComplete: () => st.refresh(),
+        onComplete: () => {
+          if (scrollEl) {
+            st.scroll(scrollEl.scrollTop);
+          }
+          st.refresh();
+        },
       });
     }
-  }, [focusedBookId, topLimit, bottomLimit]);
+  }, [focusedBookId, currentRoute, topLimit, bottomLimit]);
 
   // --- 4. Mouse Parallax (Rotation) ---
   const [{ rotY }, rotApi] = useSpring(() => ({

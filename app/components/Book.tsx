@@ -123,10 +123,24 @@ function Book({
       return;
     }
 
-    let rafId = window.requestAnimationFrame(measureFeaturedAnchor);
-    const handleResize = () => {
+    let rafId = 0;
+    let startTs = 0;
+    const runMeasure = (ts: number) => {
+      if (!startTs) startTs = ts;
+      measureFeaturedAnchor();
+      if (ts - startTs < 420) {
+        rafId = window.requestAnimationFrame(runMeasure);
+      }
+    };
+    const startMeasureLoop = () => {
       window.cancelAnimationFrame(rafId);
-      rafId = window.requestAnimationFrame(measureFeaturedAnchor);
+      startTs = 0;
+      rafId = window.requestAnimationFrame(runMeasure);
+    };
+
+    startMeasureLoop();
+    const handleResize = () => {
+      startMeasureLoop();
     };
 
     window.addEventListener("resize", handleResize);
@@ -416,17 +430,24 @@ function Book({
             },
       config: config.default,
       delay: (key: string) => {
+        const isReturningFromBookRoute =
+          !isFocused && currentRoute.startsWith("/books/");
+
         switch (key) {
           case "posY":
             return isGridMode
               ? isFocused || wasFocusedRef.current
                 ? 0
                 : reverseBookIndex * GRID_DELAY
-              : 250;
+              : isReturningFromBookRoute
+                ? 0
+                : 250;
           case "rotX":
           case "rotY":
             return isGridMode && !isFocused
               ? reverseBookIndex * GRID_DELAY
+              : isReturningFromBookRoute
+                ? 0
               : !isFocused
                 ? 250
                 : 0;

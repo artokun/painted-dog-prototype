@@ -41,6 +41,7 @@ export const Foreground = () => {
   const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
   const { isOpen: isCartOpen } = useSnapshot(cartUIStore);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const focusRouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
   const { isOpen: isForgotPasswordOpen } = useSnapshot(forgotPasswordStore);
@@ -176,6 +177,9 @@ export const Foreground = () => {
     if (scrollContainerRef.current && (!isHomePage || focusedBookId)) {
       scrollContainerRef.current.scrollTop = 0;
       globalStore.scrollProgress = 0;
+      globalStore.overlayScrollPosition = 0;
+      globalStore.landingTransitionProgress = 0;
+      globalStore.featuredBookAnchorNdcY = 0;
     }
   }, [isHomePage, focusedBookId]);
 
@@ -242,16 +246,36 @@ export const Foreground = () => {
       bookStore,
       "focusedBookId",
       (focusedBookId) => {
+        if (focusRouteTimerRef.current) {
+          clearTimeout(focusRouteTimerRef.current);
+          focusRouteTimerRef.current = null;
+        }
+
         const book = focusedBookId ? bookStore.books[focusedBookId] : null;
         if (focusedBookId && book?.slug) {
           router.push(`/books/${book.slug}`);
         } else {
-          router.push("/");
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = 0;
+          }
+          globalStore.scrollProgress = 0;
+          globalStore.overlayScrollPosition = 0;
+          globalStore.landingTransitionProgress = 0;
+          globalStore.featuredBookAnchorNdcY = 0;
+          // Let the 3D book unfocus animation play before swapping back to home route.
+          focusRouteTimerRef.current = setTimeout(() => {
+            router.push("/");
+            focusRouteTimerRef.current = null;
+          }, 220);
         }
       }
     );
 
     return () => {
+      if (focusRouteTimerRef.current) {
+        clearTimeout(focusRouteTimerRef.current);
+        focusRouteTimerRef.current = null;
+      }
       unsubscribeCurrentRoute();
       unsubscribeFocusedBookId();
     };
