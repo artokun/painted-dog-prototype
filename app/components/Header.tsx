@@ -12,13 +12,10 @@ import { ThreeLink } from "./ThreeLink";
 import { useMediaQuery } from "usehooks-ts";
 import { globalStore } from "../store/globalStore";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { animated, useSpring } from "@react-spring/web";
 import { authStore } from "@/app/store/authStore";
 import { openCart } from "@/app/store/cartUIStore";
 import { NewsletterModal } from "./NewsletterModal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const MenuButton = ({
   shouldStartCollapsed,
@@ -75,25 +72,22 @@ const MenuButton = ({
 export const Header = () => {
   const { view } = useSnapshot(filterStore);
   const { isRendered, focusedBookId } = useSnapshot(bookStore);
-  const { currentRoute, isNewsLetterModalOpen } = useSnapshot(globalStore);
+  const { currentRoute, isNewsLetterModalOpen, landingTransitionProgress } =
+    useSnapshot(globalStore);
   const isGridMode = view === FilterView.Grid;
   const isBookPage = currentRoute.startsWith("/books/");
   const isHomepage = currentRoute === "/";
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
   const isLoginPage = currentRoute === "/login";
-  const isNewsPage = currentRoute === "/news";
   const isNewsSlugPage = currentRoute.startsWith("/news/");
   const isOverlayPage = isContactPage || isLegalPage || isLoginPage;
   const isBookFocused = focusedBookId !== null;
-  const [showHeader, setShowHeader] = useState(true);
+  const showHeader = true;
   const [showBackButton, setShowBackButton] = useState(true);
-  const isXtraLarge = useMediaQuery("(min-width: 1500px)");
   const isMobile = useMediaQuery("(max-width: 765px)");
-
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
 
-  const [levaLoaded, setLevaLoaded] = useState(false);
   const auth = useSnapshot(authStore);
   const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
   const [isNewsletterPressed, setIsNewsletterPressed] = useState(false);
@@ -152,7 +146,7 @@ export const Header = () => {
     lastScrollYRef.current = 0;
 
     if (isHomepage) {
-      const scrollEl = document.getElementById("scroll-el");
+      const scrollEl = document.getElementById("scroll-container");
       if (scrollEl) {
         scrollEl.scrollTop = 0;
       }
@@ -162,15 +156,11 @@ export const Header = () => {
   useEffect(() => {
     if (!isRendered) return;
     scrollContainerRef.current = document.getElementById(
-      "scroll-el"
+      "scroll-container"
     ) as HTMLDivElement;
     mobileBookPageContentRef.current = document.getElementById(
       "mobile-book-page-content"
     ) as HTMLDivElement;
-
-    setTimeout(() => {
-      setLevaLoaded(true);
-    }, 1000);
 
     const handleScroll = () => {
       if (mobileBookPageContentRef.current) {
@@ -188,236 +178,156 @@ export const Header = () => {
     };
   }, [isRendered, isMobile, isBookPage, isBookFocused]);
 
-  // GSAP Scroll Animation
+  // Title/header collapse is driven by the same shared normalized progress
+  // as landing hero motion to keep page chrome and book animation in sync.
   useEffect(() => {
     if (!isRendered) return;
 
-    let ctx: gsap.Context | null = null;
-    let scrollContainer: HTMLDivElement | null = null;
-    let directionScrollHandler: (() => void) | null = null;
-
-    const timeoutId = setTimeout(() => {
-      ctx = gsap.context(() => {
-        const menuElement = document.getElementById("menu-button-wrapper");
-
-        if (shouldStartCollapsed) {
-          // Set everything to collapsed state immediately
-          gsap.set(logoRef.current, { scale: 0.2, y: logoYOffset });
-          gsap.set(newsRef.current, { x: 0, fontSize: 16, y: 0 });
-          gsap.set(menuElement, { x: 0, fontSize: 16, y: 0 });
-          gsap.set(leftseparatorRef.current, { x: 0, opacity: 1, y: -2 });
-          gsap.set(rightseparatorRef.current, { x: 0, opacity: 1, y: -2 });
-          gsap.set(cartseparatorRef.current, { x: 0, opacity: 1, y: -2 });
-          gsap.set(newsletterRef.current, { x: 0, y: 0, fontSize: 16 });
-          gsap.set(loginRef.current, { x: 0, y: 0, fontSize: 16 });
-          gsap.set(cartRef.current, { x: 0, y: 0, opacity: 1, fontSize: 16 });
-          // Ensure nav is visible
-          gsap.set(navRef.current, { opacity: 1 });
-        } else if (isHomepage) {
-          let activeScrollContainer: HTMLDivElement | null = null;
-
-          if (scrollContainerRef.current) {
-            activeScrollContainer = scrollContainerRef.current;
-          }
-
-          if (!activeScrollContainer) return;
-
-          // Collapse animation timeline
-          const timeline = gsap.timeline({
-            scrollTrigger: {
-              trigger: activeScrollContainer,
-              scroller: activeScrollContainer,
-              start: "+=60",
-              end: "+=61",
-              toggleActions: "play none none reverse",
-            },
-          });
-
-          timeline.fromTo(
-            logoRef.current,
-            { scale: 1, y: 0 },
-            { scale: 0.2, duration: 0.5, y: logoYOffset },
-            0
-          );
-
-          timeline.fromTo(
-            newsRef.current,
-            { x: "0.16rem", y: "1rem", fontSize: 24 },
-            { x: 0, fontSize: 16, duration: 0.35, y: 0 },
-            0
-          );
-
-          timeline.fromTo(
-            menuElement,
-            { x: "-0.16rem", y: "1rem", fontSize: 24 },
-            { x: 0, fontSize: 16, duration: 0.35, y: 0 },
-            0
-          );
-
-          // Separators: stay hidden during collapse, fade in only after menu items are in place
-          timeline.fromTo(
-            leftseparatorRef.current,
-            { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
-            0
-          );
-
-          timeline.fromTo(
-            rightseparatorRef.current,
-            { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
-            0
-          );
-
-          timeline.fromTo(
-            cartseparatorRef.current,
-            { opacity: 0, y: 0 },
-            { opacity: 1, duration: 0.15, y: -2 },
-            0
-          );
-
-          // Set expanded starting positions before timeline
-          gsap.set(newsletterRef.current, {
-            x: "-6.5rem",
-            y: isXtraLarge ? "18.875rem" : "15.875rem",
-            fontSize: 24,
-            opacity: 1,
-          });
-          gsap.set(loginRef.current, {
-            x: "6.5rem",
-            y: isXtraLarge ? "18.875rem" : "15.875rem",
-            fontSize: 24,
-            opacity: 1,
-          });
-          gsap.set(cartRef.current, {
-            x: 0,
-            y: "16.875rem",
-            fontSize: 24,
-            opacity: 0,
-          });
-
-          // Newsletter: fade out at expanded position → snap → fade in at collapsed
-          timeline.to(newsletterRef.current, { opacity: 0, duration: 0.1 }, 0);
-          timeline.set(
-            newsletterRef.current,
-            { x: 0, y: 0, fontSize: 16 },
-            0.12
-          );
-          timeline.to(
-            newsletterRef.current,
-            { opacity: 1, duration: 0.2 },
-            0.15
-          );
-
-          // Login: fade out at expanded position → snap → fade in at collapsed
-          timeline.to(loginRef.current, { opacity: 0, duration: 0.1 }, 0);
-          timeline.set(loginRef.current, { x: 0, y: 0, fontSize: 16 }, 0.12);
-          timeline.to(loginRef.current, { opacity: 1, duration: 0.2 }, 0.15);
-
-          // Cart: already hidden, snap position → fade in at collapsed
-          timeline.set(cartRef.current, { x: 0, y: 0, fontSize: 16 }, 0.12);
-          timeline.to(cartRef.current, { opacity: 1, duration: 0.2 }, 0.15);
-        }
-
-        // Pick the correct scroll container based on current route
-        let activeContainer: HTMLDivElement | null = null;
-
-        if (isHomepage) {
-          activeContainer =
-            scrollContainerRef.current ||
-            (document.getElementById("scroll-el") as HTMLDivElement | null);
-        } else if (isNewsSlugPage) {
-          // Handle news slug pages (e.g., /news/article-slug)
-          activeContainer = document.getElementById(
-            "news-slug-page-scroll-container"
-          ) as HTMLDivElement | null;
-        } else {
-          const containerMap: Record<string, string> = {
-            "/about": "about-page-scroll-container",
-            "/contact": "contact-page-scroll-container",
-            "/legal": "legal-page-scroll-container",
-            "/login": "login-page-scroll-container",
-            "/dashboard": "dashboard-page-scroll-container",
-            "/news": "news-page-scroll-container",
-          };
-
-          const containerId = containerMap[currentRoute];
-          if (containerId) {
-            activeContainer = document.getElementById(
-              containerId
-            ) as HTMLDivElement | null;
-          }
-        }
-
-        if (!activeContainer) return;
-
-        // Homepage needs higher threshold so it doesn't fight the collapse animation
-        const hideThreshold = isHomepage ? 400 : 100;
-
-        const handleDirectionScroll = () => {
-          const currentScrollY = activeContainer.scrollTop;
-
-          if (currentScrollY > hideThreshold) {
-            if (
-              currentScrollY > lastScrollYRef.current &&
-              !isHeaderHiddenRef.current
-            ) {
-              // Scrolling down - slide header up off-screen
-              isHeaderHiddenRef.current = true;
-              gsap.to(headerRef.current, {
-                y: "-10rem",
-                duration: 0.3,
-                ease: "power2.in",
-                overwrite: true,
-              });
-            } else if (
-              currentScrollY < lastScrollYRef.current &&
-              isHeaderHiddenRef.current
-            ) {
-              // Scrolling up - slide header back down
-              isHeaderHiddenRef.current = false;
-              gsap.to(headerRef.current, {
-                y: 0,
-                duration: 0.4,
-                ease: "power2.out",
-                overwrite: true,
-              });
-            }
-          } else if (isHeaderHiddenRef.current) {
-            // Always visible near top of page
-            isHeaderHiddenRef.current = false;
-            gsap.to(headerRef.current, {
-              y: 0,
-              duration: 0.2,
-              overwrite: true,
-            });
-          }
-
-          lastScrollYRef.current = currentScrollY;
-        };
-
-        scrollContainer = activeContainer;
-        directionScrollHandler = handleDirectionScroll;
-        activeContainer.addEventListener("scroll", handleDirectionScroll);
-      });
-    }, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      if (ctx) ctx.revert();
-      if (scrollContainer && directionScrollHandler) {
-        scrollContainer.removeEventListener("scroll", directionScrollHandler);
-      }
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    const collapseProgress = shouldStartCollapsed
+      ? 1
+      : isHomepage
+        ? landingTransitionProgress
+        : 1;
+    const progress = Math.min(Math.max(collapseProgress, 0), 1);
+    const separatorProgress = Math.min(Math.max((progress - 0.85) / 0.15, 0), 1);
+    const cartProgress = Math.min(Math.max((progress - 0.15) / 0.85, 0), 1);
+    const mix = gsap.utils.interpolate;
+    const menuElement = document.getElementById("menu-button-wrapper");
+    const setStyles = (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
+      if (target) gsap.set(target, vars);
     };
+
+    setStyles(logoRef.current, {
+      scale: mix(1, 0.2, progress),
+      y: mix("0rem", logoYOffset, progress),
+    });
+    setStyles(newsRef.current, {
+      x: mix("0.16rem", "0rem", progress),
+      y: mix("1rem", "0rem", progress),
+      fontSize: mix(24, 16, progress),
+    });
+    setStyles(menuElement, {
+      x: mix("-0.16rem", "0rem", progress),
+      y: mix("1rem", "0rem", progress),
+      fontSize: mix(24, 16, progress),
+    });
+    setStyles(leftseparatorRef.current, {
+      opacity: separatorProgress,
+      y: mix(0, -2, separatorProgress),
+    });
+    setStyles(rightseparatorRef.current, {
+      opacity: separatorProgress,
+      y: mix(0, -2, separatorProgress),
+    });
+    setStyles(cartseparatorRef.current, {
+      opacity: separatorProgress,
+      y: mix(0, -2, separatorProgress),
+    });
+    setStyles(newsletterRef.current, {
+      x: mix("-6.5rem", "0rem", progress),
+      y: mix("15.875rem", "0rem", progress),
+      fontSize: mix(24, 16, progress),
+      opacity: 1,
+    });
+    setStyles(loginRef.current, {
+      x: mix("6.5rem", "0rem", progress),
+      y: mix("15.875rem", "0rem", progress),
+      fontSize: mix(24, 16, progress),
+      opacity: 1,
+    });
+    setStyles(cartRef.current, {
+      x: 0,
+      y: mix("16.875rem", "0rem", progress),
+      fontSize: mix(24, 16, progress),
+      opacity: cartProgress,
+    });
+    setStyles(navRef.current, { opacity: 1 });
   }, [
     isRendered,
-    shouldStartCollapsed,
     isHomepage,
+    shouldStartCollapsed,
+    landingTransitionProgress,
     logoYOffset,
-    currentRoute,
-    isXtraLarge,
   ]);
+
+  useEffect(() => {
+    if (!isRendered) return;
+    let activeContainer: HTMLDivElement | null = null;
+    if (isHomepage) {
+      activeContainer =
+        scrollContainerRef.current ||
+        (document.getElementById("scroll-container") as HTMLDivElement | null);
+    } else if (isNewsSlugPage) {
+      activeContainer = document.getElementById(
+        "news-slug-page-scroll-container"
+      ) as HTMLDivElement | null;
+    } else {
+      const containerMap: Record<string, string> = {
+        "/about": "about-page-scroll-container",
+        "/contact": "contact-page-scroll-container",
+        "/legal": "legal-page-scroll-container",
+        "/login": "login-page-scroll-container",
+        "/dashboard": "dashboard-page-scroll-container",
+        "/news": "news-page-scroll-container",
+      };
+
+      const containerId = containerMap[currentRoute];
+      if (containerId) {
+        activeContainer = document.getElementById(
+          containerId
+        ) as HTMLDivElement | null;
+      }
+    }
+
+    if (!activeContainer) return;
+
+    // Homepage needs higher threshold so it doesn't fight the collapse motion.
+    const hideThreshold = isHomepage ? 400 : 100;
+
+    const handleDirectionScroll = () => {
+      const currentScrollY = activeContainer!.scrollTop;
+
+      if (currentScrollY > hideThreshold) {
+        if (currentScrollY > lastScrollYRef.current && !isHeaderHiddenRef.current) {
+          // Scrolling down - slide header up off-screen
+          isHeaderHiddenRef.current = true;
+          gsap.to(headerRef.current, {
+            y: "-10rem",
+            duration: 0.3,
+            ease: "power2.in",
+            overwrite: true,
+          });
+        } else if (
+          currentScrollY < lastScrollYRef.current &&
+          isHeaderHiddenRef.current
+        ) {
+          // Scrolling up - slide header back down
+          isHeaderHiddenRef.current = false;
+          gsap.to(headerRef.current, {
+            y: 0,
+            duration: 0.4,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        }
+      } else if (isHeaderHiddenRef.current) {
+        // Always visible near top of page
+        isHeaderHiddenRef.current = false;
+        gsap.to(headerRef.current, {
+          y: 0,
+          duration: 0.2,
+          overwrite: true,
+        });
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    activeContainer.addEventListener("scroll", handleDirectionScroll);
+    return () => {
+      activeContainer?.removeEventListener("scroll", handleDirectionScroll);
+    };
+  }, [isRendered, isHomepage, isNewsSlugPage, currentRoute]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;
@@ -427,7 +337,7 @@ export const Header = () => {
     <div
       ref={headerRef}
       className={cn(
-        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-6 md:px-8"
+        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
       )}
     >
       {/* Single nav container for fade animation */}
@@ -438,11 +348,11 @@ export const Header = () => {
               {/* Mobile Logo */}
               <Link className="flex w-40 md:hidden" href="/">
                 <Image
-                  className="object-contain w-full lg:h-auto max-w-[192px]"
+                  className="object-contain w-auto lg:h-auto"
                   src="/logo-dog-inline.png"
                   alt="Logo"
                   height={90}
-                  width={192}
+                  width={190}
                 />
               </Link>
 
@@ -520,6 +430,7 @@ export const Header = () => {
         {/* Logo */}
         {!isBookFocused && !isMobile && (
           <div
+            id="home-title-logo"
             style={
               shouldStartCollapsed
                 ? { transform: `translateX(-0.16rem) translateY(-2rem)` }
@@ -533,13 +444,13 @@ export const Header = () => {
                 "opacity-0 pointer-events-none"
             )}
           >
-            <ThreeLink className="w-full max-w-400" href="/">
+            <ThreeLink href="/">
               <Image
-                className="w-full 2xl:max-w-[1600px]"
+                className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
                 src="/logo-dog-inline-hd.png"
                 alt="Logo"
                 height={6120}
-                width={1600}
+                width={1340}
               />
             </ThreeLink>
           </div>

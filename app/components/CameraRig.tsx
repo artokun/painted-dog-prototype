@@ -51,18 +51,9 @@ export function CameraRig() {
   }));
 
   useEffect(() => {
-    let targetX = 0;
-    switch (currentRoute) {
-      case "/contact":
-      case "/not-found":
-        targetX = viewport.width;
-        break;
-      case "/legal":
-        targetX = -viewport.width;
-        break;
-      default:
-        targetX = 0;
-    }
+    const isBookRoute = currentRoute.startsWith("/books/");
+    const shouldPanLeft = currentRoute !== "/" && !isBookRoute;
+    const targetX = shouldPanLeft ? -viewport.width : 0;
     xApi.start({ rigX: targetX });
   }, [currentRoute, viewport.width, xApi]);
 
@@ -96,7 +87,7 @@ export function CameraRig() {
       trigger: scrollEl.firstElementChild || scrollEl,
       start: "top top",
       end: "bottom bottom",
-      scrub: 1,
+      scrub: true,
       animation: tween,
     });
 
@@ -116,10 +107,15 @@ export function CameraRig() {
   // --- 3. Focus Override ---
   useEffect(() => {
     const st = scrollTriggerRef.current;
-    if (!st) return;
+    if (!st || !rigRef.current) return;
 
     if (focusedBookId !== null) {
-      st.disable(false); // Pause without resetting position
+      st.disable(false); // Pause without resetting ScrollTrigger state
+      gsap.to(rigRef.current.position, {
+        y: topLimit,
+        duration: 0.35,
+        ease: "power2.out",
+      });
     } else {
       st.enable(false); // Resume without resetting position
       // Smoothly snap to current scroll position
@@ -157,6 +153,14 @@ export function CameraRig() {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [focusedBookId, currentRoute, rotApi]);
+
+  // Ensure camera yaw is reset immediately when focusing a book or leaving home,
+  // even if no mousemove event fires after the state change.
+  useEffect(() => {
+    if (focusedBookId !== null || currentRoute !== "/") {
+      rotApi.start({ rotY: 0 });
+    }
   }, [focusedBookId, currentRoute, rotApi]);
 
   // --- 5. Frame Loop ---

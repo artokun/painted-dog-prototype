@@ -42,7 +42,10 @@ export const HomeContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
         "flex flex-col gap-10 pointer-events-auto",
         !isHomePage && "pointer-events-none"
       )}>
-      <div className="flex flex-col md:flex-row gap-12 justify-around mx-auto max-w-3xl px-8 md:px-0">
+      <div
+        id="home-copy-start"
+        className="flex flex-col md:flex-row gap-12 justify-around mx-auto max-w-3xl px-8 md:px-0"
+      >
         <div className="flex-1 flex flex-col gap-4">
           <h3 className="text-xl font-medium">
             An expansive publication in full colour showcasing decades&apos;

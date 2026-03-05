@@ -5,7 +5,7 @@ import { FloatingBar } from "./FloatingBar";
 import { Loader } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
@@ -31,6 +31,8 @@ import { ResetPasswordModal } from "@/app/components/ResetPasswordModal";
 import { openResetPassword } from "@/app/store/resetPasswordStore";
 import { HomeContent } from "./HomeContent";
 import { cn } from "@/lib/utils";
+import { HOME_COLLAPSE_SCROLL_RANGE_PX } from "@/app/constants/motion";
+import { PageSlot } from "./PageSlot";
 
 export const Foreground = () => {
   const router = useRouter();
@@ -57,6 +59,35 @@ export const Foreground = () => {
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;
 
+  const updateFeaturedBookAnchor = useCallback(() => {
+    if (globalStore.currentRoute !== "/") {
+      if (globalStore.featuredBookAnchorNdcY !== 0) {
+        globalStore.featuredBookAnchorNdcY = 0;
+      }
+      return;
+    }
+
+    const titleEl = document.getElementById("home-title-logo");
+    const copyStartEl = document.getElementById("home-copy-start");
+
+    if (!titleEl || !copyStartEl) return;
+
+    const viewportHeight = window.innerHeight;
+    const titleRect = titleEl.getBoundingClientRect();
+    const copyRect = copyStartEl.getBoundingClientRect();
+    const clampedTitleBottom = Math.min(
+      Math.max(titleRect.bottom, 0),
+      viewportHeight
+    );
+    const clampedCopyTop = Math.min(Math.max(copyRect.top, 0), viewportHeight);
+    const midpointY = (clampedTitleBottom + clampedCopyTop) / 2;
+    const ndcY = Math.min(Math.max(1 - (midpointY / viewportHeight) * 2, -1), 1);
+
+    if (Math.abs(globalStore.featuredBookAnchorNdcY - ndcY) > 0.0005) {
+      globalStore.featuredBookAnchorNdcY = ndcY;
+    }
+  }, []);
+
   // Restore auth session from httpOnly cookie on mount
   useEffect(() => {
     hydrateAuth();
@@ -73,6 +104,12 @@ export const Foreground = () => {
       const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
       globalStore.scrollProgress = Math.min(Math.max(progress, 0), 1);
       globalStore.overlayScrollPosition = scrollTop;
+      // Shared 0-1 progress for homepage hero motion (header/title + featured book insert)
+      globalStore.landingTransitionProgress = Math.min(
+        Math.max(scrollTop / HOME_COLLAPSE_SCROLL_RANGE_PX, 0),
+        1
+      );
+      updateFeaturedBookAnchor();
       // Keep scrollPages in sync for camera Y travel calculation
       globalStore.scrollPages = Math.max(scrollHeight / clientHeight, 1);
     };
@@ -88,7 +125,7 @@ export const Foreground = () => {
       container.removeEventListener("scroll", syncScroll);
       observer.disconnect();
     };
-  }, []);
+  }, [updateFeaturedBookAnchor]);
 
   // Forward wheel and touch events to scroll container
   // (container is pointer-events-none so it can't receive events directly,
@@ -253,29 +290,31 @@ export const Foreground = () => {
       >
         <Header />
         {showFloatingBar && <FloatingBar />}
-        <BookPageContent />
-      <Cursor />
-      <AboutPageContent visible={isAboutPage} aboutContent={aboutContent} />
-      <ContactPageContent visible={isContactPage} />
-      <LegalPageContent visible={isLegalPage} />
-      <LoginPageComponent visible={isLoginPage} />
-      <Dashboard visible={isDashboardPage} />
-      <NotFoundContent visible={isNotFound} />
-      <MenuOverlay visible={isMenuOpen} />
+        <PageSlot>
+          <BookPageContent />
+          <AboutPageContent visible={isAboutPage} aboutContent={aboutContent} />
+          <ContactPageContent visible={isContactPage} />
+          <LegalPageContent visible={isLegalPage} />
+          <LoginPageComponent visible={isLoginPage} />
+          <Dashboard visible={isDashboardPage} />
+          <NotFoundContent visible={isNotFound} />
+        </PageSlot>
+        <Cursor />
+        <MenuOverlay visible={isMenuOpen} />
 
-      {/* Cart Sidebar - Single instance at top level */}
-      <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
+        {/* Cart Sidebar - Single instance at top level */}
+        <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
 
-      {/*Forgot Password Modal */}
-      <ForgotPasswordModal
-        isOpen={isForgotPasswordOpen}
-        onClose={closeForgotPassword}
-      />
+        {/*Forgot Password Modal */}
+        <ForgotPasswordModal
+          isOpen={isForgotPasswordOpen}
+          onClose={closeForgotPassword}
+        />
 
-      <ResetPasswordModal />
+        <ResetPasswordModal />
 
-      <Loader />
-    </div>
+        <Loader />
+      </div>
     </>
   );
 };

@@ -26,7 +26,9 @@ export const Footer = () => {
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
-      <footer className=" relative min-h-[216px]  pointer-events-auto p-4 text-black w-full max-w-[1600px] torn-paper bg-[#F9F6F0]">
+      <footer
+        className="relative min-h-[216px] torn-paper bg-[#F9F6F0] pointer-events-auto p-4 text-black w-full max-w-[1600px] shadow-[0_6px_14px_rgba(0,0,0,0.16)]"
+      >
         <div className="torn-right"></div>
         <div className="torn-bottom"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full">
