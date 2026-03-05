@@ -123,7 +123,7 @@ export default async function NewsArchivePage({
           </div>
         </header>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {paginatedItems.map((item) => (
             <Link
               key={item.id}
