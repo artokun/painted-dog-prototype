@@ -73,7 +73,7 @@ export default async function NewsArchivePage({
       className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto"
     >
       <div className="w-full pt-20 px-5 md:px-8 pb-7 text-black">
-        <header className=" pt-20  pb-40">
+        <header className=" pt-14  pb-14 md:pt-20 md:pb-40 ">
           <div className="w-full flex flex-col gap-6">
             <div className="w-full grid grid-cols-3 gap-6 items-center">
               <div className="leading-none col-span-1 flex justify-center gap-4">
@@ -123,7 +123,7 @@ export default async function NewsArchivePage({
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-6">
           {paginatedItems.map((item) => (
             <Link
               key={item.id}

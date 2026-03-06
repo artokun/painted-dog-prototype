@@ -140,7 +140,7 @@ const MobileTabSelector = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-20">
       <ul className="flex flex-col gap-2">
         <TabButton active={tab === Tab.About} onClick={() => setTab(Tab.About)}>
           About
@@ -158,7 +158,9 @@ const MobileTabSelector = ({
           Friends
         </TabButton>
       </ul>
-      <p className="text-[38px] font-fields">{getTabDescription()}</p>
+      <p className="text-[28px] md:text-[38px] font-fields">
+        {getTabDescription()}
+      </p>
     </div>
   );
 };
@@ -173,7 +175,6 @@ const AboutPage = ({
   aboutContent: AboutContent | null;
 }) => {
   const paperRef = useRef<HTMLElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
   const contentTopRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -194,14 +195,6 @@ const AboutPage = ({
       );
     }
 
-    // Animate line drawing across
-    if (lineRef.current) {
-      gsap.fromTo(
-        lineRef.current,
-        { scaleX: 0, transformOrigin: "left center" },
-        { scaleX: 1, duration: 1.2, ease: "power3.inOut", delay: 0.6 }
-      );
-    }
   }, [tab]);
 
   const getTabDescription = () => {
@@ -219,8 +212,6 @@ const AboutPage = ({
 
   return (
     <div className="md:py-20 py-12 w-full">
-      <div ref={contentTopRef} className="absolute -top-20" />
-
       <div className="md:hidden w-full py-12 flex flex-col gap-2">
         <MobileTabSelector tab={tab} setTab={setTab} />
       </div>
@@ -246,12 +237,17 @@ const AboutPage = ({
               Friends
             </TabButton>
           </ul>
-          <p className="text-[38px] font-fields">{getTabDescription()}</p>
+          <p className="text-[28px] md:text-[38px] font-fields">
+            {getTabDescription()}
+          </p>
         </aside>
+
         <section
           ref={paperRef}
-          className="flex-1 bg-[#f9f6f0] mt-16 p-8 prose prose-lg max-w-none"
+          className="flex-1 bg-[#f9f6f0] mt-6 md:mt-24  p-8 prose prose-lg max-w-none"
         >
+          <div ref={contentTopRef} className="absolute -top-20" />
+
           {tab === Tab.About && (
             <div>
               {(aboutContent?.aboutTab && aboutContent.aboutTab.length > 0 && (
@@ -291,10 +287,6 @@ const AboutPage = ({
           )}
         </section>
       </div>
-      <div
-        ref={lineRef}
-        className="border-b border-black w-full max-w-[400px] mx-auto h-px pt-20 md:pt-3"
-      />
     </div>
   );
 };
