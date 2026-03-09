@@ -22,7 +22,7 @@ export const Footer = () => {
   return (
     <section
       className={cn(
-        "flex w-full items-center justify-center pointer-events-none px-4 pt-20 pb-4 md:pt-15 md:pb-6 transition-opacity duration-300  md:px-[32px]",
+        "flex w-full items-center justify-center pointer-events-none px-4 pt-20 pb-4 md:pt-15 md:pb-[32px] transition-opacity duration-300  md:px-[32px]",
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
@@ -41,7 +41,7 @@ export const Footer = () => {
                   alt="Logo"
                   width={320}
                   height={149}
-                  className="w-auto h-full mx-auto object-fit"
+                  className="w-auto h-full mx-auto object-contain"
                 />
               </ThreeLink>
 

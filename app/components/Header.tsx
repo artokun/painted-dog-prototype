@@ -126,6 +126,10 @@ export const Header = () => {
   const prevCollapsedRef = useRef(currentRoute !== "/");
   const isCollapseAnimatingRef = useRef(false);
 
+  // Smoothed collapse progress — creates scrub-like damping lag
+  const smoothCollapseRef = useRef({ value: currentRoute !== "/" ? 1 : 0 });
+  const collapseTweenRef = useRef<gsap.core.Tween | null>(null);
+
   const logoYOffset = isMobile ? "0rem" : isTablet ? "-4rem" : "-6.5rem";
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
@@ -187,8 +191,8 @@ export const Header = () => {
 
   // Title/header collapse is driven by the same shared normalized progress
   // as landing hero motion to keep page chrome and book animation in sync.
-  // When navigating between routes (shouldStartCollapsed changes), we animate
-  // smoothly instead of snapping. Scroll-driven updates remain instant.
+  // Scroll-driven updates use scrub-like damping (smooth lag behind scroll).
+  // Route transitions use a longer eased animation.
   useEffect(() => {
     if (!isRendered) return;
 
@@ -197,95 +201,77 @@ export const Header = () => {
       : isHomepage || isBookPage
         ? landingTransitionProgress
         : 1;
-    const progress = Math.min(Math.max(collapseProgress, 0), 1);
-    // Logo scales down in the first 50% of scroll
-    const logoProgress = Math.min(Math.max(progress / 0.5, 0), 1);
-    // Links reach final position in the first 25% of scroll
-    const linkProgress = Math.min(Math.max(progress / 0.25, 0), 1);
-    const separatorProgress = Math.min(Math.max((linkProgress - 0.6) / 0.4, 0), 1);
-    const cartProgress = Math.min(Math.max((linkProgress - 0.15) / 0.85, 0), 1);
     const mix = gsap.utils.interpolate;
-    const menuElement = document.getElementById("menu-button-wrapper");
+
+    // Position all header elements based on a 0-1 progress value
+    const positionAt = (raw: number) => {
+      const p = Math.min(Math.max(raw, 0), 1);
+      const logoP = Math.min(Math.max(p / 0.5, 0), 1);
+      const linkP = Math.min(Math.max(p / 0.25, 0), 1);
+      const sepP = Math.min(Math.max((linkP - 0.6) / 0.4, 0), 1);
+      const cartP = Math.min(Math.max((linkP - 0.15) / 0.85, 0), 1);
+      const menuEl = document.getElementById("menu-button-wrapper");
+      const s = (t: gsap.TweenTarget, v: gsap.TweenVars) => {
+        if (t) gsap.set(t, v);
+      };
+      s(logoRef.current, { scale: mix(1, 0.2, logoP), y: mix("0rem", logoYOffset, logoP) });
+      s(newsRef.current, { x: mix("0.16rem", "0rem", linkP), y: mix("1rem", "0rem", linkP), fontSize: mix(24, 16, linkP) });
+      s(menuEl, { x: mix("-0.16rem", "0rem", linkP), y: mix("1rem", "0rem", linkP), fontSize: mix(24, 16, linkP) });
+      s(leftseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
+      s(rightseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
+      s(cartseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
+      s(newsletterRef.current, { x: mix("-6.5rem", "0rem", linkP), y: mix("15.875rem", "0rem", linkP), fontSize: mix(24, 16, linkP), opacity: 1 });
+      s(loginRef.current, { x: mix("6.5rem", "0rem", linkP), y: mix("15.875rem", "0rem", linkP), fontSize: mix(24, 16, linkP), opacity: 1 });
+      s(cartRef.current, { x: 0, y: mix("16.875rem", "0rem", linkP), fontSize: mix(24, 16, linkP), opacity: cartP });
+      s(navRef.current, { opacity: 1 });
+    };
 
     // Detect route-driven collapse change (not initial render, not scroll)
     const collapsedChanged = shouldStartCollapsed !== prevCollapsedRef.current;
-    const shouldAnimate = hasInitializedRef.current && collapsedChanged;
+    const isRouteTransition = hasInitializedRef.current && collapsedChanged;
 
     // Skip scroll-driven updates while a route transition animation is playing
-    if (!shouldAnimate && isCollapseAnimatingRef.current) {
+    if (!isRouteTransition && isCollapseAnimatingRef.current) {
       prevCollapsedRef.current = shouldStartCollapsed;
       return;
     }
 
-    if (shouldAnimate) {
+    if (isRouteTransition) {
+      // Route change — animate with easing (home ↔ other page)
       isCollapseAnimatingRef.current = true;
-      setTimeout(() => {
-        isCollapseAnimatingRef.current = false;
-      }, 450);
+      collapseTweenRef.current?.kill();
+      collapseTweenRef.current = gsap.to(smoothCollapseRef.current, {
+        value: collapseProgress,
+        duration: 0.4,
+        ease: "power2.inOut",
+        overwrite: true,
+        onUpdate: () => positionAt(smoothCollapseRef.current.value),
+        onComplete: () => {
+          isCollapseAnimatingRef.current = false;
+        },
+      });
+    } else if (!hasInitializedRef.current) {
+      // First render — snap instantly, no damping
+      smoothCollapseRef.current.value = collapseProgress;
+      positionAt(collapseProgress);
+    } else {
+      // Scroll-driven — scrub damping (header lags slightly behind scroll)
+      collapseTweenRef.current?.kill();
+      collapseTweenRef.current = gsap.to(smoothCollapseRef.current, {
+        value: collapseProgress,
+        duration: 0.1,
+        ease: "none",
+        overwrite: true,
+        onUpdate: () => positionAt(smoothCollapseRef.current.value),
+      });
     }
-
-    const apply = shouldAnimate
-      ? (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
-          if (target)
-            gsap.to(target, {
-              ...vars,
-              duration: 0.4,
-              ease: "power2.inOut",
-              overwrite: true,
-            });
-        }
-      : (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
-          if (target) gsap.set(target, vars);
-        };
-
-    apply(logoRef.current, {
-      scale: mix(1, 0.2, logoProgress),
-      y: mix("0rem", logoYOffset, logoProgress),
-    });
-    apply(newsRef.current, {
-      x: mix("0.16rem", "0rem", linkProgress),
-      y: mix("1rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-    });
-    apply(menuElement, {
-      x: mix("-0.16rem", "0rem", linkProgress),
-      y: mix("1rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-    });
-    apply(leftseparatorRef.current, {
-      opacity: separatorProgress,
-      y: mix(0, -2, separatorProgress),
-    });
-    apply(rightseparatorRef.current, {
-      opacity: separatorProgress,
-      y: mix(0, -2, separatorProgress),
-    });
-    apply(cartseparatorRef.current, {
-      opacity: separatorProgress,
-      y: mix(0, -2, separatorProgress),
-    });
-    apply(newsletterRef.current, {
-      x: mix("-6.5rem", "0rem", linkProgress),
-      y: mix("15.875rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-      opacity: 1,
-    });
-    apply(loginRef.current, {
-      x: mix("6.5rem", "0rem", linkProgress),
-      y: mix("15.875rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-      opacity: 1,
-    });
-    apply(cartRef.current, {
-      x: 0,
-      y: mix("16.875rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-      opacity: cartProgress,
-    });
-    apply(navRef.current, { opacity: 1 });
 
     hasInitializedRef.current = true;
     prevCollapsedRef.current = shouldStartCollapsed;
+
+    return () => {
+      collapseTweenRef.current?.kill();
+    };
   }, [
     isRendered,
     isHomepage,
