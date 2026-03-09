@@ -431,8 +431,8 @@ export const Header = () => {
       )}
     >
       {/* Single nav container for fade animation */}
-      <div ref={navRef} className="flex w-full max-w-[1320px] mx-auto">
-        <div className="flex text-black z-[9]">
+      <div ref={navRef} className="flex items-center w-full max-w-[1320px] mx-auto">
+        <div className="flex items-center text-black z-[9]">
           <div
             style={{
               opacity: isBookFocused ? 0 : 1,
@@ -603,7 +603,7 @@ export const Header = () => {
             <MenuButton />
           </div>
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex text-[24px] -mt-8 gap-2 items-center text-black">
+          <div className="md:hidden flex text-[24px] gap-2 items-center text-black">
             <MenuButton />
           </div>
         </div>
