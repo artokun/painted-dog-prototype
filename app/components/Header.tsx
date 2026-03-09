@@ -408,7 +408,7 @@ export const Header = () => {
       )}
     >
       {/* Single nav container for fade animation */}
-      <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
+      <div ref={navRef} className="flex w-full lg:max-w-[1320px] mx-auto">
         <div className="flex text-black z-[9]">
           <div
             style={{
