@@ -46,7 +46,7 @@ export const AboutPageContent = ({
           <>
             <div
               className={cn(
-                "flex flex-col items-center justify-center max-w-11/12 mx-auto w-full mt-20 md:px-2 px-8"
+                "flex flex-col items-center justify-center lg:max-w-11/12 mx-auto w-full mt-20 lg:px-2 px-6"
               )}
             >
               <AboutPage
@@ -177,8 +177,8 @@ const AboutPage = ({
       <div className="lg:hidden w-full py-12 flex flex-col gap-2">
         <MobileTabSelector tab={tab} setTab={setTab} />
       </div>
-      <div className="flex gap-[100px] w-full md:py-20">
-        <aside className="hidden lg:flex flex-col items-start gap-4 flex-0 min-w-[300px]  lg:min-w-[400px]  xl:min-w-[500px] pr-8 h-fit sticky top-20">
+      <div className="flex gap-6 w-full lg:py-20">
+        <aside className="hidden lg:flex flex-col items-start gap-4 flex-0 min-w-[300px]  lg:min-w-[400px]  xl:min-w-[500px] h-fit sticky top-20">
           <ul className="flex flex-col gap-2 pb-14">
             <TabButton
               active={tab === Tab.About}
@@ -206,7 +206,7 @@ const AboutPage = ({
 
         <section
           ref={paperRef}
-          className="flex-1 bg-[#f9f6f0] mt-6 md:mt-24  p-8 prose prose-lg max-w-none"
+          className="flex-1 bg-[#f9f6f0] mt-0 md:mt-6 lg:mt-[230px]  p-8 prose prose-lg max-w-none"
         >
           <div ref={contentTopRef} className="absolute -top-20" />
 

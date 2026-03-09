@@ -101,7 +101,7 @@ export const Footer = () => {
           </div>
 
           {/* right column - "For Writers" */}
-          <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-t-0 border-l-3 border-r-3 lg:border-t-3 lg:border-l-0 border-black h-full">
+          <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-t-0 border-l-3 md:border-l-0 border-r-3 lg:border-t-3 lg:border-l-0 border-black h-full">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-semibold"

@@ -13,6 +13,7 @@ import { cartUIStore, setProceedToCheckout } from "../store/cartUIStore";
 import { cartStore } from "../store/cartStore";
 import { createCart } from "@/lib/shopify-client";
 import { PageOverlay } from "./PageOverlay";
+import { Footer } from "./Footer";
 
 interface FormData {
   firstName?: string;
@@ -156,10 +157,10 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
       visible={visible}
       id="login-page-scroll-container"
       direction="left"
-      className="pt-16 flex items-center justify-center bg-[#f6ead6]"
+      className="pt-16 flex items-center justify-center bg-[#f6ead6] px-4 lg:px-0"
     >
       <div
-        className={`pd_login-wrapper drop-shadow-xl ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter xl:-rotate-1 lg:scale-[.70] relative after:absolute after:-bottom-[15px] after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-[15px] before:left-0 before:h-4 before:w-full before:rotate-180`}
+        className={`pd_login-wrapper top-40 md:top-10 lg:top-0 scale-none drop-shadow-xl  w-full  max-w-[464px] bg-white p-6 rotate-0 filter xl:-rotate-1 xl:scale-[.70] relative after:absolute after:-bottom-[15px] after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-[15px] before:left-0 before:h-4 before:w-full before:rotate-180`}
       >
         <div className="flex justify-between gap-4">
           <p className="font-semibold">Account</p>
@@ -171,7 +172,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           />
         </div>
 
-        <h1 className="text-[62px] py-5 font-semibold text-center">
+        <h1 className="text-[3rem] leading-[120%] lg:text-[4.5rem] py-5 font-semibold text-center">
           {isLogin ? "Login" : "Sign Up"}
         </h1>
         <p className="text-center pb-4 text-[#1A1A1A]">
@@ -195,7 +196,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                   <span>First Name</span>
                   <input
                     placeholder="Enter first name"
-                    className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
+                    className="border-black text-[15px] md:text-base py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
                     type="text"
                     {...register("firstName", {
                       required: isLogin ? false : "First name is required",
@@ -222,12 +223,12 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
 
           {/* Shared Fields */}
           <div className="border-b border-black pb-1">
-            <label className="flex gap-1 items-center">
+            <label className="flex text-[15px] md:text-base gap-1 items-center">
               <span>Email address</span>
               <input
                 type="email"
                 placeholder="Enter email address"
-                className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
+                className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-[15px] md:placeholder:text-base placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
@@ -245,7 +246,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           </div>
 
           <div className="border-b border-black pb-1">
-            <label className="flex gap-1 items-center">
+            <label className="flex text-[15px] md:text-base gap-1 items-center">
               <span>Password</span>
               <input
                 type="password"
@@ -281,20 +282,11 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
 
           {/* Remember Me & Forgot Password */}
           {isLogin && (
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 cursor-pointer accent-[#1A1A1A]"
-                  {...register("rememberMe")}
-                />
-                <span className="text-sm">Remember me (30 days)</span>
-              </label>
-
+            <div className="flex items-center justify-center">
               <button
                 type="button"
                 onClick={openForgotPassword}
-                className="text-sm text-[#1A1A1A] underline hover:opacity-70 transition-opacity"
+                className="text-sm md:text-base text-[#1A1A1A] underline hover:opacity-70 transition-opacity"
               >
                 Forgot Password?
               </button>
@@ -345,6 +337,8 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           </h2>
         </form>
       </div>
+
+      <Footer />
     </PageOverlay>
   );
 };
