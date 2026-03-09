@@ -1,14 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { animated, useSpring } from "@react-spring/web";
-import { useState, useRef, useEffect } from "react";
-import { globalStore } from "../store/globalStore";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Footer } from "./Footer";
 import type { AboutContent } from "@/lib/about";
 import { PersonCardSimple } from "./PersonCardSimple";
 import { PersonCard } from "./PersonCard";
 import gsap from "gsap";
+import { PageOverlay } from "./PageOverlay";
 
 enum Tab {
   About = "about",
@@ -23,80 +22,40 @@ export const AboutPageContent = ({
   visible: boolean;
   aboutContent: AboutContent | null;
 }) => {
-  const [isSuccess, setIsSuccess] = useState(false);
   const [tab, setTab] = useState(Tab.About);
-  const [showContent, setShowContent] = useState(false);
-  const [wasVisible, setWasVisible] = useState(visible);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset success state when component becomes visible after being hidden
-  useEffect(() => {
-    if (visible && !wasVisible && isSuccess) {
-      setIsSuccess(false);
-      setTab(Tab.About); // Also reset to general tab
-    }
-    setWasVisible(visible);
-  }, [visible, wasVisible, isSuccess]);
-
-  // Track scroll position and smooth scroll to top on navigation away
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      if (visible) {
-        globalStore.overlayScrollPosition = container.scrollTop;
+  const handleVisibilityChange = useCallback(
+    (vis: boolean, wasVis: boolean) => {
+      if (vis && !wasVis) {
+        setTab(Tab.About);
       }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-
-    // Smooth scroll to top when navigating away
-    if (!visible && container.scrollTop > 0) {
-      container.scrollTo({ top: 0, behavior: "smooth" });
-      globalStore.overlayScrollPosition = 0;
-    }
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [visible]);
-
-  const style = useSpring({
-    opacity: visible ? 1 : 0,
-    x: visible ? 0 : 100,
-    delay: visible ? 300 : 50,
-    onStart: () => {
-      setShowContent(true);
     },
-    onRest: () => {
-      setShowContent(visible);
-    },
-  });
+    [],
+  );
 
   return (
-    <animated.div
-      ref={containerRef}
+    <PageOverlay
+      visible={visible}
       id="about-page-scroll-container"
-      style={style}
-      className={cn(
-        "bg-[#e7d7bf] absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden",
-        visible && "pointer-events-auto"
-      )}
+      direction="right"
+      className="bg-[#e7d7bf]"
+      onVisibilityChange={handleVisibilityChange}
     >
-      {showContent && (
-        <>
-          <div
-            className={cn(
-              "flex flex-col items-center justify-center max-w-11/12 mx-auto w-full mt-20 md:px-2 px-8"
-            )}
-          >
-            <AboutPage tab={tab} setTab={setTab} aboutContent={aboutContent} />
-          </div>
-          <Footer />
-        </>
-      )}
-    </animated.div>
+      {(showContent) =>
+        showContent ? (
+          <>
+            <div
+              className={cn(
+                "flex flex-col items-center justify-center max-w-11/12 mx-auto w-full mt-20 md:px-2 px-8"
+              )}
+            >
+              <AboutPage tab={tab} setTab={setTab} aboutContent={aboutContent} />
+            </div>
+            <Footer />
+          </>
+        ) : null
+      }
+    </PageOverlay>
   );
 };
 

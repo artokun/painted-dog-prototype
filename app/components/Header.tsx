@@ -80,7 +80,6 @@ export const Header = () => {
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
   const isLoginPage = currentRoute === "/login";
-  const isNewsSlugPage = currentRoute.startsWith("/news/");
   const isOverlayPage = isContactPage || isLegalPage || isLoginPage;
   const isBookFocused = focusedBookId !== null;
   const showHeader = true;
@@ -121,6 +120,11 @@ export const Header = () => {
   // Track header hidden state
   const isHeaderHiddenRef = useRef(false);
   const lastScrollYRef = useRef(0);
+
+  // Track route-driven collapse transitions
+  const hasInitializedRef = useRef(false);
+  const prevCollapsedRef = useRef(currentRoute !== "/");
+  const isCollapseAnimatingRef = useRef(false);
 
   const logoYOffset = isMobile ? "0rem" : isTablet ? "-4rem" : "-6.5rem";
 
@@ -183,6 +187,8 @@ export const Header = () => {
 
   // Title/header collapse is driven by the same shared normalized progress
   // as landing hero motion to keep page chrome and book animation in sync.
+  // When navigating between routes (shouldStartCollapsed changes), we animate
+  // smoothly instead of snapping. Scroll-driven updates remain instant.
   useEffect(() => {
     if (!isRendered) return;
 
@@ -200,58 +206,90 @@ export const Header = () => {
     const cartProgress = Math.min(Math.max((linkProgress - 0.15) / 0.85, 0), 1);
     const mix = gsap.utils.interpolate;
     const menuElement = document.getElementById("menu-button-wrapper");
-    const setStyles = (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
-      if (target) gsap.set(target, vars);
-    };
 
-    setStyles(logoRef.current, {
+    // Detect route-driven collapse change (not initial render, not scroll)
+    const collapsedChanged = shouldStartCollapsed !== prevCollapsedRef.current;
+    const shouldAnimate = hasInitializedRef.current && collapsedChanged;
+
+    // Skip scroll-driven updates while a route transition animation is playing
+    if (!shouldAnimate && isCollapseAnimatingRef.current) {
+      prevCollapsedRef.current = shouldStartCollapsed;
+      return;
+    }
+
+    if (shouldAnimate) {
+      isCollapseAnimatingRef.current = true;
+      setTimeout(() => {
+        isCollapseAnimatingRef.current = false;
+      }, 450);
+    }
+
+    const apply = shouldAnimate
+      ? (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
+          if (target)
+            gsap.to(target, {
+              ...vars,
+              duration: 0.4,
+              ease: "power2.inOut",
+              overwrite: true,
+            });
+        }
+      : (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
+          if (target) gsap.set(target, vars);
+        };
+
+    apply(logoRef.current, {
       scale: mix(1, 0.2, logoProgress),
       y: mix("0rem", logoYOffset, logoProgress),
     });
-    setStyles(newsRef.current, {
+    apply(newsRef.current, {
       x: mix("0.16rem", "0rem", linkProgress),
       y: mix("1rem", "0rem", linkProgress),
       fontSize: mix(24, 16, linkProgress),
     });
-    setStyles(menuElement, {
+    apply(menuElement, {
       x: mix("-0.16rem", "0rem", linkProgress),
       y: mix("1rem", "0rem", linkProgress),
       fontSize: mix(24, 16, linkProgress),
     });
-    setStyles(leftseparatorRef.current, {
+    apply(leftseparatorRef.current, {
       opacity: separatorProgress,
       y: mix(0, -2, separatorProgress),
     });
-    setStyles(rightseparatorRef.current, {
+    apply(rightseparatorRef.current, {
       opacity: separatorProgress,
       y: mix(0, -2, separatorProgress),
     });
-    setStyles(cartseparatorRef.current, {
+    apply(cartseparatorRef.current, {
       opacity: separatorProgress,
       y: mix(0, -2, separatorProgress),
     });
-    setStyles(newsletterRef.current, {
+    apply(newsletterRef.current, {
       x: mix("-6.5rem", "0rem", linkProgress),
       y: mix("15.875rem", "0rem", linkProgress),
       fontSize: mix(24, 16, linkProgress),
       opacity: 1,
     });
-    setStyles(loginRef.current, {
+    apply(loginRef.current, {
       x: mix("6.5rem", "0rem", linkProgress),
       y: mix("15.875rem", "0rem", linkProgress),
       fontSize: mix(24, 16, linkProgress),
       opacity: 1,
     });
-    setStyles(cartRef.current, {
+    apply(cartRef.current, {
       x: 0,
       y: mix("16.875rem", "0rem", linkProgress),
       fontSize: mix(24, 16, linkProgress),
       opacity: cartProgress,
     });
-    setStyles(navRef.current, { opacity: 1 });
+    apply(navRef.current, { opacity: 1 });
+
+    hasInitializedRef.current = true;
+    prevCollapsedRef.current = shouldStartCollapsed;
   }, [
     isRendered,
     isHomepage,
+    isBookPage,
     shouldStartCollapsed,
     landingTransitionProgress,
     logoYOffset,
@@ -259,16 +297,17 @@ export const Header = () => {
 
   useEffect(() => {
     if (!isRendered) return;
-    let activeContainer: HTMLDivElement | null = null;
-    if (isHomepage) {
-      activeContainer =
-        scrollContainerRef.current ||
-        (document.getElementById("scroll-container") as HTMLDivElement | null);
-    } else if (isNewsSlugPage) {
-      activeContainer = document.getElementById(
-        "news-slug-page-scroll-container"
-      ) as HTMLDivElement | null;
-    } else {
+
+    let activeContainer: HTMLElement | null = null;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const getContainerId = (): string | null => {
+      if (isHomepage) return "scroll-container";
+      if (currentRoute.startsWith("/news/"))
+        return "news-slug-page-scroll-container";
+      if (currentRoute.startsWith("/books/"))
+        return "mobile-book-page-content";
+
       const containerMap: Record<string, string> = {
         "/about": "about-page-scroll-container",
         "/contact": "contact-page-scroll-container",
@@ -278,24 +317,21 @@ export const Header = () => {
         "/news": "news-page-scroll-container",
       };
 
-      const containerId = containerMap[currentRoute];
-      if (containerId) {
-        activeContainer = document.getElementById(
-          containerId
-        ) as HTMLDivElement | null;
-      }
-    }
-
-    if (!activeContainer) return;
+      return containerMap[currentRoute] ?? null;
+    };
 
     // Homepage needs higher threshold so it doesn't fight the collapse motion.
     const hideThreshold = isHomepage ? 400 : 100;
 
     const handleDirectionScroll = () => {
-      const currentScrollY = activeContainer!.scrollTop;
+      if (!activeContainer) return;
+      const currentScrollY = activeContainer.scrollTop;
 
       if (currentScrollY > hideThreshold) {
-        if (currentScrollY > lastScrollYRef.current && !isHeaderHiddenRef.current) {
+        if (
+          currentScrollY > lastScrollYRef.current &&
+          !isHeaderHiddenRef.current
+        ) {
           // Scrolling down - slide header up off-screen
           isHeaderHiddenRef.current = true;
           gsap.to(headerRef.current, {
@@ -330,11 +366,28 @@ export const Header = () => {
       lastScrollYRef.current = currentScrollY;
     };
 
-    activeContainer.addEventListener("scroll", handleDirectionScroll);
+    // Retry finding the scroll container — server-rendered pages may not
+    // have their DOM ready when this effect first runs.
+    const tryAttach = (retries = 10) => {
+      const containerId = getContainerId();
+      if (!containerId) return;
+
+      const el = document.getElementById(containerId);
+      if (el) {
+        activeContainer = el;
+        el.addEventListener("scroll", handleDirectionScroll);
+      } else if (retries > 0) {
+        retryTimer = setTimeout(() => tryAttach(retries - 1), 80);
+      }
+    };
+
+    tryAttach();
+
     return () => {
+      if (retryTimer) clearTimeout(retryTimer);
       activeContainer?.removeEventListener("scroll", handleDirectionScroll);
     };
-  }, [isRendered, isHomepage, isNewsSlugPage, currentRoute]);
+  }, [isRendered, isHomepage, currentRoute]);
 
   const handleBackButtonClick = () => {
     bookStore.focusedBookId = null;

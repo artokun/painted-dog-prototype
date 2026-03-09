@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSnapshot } from "valtio";
 import { authStore, logout } from "@/app/store/authStore";
@@ -10,11 +10,9 @@ import {
   updateCustomerAddress,
   updateCustomerProfile,
 } from "@/lib/shopify-client";
-import { globalStore } from "@/app/store/globalStore";
-import { useSpring } from "@react-spring/three";
-import { animated } from "@react-spring/web";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { PageOverlay } from "@/app/components/PageOverlay";
 
 export function Dashboard({ visible }: { visible: boolean }) {
   const auth = useSnapshot(authStore);
@@ -25,42 +23,13 @@ export function Dashboard({ visible }: { visible: boolean }) {
     "orders"
   );
   const [showMobileMenu, setShowMobileMenu] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMobileMenuClick = (tab: "orders" | "profile" | "address") => {
     setActiveTab(tab);
     setShowMobileMenu(false);
   };
 
-  // Track scroll position and smooth scroll to top on navigation away
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      if (visible) {
-        globalStore.overlayScrollPosition = container.scrollTop;
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-
-    // Smooth scroll to top when navigating away
-    if (!visible && container.scrollTop > 0) {
-      container.scrollTo({ top: 0, behavior: "smooth" });
-      globalStore.overlayScrollPosition = 0;
-    }
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [visible]);
-
-  const style = useSpring({
-    opacity: visible ? 1 : 0,
-    x: visible ? 0 : 100,
-    delay: visible ? 300 : 50,
-  });
+  // (scroll tracking + spring animation handled by PageOverlay)
 
   //Redirect if not logged in
   useEffect(() => {
@@ -99,14 +68,11 @@ export function Dashboard({ visible }: { visible: boolean }) {
   }
 
   return (
-    <animated.div
-      ref={containerRef}
+    <PageOverlay
+      visible={visible}
       id="dashboard-page-scroll-container"
-      style={style}
-      className={cn(
-        "absolute inset-0 pt-16 lg:pt-0 flex items-center h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden bg-[#e7d7bf]",
-        visible && "pointer-events-auto"
-      )}
+      direction="right"
+      className="pt-16 lg:pt-0 flex items-center bg-[#e7d7bf]"
     >
       <div className="flex w-full 2xl:max-w-[1320] mx-auto">
         <div className="mt-40 md:mt-10 px-4 flex w-full mx-auto flex-col lg:pt-8 lg:flex-row lg:px-10">
@@ -304,7 +270,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
           </div>
         </div>
       </div>
-    </animated.div>
+    </PageOverlay>
   );
 }
 

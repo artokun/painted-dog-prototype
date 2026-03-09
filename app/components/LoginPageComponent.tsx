@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { animated, useSpring } from "@react-spring/web";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { globalStore } from "../store/globalStore";
 import { useRouter } from "next/navigation";
@@ -13,6 +12,7 @@ import { useSnapshot } from "valtio";
 import { cartUIStore, setProceedToCheckout } from "../store/cartUIStore";
 import { cartStore } from "../store/cartStore";
 import { createCart } from "@/lib/shopify-client";
+import { PageOverlay } from "./PageOverlay";
 
 interface FormData {
   firstName?: string;
@@ -22,9 +22,6 @@ interface FormData {
 }
 
 export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
-  const [showContent, setShowContent] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const hasAutoScrolled = useRef(false);
   const [isLogin, setIsLogin] = useState(true);
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -148,61 +145,18 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
     }
   };
 
-  useEffect(() => {
-    if (!visible) {
-      hasAutoScrolled.current = false;
-    }
-  }, [visible]);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      if (visible) {
-        globalStore.overlayScrollPosition = container.scrollTop;
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-
-    if (!visible && container.scrollTop > 0) {
-      container.scrollTo({ top: 0, behavior: "smooth" });
-      globalStore.overlayScrollPosition = 0;
-    }
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [visible]);
-
   // Reset form when switching between login/signup
   useEffect(() => {
     reset();
     setError("");
   }, [isLogin, reset]);
 
-  const style = useSpring({
-    opacity: visible ? 1 : 0,
-    x: visible ? 0 : -100,
-    delay: visible ? 300 : 0,
-    onStart: () => {
-      setShowContent(true);
-    },
-    onRest: () => {
-      setShowContent(visible);
-    },
-  });
-
   return (
-    <animated.div
-      style={style}
-      ref={scrollContainerRef}
+    <PageOverlay
+      visible={visible}
       id="login-page-scroll-container"
-      className={cn(
-        "absolute pt-16 flex items-center justify-center inset-0 h-dvh w-dvw pointer-events-none  text-black z-10 overflow-y-auto overflow-x-hidden bg-[#f6ead6]",
-        visible && "pointer-events-auto"
-      )}
+      direction="left"
+      className="pt-16 flex items-center justify-center bg-[#f6ead6]"
     >
       <div
         className={`pd_login-wrapper drop-shadow-xl ${!isLogin && "mt-12"} w-[464px] bg-white p-6 rotate-0 filter xl:-rotate-1 lg:scale-[.70] relative after:absolute after:-bottom-[15px] after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-[15px] before:left-0 before:h-4 before:w-full before:rotate-180`}
@@ -391,6 +345,6 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           </h2>
         </form>
       </div>
-    </animated.div>
+    </PageOverlay>
   );
 };

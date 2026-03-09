@@ -27,6 +27,8 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
   const [isPending, startTransition] = useTransition();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [mounted, setMounted] = useState(false);
+  // Keep component rendered while the exit animation plays
+  const [shouldRender, setShouldRender] = useState(false);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,14 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
 
   // GSAP Animation - slide in from right
   useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+    }
+  }, [isOpen]);
+
+  // Run animations after shouldRender ensures DOM is available
+  useEffect(() => {
+    if (!shouldRender) return;
     if (!modalRef.current || !overlayRef.current) return;
 
     if (isOpen) {
@@ -70,14 +80,15 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
         duration: 0.3,
         ease: "power2.in",
       });
-      // Slide out modal to right
+      // Slide out modal to right, then unmount
       gsap.to(modalRef.current, {
         x: "100%",
         duration: 0.3,
         ease: "power3.in",
+        onComplete: () => setShouldRender(false),
       });
     }
-  }, [isOpen]);
+  }, [isOpen, shouldRender]);
 
   const onSubmit = (data: FormData) => {
     startTransition(async () => {
@@ -113,7 +124,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
   if (!mounted) return null;
 
   const modalContent = (

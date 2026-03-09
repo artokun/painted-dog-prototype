@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { animated, useSpring } from "@react-spring/web";
-import { ArrowRight } from "./icons/ArrowRight";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Footer } from "./Footer";
 import { ThreeLink } from "./ThreeLink";
 import { cn } from "@/lib/utils";
@@ -10,7 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useSnapshot } from "valtio";
 import { legalStore } from "@/app/store/legalStore";
-import { globalStore } from "../store/globalStore";
+import { PageOverlay } from "./PageOverlay";
 
 interface SectionAnchor {
   id: string;
@@ -51,80 +49,38 @@ const SectionLink = ({
 export const LegalPageContent = ({ visible }: { visible: boolean }) => {
   const { legalPage, isLoading } = useSnapshot(legalStore);
   const [activeAnchor, setActiveAnchor] = useState<string | null>(null);
-  const [showContent, setShowContent] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasAutoScrolled = useRef(false);
 
-  // Reset auto-scroll flag when component becomes invisible
-  useEffect(() => {
-    if (!visible) {
-      hasAutoScrolled.current = false;
-    }
-  }, [visible]);
+  const getContainer = () =>
+    document.getElementById("legal-page-scroll-container");
 
-  // Track scroll position and smooth scroll to top on navigation away
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      if (visible) {
-        globalStore.overlayScrollPosition = container.scrollTop;
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-
-    // Smooth scroll to top when navigating away
-    if (!visible && container.scrollTop > 0) {
-      container.scrollTo({ top: 0, behavior: "smooth" });
-      globalStore.overlayScrollPosition = 0;
-    }
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [visible]);
-
-  const style = useSpring({
-    opacity: visible ? 1 : 0,
-    x: visible ? 0 : -100,
-    delay: visible ? 300 : 0,
-    onStart: () => {
-      setShowContent(true);
+  const handleVisibilityChange = useCallback(
+    (vis: boolean) => {
+      if (!vis) hasAutoScrolled.current = false;
     },
-    onRest: () => {
-      setShowContent(visible);
+    [],
+  );
 
-      // Auto-scroll to anchor after animation completes, only on visibility
-      if (visible && !hasAutoScrolled.current && scrollContainerRef.current && typeof window !== 'undefined') {
-        const hash = window.location.hash.slice(1);
-        if (hash) {
-          setTimeout(() => {
-            const element = scrollContainerRef.current?.querySelector(
-              `#${hash}`
-            );
-            if (element && scrollContainerRef.current) {
-              const containerRect =
-                scrollContainerRef.current.getBoundingClientRect();
-              const elementRect = element.getBoundingClientRect();
-              const scrollTop =
-                elementRect.top -
-                containerRect.top +
-                scrollContainerRef.current.scrollTop;
+  const handleEnterComplete = useCallback(() => {
+    if (hasAutoScrolled.current || typeof window === "undefined") return;
+    hasAutoScrolled.current = true;
 
-              scrollContainerRef.current.scrollTo({
-                top: scrollTop,
-                behavior: "smooth",
-              });
-              setActiveAnchor(hash);
-            }
-          }, 100); // Small delay to ensure DOM is ready
-        }
-        hasAutoScrolled.current = true;
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+
+    setTimeout(() => {
+      const container = getContainer();
+      const element = container?.querySelector(`#${hash}`);
+      if (element && container) {
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        const scrollTop =
+          elementRect.top - containerRect.top + container.scrollTop;
+        container.scrollTo({ top: scrollTop, behavior: "smooth" });
+        setActiveAnchor(hash);
       }
-    },
-  });
+    }, 100);
+  }, []);
 
   const policies = useMemo(
     () => legalPage?.policies ?? [],
@@ -139,20 +95,15 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
   const pageTitle = legalPage?.title ?? "Privacy & Legal Policy";
 
   const scrollToAnchor = (anchor: string) => {
-    if (!anchor || !scrollContainerRef.current) return;
-    const element = scrollContainerRef.current.querySelector(`#${anchor}`);
+    const container = getContainer();
+    if (!anchor || !container) return;
+    const element = container.querySelector(`#${anchor}`);
     if (element) {
-      const containerRect = scrollContainerRef.current.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
       const scrollTop =
-        elementRect.top -
-        containerRect.top +
-        scrollContainerRef.current.scrollTop;
-
-      scrollContainerRef.current.scrollTo({
-        top: scrollTop,
-        behavior: "smooth",
-      });
+        elementRect.top - containerRect.top + container.scrollTop;
+      container.scrollTo({ top: scrollTop, behavior: "smooth" });
     }
   };
 
@@ -163,17 +114,16 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
   };
 
   return (
-    <animated.div
-      style={style}
-      ref={scrollContainerRef}
+    <PageOverlay
+      visible={visible}
       id="legal-page-scroll-container"
-      className={cn(
-        "absolute inset-0 h-dvh w-dvw pointer-events-none text-black z-10 overflow-y-auto overflow-x-hidden",
-        visible && "pointer-events-auto"
-      )}
+      direction="left"
+      onVisibilityChange={handleVisibilityChange}
+      onEnterComplete={handleEnterComplete}
     >
-      {showContent && (
-        <>
+      {(showContent) =>
+        showContent ? (
+          <>
           <div className="flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 md:px-2 px-8">
             <div className="w-full flex flex-col items-center text-center gap-6 md:py-20 py-12">
               <h1 className="md:text-5xl text-4xl font-medium">{pageTitle}</h1>
@@ -270,8 +220,9 @@ export const LegalPageContent = ({ visible }: { visible: boolean }) => {
             </div>
           </div>
           <Footer />
-        </>
-      )}
-    </animated.div>
+          </>
+        ) : null
+      }
+    </PageOverlay>
   );
 };

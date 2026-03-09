@@ -6,6 +6,7 @@ import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import { Footer } from "@/app/components/Footer";
 import { NewsParallaxHeader } from "@/app/components/NewsParallaxHeader";
 import { NewsContentBlock4 } from "@/app/components/NewsContentBlock4";
+import { PageTransition } from "@/app/components/PageTransition";
 
 export async function generateMetadata({
   params,
@@ -38,10 +39,7 @@ export default async function NewsArticlePage({
   if (!article) notFound();
 
   return (
-    <div
-      id="news-slug-page-scroll-container"
-      className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto"
-    >
+    <PageTransition id="news-slug-page-scroll-container">
       <div className="w-full px-5 md:px-8 pt-25 pb-24 text-black">
         <NewsParallaxHeader
           title={article.title}
@@ -172,6 +170,6 @@ export default async function NewsArticlePage({
         </article>
       </div>
       <Footer />
-    </div>
+    </PageTransition>
   );
 }

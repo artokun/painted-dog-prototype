@@ -5,7 +5,7 @@ import { PDButton } from "./ui/PDButton";
 import { PDInput } from "./ui/PDInput";
 import { PDTextarea } from "./ui/PDTextarea";
 import { useForm } from "react-hook-form";
-import { useState, useTransition, useRef, useEffect } from "react";
+import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { submitContactForm } from "@/app/actions/contact";
 import { submitSubmissionForm } from "@/app/actions/submission";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import { Footer } from "./Footer";
 import { useMediaQuery } from "usehooks-ts";
 import ReCaptcha from "./ReCaptcha";
 import ReCAPTCHA from "react-google-recaptcha";
-import { globalStore } from "../store/globalStore";
+import { PageOverlay } from "./PageOverlay";
 
 enum Tab {
   General = "general",
@@ -25,86 +25,47 @@ enum Tab {
 export const ContactPageContent = ({ visible }: { visible: boolean }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [tab, setTab] = useState(Tab.General);
-  const [showContent, setShowContent] = useState(false);
-  const [wasVisible, setWasVisible] = useState(visible);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset success state when component becomes visible after being hidden
-  useEffect(() => {
-    if (visible && !wasVisible && isSuccess) {
-      setIsSuccess(false);
-      setTab(Tab.General); // Also reset to general tab
-    }
-    setWasVisible(visible);
-  }, [visible, wasVisible, isSuccess]);
-
-  // Track scroll position and smooth scroll to top on navigation away
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      if (visible) {
-        globalStore.overlayScrollPosition = container.scrollTop;
+  const handleVisibilityChange = useCallback(
+    (vis: boolean, wasVis: boolean) => {
+      if (vis && !wasVis && isSuccess) {
+        setIsSuccess(false);
+        setTab(Tab.General);
       }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-
-    // Smooth scroll to top when navigating away
-    if (!visible && container.scrollTop > 0) {
-      container.scrollTo({ top: 0, behavior: "smooth" });
-      globalStore.overlayScrollPosition = 0;
-    }
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [visible]);
-
-  const style = useSpring({
-    opacity: visible ? 1 : 0,
-    x: visible ? 0 : 100,
-    delay: visible ? 300 : 50,
-    onStart: () => {
-      setShowContent(true);
     },
-    onRest: () => {
-      setShowContent(visible);
-    },
-  });
+    [isSuccess],
+  );
 
   return (
-    <animated.div
-      ref={containerRef}
+    <PageOverlay
+      visible={visible}
       id="contact-page-scroll-container"
-      style={style}
-      className={cn(
-        "absolute inset-0 h-dvh w-dvw text-black z-10 overflow-y-auto overflow-x-hidden",
-        visible && "pointer-events-auto"
-      )}
+      direction="right"
+      onVisibilityChange={handleVisibilityChange}
     >
-      {showContent && (
-        <>
-          <div
-            className={cn(
-              "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 md:px-2 px-8"
-            )}
-          >
-            {isSuccess ? (
-              <SuccessMessage onReset={() => setIsSuccess(false)} />
-            ) : (
-              <ContactPage
-                onSuccess={() => setIsSuccess(true)}
-                tab={tab}
-                setTab={setTab}
-              />
-            )}
-          </div>
-          <Footer />
-        </>
-      )}
-    </animated.div>
+      {(showContent) =>
+        showContent ? (
+          <>
+            <div
+              className={cn(
+                "flex flex-col items-center justify-center max-w-3xl mx-auto w-full mt-20 md:px-2 px-8"
+              )}
+            >
+              {isSuccess ? (
+                <SuccessMessage onReset={() => setIsSuccess(false)} />
+              ) : (
+                <ContactPage
+                  onSuccess={() => setIsSuccess(true)}
+                  tab={tab}
+                  setTab={setTab}
+                />
+              )}
+            </div>
+            <Footer />
+          </>
+        ) : null
+      }
+    </PageOverlay>
   );
 };
 

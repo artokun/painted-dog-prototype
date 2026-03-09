@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getNewsCategories, getNewsPage } from "@/lib/news";
 import { cn } from "@/lib/utils";
 import { Footer } from "@/app/components/Footer";
+import { PageTransition } from "@/app/components/PageTransition";
 
 const PAGE_SIZE = 9;
 
@@ -68,10 +69,7 @@ export default async function NewsArchivePage({
   const paginatedItems = items.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
-    <div
-      id="news-page-scroll-container"
-      className="absolute inset-0 top-0 left-0 h-full w-full z-10 pointer-events-auto overflow-y-auto"
-    >
+    <PageTransition id="news-page-scroll-container">
       <div className="w-full pt-20 px-5 md:px-8 pb-7 text-black">
         <header className=" pt-14  pb-14 md:pt-20 md:pb-40 ">
           <div className="w-full flex flex-col gap-6">
@@ -232,6 +230,6 @@ export default async function NewsArchivePage({
         )}
       </div>
       <Footer />
-    </div>
+    </PageTransition>
   );
 }
