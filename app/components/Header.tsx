@@ -125,6 +125,14 @@ export const Header = () => {
   const collapseTweenRef = useRef<gsap.core.Tween | null>(null);
 
   const logoCollapsedScale = 0.2;
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  useEffect(() => {
+    const onResize = () => setWindowWidth(window.innerWidth);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -213,6 +221,17 @@ export const Header = () => {
       // Logo: scale from top-center — no Y offset needed
       s(logoRef.current, { scale: mix(1, logoCollapsedScale, logoP), transformOrigin: "top center" });
 
+      // Derive bottom-link Y from logo's rendered width × aspect ratio.
+      // The logo container width is unaffected by the GSAP scale transform on logoRef,
+      // so we measure the container and compute height from the image's intrinsic ratio.
+      const logoImg = logoRef.current?.querySelector("img") as HTMLImageElement | null;
+      const logoContainer = logoImg?.parentElement;
+      const logoH = logoImg && logoContainer && logoImg.naturalWidth > 0
+        ? (logoImg.naturalHeight / logoImg.naturalWidth) * Math.min(logoContainer.clientWidth, 1320)
+        : 254;
+      const bottomY = `${logoH + 16}px`;
+      const cartY = `${logoH + 32}px`;
+
       // Nav items: crossfade (fade out 0-0.3, snap at 0.3, fade in 0.3-0.6)
       const FADE_OUT_END = 0.3;
       const FADE_IN_END = 0.6;
@@ -231,9 +250,9 @@ export const Header = () => {
 
       s(newsRef.current, { x: collapsed ? "0rem" : "0.16rem", y: collapsed ? "0rem" : "1rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
       s(menuEl, { x: collapsed ? "0rem" : "-0.16rem", y: collapsed ? "0rem" : "1rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
-      s(newsletterRef.current, { x: collapsed ? "0rem" : "-6.5rem", y: collapsed ? "0rem" : "15.875rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
-      s(loginRef.current, { x: collapsed ? "0rem" : "6.5rem", y: collapsed ? "0rem" : "15.875rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
-      s(cartRef.current, { x: 0, y: collapsed ? "0rem" : "16.875rem", fontSize: collapsed ? 16 : 24, opacity: collapsed ? itemOpacity : 0 });
+      s(newsletterRef.current, { x: collapsed ? "0rem" : "-6.5rem", y: collapsed ? "0rem" : bottomY, fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
+      s(loginRef.current, { x: collapsed ? "0rem" : "6.5rem", y: collapsed ? "0rem" : bottomY, fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
+      s(cartRef.current, { x: 0, y: collapsed ? "0rem" : cartY, fontSize: collapsed ? 16 : 24, opacity: collapsed ? itemOpacity : 0 });
 
       // Separators: fade in after items settle
       s(leftseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
@@ -298,6 +317,7 @@ export const Header = () => {
     scrolledPast,
     isShortViewport,
     logoCollapsedScale,
+    windowWidth,
   ]);
 
   useEffect(() => {
@@ -411,7 +431,7 @@ export const Header = () => {
       )}
     >
       {/* Single nav container for fade animation */}
-      <div ref={navRef} className="flex w-full lg:max-w-[1320px] mx-auto">
+      <div ref={navRef} className="flex w-full max-w-[1320px] mx-auto">
         <div className="flex text-black z-[9]">
           <div
             style={{
@@ -520,7 +540,7 @@ export const Header = () => {
             >
               <ThreeLink href="/">
                 <Image
-                  className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
+                  className="w-full max-w-[1320px] mx-auto"
                   src="/logo-dog-inline-hd.png"
                   alt="Logo"
                   height={6120}
