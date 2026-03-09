@@ -9,6 +9,7 @@ import { Leva } from "leva";
 import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
 import { ThreeLink } from "./ThreeLink";
+import { useMediaQuery } from "usehooks-ts";
 
 import { globalStore } from "../store/globalStore";
 import { gsap } from "gsap";
@@ -76,6 +77,7 @@ export const Header = () => {
   const showHeader = true;
   const [showBackButton, setShowBackButton] = useState(true);
   const [scrolledPast, setScrolledPast] = useState(false);
+  const isShortViewport = useMediaQuery("(max-height: 699px)");
 
 
 
@@ -189,7 +191,7 @@ export const Header = () => {
   useEffect(() => {
     if (!isRendered) return;
 
-    const collapseProgress = shouldStartCollapsed
+    const collapseProgress = shouldStartCollapsed || isShortViewport
       ? 1
       : isHomepage || isBookPage
         ? (scrolledPast ? 1 : 0)
@@ -294,6 +296,7 @@ export const Header = () => {
     isBookPage,
     shouldStartCollapsed,
     scrolledPast,
+    isShortViewport,
     logoCollapsedScale,
   ]);
 
