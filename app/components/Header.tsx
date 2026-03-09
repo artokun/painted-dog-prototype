@@ -17,11 +17,7 @@ import { authStore } from "@/app/store/authStore";
 import { openCart } from "@/app/store/cartUIStore";
 import { NewsletterModal } from "./NewsletterModal";
 
-const MenuButton = ({
-  shouldStartCollapsed,
-}: {
-  shouldStartCollapsed: boolean;
-}) => {
+const MenuButton = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
 
@@ -34,11 +30,6 @@ const MenuButton = ({
 
   return (
     <div
-      style={
-        shouldStartCollapsed
-          ? { transform: "translateX(-0.16rem) translateY(1rem)" }
-          : { transform: "translateY(1rem) translateX(-0.16rem)" }
-      }
       id="menu-button-wrapper"
       className="gap-2 items-center text-black text-[24px]"
     >
@@ -84,6 +75,7 @@ export const Header = () => {
   const isBookFocused = focusedBookId !== null;
   const showHeader = true;
   const [showBackButton, setShowBackButton] = useState(true);
+  const [scrolledPast, setScrolledPast] = useState(false);
   const isMobile = useMediaQuery("(max-width: 765px)");
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
 
@@ -130,7 +122,7 @@ export const Header = () => {
   const smoothCollapseRef = useRef({ value: currentRoute !== "/" ? 1 : 0 });
   const collapseTweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const logoYOffset = isMobile ? "0rem" : isTablet ? "-4rem" : "-6.5rem";
+  const logoYOffset = isMobile ? "0rem" : isTablet ? "-5.5rem" : "-8rem";
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -157,6 +149,7 @@ export const Header = () => {
     lastScrollYRef.current = 0;
 
     if (isHomepage) {
+      setScrolledPast(false);
       const scrollEl = document.getElementById("scroll-container");
       if (scrollEl) {
         scrollEl.scrollTop = 0;
@@ -199,30 +192,52 @@ export const Header = () => {
     const collapseProgress = shouldStartCollapsed
       ? 1
       : isHomepage || isBookPage
-        ? landingTransitionProgress
+        ? (scrolledPast ? 1 : 0)
         : 1;
     const mix = gsap.utils.interpolate;
 
-    // Position all header elements based on a 0-1 progress value
+    // Position all header elements based on a 0-1 progress value.
+    // Logo + separators: smooth linear interpolation.
+    // Nav items: 3-phase crossfade (fade out → snap position → fade in).
     const positionAt = (raw: number) => {
       const p = Math.min(Math.max(raw, 0), 1);
       const logoP = Math.min(Math.max(p / 0.5, 0), 1);
-      const linkP = Math.min(Math.max(p / 0.25, 0), 1);
-      const sepP = Math.min(Math.max((linkP - 0.6) / 0.4, 0), 1);
-      const cartP = Math.min(Math.max((linkP - 0.15) / 0.85, 0), 1);
+      const sepP = Math.min(Math.max((p - 0.6) / 0.4, 0), 1);
       const menuEl = document.getElementById("menu-button-wrapper");
       const s = (t: gsap.TweenTarget, v: gsap.TweenVars) => {
         if (t) gsap.set(t, v);
       };
+
+      // Logo: smooth scale
       s(logoRef.current, { scale: mix(1, 0.2, logoP), y: mix("0rem", logoYOffset, logoP) });
-      s(newsRef.current, { x: mix("0.16rem", "0rem", linkP), y: mix("1rem", "0rem", linkP), fontSize: mix(24, 16, linkP) });
-      s(menuEl, { x: mix("-0.16rem", "0rem", linkP), y: mix("1rem", "0rem", linkP), fontSize: mix(24, 16, linkP) });
+
+      // Nav items: crossfade (fade out 0-0.3, snap at 0.3, fade in 0.3-0.6)
+      const FADE_OUT_END = 0.3;
+      const FADE_IN_END = 0.6;
+      let itemOpacity: number;
+      let collapsed: boolean;
+      if (p < FADE_OUT_END) {
+        itemOpacity = 1 - p / FADE_OUT_END;
+        collapsed = false;
+      } else if (p < FADE_IN_END) {
+        itemOpacity = (p - FADE_OUT_END) / (FADE_IN_END - FADE_OUT_END);
+        collapsed = true;
+      } else {
+        itemOpacity = 1;
+        collapsed = true;
+      }
+
+      s(newsRef.current, { x: collapsed ? "0rem" : "0.16rem", y: collapsed ? "0rem" : "1rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
+      s(menuEl, { x: collapsed ? "0rem" : "-0.16rem", y: collapsed ? "0rem" : "1rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
+      s(newsletterRef.current, { x: collapsed ? "0rem" : "-6.5rem", y: collapsed ? "0rem" : "15.875rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
+      s(loginRef.current, { x: collapsed ? "0rem" : "6.5rem", y: collapsed ? "0rem" : "15.875rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
+      s(cartRef.current, { x: 0, y: collapsed ? "0rem" : "16.875rem", fontSize: collapsed ? 16 : 24, opacity: collapsed ? itemOpacity : 0 });
+
+      // Separators: fade in after items settle
       s(leftseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
       s(rightseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
       s(cartseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
-      s(newsletterRef.current, { x: mix("-6.5rem", "0rem", linkP), y: mix("15.875rem", "0rem", linkP), fontSize: mix(24, 16, linkP), opacity: 1 });
-      s(loginRef.current, { x: mix("6.5rem", "0rem", linkP), y: mix("15.875rem", "0rem", linkP), fontSize: mix(24, 16, linkP), opacity: 1 });
-      s(cartRef.current, { x: 0, y: mix("16.875rem", "0rem", linkP), fontSize: mix(24, 16, linkP), opacity: cartP });
+
       s(navRef.current, { opacity: 1 });
     };
 
@@ -255,12 +270,12 @@ export const Header = () => {
       smoothCollapseRef.current.value = collapseProgress;
       positionAt(collapseProgress);
     } else {
-      // Scroll-driven — scrub damping (header lags slightly behind scroll)
+      // Scroll threshold crossed — animate over 1s
       collapseTweenRef.current?.kill();
       collapseTweenRef.current = gsap.to(smoothCollapseRef.current, {
         value: collapseProgress,
-        duration: 0.1,
-        ease: "none",
+        duration: 1,
+        ease: "power2.out",
         overwrite: true,
         onUpdate: () => positionAt(smoothCollapseRef.current.value),
       });
@@ -277,7 +292,7 @@ export const Header = () => {
     isHomepage,
     isBookPage,
     shouldStartCollapsed,
-    landingTransitionProgress,
+    scrolledPast,
     logoYOffset,
   ]);
 
@@ -312,6 +327,11 @@ export const Header = () => {
     const handleDirectionScroll = () => {
       if (!activeContainer) return;
       const currentScrollY = activeContainer.scrollTop;
+
+      // Collapse trigger: 50px threshold on homepage
+      if (isHomepage) {
+        setScrolledPast(currentScrollY > 0);
+      }
 
       if (currentScrollY > hideThreshold) {
         if (
@@ -390,7 +410,7 @@ export const Header = () => {
       <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
         <div className="flex text-black z-[9]">
           <div
-            className="transition-all duration-500 ease-in-out"
+            className="transition-opacity duration-500 ease-in-out"
             style={{
               opacity: isBookFocused ? 0 : 1,
               pointerEvents: isBookFocused ? "none" : "auto",
@@ -480,20 +500,14 @@ export const Header = () => {
         {/* Logo */}
         {!isMobile && (
           <div
-            className="fixed inset-0 w-full transition-all duration-500 ease-in-out"
+            className="fixed inset-0 w-full transition-opacity duration-500 ease-in-out"
             style={{
               opacity: isBookFocused ? 0 : 1,
-              transform: isBookFocused ? "translateY(-3rem)" : "translateY(0)",
               pointerEvents: isBookFocused ? "none" : "auto",
             }}
           >
             <div
               id="home-title-logo"
-              style={
-                shouldStartCollapsed
-                  ? { transform: `translateX(-0.16rem) translateY(-2rem)` }
-                  : undefined
-              }
               ref={logoRef}
               className={cn(
                 "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
@@ -565,11 +579,11 @@ export const Header = () => {
 
           {/* Menu Button */}
           <div className="hidden md:flex gap-2 items-center text-black">
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+            <MenuButton />
           </div>
           {/* Mobile Menu Button */}
           <div className="md:hidden flex text-[24px] -mt-8 gap-2 items-center text-black">
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+            <MenuButton />
           </div>
         </div>
         <div className="invisible!">
