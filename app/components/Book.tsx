@@ -48,7 +48,8 @@ const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
 const HOME_FEATURED_Y_OFFSET_PX = 28; // subtle lift so hero book sits a touch higher
 const HOME_FEATURED_START_SCALE = 1.18;
-const FOCUSED_BOOK_CENTER_FACTOR = 0.38;
+const FOCUSED_BOOK_CENTER_FACTOR = 0.15;
+const BASE_CAMERA_Y = 0.1; // Must match baseTopLimit in CameraRig
 
 function Book({
   book,
@@ -406,14 +407,14 @@ function Book({
       ref: bookFocusedLiftRef,
       to: isFocused
         ? {
-            posY: camera.position.y - bookSpring.posY.get() + focusedBookYOffset,
+            posY: BASE_CAMERA_Y - bookSpring.posY.get() + focusedBookYOffset,
             rotX: Math.PI / 2,
             rotY: -Math.PI / 2,
           }
         : isGridMode
           ? isFocused
             ? {
-                posY: camera.position.y,
+                posY: BASE_CAMERA_Y,
                 rotX: Math.PI / 2,
                 rotY: -Math.PI / 2,
               }
@@ -506,7 +507,7 @@ function Book({
     // tilt the book when focused
     if (isFocused) {
       const targetOffset =
-        camera.position.y - bookSpring.posY.get() + focusedBookYOffset;
+        BASE_CAMERA_Y - bookSpring.posY.get() + focusedBookYOffset;
       liftApi.start({
         posY: targetOffset,
         config: config.stiff,

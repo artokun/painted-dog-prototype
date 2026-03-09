@@ -9,7 +9,7 @@ import { Leva } from "leva";
 import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
 import { ThreeLink } from "./ThreeLink";
-import { useMediaQuery } from "usehooks-ts";
+
 import { globalStore } from "../store/globalStore";
 import { gsap } from "gsap";
 import { animated, useSpring } from "@react-spring/web";
@@ -76,8 +76,8 @@ export const Header = () => {
   const showHeader = true;
   const [showBackButton, setShowBackButton] = useState(true);
   const [scrolledPast, setScrolledPast] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 765px)");
-  const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
+
+
 
   const auth = useSnapshot(authStore);
   const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
@@ -122,7 +122,7 @@ export const Header = () => {
   const smoothCollapseRef = useRef({ value: currentRoute !== "/" ? 1 : 0 });
   const collapseTweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const logoYOffset = isMobile ? "0rem" : isTablet ? "-6.5rem" : "-9.5rem";
+  const logoCollapsedScale = 0.2;
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -180,7 +180,7 @@ export const Header = () => {
       );
       setShowBackButton(true);
     };
-  }, [isRendered, isMobile, isBookPage, isBookFocused]);
+  }, [isRendered, isBookPage, isBookFocused]);
 
   // Title/header collapse is driven by the same shared normalized progress
   // as landing hero motion to keep page chrome and book animation in sync.
@@ -208,8 +208,8 @@ export const Header = () => {
         if (t) gsap.set(t, v);
       };
 
-      // Logo: smooth scale
-      s(logoRef.current, { scale: mix(1, 0.2, logoP), y: mix("0rem", logoYOffset, logoP) });
+      // Logo: scale from top-center — no Y offset needed
+      s(logoRef.current, { scale: mix(1, logoCollapsedScale, logoP), transformOrigin: "top center" });
 
       // Nav items: crossfade (fade out 0-0.3, snap at 0.3, fade in 0.3-0.6)
       const FADE_OUT_END = 0.3;
@@ -294,7 +294,7 @@ export const Header = () => {
     isBookPage,
     shouldStartCollapsed,
     scrolledPast,
-    logoYOffset,
+    logoCollapsedScale,
   ]);
 
   useEffect(() => {
@@ -498,9 +498,8 @@ export const Header = () => {
         </div>
 
         {/* Logo */}
-        {!isMobile && (
-          <div
-            className="fixed inset-0 w-full"
+        <div
+            className="fixed inset-0 w-full hidden md:block"
             style={{
               opacity: isBookFocused ? 0 : 1,
               pointerEvents: isBookFocused ? "none" : "auto",
@@ -527,7 +526,6 @@ export const Header = () => {
               </ThreeLink>
             </div>
           </div>
-        )}
 
         <div
           className={cn(
