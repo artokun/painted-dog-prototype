@@ -29,8 +29,6 @@ export function Dashboard({ visible }: { visible: boolean }) {
     setShowMobileMenu(false);
   };
 
-  // (scroll tracking + spring animation handled by PageOverlay)
-
   //Redirect if not logged in
   useEffect(() => {
     if (auth.hydrated && !auth.isLoggedIn) {
@@ -75,7 +73,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
       className="pt-16 lg:pt-0 flex items-center bg-[#e7d7bf]"
     >
       <div className="flex w-full 2xl:max-w-[1320] mx-auto">
-        <div className="mt-40 md:mt-10 px-4 flex w-full mx-auto flex-col lg:pt-8 lg:flex-row lg:px-10">
+        <div className="mt-40 md:mt-10 px-6 flex w-full mx-auto flex-col lg:pt-8 lg:flex-row lg:px-10">
           {/* Heading */}
           <div className="flex gap-3  flex-col max-w-auto lg:max-w-[600px] pb-8">
             <h2 className="text-[48px] md:text-[72px] font-semibold leading-[72px]">
@@ -131,12 +129,6 @@ export function Dashboard({ visible }: { visible: boolean }) {
                       className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
                     >
                       Newsletter
-                    </button>
-                    <button
-                      onClick={() => router.push("/contact")}
-                      className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
-                    >
-                      Contact us
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -150,6 +142,12 @@ export function Dashboard({ visible }: { visible: boolean }) {
                           d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                         />
                       </svg>
+                    </button>
+                    <button
+                      onClick={() => router.push("/contact")}
+                      className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between"
+                    >
+                      Contact us
                     </button>
                     <button
                       onClick={logout}
@@ -225,21 +223,21 @@ export function Dashboard({ visible }: { visible: boolean }) {
                         "noopener"
                       )
                     }
-                    className="w-full text-[18px] text-left px-4 py-3 transition-colors flex items-center justify-between  hover:underline transition-colors hover:cursor-pointer"
+                    className="w-full text-[18px] text-left px-4 py-3 flex items-center gap-3  hover:underline transition-colors hover:cursor-pointer"
                   >
                     Newsletter
-                  </button>
-                  <button
-                    onClick={() => router.push("/contact")}
-                    className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded hover:underline transition-colors hover:cursor-pointer`}
-                  >
-                    Contact us
                     <Image
                       src="/contact-arrow.svg"
                       width={10}
                       height={13}
                       alt={"contact arrow"}
                     />
+                  </button>
+                  <button
+                    onClick={() => router.push("/contact")}
+                    className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded hover:underline transition-colors hover:cursor-pointer`}
+                  >
+                    Contact us
                   </button>
                   <button
                     onClick={logout}
@@ -251,7 +249,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
               </div>
 
               {/* Main Content Area */}
-              <div className="flex-1 p-8 hidden lg:flex lg:flex-col">
+              <div className="flex-1 p-8 hidden lg:flex lg:flex-col lg:overflow-y-scroll">
                 {/* Content */}
                 {activeTab === "profile" && (
                   <ProfileInfo
