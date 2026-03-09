@@ -1,15 +1,13 @@
 import {
   Suspense,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { BBAnchor, Html, useCursor } from "@react-three/drei";
+import { Html, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import debounce from "lodash.debounce";
 import {
   BookXS,
   BookSM,
@@ -46,8 +44,6 @@ import { globalStore } from "../store/globalStore";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
-const HOME_FEATURED_Y_OFFSET_PX = 28; // subtle lift so hero book sits a touch higher
-const HOME_FEATURED_START_SCALE = 1.18;
 const FOCUSED_BOOK_CENTER_FACTOR = 0.15;
 const BASE_CAMERA_Y = 0.1; // Must match baseTopLimit in CameraRig
 
@@ -70,93 +66,15 @@ function Book({
   const { search } = useSnapshot(filterStore);
   const { isSorting } = useSnapshot(filterStore);
   const { view } = useSnapshot(filterStore);
-  const {
-    currentRoute,
-    landingTransitionProgress,
-    featuredBookAnchorNdcY,
-    overlayScrollPosition,
-  } = useSnapshot(globalStore);
+  const { currentRoute } = useSnapshot(globalStore);
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [someBookIsFocused, setSomeBookIsFocused] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isGridMode = view === FilterView.Grid;
-  const featuredInsertProgress = 1;
   const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
   const [bookFlipped, setBookFlipped] = useState(false);
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-  const [featuredAnchorNdcY, setFeaturedAnchorNdcY] = useState(0);
-
-  const measureFeaturedAnchor = useCallback(() => {
-    if (
-      typeof window === "undefined" ||
-      currentRoute !== "/" ||
-      !book.featured ||
-      isFocused
-    ) {
-      return;
-    }
-
-    const titleEl = document.getElementById("home-title-logo");
-    const copyStartEl = document.getElementById("home-copy-start");
-    if (!titleEl || !copyStartEl) return;
-
-    const viewportHeight = window.innerHeight;
-    const titleRect = titleEl.getBoundingClientRect();
-    const copyRect = copyStartEl.getBoundingClientRect();
-    const clampedTitleBottom = Math.min(
-      Math.max(titleRect.bottom, 0),
-      viewportHeight
-    );
-    const clampedCopyTop = Math.min(Math.max(copyRect.top, 0), viewportHeight);
-    const midpointY =
-      (clampedTitleBottom + clampedCopyTop) / 2 - HOME_FEATURED_Y_OFFSET_PX;
-    const ndcY = Math.min(Math.max(1 - (midpointY / viewportHeight) * 2, -1), 1);
-
-    setFeaturedAnchorNdcY((prev) => (Math.abs(prev - ndcY) > 0.0005 ? ndcY : prev));
-  }, [book.featured, currentRoute, isFocused]);
-
-  useEffect(() => {
-    if (currentRoute !== "/" || !book.featured || isFocused) {
-      setFeaturedAnchorNdcY(0);
-      return;
-    }
-
-    let rafId = 0;
-    let startTs = 0;
-    const runMeasure = (ts: number) => {
-      if (!startTs) startTs = ts;
-      measureFeaturedAnchor();
-      if (ts - startTs < 420) {
-        rafId = window.requestAnimationFrame(runMeasure);
-      }
-    };
-    const startMeasureLoop = () => {
-      window.cancelAnimationFrame(rafId);
-      startTs = 0;
-      rafId = window.requestAnimationFrame(runMeasure);
-    };
-
-    startMeasureLoop();
-    const handleResize = () => {
-      startMeasureLoop();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [
-    book.featured,
-    currentRoute,
-    isFocused,
-    overlayScrollPosition,
-    landingTransitionProgress,
-    measureFeaturedAnchor,
-  ]);
 
   useEffect(() => {
     if (isMobile) {
@@ -225,44 +143,17 @@ function Book({
 
   const stackAnimation = useMemo(
     () => {
-      const targetFeaturedAnchorNdcY =
-        currentRoute === "/" && book.featured
-          ? featuredAnchorNdcY
-          : featuredBookAnchorNdcY;
       const [featuredWidth] = getContentfulBookSize(book.bookSize);
       const featuredStackPosZ = -featuredWidth / 2;
-      const featuredHeroStartPosZ = featuredStackPosZ - featuredWidth * 0.35;
-      const featuredPosZ = THREE.MathUtils.lerp(
-        featuredHeroStartPosZ,
-        featuredStackPosZ,
-        featuredInsertProgress
-      );
-      const featuredHeroPosY = (() => {
-        // Solve world-Y from desired screen-space Y (NDC) at the current featured Z.
-        // With yaw-only camera motion this is stable and viewport-independent.
-        const ndcAtY0 = new THREE.Vector3(0, 0, featuredPosZ).project(camera).y;
-        const ndcAtY1 = new THREE.Vector3(0, 1, featuredPosZ).project(camera).y;
-        const ndcDelta = ndcAtY1 - ndcAtY0;
-        if (Math.abs(ndcDelta) < 0.00001) return 0;
-        return (targetFeaturedAnchorNdcY - ndcAtY0) / ndcDelta;
-      })();
 
       return {
-      // Keeps featured book insertion aligned with title/header collapse timing.
-      // 0 => lifted hero position, 1 => seated in stack.
-      posY:
-        book.featured && !isFocused
-          ? THREE.MathUtils.lerp(featuredHeroPosY, bookPosition.posY, featuredInsertProgress)
-          : bookPosition.posY,
-      scale:
-        book.featured && !isFocused && currentRoute === "/"
-          ? THREE.MathUtils.lerp(HOME_FEATURED_START_SCALE, 1, featuredInsertProgress)
-          : 1,
+      posY: bookPosition.posY,
+      scale: 1,
       posX:
         book.featured || isFocused
           ? isFocused
             ? calculateFocusedBookCenterOffset(camera, book.bookSize, 0)
-            : 0 // No offset for featured books either
+            : 0
           : isSorting
             ? getContentfulBookSize(book.bookSize)[0] *
               2 *
@@ -272,12 +163,12 @@ function Book({
                 ? 0
                 : book.offset.posX
               : book.featured
-                ? 0 // Remove X offset for featured books
+                ? 0
                 : book.offset.posX,
       posZ: isFocused
         ? 0
         : someBookIsFocused
-          ? -0.5 //distance the other books jump back when a book is focused
+          ? -0.5
           : isSorting
             ? -getContentfulBookSize(book.bookSize)[2] * 2
             : search.length > 1
@@ -285,14 +176,13 @@ function Book({
                 ? 0
                 : -0.5
               : book.featured
-                ? featuredPosZ
+                ? featuredStackPosZ
                 : -getContentfulBookSize(book.bookSize)[0] / 2 +
                   book.offset.posZ,
       rotX: 0,
       rotY: book.featured ? 0 : book.offset.rotY,
       rotZ: 0,
       onRest: () => {
-        // Reset isSorting when animation completes
         if (filterStore.isSorting) {
           filterStore.isSorting = false;
         }
@@ -322,15 +212,10 @@ function Book({
       camera,
       search.length,
       currentBookIndex,
-      featuredInsertProgress,
-      featuredAnchorNdcY,
-      featuredBookAnchorNdcY,
-      currentRoute,
       book.offset.posZ,
       book.offset.posX,
       book.offset.rotY,
       bookPosition.posY,
-      windowSize,
     ]
   );
 
@@ -396,7 +281,7 @@ function Book({
       },
       config: isGridMode ? config.default : config.gentle,
     },
-    [isFocused, isGridMode, book.bookSize, windowSize, isMobile]
+    [isFocused, isGridMode, book.bookSize, isMobile, currentRoute]
   );
 
   const dropHeight = getDropHeight(book.id);
@@ -460,7 +345,7 @@ function Book({
         }
       },
     },
-    [isFocused, dropHeight, isGridMode, book.featured]
+    [isFocused, dropHeight, isGridMode, book.featured, currentRoute]
   );
 
   useChain(
@@ -541,7 +426,7 @@ function Book({
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
       const normalizedY = (e.clientY / window.innerHeight) * 2 - 1;
@@ -556,18 +441,9 @@ function Book({
       }
     };
 
-    const handleResize = debounce(() => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    }, 100);
-
     window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("resize", handleResize);
     return () => {
-      handleResize.cancel();
-      if (typeof window !== 'undefined') {
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("resize", handleResize);
-      }
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [isFocused, bookFocusedTiltGroupApi, bookFlipped]);
 

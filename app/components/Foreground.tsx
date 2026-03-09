@@ -5,7 +5,7 @@ import { FloatingBar } from "./FloatingBar";
 import { Loader } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
@@ -60,35 +60,6 @@ export const Foreground = () => {
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;
 
-  const updateFeaturedBookAnchor = useCallback(() => {
-    if (globalStore.currentRoute !== "/") {
-      if (globalStore.featuredBookAnchorNdcY !== 0) {
-        globalStore.featuredBookAnchorNdcY = 0;
-      }
-      return;
-    }
-
-    const titleEl = document.getElementById("home-title-logo");
-    const copyStartEl = document.getElementById("home-copy-start");
-
-    if (!titleEl || !copyStartEl) return;
-
-    const viewportHeight = window.innerHeight;
-    const titleRect = titleEl.getBoundingClientRect();
-    const copyRect = copyStartEl.getBoundingClientRect();
-    const clampedTitleBottom = Math.min(
-      Math.max(titleRect.bottom, 0),
-      viewportHeight
-    );
-    const clampedCopyTop = Math.min(Math.max(copyRect.top, 0), viewportHeight);
-    const midpointY = (clampedTitleBottom + clampedCopyTop) / 2;
-    const ndcY = Math.min(Math.max(1 - (midpointY / viewportHeight) * 2, -1), 1);
-
-    if (Math.abs(globalStore.featuredBookAnchorNdcY - ndcY) > 0.0005) {
-      globalStore.featuredBookAnchorNdcY = ndcY;
-    }
-  }, []);
-
   // Restore auth session from httpOnly cookie on mount
   useEffect(() => {
     hydrateAuth();
@@ -105,11 +76,7 @@ export const Foreground = () => {
       const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
       globalStore.scrollProgress = Math.min(Math.max(progress, 0), 1);
       globalStore.overlayScrollPosition = scrollTop;
-      // Binary trigger: 0 at top, 1 as soon as user scrolls past 0.
-      // The featured book animates to its target via its own spring — no
-      // continuous scroll-driven interpolation.
       globalStore.landingTransitionProgress = scrollTop > 0 ? 1 : 0;
-      updateFeaturedBookAnchor();
       // Keep scrollPages in sync for camera Y travel calculation
       globalStore.scrollPages = Math.max(scrollHeight / clientHeight, 1);
     };
@@ -125,7 +92,7 @@ export const Foreground = () => {
       container.removeEventListener("scroll", syncScroll);
       observer.disconnect();
     };
-  }, [updateFeaturedBookAnchor]);
+  }, []);
 
   // Forward wheel and touch events to scroll container
   // (container is pointer-events-none so it can't receive events directly,
