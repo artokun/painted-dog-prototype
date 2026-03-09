@@ -26,9 +26,7 @@ export const Footer = () => {
         someBookIsFocused && !isMobile ? "opacity-0" : "opacity-100"
       )}
     >
-      <footer
-        className="relative min-h-[216px] torn-paper bg-[#F9F6F0] pointer-events-auto p-4 text-black w-full max-w-[1600px] shadow-[0_6px_14px_rgba(0,0,0,0.16)]"
-      >
+      <footer className="relative min-h-[216px] torn-paper bg-[#F9F6F0] pointer-events-auto p-4 text-black w-full max-w-[1600px] shadow-[0_6px_14px_rgba(0,0,0,0.16)]">
         <div className="torn-right"></div>
         <div className="torn-bottom"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-black p-1 w-full h-full">
@@ -81,7 +79,7 @@ export const Footer = () => {
           </div>
 
           {/* center column - "For Readers" */}
-          <div className="flex border-l-3 border-r-3 flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-2 border-t md:border-t-0 md:border-r lg:border-l lg:border-r lg:border-t-3 border-black h-full">
+          <div className="flex border-l-3 border-r-3 flex-col px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 md:border-l-3 border-t md:border-t-0 md:border-r lg:border-l lg:border-r lg:border-t-3 border-black h-full">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-semibold"
@@ -103,7 +101,7 @@ export const Footer = () => {
           </div>
 
           {/* right column - "For Writers" */}
-          <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-l-0 md:border-t-0 border-l-2 border-r-3 lg:border-t-3 lg:border-l-0 border-black h-full">
+          <div className="flex flex-col  px-12 py-6 justify-start items-center gap-4 [&>button]:transition-colors flex-1 border-t md:border-t-0 border-l-3 border-r-3 lg:border-t-3 lg:border-l-0 border-black h-full">
             <div className="menu-section flex flex-col">
               <ThreeLink
                 className="text-[32px] font-semibold"

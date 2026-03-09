@@ -29,8 +29,6 @@ export function Dashboard({ visible }: { visible: boolean }) {
     setShowMobileMenu(false);
   };
 
-  // (scroll tracking + spring animation handled by PageOverlay)
-
   //Redirect if not logged in
   useEffect(() => {
     if (auth.hydrated && !auth.isLoggedIn) {
@@ -251,7 +249,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
               </div>
 
               {/* Main Content Area */}
-              <div className="flex-1 p-8 hidden lg:flex lg:flex-col">
+              <div className="flex-1 p-8 hidden lg:flex lg:flex-col lg:overflow-y-scroll">
                 {/* Content */}
                 {activeTab === "profile" && (
                   <ProfileInfo

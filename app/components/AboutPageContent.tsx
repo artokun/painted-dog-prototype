@@ -30,7 +30,7 @@ export const AboutPageContent = ({
         setTab(Tab.About);
       }
     },
-    [],
+    []
   );
 
   return (
@@ -49,7 +49,11 @@ export const AboutPageContent = ({
                 "flex flex-col items-center justify-center max-w-11/12 mx-auto w-full mt-20 md:px-2 px-8"
               )}
             >
-              <AboutPage tab={tab} setTab={setTab} aboutContent={aboutContent} />
+              <AboutPage
+                tab={tab}
+                setTab={setTab}
+                aboutContent={aboutContent}
+              />
             </div>
             <Footer />
           </>
@@ -153,7 +157,6 @@ const AboutPage = ({
         { y: 0, opacity: 1, duration: 1, ease: "power3.out" }
       );
     }
-
   }, [tab]);
 
   const getTabDescription = () => {
@@ -171,11 +174,11 @@ const AboutPage = ({
 
   return (
     <div className="md:py-20 py-12 w-full">
-      <div className="md:hidden w-full py-12 flex flex-col gap-2">
+      <div className="lg:hidden w-full py-12 flex flex-col gap-2">
         <MobileTabSelector tab={tab} setTab={setTab} />
       </div>
       <div className="flex gap-[100px] w-full md:py-20">
-        <aside className="hidden md:flex flex-col items-start gap-4 flex-0 min-w-[500px] pr-8 h-fit sticky top-20">
+        <aside className="hidden lg:flex flex-col items-start gap-4 flex-0 min-w-[300px]  lg:min-w-[400px]  xl:min-w-[500px] pr-8 h-fit sticky top-20">
           <ul className="flex flex-col gap-2 pb-14">
             <TabButton
               active={tab === Tab.About}

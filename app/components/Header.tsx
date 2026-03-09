@@ -36,8 +36,8 @@ const MenuButton = ({
     <div
       style={
         shouldStartCollapsed
-          ? { transform: "translateX(-0.16rem) translateY(1rem)" }
-          : { transform: "translateY(1rem) translateX(-0.16rem)" }
+          ? { transform: "translateX(-0.16rem) translateY(0rem)" }
+          : { transform: "translateY(0rem) translateX(-0.16rem)" }
       }
       id="menu-button-wrapper"
       className="gap-2 items-center text-black text-[24px]"
@@ -86,6 +86,7 @@ export const Header = () => {
   const [showBackButton, setShowBackButton] = useState(true);
   const isMobile = useMediaQuery("(max-width: 765px)");
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
+  const isXtraLarge = useMediaQuery("(min-width: 1500px)");
 
   const auth = useSnapshot(authStore);
   const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
@@ -202,7 +203,10 @@ export const Header = () => {
     const logoProgress = Math.min(Math.max(progress / 0.5, 0), 1);
     // Links reach final position in the first 25% of scroll
     const linkProgress = Math.min(Math.max(progress / 0.25, 0), 1);
-    const separatorProgress = Math.min(Math.max((linkProgress - 0.6) / 0.4, 0), 1);
+    const separatorProgress = Math.min(
+      Math.max((linkProgress - 0.6) / 0.4, 0),
+      1
+    );
     const cartProgress = Math.min(Math.max((linkProgress - 0.15) / 0.85, 0), 1);
     const mix = gsap.utils.interpolate;
     const menuElement = document.getElementById("menu-button-wrapper");
@@ -266,13 +270,13 @@ export const Header = () => {
     });
     apply(newsletterRef.current, {
       x: mix("-6.5rem", "0rem", linkProgress),
-      y: mix("15.875rem", "0rem", linkProgress),
+      y: mix(isXtraLarge ? "18.875rem" : "15.875rem", "0rem", linkProgress),
       fontSize: mix(24, 16, linkProgress),
       opacity: 1,
     });
     apply(loginRef.current, {
       x: mix("6.5rem", "0rem", linkProgress),
-      y: mix("15.875rem", "0rem", linkProgress),
+      y: mix(isXtraLarge ? "18.875rem" : "15.875rem", "0rem", linkProgress),
       fontSize: mix(24, 16, linkProgress),
       opacity: 1,
     });
@@ -293,6 +297,7 @@ export const Header = () => {
     shouldStartCollapsed,
     landingTransitionProgress,
     logoYOffset,
+    isXtraLarge,
   ]);
 
   useEffect(() => {
@@ -305,8 +310,7 @@ export const Header = () => {
       if (isHomepage) return "scroll-container";
       if (currentRoute.startsWith("/news/"))
         return "news-slug-page-scroll-container";
-      if (currentRoute.startsWith("/books/"))
-        return "mobile-book-page-content";
+      if (currentRoute.startsWith("/books/")) return "mobile-book-page-content";
 
       const containerMap: Record<string, string> = {
         "/about": "about-page-scroll-container",
@@ -397,12 +401,12 @@ export const Header = () => {
     <div
       ref={headerRef}
       className={cn(
-        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
+        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-6 md:px-8"
       )}
     >
       {/* Single nav container for fade animation */}
       <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
-        <div className="flex text-black z-[9]">
+        <div className="flex text-black items-center z-[9]">
           <div
             className="transition-all duration-500 ease-in-out"
             style={{
@@ -410,66 +414,70 @@ export const Header = () => {
               pointerEvents: isBookFocused ? "none" : "auto",
             }}
           >
-              {/* Mobile Logo */}
+            {/* Mobile Logo */}
+            {isBookFocused ? (
+              ""
+            ) : (
               <Link className="flex w-40 md:hidden" href="/">
                 <Image
-                  className="object-contain w-auto lg:h-auto"
+                  className="object-contain w-full lg:h-auto max-w-[192px]"
                   src="/logo-dog-inline.png"
                   alt="Logo"
                   height={90}
-                  width={190}
+                  width={192}
                 />
               </Link>
+            )}
 
-              <div className="hidden md:flex gap-4 items-center flex-1">
-                {/* News */}
-                <div
-                  ref={newsRef}
-                  className="hidden text-[24px] md:flex pointer-events-auto"
-                >
-                  <ThreeLink animatedUnderline href="/news">
-                    <span className="uppercase">News</span>
-                  </ThreeLink>
-                </div>
-
-                {/* Left Separator */}
-                <div className="text-black items-center" ref={leftseparatorRef}>
-                  <span>•</span>
-                </div>
-                {/* Newsletter */}
-                <div
-                  ref={newsletterRef}
-                  className="hidden text-[24px] uppercase md:flex pointer-events-auto"
-                >
-                  <button
-                    onClick={() => (globalStore.isNewsLetterModalOpen = true)}
-                    onMouseEnter={() => setIsNewsletterHovered(true)}
-                    onMouseLeave={() => {
-                      setIsNewsletterHovered(false);
-                      setIsNewsletterPressed(false);
-                    }}
-                    onMouseDown={() => setIsNewsletterPressed(true)}
-                    className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
-                  >
-                    <span className="uppercase">Newsletter</span>
-                    <animated.span
-                      className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
-                      style={{
-                        bottom: "5px",
-                        width: newsletterUnderlineSpring.width.to(
-                          (width) => `${width * 100}%`
-                        ),
-                        opacity: newsletterUnderlineSpring.opacity
-                          .to([0, 1], [0, 10])
-                          .to((opacity) => `${Math.min(opacity, 1)}`),
-                        transform: newsletterUnderlineSpring.x.to(
-                          (x) => `translateX(${x}%)`
-                        ),
-                      }}
-                    />
-                  </button>
-                </div>
+            <div className="hidden md:flex gap-4 items-center flex-1">
+              {/* News */}
+              <div
+                ref={newsRef}
+                className="hidden text-[24px] md:flex pointer-events-auto"
+              >
+                <ThreeLink animatedUnderline href="/news">
+                  <span className="uppercase">News</span>
+                </ThreeLink>
               </div>
+
+              {/* Left Separator */}
+              <div className="text-black items-center" ref={leftseparatorRef}>
+                <span>•</span>
+              </div>
+              {/* Newsletter */}
+              <div
+                ref={newsletterRef}
+                className="hidden text-[24px] uppercase md:flex pointer-events-auto"
+              >
+                <button
+                  onClick={() => (globalStore.isNewsLetterModalOpen = true)}
+                  onMouseEnter={() => setIsNewsletterHovered(true)}
+                  onMouseLeave={() => {
+                    setIsNewsletterHovered(false);
+                    setIsNewsletterPressed(false);
+                  }}
+                  onMouseDown={() => setIsNewsletterPressed(true)}
+                  className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+                >
+                  <span className="uppercase">Newsletter</span>
+                  <animated.span
+                    className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
+                    style={{
+                      bottom: "5px",
+                      width: newsletterUnderlineSpring.width.to(
+                        (width) => `${width * 100}%`
+                      ),
+                      opacity: newsletterUnderlineSpring.opacity
+                        .to([0, 1], [0, 10])
+                        .to((opacity) => `${Math.min(opacity, 1)}`),
+                      transform: newsletterUnderlineSpring.x.to(
+                        (x) => `translateX(${x}%)`
+                      ),
+                    }}
+                  />
+                </button>
+              </div>
+            </div>
           </div>
 
           <button
@@ -518,11 +526,11 @@ export const Header = () => {
             >
               <ThreeLink href="/">
                 <Image
-                  className="md:w-auto 2xl:max-w-[1320px] xl:mx-auto 2xl:mx-auto"
+                  className="w-full 2xl:max-w-[1600px]"
                   src="/logo-dog-inline-hd.png"
                   alt="Logo"
                   height={6120}
-                  width={1340}
+                  width={1600}
                 />
               </ThreeLink>
             </div>
@@ -582,7 +590,7 @@ export const Header = () => {
             <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
           </div>
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex text-[24px] -mt-8 gap-2 items-center text-black">
+          <div className="md:hidden flex text-[24px] gap-2 items-center text-black">
             <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
           </div>
         </div>
