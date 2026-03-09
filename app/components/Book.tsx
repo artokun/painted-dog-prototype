@@ -80,8 +80,7 @@ function Book({
   const [someBookIsFocused, setSomeBookIsFocused] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isGridMode = view === FilterView.Grid;
-  const featuredInsertProgress =
-    currentRoute === "/" ? landingTransitionProgress : 1;
+  const featuredInsertProgress = 1;
   const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
   const [bookFlipped, setBookFlipped] = useState(false);

@@ -105,11 +105,10 @@ export const Foreground = () => {
       const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
       globalStore.scrollProgress = Math.min(Math.max(progress, 0), 1);
       globalStore.overlayScrollPosition = scrollTop;
-      // Shared 0-1 progress for homepage hero motion (header/title + featured book insert)
-      globalStore.landingTransitionProgress = Math.min(
-        Math.max(scrollTop / HOME_COLLAPSE_SCROLL_RANGE_PX, 0),
-        1
-      );
+      // Binary trigger: 0 at top, 1 as soon as user scrolls past 0.
+      // The featured book animates to its target via its own spring — no
+      // continuous scroll-driven interpolation.
+      globalStore.landingTransitionProgress = scrollTop > 0 ? 1 : 0;
       updateFeaturedBookAnchor();
       // Keep scrollPages in sync for camera Y travel calculation
       globalStore.scrollPages = Math.max(scrollHeight / clientHeight, 1);

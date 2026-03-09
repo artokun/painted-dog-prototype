@@ -122,7 +122,7 @@ export const Header = () => {
   const smoothCollapseRef = useRef({ value: currentRoute !== "/" ? 1 : 0 });
   const collapseTweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const logoYOffset = isMobile ? "0rem" : isTablet ? "-5.5rem" : "-8rem";
+  const logoYOffset = isMobile ? "0rem" : isTablet ? "-6.5rem" : "-9.5rem";
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -270,12 +270,13 @@ export const Header = () => {
       smoothCollapseRef.current.value = collapseProgress;
       positionAt(collapseProgress);
     } else {
-      // Scroll threshold crossed — animate over 1s
+      // Scroll threshold crossed
+      const isExpanding = collapseProgress === 0;
       collapseTweenRef.current?.kill();
       collapseTweenRef.current = gsap.to(smoothCollapseRef.current, {
         value: collapseProgress,
-        duration: 1,
-        ease: "power2.out",
+        duration: isExpanding ? 0.5 : 1,
+        ease: isExpanding ? "power2.inOut" : "power2.out",
         overwrite: true,
         onUpdate: () => positionAt(smoothCollapseRef.current.value),
       });
@@ -410,7 +411,6 @@ export const Header = () => {
       <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
         <div className="flex text-black z-[9]">
           <div
-            className="transition-opacity duration-500 ease-in-out"
             style={{
               opacity: isBookFocused ? 0 : 1,
               pointerEvents: isBookFocused ? "none" : "auto",
@@ -500,7 +500,7 @@ export const Header = () => {
         {/* Logo */}
         {!isMobile && (
           <div
-            className="fixed inset-0 w-full transition-opacity duration-500 ease-in-out"
+            className="fixed inset-0 w-full"
             style={{
               opacity: isBookFocused ? 0 : 1,
               pointerEvents: isBookFocused ? "none" : "auto",
@@ -510,7 +510,7 @@ export const Header = () => {
               id="home-title-logo"
               ref={logoRef}
               className={cn(
-                "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
+                "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold xl:pt-0",
                 !showHeader &&
                   (isHomepage || isOverlayPage) &&
                   "opacity-0 pointer-events-none"
@@ -531,8 +531,8 @@ export const Header = () => {
 
         <div
           className={cn(
-            "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-            isBookFocused && "opacity-0 delay-600 pointer-events-none"
+            "gap-4 items-center flex-1 flex justify-end pointer-events-auto",
+            isBookFocused && "opacity-0 pointer-events-none"
           )}
         >
           {/* Cart */}
