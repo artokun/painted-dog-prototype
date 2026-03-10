@@ -219,9 +219,13 @@ export const Header = () => {
         if (t) gsap.set(t, v);
       };
 
-      // Logo: scale from top-center — no Y offset needed
+      // Logo: scale from top-center, translate up when collapsed to compensate
+      const expandedTop = (windowWidth || 1024) < 1024 ? 36 : 28; // 2.25rem : 1.75rem
+      const collapsedTop = 16; // 1rem
       s(logoRef.current, {
         scale: mix(1, logoCollapsedScale, logoP),
+        top: mix(expandedTop, collapsedTop, logoP),
+        y: mix(0, (windowWidth || 1320) * 0.003, logoP),
         transformOrigin: "top center",
       });
 
@@ -237,8 +241,8 @@ export const Header = () => {
           ? (logoImg.naturalHeight / logoImg.naturalWidth) *
             Math.min(logoContainer.clientWidth, 1320)
           : 254;
-      const bottomY = `${logoH + 16}px`;
-      const cartY = `${logoH + 32}px`;
+      const bottomY = `${logoH + 6}px`;
+      const cartY = `${logoH + 18}px`;
 
       // Nav items: crossfade (fade out 0-0.3, snap at 0.3, fade in 0.3-0.6)
       const FADE_OUT_END = 0.3;
@@ -256,34 +260,58 @@ export const Header = () => {
         collapsed = true;
       }
 
+      // Font size scales proportionally to viewport width (matching logo)
+      const vwScale = Math.min(windowWidth || 1320, 1320) / 1320;
+      const navExpandedSize = 24 * vwScale;
+      const navFontSize = mix(navExpandedSize, 16, logoP);
+
+      // Compute dynamic x offsets so bottom row items align with container edges
+      const navRect = navRef.current?.getBoundingClientRect();
+      let nlExpandedX = 0;
+      let loginExpandedX = 0;
+
+      if (newsletterRef.current && navRect) {
+        const cx =
+          Number(gsap.getProperty(newsletterRef.current, "x")) || 0;
+        const naturalLeft =
+          newsletterRef.current.getBoundingClientRect().left - cx;
+        nlExpandedX = navRect.left - naturalLeft;
+      }
+      if (loginRef.current && navRect) {
+        const cx = Number(gsap.getProperty(loginRef.current, "x")) || 0;
+        const naturalRight =
+          loginRef.current.getBoundingClientRect().right - cx;
+        loginExpandedX = navRect.right - naturalRight;
+      }
+
       s(newsRef.current, {
         x: collapsed ? "0rem" : "0.16rem",
         y: collapsed ? "0rem" : "1rem",
-        fontSize: collapsed ? 16 : 24,
+        fontSize: navFontSize,
         opacity: itemOpacity,
       });
       s(menuEl, {
         x: collapsed ? "0rem" : "-0.16rem",
         y: collapsed ? "0rem" : "1rem",
-        fontSize: collapsed ? 16 : 24,
+        fontSize: navFontSize,
         opacity: itemOpacity,
       });
       s(newsletterRef.current, {
-        x: collapsed ? "0rem" : "-6.5rem",
+        x: collapsed ? 0 : nlExpandedX,
         y: collapsed ? "0rem" : bottomY,
-        fontSize: collapsed ? 16 : 24,
+        fontSize: navFontSize,
         opacity: itemOpacity,
       });
       s(loginRef.current, {
-        x: collapsed ? "0rem" : "6.5rem",
+        x: collapsed ? 0 : loginExpandedX,
         y: collapsed ? "0rem" : bottomY,
-        fontSize: collapsed ? 16 : 24,
+        fontSize: navFontSize,
         opacity: itemOpacity,
       });
       s(cartRef.current, {
         x: 0,
         y: collapsed ? "0rem" : cartY,
-        fontSize: collapsed ? 16 : 24,
+        fontSize: navFontSize,
         opacity: collapsed ? itemOpacity : 0,
       });
 
@@ -567,7 +595,7 @@ export const Header = () => {
             id="home-title-logo"
             ref={logoRef}
             className={cn(
-              "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold xl:pt-0",
+              "fixed px-8 w-full left-0 top-[2.25rem] lg:top-[1.75rem] block justify-center whitespace-nowrap items-center text-center font-fields font-semibold",
               !showHeader &&
                 (isHomepage || isOverlayPage) &&
                 "opacity-0 pointer-events-none"
