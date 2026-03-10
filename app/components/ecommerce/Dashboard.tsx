@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { PageOverlay } from "@/app/components/PageOverlay";
+import { ThreeLink } from "../ThreeLink";
 
 export function Dashboard({ visible }: { visible: boolean }) {
   const auth = useSnapshot(authStore);
@@ -233,12 +234,12 @@ export function Dashboard({ visible }: { visible: boolean }) {
                       alt={"contact arrow"}
                     />
                   </button>
-                  <button
-                    onClick={() => router.push("/contact")}
-                    className={`w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded hover:underline transition-colors hover:cursor-pointer`}
-                  >
-                    Contact us
-                  </button>
+                  <ThreeLink animatedUnderline href="/contact">
+                    <span className="w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded hover:underline transition-colors hover:cursor-pointer">
+                      Contact us
+                    </span>
+                  </ThreeLink>
+
                   <button
                     onClick={logout}
                     className="w-full hover:underline text-[18px] text-left px-4 py-3 rounded transition-colors hover:cursor-pointer"
