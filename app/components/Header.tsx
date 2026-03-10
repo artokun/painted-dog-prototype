@@ -79,8 +79,6 @@ export const Header = () => {
   const [scrolledPast, setScrolledPast] = useState(false);
   const isShortViewport = useMediaQuery("(max-height: 699px)");
 
-
-
   const auth = useSnapshot(authStore);
   const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
   const [isNewsletterPressed, setIsNewsletterPressed] = useState(false);
@@ -199,11 +197,14 @@ export const Header = () => {
   useEffect(() => {
     if (!isRendered) return;
 
-    const collapseProgress = shouldStartCollapsed || isShortViewport
-      ? 1
-      : isHomepage || isBookPage
-        ? (scrolledPast ? 1 : 0)
-        : 1;
+    const collapseProgress =
+      shouldStartCollapsed || isShortViewport
+        ? 1
+        : isHomepage || isBookPage
+          ? scrolledPast
+            ? 1
+            : 0
+          : 1;
     const mix = gsap.utils.interpolate;
 
     // Position all header elements based on a 0-1 progress value.
@@ -219,16 +220,23 @@ export const Header = () => {
       };
 
       // Logo: scale from top-center — no Y offset needed
-      s(logoRef.current, { scale: mix(1, logoCollapsedScale, logoP), transformOrigin: "top center" });
+      s(logoRef.current, {
+        scale: mix(1, logoCollapsedScale, logoP),
+        transformOrigin: "top center",
+      });
 
       // Derive bottom-link Y from logo's rendered width × aspect ratio.
       // The logo container width is unaffected by the GSAP scale transform on logoRef,
       // so we measure the container and compute height from the image's intrinsic ratio.
-      const logoImg = logoRef.current?.querySelector("img") as HTMLImageElement | null;
+      const logoImg = logoRef.current?.querySelector(
+        "img"
+      ) as HTMLImageElement | null;
       const logoContainer = logoImg?.parentElement;
-      const logoH = logoImg && logoContainer && logoImg.naturalWidth > 0
-        ? (logoImg.naturalHeight / logoImg.naturalWidth) * Math.min(logoContainer.clientWidth, 1320)
-        : 254;
+      const logoH =
+        logoImg && logoContainer && logoImg.naturalWidth > 0
+          ? (logoImg.naturalHeight / logoImg.naturalWidth) *
+            Math.min(logoContainer.clientWidth, 1320)
+          : 254;
       const bottomY = `${logoH + 16}px`;
       const cartY = `${logoH + 32}px`;
 
@@ -248,11 +256,36 @@ export const Header = () => {
         collapsed = true;
       }
 
-      s(newsRef.current, { x: collapsed ? "0rem" : "0.16rem", y: collapsed ? "0rem" : "1rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
-      s(menuEl, { x: collapsed ? "0rem" : "-0.16rem", y: collapsed ? "0rem" : "1rem", fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
-      s(newsletterRef.current, { x: collapsed ? "0rem" : "-6.5rem", y: collapsed ? "0rem" : bottomY, fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
-      s(loginRef.current, { x: collapsed ? "0rem" : "6.5rem", y: collapsed ? "0rem" : bottomY, fontSize: collapsed ? 16 : 24, opacity: itemOpacity });
-      s(cartRef.current, { x: 0, y: collapsed ? "0rem" : cartY, fontSize: collapsed ? 16 : 24, opacity: collapsed ? itemOpacity : 0 });
+      s(newsRef.current, {
+        x: collapsed ? "0rem" : "0.16rem",
+        y: collapsed ? "0rem" : "1rem",
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(menuEl, {
+        x: collapsed ? "0rem" : "-0.16rem",
+        y: collapsed ? "0rem" : "1rem",
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(newsletterRef.current, {
+        x: collapsed ? "0rem" : "-6.5rem",
+        y: collapsed ? "0rem" : bottomY,
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(loginRef.current, {
+        x: collapsed ? "0rem" : "6.5rem",
+        y: collapsed ? "0rem" : bottomY,
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(cartRef.current, {
+        x: 0,
+        y: collapsed ? "0rem" : cartY,
+        fontSize: collapsed ? 16 : 24,
+        opacity: collapsed ? itemOpacity : 0,
+      });
 
       // Separators: fade in after items settle
       s(leftseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
@@ -330,8 +363,7 @@ export const Header = () => {
       if (isHomepage) return "scroll-container";
       if (currentRoute.startsWith("/news/"))
         return "news-slug-page-scroll-container";
-      if (currentRoute.startsWith("/books/"))
-        return "mobile-book-page-content";
+      if (currentRoute.startsWith("/books/")) return "mobile-book-page-content";
 
       const containerMap: Record<string, string> = {
         "/about": "about-page-scroll-container",
@@ -431,7 +463,10 @@ export const Header = () => {
       )}
     >
       {/* Single nav container for fade animation */}
-      <div ref={navRef} className="flex items-center w-full max-w-[1320px] mx-auto">
+      <div
+        ref={navRef}
+        className="flex items-center w-full max-w-[1320px] mx-auto"
+      >
         <div className="flex items-center text-black z-[9]">
           <div
             style={{
@@ -439,66 +474,66 @@ export const Header = () => {
               pointerEvents: isBookFocused ? "none" : "auto",
             }}
           >
-              {/* Mobile Logo */}
-              <Link className="flex w-40 md:hidden" href="/">
-                <Image
-                  className="object-contain w-auto lg:h-auto"
-                  src="/logo-dog-inline.png"
-                  alt="Logo"
-                  height={90}
-                  width={190}
-                />
-              </Link>
+            {/* Mobile Logo */}
+            <Link className="flex w-40 md:hidden" href="/">
+              <Image
+                className="object-contain w-auto lg:h-auto"
+                src="/logo-dog-inline.png"
+                alt="Logo"
+                height={90}
+                width={190}
+              />
+            </Link>
 
-              <div className="hidden md:flex gap-4 items-center flex-1">
-                {/* News */}
-                <div
-                  ref={newsRef}
-                  className="hidden text-[24px] md:flex pointer-events-auto"
-                >
-                  <ThreeLink animatedUnderline href="/news">
-                    <span className="uppercase">News</span>
-                  </ThreeLink>
-                </div>
-
-                {/* Left Separator */}
-                <div className="text-black items-center" ref={leftseparatorRef}>
-                  <span>•</span>
-                </div>
-                {/* Newsletter */}
-                <div
-                  ref={newsletterRef}
-                  className="hidden text-[24px] uppercase md:flex pointer-events-auto"
-                >
-                  <button
-                    onClick={() => (globalStore.isNewsLetterModalOpen = true)}
-                    onMouseEnter={() => setIsNewsletterHovered(true)}
-                    onMouseLeave={() => {
-                      setIsNewsletterHovered(false);
-                      setIsNewsletterPressed(false);
-                    }}
-                    onMouseDown={() => setIsNewsletterPressed(true)}
-                    className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
-                  >
-                    <span className="uppercase">Newsletter</span>
-                    <animated.span
-                      className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
-                      style={{
-                        bottom: "5px",
-                        width: newsletterUnderlineSpring.width.to(
-                          (width) => `${width * 100}%`
-                        ),
-                        opacity: newsletterUnderlineSpring.opacity
-                          .to([0, 1], [0, 10])
-                          .to((opacity) => `${Math.min(opacity, 1)}`),
-                        transform: newsletterUnderlineSpring.x.to(
-                          (x) => `translateX(${x}%)`
-                        ),
-                      }}
-                    />
-                  </button>
-                </div>
+            <div className="hidden md:flex gap-4 items-center flex-1">
+              {/* News */}
+              <div
+                ref={newsRef}
+                className="hidden text-[24px] md:flex pointer-events-auto"
+              >
+                <ThreeLink animatedUnderline href="/news">
+                  <span className="uppercase">News</span>
+                </ThreeLink>
               </div>
+
+              {/* Left Separator */}
+              <div className="text-black items-center" ref={leftseparatorRef}>
+                <span>•</span>
+              </div>
+              {/* Newsletter */}
+              <div
+                ref={newsletterRef}
+                className="hidden text-[24px] uppercase md:flex pointer-events-auto"
+              >
+                <button
+                  onClick={() => (globalStore.isNewsLetterModalOpen = true)}
+                  onMouseEnter={() => setIsNewsletterHovered(true)}
+                  onMouseLeave={() => {
+                    setIsNewsletterHovered(false);
+                    setIsNewsletterPressed(false);
+                  }}
+                  onMouseDown={() => setIsNewsletterPressed(true)}
+                  className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+                >
+                  <span className="uppercase">Newsletter</span>
+                  <animated.span
+                    className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
+                    style={{
+                      bottom: "5px",
+                      width: newsletterUnderlineSpring.width.to(
+                        (width) => `${width * 100}%`
+                      ),
+                      opacity: newsletterUnderlineSpring.opacity
+                        .to([0, 1], [0, 10])
+                        .to((opacity) => `${Math.min(opacity, 1)}`),
+                      transform: newsletterUnderlineSpring.x.to(
+                        (x) => `translateX(${x}%)`
+                      ),
+                    }}
+                  />
+                </button>
+              </div>
+            </div>
           </div>
 
           <button
@@ -522,33 +557,33 @@ export const Header = () => {
 
         {/* Logo */}
         <div
-            className="fixed inset-0 w-full hidden md:block"
-            style={{
-              opacity: isBookFocused ? 0 : 1,
-              pointerEvents: isBookFocused ? "none" : "auto",
-            }}
+          className="fixed inset-0 w-full hidden md:block"
+          style={{
+            opacity: isBookFocused ? 0 : 1,
+            pointerEvents: isBookFocused ? "none" : "auto",
+          }}
+        >
+          <div
+            id="home-title-logo"
+            ref={logoRef}
+            className={cn(
+              "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold xl:pt-0",
+              !showHeader &&
+                (isHomepage || isOverlayPage) &&
+                "opacity-0 pointer-events-none"
+            )}
           >
-            <div
-              id="home-title-logo"
-              ref={logoRef}
-              className={cn(
-                "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold xl:pt-0",
-                !showHeader &&
-                  (isHomepage || isOverlayPage) &&
-                  "opacity-0 pointer-events-none"
-              )}
-            >
-              <ThreeLink href="/">
-                <Image
-                  className="w-full max-w-[1320px] mx-auto"
-                  src="/logo-dog-inline-hd.png"
-                  alt="Logo"
-                  height={6120}
-                  width={1340}
-                />
-              </ThreeLink>
-            </div>
+            <ThreeLink href="/">
+              <Image
+                className="w-full max-w-[1320px] mx-auto"
+                src="/logo-dog-inline-hd.png"
+                alt="Logo"
+                height={6120}
+                width={1340}
+              />
+            </ThreeLink>
           </div>
+        </div>
 
         <div
           className={cn(
