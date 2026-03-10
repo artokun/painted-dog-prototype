@@ -94,7 +94,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
             <div className="torn-bottom"></div>
             <div className=" bg-white  flex h-[500px]">
               {/* MOBILE: Menu or Content */}
-              <div className="flex-1 lg:hidden p-6">
+              <div className="flex-1 overflow-y-scroll lg:hidden p-6">
                 {showMobileMenu ? (
                   /* Mobile Navigation Menu */
                   <nav className="space-y-0">
