@@ -16,6 +16,6 @@ export const StudioEnvironment = memo(function StudioEnvironment() {
   }, [envMap]);
 
   return (
-    <Environment map={envMap} background environmentIntensity={0} />
+    <Environment map={envMap} environmentIntensity={0} />
   );
 });

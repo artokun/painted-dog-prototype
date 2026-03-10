@@ -39,7 +39,7 @@ export const Footer = () => {
                   alt="Logo"
                   width={320}
                   height={149}
-                  className="w-auto h-full mx-auto object-fit"
+                  className="w-auto h-full mx-auto object-contain"
                 />
               </ThreeLink>
 

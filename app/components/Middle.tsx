@@ -16,7 +16,15 @@ export const Middle = () => {
   }, []);
 
   return (
-    <div id="middle" className="fixed inset-0 z-0">
+    <div
+      id="middle"
+      className="fixed inset-0 z-0"
+      style={{
+        backgroundImage: "url(/bg-noise.svg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <Canvas
         camera={{ position: [0, 0.1, 0.676], fov: 45 }}
         shadows
@@ -26,7 +34,7 @@ export const Middle = () => {
           outputColorSpace: THREE.SRGBColorSpace,
           toneMappingExposure: 1.0,
           powerPreference: isMobile ? "low-power" : "high-performance",
-          alpha: isMobile,
+          alpha: true,
         }}
       >
         <Suspense fallback={null}>

@@ -54,8 +54,13 @@ export default function RootLayout({
             id="loading-overlay"
             className={cn(
               "absolute opacity-100 transition-opacity duration-600",
-              "inset-0 bg-[#EBD7BB] flex items-center justify-center z-50"
+              "inset-0 flex items-center justify-center z-50"
             )}
+            style={{
+              backgroundImage: "url(/bg-noise.svg)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
             <video
               id="loading-video"
