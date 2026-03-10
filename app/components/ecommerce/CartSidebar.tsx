@@ -90,6 +90,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
       const shopifyCart = await createCart(lineItems, auth?.accessToken);
 
       if (shopifyCart && shopifyCart.checkoutUrl) {
+        clearCart();
         window.location.href = shopifyCart.checkoutUrl;
       } else {
         alert("Error creating checkout. Please try again.");
@@ -130,7 +131,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
             {/* Header */}
             <div className="flex justify-between items-center p-8 border-b border-black">
               <h2 className="text-2xl font-semibold text-black">
-                Added to Cart
+                {cart.items.length > 0 ? "Added to Cart" : "Empty Cart"}
               </h2>
               <button
                 onClick={onClose}
