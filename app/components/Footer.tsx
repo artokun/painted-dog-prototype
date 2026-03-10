@@ -34,7 +34,7 @@ export const Footer = () => {
           <div className="flex py-6 px-10 justify-center gap-6 items-center relative border-3 border-b-0 md:border-b lg:border-r-0 lg:border-b-3 border-black flex-1 h-full md:col-span-2 lg:col-span-1 lg:row-span-3">
             <div className="flex flex-col w-full justify-between h-full gap-6">
               <ThreeLink
-                className="flex h-auto md:h-[120px]! lg:h-[149px]"
+                className="flex h-auto md:h-[120px] lg:h-[149px]"
                 href="/"
               >
                 <Image
