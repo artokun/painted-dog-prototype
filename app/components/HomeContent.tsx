@@ -33,7 +33,7 @@ export const HomeContent = forwardRef<HTMLDivElement, {}>((_, ref) => {
       ref={ref}
       style={styles}
       className={cn(
-        "relative w-full max-w-[100vw] text-black flex flex-col gap-10 pb-20 pointer-events-none"
+        "relative w-full max-w-[100vw] text-black flex flex-col gap-10 pb-20 md:pb-0 pointer-events-none"
       )}
     >
       {/* Spacer pushes content below the 3D scene — pointer-events-none so Canvas stays clickable */}

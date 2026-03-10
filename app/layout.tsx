@@ -54,12 +54,12 @@ export default function RootLayout({
             id="loading-overlay"
             className={cn(
               "absolute opacity-100 transition-opacity duration-600",
-              "inset-0 bg-white flex items-center justify-center z-50"
+              "inset-0 bg-[#EBD7BB] flex items-center justify-center z-50"
             )}
           >
             <video
               id="loading-video"
-              className="w-[300px] h-[300px] object-cover rounded-lg"
+              className="w-[300px] h-[300px] object-cover rounded-lg mix-blend-multiply"
               src={`/loading/${Math.floor(Math.random() * 3) + 1}.mp4`}
               autoPlay
               loop

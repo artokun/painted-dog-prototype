@@ -4,10 +4,10 @@ import { Environment } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
 import { memo, useMemo } from "react";
 import * as THREE from "three";
-import { UltraHDRLoader } from "three/examples/jsm/Addons.js";
+import { RGBELoader } from "three/examples/jsm/Addons.js";
 
 export const StudioEnvironment = memo(function StudioEnvironment() {
-  const envMap = useLoader(UltraHDRLoader, "/painted-dog-scene_7.jpg");
+  const envMap = useLoader(RGBELoader, "/env-map.hdr");
 
   useMemo(() => {
     if (envMap) {

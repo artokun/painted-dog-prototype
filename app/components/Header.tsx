@@ -10,6 +10,7 @@ import { bookStore } from "../store/bookStore";
 import { BackIcon } from "./icons/Back";
 import { ThreeLink } from "./ThreeLink";
 import { useMediaQuery } from "usehooks-ts";
+
 import { globalStore } from "../store/globalStore";
 import { gsap } from "gsap";
 import { animated, useSpring } from "@react-spring/web";
@@ -17,11 +18,7 @@ import { authStore } from "@/app/store/authStore";
 import { openCart } from "@/app/store/cartUIStore";
 import { NewsletterModal } from "./NewsletterModal";
 
-const MenuButton = ({
-  shouldStartCollapsed,
-}: {
-  shouldStartCollapsed: boolean;
-}) => {
+const MenuButton = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
 
@@ -34,11 +31,6 @@ const MenuButton = ({
 
   return (
     <div
-      style={
-        shouldStartCollapsed
-          ? { transform: "translateX(-0.16rem) translateY(0rem)" }
-          : { transform: "translateY(0rem) translateX(-0.16rem)" }
-      }
       id="menu-button-wrapper"
       className="gap-2 items-center text-black text-[24px]"
     >
@@ -84,9 +76,8 @@ export const Header = () => {
   const isBookFocused = focusedBookId !== null;
   const showHeader = true;
   const [showBackButton, setShowBackButton] = useState(true);
-  const isMobile = useMediaQuery("(max-width: 765px)");
-  const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1366px)");
-  const isXtraLarge = useMediaQuery("(min-width: 1500px)");
+  const [scrolledPast, setScrolledPast] = useState(false);
+  const isShortViewport = useMediaQuery("(max-height: 699px)");
 
   const auth = useSnapshot(authStore);
   const [isNewsletterHovered, setIsNewsletterHovered] = useState(false);
@@ -127,7 +118,19 @@ export const Header = () => {
   const prevCollapsedRef = useRef(currentRoute !== "/");
   const isCollapseAnimatingRef = useRef(false);
 
-  const logoYOffset = isMobile ? "0rem" : isTablet ? "-4rem" : "-6.5rem";
+  // Smoothed collapse progress — creates scrub-like damping lag
+  const smoothCollapseRef = useRef({ value: currentRoute !== "/" ? 1 : 0 });
+  const collapseTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  const logoCollapsedScale = 0.2;
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  useEffect(() => {
+    const onResize = () => setWindowWidth(window.innerWidth);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const [shouldStartCollapsed, setShouldStartCollapsed] = useState(
     currentRoute !== "/"
@@ -154,6 +157,7 @@ export const Header = () => {
     lastScrollYRef.current = 0;
 
     if (isHomepage) {
+      setScrolledPast(false);
       const scrollEl = document.getElementById("scroll-container");
       if (scrollEl) {
         scrollEl.scrollTop = 0;
@@ -184,120 +188,169 @@ export const Header = () => {
       );
       setShowBackButton(true);
     };
-  }, [isRendered, isMobile, isBookPage, isBookFocused]);
+  }, [isRendered, isBookPage, isBookFocused]);
 
   // Title/header collapse is driven by the same shared normalized progress
   // as landing hero motion to keep page chrome and book animation in sync.
-  // When navigating between routes (shouldStartCollapsed changes), we animate
-  // smoothly instead of snapping. Scroll-driven updates remain instant.
+  // Scroll-driven updates use scrub-like damping (smooth lag behind scroll).
+  // Route transitions use a longer eased animation.
   useEffect(() => {
     if (!isRendered) return;
 
-    const collapseProgress = shouldStartCollapsed
-      ? 1
-      : isHomepage || isBookPage
-        ? landingTransitionProgress
-        : 1;
-    const progress = Math.min(Math.max(collapseProgress, 0), 1);
-    // Logo scales down in the first 50% of scroll
-    const logoProgress = Math.min(Math.max(progress / 0.5, 0), 1);
-    // Links reach final position in the first 25% of scroll
-    const linkProgress = Math.min(Math.max(progress / 0.25, 0), 1);
-    const separatorProgress = Math.min(
-      Math.max((linkProgress - 0.6) / 0.4, 0),
-      1
-    );
-    const cartProgress = Math.min(Math.max((linkProgress - 0.15) / 0.85, 0), 1);
+    const collapseProgress =
+      shouldStartCollapsed || isShortViewport
+        ? 1
+        : isHomepage || isBookPage
+          ? scrolledPast
+            ? 1
+            : 0
+          : 1;
     const mix = gsap.utils.interpolate;
-    const menuElement = document.getElementById("menu-button-wrapper");
+
+    // Position all header elements based on a 0-1 progress value.
+    // Logo + separators: smooth linear interpolation.
+    // Nav items: 3-phase crossfade (fade out → snap position → fade in).
+    const positionAt = (raw: number) => {
+      const p = Math.min(Math.max(raw, 0), 1);
+      const logoP = Math.min(Math.max(p / 0.5, 0), 1);
+      const sepP = Math.min(Math.max((p - 0.6) / 0.4, 0), 1);
+      const menuEl = document.getElementById("menu-button-wrapper");
+      const s = (t: gsap.TweenTarget, v: gsap.TweenVars) => {
+        if (t) gsap.set(t, v);
+      };
+
+      // Logo: scale from top-center — no Y offset needed
+      s(logoRef.current, {
+        scale: mix(1, logoCollapsedScale, logoP),
+        transformOrigin: "top center",
+      });
+
+      // Derive bottom-link Y from logo's rendered width × aspect ratio.
+      // The logo container width is unaffected by the GSAP scale transform on logoRef,
+      // so we measure the container and compute height from the image's intrinsic ratio.
+      const logoImg = logoRef.current?.querySelector(
+        "img"
+      ) as HTMLImageElement | null;
+      const logoContainer = logoImg?.parentElement;
+      const logoH =
+        logoImg && logoContainer && logoImg.naturalWidth > 0
+          ? (logoImg.naturalHeight / logoImg.naturalWidth) *
+            Math.min(logoContainer.clientWidth, 1320)
+          : 254;
+      const bottomY = `${logoH + 16}px`;
+      const cartY = `${logoH + 32}px`;
+
+      // Nav items: crossfade (fade out 0-0.3, snap at 0.3, fade in 0.3-0.6)
+      const FADE_OUT_END = 0.3;
+      const FADE_IN_END = 0.6;
+      let itemOpacity: number;
+      let collapsed: boolean;
+      if (p < FADE_OUT_END) {
+        itemOpacity = 1 - p / FADE_OUT_END;
+        collapsed = false;
+      } else if (p < FADE_IN_END) {
+        itemOpacity = (p - FADE_OUT_END) / (FADE_IN_END - FADE_OUT_END);
+        collapsed = true;
+      } else {
+        itemOpacity = 1;
+        collapsed = true;
+      }
+
+      s(newsRef.current, {
+        x: collapsed ? "0rem" : "0.16rem",
+        y: collapsed ? "0rem" : "1rem",
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(menuEl, {
+        x: collapsed ? "0rem" : "-0.16rem",
+        y: collapsed ? "0rem" : "1rem",
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(newsletterRef.current, {
+        x: collapsed ? "0rem" : "-6.5rem",
+        y: collapsed ? "0rem" : bottomY,
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(loginRef.current, {
+        x: collapsed ? "0rem" : "6.5rem",
+        y: collapsed ? "0rem" : bottomY,
+        fontSize: collapsed ? 16 : 24,
+        opacity: itemOpacity,
+      });
+      s(cartRef.current, {
+        x: 0,
+        y: collapsed ? "0rem" : cartY,
+        fontSize: collapsed ? 16 : 24,
+        opacity: collapsed ? itemOpacity : 0,
+      });
+
+      // Separators: fade in after items settle
+      s(leftseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
+      s(rightseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
+      s(cartseparatorRef.current, { opacity: sepP, y: mix(0, -2, sepP) });
+
+      s(navRef.current, { opacity: 1 });
+    };
 
     // Detect route-driven collapse change (not initial render, not scroll)
     const collapsedChanged = shouldStartCollapsed !== prevCollapsedRef.current;
-    const shouldAnimate = hasInitializedRef.current && collapsedChanged;
+    const isRouteTransition = hasInitializedRef.current && collapsedChanged;
 
     // Skip scroll-driven updates while a route transition animation is playing
-    if (!shouldAnimate && isCollapseAnimatingRef.current) {
+    if (!isRouteTransition && isCollapseAnimatingRef.current) {
       prevCollapsedRef.current = shouldStartCollapsed;
       return;
     }
 
-    if (shouldAnimate) {
+    if (isRouteTransition) {
+      // Route change — animate with easing (home ↔ other page)
       isCollapseAnimatingRef.current = true;
-      setTimeout(() => {
-        isCollapseAnimatingRef.current = false;
-      }, 450);
+      collapseTweenRef.current?.kill();
+      collapseTweenRef.current = gsap.to(smoothCollapseRef.current, {
+        value: collapseProgress,
+        duration: 0.4,
+        ease: "power2.inOut",
+        overwrite: true,
+        onUpdate: () => positionAt(smoothCollapseRef.current.value),
+        onComplete: () => {
+          isCollapseAnimatingRef.current = false;
+        },
+      });
+    } else if (!hasInitializedRef.current) {
+      // First render — snap instantly, no damping
+      smoothCollapseRef.current.value = collapseProgress;
+      positionAt(collapseProgress);
+    } else {
+      // Scroll threshold crossed
+      const isExpanding = collapseProgress === 0;
+      collapseTweenRef.current?.kill();
+      collapseTweenRef.current = gsap.to(smoothCollapseRef.current, {
+        value: collapseProgress,
+        duration: isExpanding ? 0.5 : 1,
+        ease: isExpanding ? "power2.inOut" : "power2.out",
+        overwrite: true,
+        onUpdate: () => positionAt(smoothCollapseRef.current.value),
+      });
     }
-
-    const apply = shouldAnimate
-      ? (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
-          if (target)
-            gsap.to(target, {
-              ...vars,
-              duration: 0.4,
-              ease: "power2.inOut",
-              overwrite: true,
-            });
-        }
-      : (target: gsap.TweenTarget, vars: gsap.TweenVars) => {
-          if (target) gsap.set(target, vars);
-        };
-
-    apply(logoRef.current, {
-      scale: mix(1, 0.2, logoProgress),
-      y: mix("0rem", logoYOffset, logoProgress),
-    });
-    apply(newsRef.current, {
-      x: mix("0.16rem", "0rem", linkProgress),
-      y: mix("1rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-    });
-    apply(menuElement, {
-      x: mix("-0.16rem", "0rem", linkProgress),
-      y: mix("1rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-    });
-    apply(leftseparatorRef.current, {
-      opacity: separatorProgress,
-      y: mix(0, -2, separatorProgress),
-    });
-    apply(rightseparatorRef.current, {
-      opacity: separatorProgress,
-      y: mix(0, -2, separatorProgress),
-    });
-    apply(cartseparatorRef.current, {
-      opacity: separatorProgress,
-      y: mix(0, -2, separatorProgress),
-    });
-    apply(newsletterRef.current, {
-      x: mix("-6.5rem", "0rem", linkProgress),
-      y: mix(isXtraLarge ? "18.875rem" : "15.875rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-      opacity: 1,
-    });
-    apply(loginRef.current, {
-      x: mix("6.5rem", "0rem", linkProgress),
-      y: mix(isXtraLarge ? "18.875rem" : "15.875rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-      opacity: 1,
-    });
-    apply(cartRef.current, {
-      x: 0,
-      y: mix("16.875rem", "0rem", linkProgress),
-      fontSize: mix(24, 16, linkProgress),
-      opacity: cartProgress,
-    });
-    apply(navRef.current, { opacity: 1 });
 
     hasInitializedRef.current = true;
     prevCollapsedRef.current = shouldStartCollapsed;
+
+    return () => {
+      collapseTweenRef.current?.kill();
+    };
   }, [
     isRendered,
     isHomepage,
     isBookPage,
     shouldStartCollapsed,
-    landingTransitionProgress,
-    logoYOffset,
-    isXtraLarge,
+    scrolledPast,
+    isShortViewport,
+    logoCollapsedScale,
+    windowWidth,
   ]);
 
   useEffect(() => {
@@ -330,6 +383,11 @@ export const Header = () => {
     const handleDirectionScroll = () => {
       if (!activeContainer) return;
       const currentScrollY = activeContainer.scrollTop;
+
+      // Collapse trigger: 50px threshold on homepage
+      if (isHomepage) {
+        setScrolledPast(currentScrollY > 0);
+      }
 
       if (currentScrollY > hideThreshold) {
         if (
@@ -405,10 +463,12 @@ export const Header = () => {
       )}
     >
       {/* Single nav container for fade animation */}
-      <div ref={navRef} className="flex w-full lg:max-w-[1600px] mx-auto">
-        <div className="flex text-black items-center z-[9]">
+      <div
+        ref={navRef}
+        className="flex items-center w-full max-w-[1320px] mx-auto"
+      >
+        <div className="flex items-center text-black z-[9]">
           <div
-            className="transition-all duration-500 ease-in-out"
             style={{
               opacity: isBookFocused ? 0 : 1,
               pointerEvents: isBookFocused ? "none" : "auto",
@@ -500,47 +560,39 @@ export const Header = () => {
         </div>
 
         {/* Logo */}
-        {!isMobile && (
+        <div
+          className="fixed inset-0 w-full hidden md:block"
+          style={{
+            opacity: isBookFocused ? 0 : 1,
+            pointerEvents: isBookFocused ? "none" : "auto",
+          }}
+        >
           <div
-            className="fixed inset-0 w-full transition-all duration-500 ease-in-out"
-            style={{
-              opacity: isBookFocused ? 0 : 1,
-              transform: isBookFocused ? "translateY(-3rem)" : "translateY(0)",
-              pointerEvents: isBookFocused ? "none" : "auto",
-            }}
+            id="home-title-logo"
+            ref={logoRef}
+            className={cn(
+              "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold xl:pt-0",
+              !showHeader &&
+                (isHomepage || isOverlayPage) &&
+                "opacity-0 pointer-events-none"
+            )}
           >
-            <div
-              id="home-title-logo"
-              style={
-                shouldStartCollapsed
-                  ? { transform: `translateX(-0.16rem) translateY(-2rem)` }
-                  : undefined
-              }
-              ref={logoRef}
-              className={cn(
-                "fixed pt-8 px-8 md:pt-6 w-full left-0 top-4 block justify-center whitespace-nowrap items-center text-center font-fields font-semibold transition-opacity duration-300 xl:pt-0",
-                !showHeader &&
-                  (isHomepage || isOverlayPage) &&
-                  "opacity-0 pointer-events-none"
-              )}
-            >
-              <ThreeLink href="/">
-                <Image
-                  className="w-full 2xl:max-w-[1600px]"
-                  src="/logo-dog-inline-hd.png"
-                  alt="Logo"
-                  height={6120}
-                  width={1600}
-                />
-              </ThreeLink>
-            </div>
+            <ThreeLink href="/">
+              <Image
+                className="w-full max-w-[1320px] mx-auto"
+                src="/logo-dog-inline-hd.png"
+                alt="Logo"
+                height={6120}
+                width={1600}
+              />
+            </ThreeLink>
           </div>
-        )}
+        </div>
 
         <div
           className={cn(
-            "gap-4 items-center flex-1 flex justify-end opacity-100 transition-opacity duration-300 delay-0 pointer-events-auto",
-            isBookFocused && "opacity-0 delay-600 pointer-events-none"
+            "gap-4 items-center flex-1 flex justify-end pointer-events-auto",
+            isBookFocused && "opacity-0 pointer-events-none"
           )}
         >
           {/* Cart */}
@@ -587,11 +639,11 @@ export const Header = () => {
 
           {/* Menu Button */}
           <div className="hidden md:flex gap-2 items-center text-black">
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+            <MenuButton />
           </div>
           {/* Mobile Menu Button */}
           <div className="md:hidden flex text-[24px] gap-2 items-center text-black">
-            <MenuButton shouldStartCollapsed={shouldStartCollapsed} />
+            <MenuButton />
           </div>
         </div>
         <div className="invisible!">

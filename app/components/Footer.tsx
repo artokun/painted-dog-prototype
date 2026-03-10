@@ -33,7 +33,7 @@ export const Footer = () => {
           {/* logo column - Full width on mobile and tablet, 1/3 on desktop */}
           <div className="flex py-6 px-10 justify-center gap-6 items-center relative border-3 border-b-0 md:border-b lg:border-r-0 lg:border-b-3 border-black flex-1 h-full md:col-span-2 lg:col-span-1 lg:row-span-3">
             <div className="flex flex-col w-full justify-between h-full gap-6">
-              <ThreeLink className="flex h-[110px] md:h-[149px]" href="/">
+              <ThreeLink className="flex h-auto md:h-[149px]" href="/">
                 <Image
                   src="/logo-dog-footer.png"
                   alt="Logo"

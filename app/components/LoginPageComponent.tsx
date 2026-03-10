@@ -337,8 +337,6 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
           </h2>
         </form>
       </div>
-
-      <Footer />
     </PageOverlay>
   );
 };
