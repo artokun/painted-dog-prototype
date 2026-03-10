@@ -278,7 +278,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     <span>Contact</span>
                   </ThreeLink>
                   <ThreeLink
-                    href="/blog"
+                    href="/news"
                     className="text-[24px] md:text-[32px] font-semibold"
                     animatedUnderline
                   >

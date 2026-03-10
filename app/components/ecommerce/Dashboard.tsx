@@ -234,7 +234,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
                       alt={"contact arrow"}
                     />
                   </button>
-                  <ThreeLink animatedUnderline href="/contact">
+                  <ThreeLink noUnderline href="/contact">
                     <span className="w-full text-[18px] flex gap-3 text-left px-4 py-3 rounded hover:underline transition-colors hover:cursor-pointer">
                       Contact us
                     </span>
@@ -356,7 +356,7 @@ function ProfileInfo({
           <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
             <span className="text-gray-600">Email Address</span>
             <input
-              className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+              className="text-right overflow-hidden font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
