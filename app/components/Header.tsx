@@ -459,7 +459,7 @@ export const Header = () => {
     <div
       ref={headerRef}
       className={cn(
-        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-6 md:px-8"
+        "fixed top-0 h-20 left-0 w-full flex items-center justify-between z-20 font-medium pointer-events-auto px-4 md:px-8"
       )}
     >
       {/* Single nav container for fade animation */}
@@ -475,19 +475,15 @@ export const Header = () => {
             }}
           >
             {/* Mobile Logo */}
-            {isBookFocused ? (
-              ""
-            ) : (
-              <Link className="flex w-40 md:hidden" href="/">
-                <Image
-                  className="object-contain w-full lg:h-auto max-w-[192px]"
-                  src="/logo-dog-inline.png"
-                  alt="Logo"
-                  height={90}
-                  width={192}
-                />
-              </Link>
-            )}
+            <Link className="flex w-40 md:hidden" href="/">
+              <Image
+                className="object-contain w-auto lg:h-auto"
+                src="/logo-dog-inline.png"
+                alt="Logo"
+                height={90}
+                width={190}
+              />
+            </Link>
 
             <div className="hidden md:flex gap-4 items-center flex-1">
               {/* News */}
@@ -583,7 +579,7 @@ export const Header = () => {
                 src="/logo-dog-inline-hd.png"
                 alt="Logo"
                 height={6120}
-                width={1600}
+                width={1340}
               />
             </ThreeLink>
           </div>

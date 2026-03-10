@@ -33,7 +33,10 @@ export const Footer = () => {
           {/* logo column - Full width on mobile and tablet, 1/3 on desktop */}
           <div className="flex py-6 px-10 justify-center gap-6 items-center relative border-3 border-b-0 md:border-b lg:border-r-0 lg:border-b-3 border-black flex-1 h-full md:col-span-2 lg:col-span-1 lg:row-span-3">
             <div className="flex flex-col w-full justify-between h-full gap-6">
-              <ThreeLink className="flex h-auto md:h-[149px]" href="/">
+              <ThreeLink
+                className="flex h-auto md:h-[120px]! lg:h-[149px]"
+                href="/"
+              >
                 <Image
                   src="/logo-dog-footer.png"
                   alt="Logo"
@@ -46,14 +49,14 @@ export const Footer = () => {
               <div className="flex justify-between">
                 {auth.isLoggedIn ? (
                   <button
-                    className="md:text-lg font-semibold uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
+                    className="text-base pb-1 lg:text-lg font-semibold uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                     onClick={logout}
                   >
                     Log Out
                   </button>
                 ) : (
                   <ThreeLink
-                    className="md:text-lg font-semibold uppercase"
+                    className="text-base lg:text-lg font-semibold uppercase"
                     animatedUnderline
                     href="/login"
                   >
@@ -62,14 +65,14 @@ export const Footer = () => {
                 )}
 
                 <ThreeLink
-                  className="md:text-lg font-semibold uppercase"
+                  className="text-base lg:text-lg font-semibold uppercase"
                   animatedUnderline
                   href="/dashboard"
                 >
                   Account
                 </ThreeLink>
                 <button
-                  className="md:text-lg text-base font-semibold uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer pb-1"
+                  className=" lg:text-lg text-base font-semibold uppercase relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer pb-1"
                   onClick={openCart}
                 >
                   Cart
@@ -146,7 +149,7 @@ export const Footer = () => {
               </ThreeLink>
             </div>
 
-            <div className="flex lg:flex-1 lg:justify-center gap-6 flex-col menu-section-legal mx-auto xl:ml-auto top-0 lg:relative lg:top-[15px] lg:mr-0 lg:gap-8 lg:flex-row">
+            <div className="flex lg:flex-1 lg:justify-center gap-6 flex-col menu-section-legal mx-auto xl:ml-auto top-0 lg:relative lg:top-[15px] lg:mr-0 lg:gap-8 lg:flex-row md:mx-auto!">
               <div className="flex gap-8 lg:gap-4">
                 <ThreeLink
                   className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"

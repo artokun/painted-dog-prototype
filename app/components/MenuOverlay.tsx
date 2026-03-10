@@ -301,7 +301,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     Legal
                   </ThreeLink>
                 </nav>
-                <div className="flex md:hidden">
+                <div className="flex">
                   <SocialLiniks />
                 </div>
               </div>
