@@ -115,7 +115,7 @@ export const Footer = () => {
               </ThreeLink>
               <ThreeLink
                 className="w-fit mx-auto"
-                href="/legal"
+                href="/contact"
                 animatedUnderline
               >
                 Submissions

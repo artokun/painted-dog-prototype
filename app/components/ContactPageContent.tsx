@@ -33,7 +33,7 @@ export const ContactPageContent = ({ visible }: { visible: boolean }) => {
         setTab(Tab.General);
       }
     },
-    [isSuccess],
+    [isSuccess]
   );
 
   return (
@@ -210,8 +210,8 @@ const ContactPage = ({
       </h1>
       <p className="mx-auto max-w-md text-center md:leading-loose px-2">
         Whether you are an aspiring writer, a reviewer, an influencer, or you
-        have discovered interesting reviews of our works in publications or on
-        BookTok we&apos;d love to hear from you. Select a form type to begin.
+        have discovered interesting reviews of our works, we&apos;d love to hear
+        from you. Select a form type to begin.
       </p>
       <div className="md:hidden w-full py-12 flex flex-col gap-2">
         <label className="text-md font-medium">Select form</label>
@@ -690,9 +690,9 @@ const SuccessMessage = ({ onReset }: { onReset: () => void }) => (
   <div className="flex flex-col gap-3 text-center p-6">
     <h3 className="text-5xl font-medium">Thank you</h3>
     <p className="mt-20">
-      Your form has been submitted.
+      Thanks for getting in touch.
       <br />
-      Thanks for reaching out.
+      We look forward to reading your message.
     </p>
     <div className="flex flex-col max-w-3xs w-full mx-auto gap-3 mt-8">
       <PDButton primary tall href="/">
