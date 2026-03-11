@@ -90,7 +90,6 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
       const shopifyCart = await createCart(lineItems, auth?.accessToken);
 
       if (shopifyCart && shopifyCart.checkoutUrl) {
-        clearCart();
         window.location.href = shopifyCart.checkoutUrl;
       } else {
         alert("Error creating checkout. Please try again.");
