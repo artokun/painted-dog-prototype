@@ -271,8 +271,7 @@ export const Header = () => {
       let loginExpandedX = 0;
 
       if (newsletterRef.current && navRect) {
-        const cx =
-          Number(gsap.getProperty(newsletterRef.current, "x")) || 0;
+        const cx = Number(gsap.getProperty(newsletterRef.current, "x")) || 0;
         const naturalLeft =
           newsletterRef.current.getBoundingClientRect().left - cx;
         nlExpandedX = navRect.left - naturalLeft;
@@ -496,74 +495,75 @@ export const Header = () => {
         className="flex items-center w-full max-w-[1320px] mx-auto"
       >
         <div className="flex items-center text-black z-[9]">
-          <div
-            style={{
-              opacity: isBookFocused ? 0 : 1,
-              pointerEvents: isBookFocused ? "none" : "auto",
-            }}
-          >
-            {/* Mobile Logo */}
-            <Link className="flex w-40 md:hidden" href="/">
-              <Image
-                className="object-contain w-auto lg:h-auto"
-                src="/logo-dog-inline.png"
-                alt="Logo"
-                height={90}
-                width={190}
-              />
-            </Link>
+          {!isBookFocused && (
+            <div
+              style={{
+                opacity: isBookFocused ? 0 : 1,
+                pointerEvents: isBookFocused ? "none" : "auto",
+              }}
+            >
+              {/* Mobile Logo */}
+              <Link className="flex w-40 md:hidden" href="/">
+                <Image
+                  className="object-contain w-auto lg:h-auto"
+                  src="/logo-dog-inline.png"
+                  alt="Logo"
+                  height={90}
+                  width={190}
+                />
+              </Link>
 
-            <div className="hidden md:flex gap-4 items-center flex-1">
-              {/* News */}
-              <div
-                ref={newsRef}
-                className="hidden text-[24px] md:flex pointer-events-auto"
-              >
-                <ThreeLink animatedUnderline href="/news">
-                  <span className="uppercase">News</span>
-                </ThreeLink>
-              </div>
-
-              {/* Left Separator */}
-              <div className="text-black items-center" ref={leftseparatorRef}>
-                <span>•</span>
-              </div>
-              {/* Newsletter */}
-              <div
-                ref={newsletterRef}
-                className="hidden text-[24px] uppercase md:flex pointer-events-auto"
-              >
-                <button
-                  onClick={() => (globalStore.isNewsLetterModalOpen = true)}
-                  onMouseEnter={() => setIsNewsletterHovered(true)}
-                  onMouseLeave={() => {
-                    setIsNewsletterHovered(false);
-                    setIsNewsletterPressed(false);
-                  }}
-                  onMouseDown={() => setIsNewsletterPressed(true)}
-                  className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+              <div className="hidden md:flex gap-4 items-center flex-1">
+                {/* News */}
+                <div
+                  ref={newsRef}
+                  className="hidden text-[24px] md:flex pointer-events-auto"
                 >
-                  <span className="uppercase">Newsletter</span>
-                  <animated.span
-                    className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
-                    style={{
-                      bottom: "5px",
-                      width: newsletterUnderlineSpring.width.to(
-                        (width) => `${width * 100}%`
-                      ),
-                      opacity: newsletterUnderlineSpring.opacity
-                        .to([0, 1], [0, 10])
-                        .to((opacity) => `${Math.min(opacity, 1)}`),
-                      transform: newsletterUnderlineSpring.x.to(
-                        (x) => `translateX(${x}%)`
-                      ),
+                  <ThreeLink animatedUnderline href="/news">
+                    <span className="uppercase">News</span>
+                  </ThreeLink>
+                </div>
+
+                {/* Left Separator */}
+                <div className="text-black items-center" ref={leftseparatorRef}>
+                  <span>•</span>
+                </div>
+                {/* Newsletter */}
+                <div
+                  ref={newsletterRef}
+                  className="hidden text-[24px] uppercase md:flex pointer-events-auto"
+                >
+                  <button
+                    onClick={() => (globalStore.isNewsLetterModalOpen = true)}
+                    onMouseEnter={() => setIsNewsletterHovered(true)}
+                    onMouseLeave={() => {
+                      setIsNewsletterHovered(false);
+                      setIsNewsletterPressed(false);
                     }}
-                  />
-                </button>
+                    onMouseDown={() => setIsNewsletterPressed(true)}
+                    className="appearance-none uppercase cursor-pointer relative inline-block overflow-hidden pb-1"
+                  >
+                    <span className="uppercase">Newsletter</span>
+                    <animated.span
+                      className="absolute left-0 h-0.5 bg-black origin-left text-[0px]"
+                      style={{
+                        bottom: "5px",
+                        width: newsletterUnderlineSpring.width.to(
+                          (width) => `${width * 100}%`
+                        ),
+                        opacity: newsletterUnderlineSpring.opacity
+                          .to([0, 1], [0, 10])
+                          .to((opacity) => `${Math.min(opacity, 1)}`),
+                        transform: newsletterUnderlineSpring.x.to(
+                          (x) => `translateX(${x}%)`
+                        ),
+                      }}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-
+          )}
           <button
             className={cn(
               "text-black flex items-center gap-2 cursor-pointer transition-all duration-300 delay-0 opacity-0 translate-x-5 pointer-events-none group",
