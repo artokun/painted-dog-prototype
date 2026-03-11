@@ -162,7 +162,7 @@ const AboutPage = ({
   const getTabDescription = () => {
     switch (tab) {
       case Tab.About:
-        return "Painted Dog Press is an independent book publisher of fiction and narrative non-fiction.";
+        return "Painted Dog Press is an independent book publisher of fiction and non-fiction.";
       case Tab.WhoWeAre:
         return "Meet the people behind Painted Dog Press.";
       case Tab.Friends:

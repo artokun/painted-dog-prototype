@@ -158,7 +158,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
                 id="newsletter-modal-title"
                 className="text-[24px] font-medium text-[#1A1A1A]"
               >
-                Welcome aboard
+                Welcome aboard.
               </h3>
               <p className="text-base leading-relaxed text-[#1A1A1A]">
                 You&apos;re now subscribed to the Painted Dog Press newsletter.
