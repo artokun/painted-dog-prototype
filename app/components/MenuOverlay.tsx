@@ -16,6 +16,7 @@ import { NewsletterModal } from "./NewsletterModal";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/dist/SplitText";
 import SocialLiniks from "./ecommerce/SocialLiniks";
+import { authStore, logout } from "../store/authStore";
 
 // Register the plugin
 gsap.registerPlugin(SplitText);
@@ -26,6 +27,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
   const menuRef = useRef<HTMLParagraphElement>(null);
+  const auth = useSnapshot(authStore);
 
   // const isMobile = useMediaQuery("(max-width: 768px)");
   const { currentRoute } = useSnapshot(globalStore);
@@ -134,7 +136,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
       )}
     >
       {showContent && (
-        <div className="flex flex-col h-full md:justify-center md:px-4 xl:px-0 min-h-full pt-[104px] md:pt-0">
+        <div className="flex flex-col h-full md:justify-center md:px-4 xl:px-0 min-h-full py-4 md:pt-0">
           {/* Close Button */}
 
           {/* Menu Content */}
@@ -146,7 +148,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
             <div className="torn-bottom"></div>
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
-              <div className="flex flex-col items-center relative md:flex-row justify-between w-full px-6 md:px-[41px] py-8">
+              <div className="flex flex-col items-center relative md:flex-row justify-between w-full px-5 md:px-[41px] py-8">
                 <button
                   onClick={handleClose}
                   className="p-0  md:p-2  flex absolute right-[1rem] md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
@@ -163,13 +165,23 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     className="w-full h-full"
                   />
                 </ThreeLink>
-                <ThreeLink
-                  href="/login"
-                  className="text-[18px] uppercase item-center hidden md:flex md:text-[20.92px] font-semibold"
-                  animatedUnderline
-                >
-                  <span> Login</span>
-                </ThreeLink>
+
+                {auth.isLoggedIn ? (
+                  <button
+                    className="text-[18px] uppercase item-center hidden md:flex md:text-[20.92px] font-semibold relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
+                    onClick={logout}
+                  >
+                    Log Out
+                  </button>
+                ) : (
+                  <ThreeLink
+                    href="/login"
+                    className="text-[18px] uppercase item-center hidden md:flex md:text-[20.92px] font-semibold"
+                    animatedUnderline
+                  >
+                    <span> Login</span>
+                  </ThreeLink>
+                )}
                 <ThreeLink
                   href="/dashboard"
                   className="text-[18px] hidden md:flex uppercase md:text-[20.92px] font-semibold"
@@ -184,13 +196,22 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   Cart
                 </button>
                 <div className="flex flex-row gap-5  justify-between w-full pt-8 md:hidden">
-                  <ThreeLink
-                    href="/login"
-                    className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
-                    noUnderline
-                  >
-                    Login
-                  </ThreeLink>
+                  {auth.isLoggedIn ? (
+                    <button
+                      className="text-[18px] w-fit uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
+                      onClick={logout}
+                    >
+                      Log Out
+                    </button>
+                  ) : (
+                    <ThreeLink
+                      href="/login"
+                      className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
+                      noUnderline
+                    >
+                      Login
+                    </ThreeLink>
+                  )}
                   <ThreeLink
                     href="/dashboard"
                     className="text-[18px] uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity"
@@ -233,13 +254,6 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   >
                     Newsletter
                   </button>
-                  <ThreeLink
-                    className="w-fit mx-auto"
-                    href="/"
-                    animatedUnderline
-                  >
-                    Browse Stack
-                  </ThreeLink>
                 </div>
                 <div className="flex-1 flex flex-col py-8 md:border-l">
                   <ThreeLink

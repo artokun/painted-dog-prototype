@@ -222,7 +222,14 @@ function MobileBookPageContent() {
           bookStore.isBookFlipped = !bookStore.isBookFlipped;
         }}
       ></button>
-      <div className="w-full pt-5 bg-[#F0D6B2]  shadow-2xl border-t border-[#00000011] shadow-[#000000]">
+      <div
+        className="w-full pt-5 shadow-2xl border-t border-[#00000011] shadow-[#000000]"
+        style={{
+          backgroundImage: "url(/bg-noise.svg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         {/* Leaflets stacked above content */}
         <section className="relative z-10 w-full">
           <div className="relative md:h-full flex flex-col">
