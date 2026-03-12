@@ -50,24 +50,10 @@ export function NewsParallaxHeader({
       if (!scrollContainer) return;
 
       const ctx = gsap.context(() => {
-        // Animate title - moves up with scroll
-        gsap.to(titleRef.current, {
+        // Animate title, excerpt and emdash together to half image height
+        const textElements = [titleRef.current, excerptRef.current, emdashRef.current].filter(Boolean);
+        gsap.to(textElements, {
           y: threshold,
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top+=40",
-            end: `+=${threshold}`,
-            scrub: 0.05,
-            scroller: scrollContainer,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        // Animate excerpt and emdash - moves up less than title
-        const excerptElements = [excerptRef.current, emdashRef.current].filter(Boolean);
-        gsap.to(excerptElements, {
-          y: threshold * 0.3,
           ease: "none",
           scrollTrigger: {
             trigger: containerRef.current,
@@ -84,7 +70,7 @@ export function NewsParallaxHeader({
         if (summarySection && imageRef.current) {
           const imageTop = imageRef.current.offsetTop;
           const summaryTop = (summarySection as HTMLElement).offsetTop;
-          const distance = summaryTop - imageTop - threshold * 0.3;
+          const distance = summaryTop - imageTop - threshold;
 
           gsap.to(imageRef.current, {
             y: distance,
@@ -123,7 +109,7 @@ export function NewsParallaxHeader({
   }, [coverImageUrl]);
 
   return (
-    <header ref={containerRef} className="mt-10">
+    <header ref={containerRef} className="mt-10 md:mt-28">
       <h1
         ref={titleRef}
         className="text-4xl md:text-5xl font-fields leading-tight font-medium md:col-span-4 grid grid-cols-1 md:grid-cols-8"
@@ -131,10 +117,13 @@ export function NewsParallaxHeader({
         <span className="md:col-span-4">{title}</span>
       </h1>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-8 gap-6 items-start">
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-8 gap-6 items-start">
         {excerpt ? (
           <>
-            <div ref={emdashRef} className="hidden md:flex md:col-span-1 md:col-start-1 justify-end text-xl md:text-2xl text-black">
+            <div
+              ref={emdashRef}
+              className="hidden md:flex md:col-span-1 md:col-start-1 justify-end text-xl md:text-2xl text-black"
+            >
               —
             </div>
             <div
@@ -148,14 +137,18 @@ export function NewsParallaxHeader({
         ) : null}
 
         {coverImageUrl ? (
-          <figure ref={imageRef} className="relative w-full max-h-[400px] md:col-span-4 md:col-start-5 flex justify-center">
+          <figure
+            ref={imageRef}
+            className="relative w-full md:col-span-4 md:col-start-5 flex justify-center"
+          >
             <Image
               ref={imgElementRef}
               src={coverImageUrl}
               alt=""
               width={1200}
-              height={400}
-              className="w-auto min-w-[480px] h-auto max-h-[664px] object-cover"
+              height={464}
+              className="w-full h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+              sizes="(max-width: 768px) 100vw, 50vw"
               loading="lazy"
             />
           </figure>

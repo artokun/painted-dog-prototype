@@ -40,7 +40,7 @@ export default async function NewsArticlePage({
 
   return (
     <PageTransition id="news-slug-page-scroll-container">
-      <div className="w-full px-5 md:px-8 pt-25 pb-24 text-black">
+      <div className="w-full px-5 md:px-8 xl:px-0 pt-25 pb-24 text-black max-w-[1320px] mx-auto">
         <NewsParallaxHeader
           title={article.title}
           excerpt={article.excerpt}
@@ -68,7 +68,7 @@ export default async function NewsArticlePage({
 
           {article.contentBlock1 && article.contentBlock1.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
+              <div className="md:col-span-4 md:col-start-4 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock1)}
               </div>
             </div>
@@ -85,7 +85,7 @@ export default async function NewsArticlePage({
                 }
                 width={1920}
                 height={1080}
-                className="w-full h-auto"
+                className="w-full h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                 loading="lazy"
               />
               {(article.fullWidthImage.fields.description ||
@@ -100,7 +100,7 @@ export default async function NewsArticlePage({
 
           {article.contentBlock2 && article.contentBlock2.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
+              <div className="md:col-span-4 md:col-start-4 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock2)}
               </div>
             </div>
@@ -128,7 +128,7 @@ export default async function NewsArticlePage({
                   }
                   width={1200}
                   height={800}
-                  className="w-full h-auto"
+                  className="w-full h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                   loading="lazy"
                 />
                 {(article.imageWithCaption.fields.description ||
@@ -144,7 +144,7 @@ export default async function NewsArticlePage({
 
           {article.contentBlock3 && article.contentBlock3.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-              <div className="md:col-span-5 md:col-start-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
+              <div className="md:col-span-4 md:col-start-4 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
                 {documentToReactComponents(article.contentBlock3)}
               </div>
             </div>
