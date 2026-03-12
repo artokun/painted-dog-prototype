@@ -73,9 +73,9 @@ export function Dashboard({ visible }: { visible: boolean }) {
       visible={visible}
       id="dashboard-page-scroll-container"
       direction="right"
-      className="pt-16 flex flex-col items-center bg-[url(/bg-noise.svg)] bg-cover bg-center"
+      className="py-16 flex flex-col items-center bg-[url(/bg-noise.svg)] bg-cover bg-center"
     >
-      <div className="flex my-16 md:my-0 h-full w-full 2xl:max-w-[1320px] mx-auto">
+      <div className="flex mt-16 md:my-0 h-full w-full 2xl:max-w-[1320px] mx-auto">
         <div className="mt-0 md:mt-10 px-6 flex w-full mx-auto flex-col lg:pt-8 xl:flex-row lg:px-10">
           {/* Heading */}
           <div className="flex gap-3  flex-col max-w-auto lg:max-w-[600px] pb-8">
@@ -272,7 +272,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
         </div>
       </div>
 
-      <Footer />
+      <div className="flex w-full p-20 h-6 md:p-0 md:h-0 "></div>
     </PageOverlay>
   );
 }
