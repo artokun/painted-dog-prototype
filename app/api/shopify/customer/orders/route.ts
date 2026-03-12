@@ -47,6 +47,11 @@ export async function POST(request: NextRequest) {
                           url
                           altText
                         }
+                        product {
+                           author: metafield(namespace: "custom", key: "author"){
+                            value
+                          }
+                        }
                       }
                     }
                   }

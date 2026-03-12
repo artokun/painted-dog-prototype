@@ -15,6 +15,7 @@ import Image from "next/image";
 import { PageOverlay } from "@/app/components/PageOverlay";
 import { ThreeLink } from "../ThreeLink";
 import { Footer } from "../Footer";
+import { globalStore } from "@/app/store/globalStore";
 
 export function Dashboard({ visible }: { visible: boolean }) {
   const auth = useSnapshot(authStore);
@@ -34,9 +35,9 @@ export function Dashboard({ visible }: { visible: boolean }) {
   //Redirect if not logged in
   useEffect(() => {
     if (auth.hydrated && !auth.isLoggedIn) {
-      router.push("/");
+      globalStore.currentRoute = "/login";
     }
-  }, [auth.hydrated, auth.isLoggedIn, router]);
+  }, [visible, auth.hydrated, auth.isLoggedIn, router]);
 
   // // Fetch orders on mount
   useEffect(() => {
@@ -72,9 +73,9 @@ export function Dashboard({ visible }: { visible: boolean }) {
       visible={visible}
       id="dashboard-page-scroll-container"
       direction="right"
-      className="pt-16 flex flex-col items-center "
+      className="pt-16 flex flex-col items-center bg-[url(/bg-noise.svg)] bg-cover bg-center"
     >
-      <div className="flex my-16 md:my-0 h-full w-full 2xl:max-w-[1320] mx-auto">
+      <div className="flex my-16 md:my-0 h-full w-full 2xl:max-w-[1320px] mx-auto">
         <div className="mt-0 md:mt-10 px-6 flex w-full mx-auto flex-col lg:pt-8 xl:flex-row lg:px-10">
           {/* Heading */}
           <div className="flex gap-3  flex-col max-w-auto lg:max-w-[600px] pb-8">
@@ -93,7 +94,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
           <div className="w-full mx-auto torn-paper h-fit">
             <div className="torn-right"></div>
             <div className="torn-bottom"></div>
-            <div className=" bg-white  flex h-[500px]">
+            <div className=" bg-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]  flex h-[500px]">
               {/* MOBILE: Menu or Content */}
               <div className="flex-1 overflow-y-scroll lg:hidden p-6">
                 {showMobileMenu ? (
@@ -631,14 +632,20 @@ function OrderHistory({
           className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
         >
           {/* Order Meta */}
-          <div className="flex justify-between items-start mb-3">
-            <div className="text-[14px]">Order no. {order.orderNumber}</div>
-            <div className="text-[14px]">
+          <div className="flex flex-col md:flex-row justify-between items-start mb-3">
+            <p className="text-[13px] md:text-[14px]">
+              Order no. {order.orderNumber}
+            </p>
+            <p className="text-[13px] md:text-[14px]">
               Date: {new Date(order.processedAt).toLocaleDateString()}
-            </div>
-            <div className="text-[14px]">
-              Status: {order.fulfillmentStatus || "Processing"}
-            </div>
+            </p>
+
+            <p className="text-[13px] md:text-[14px] space-x-0.5">
+              Status:
+              <span className="rounded-sm border-[0.5px] bg-[#F9F6F0] p-1 mx-1">
+                {order.fulfillmentStatus || "Processing"}
+              </span>
+            </p>
           </div>
 
           {/* Line Items */}
@@ -661,9 +668,16 @@ function OrderHistory({
                         alt="product"
                       />
                     )}
-                    <span className="font-semibold text-[24px]">
-                      {item.node.title}
-                    </span>
+                    <div className="pp-content-wrap flex flex-col">
+                      {item.node.variant?.product?.author?.value && (
+                        <span className="text-[13px] ">
+                          {item.node.variant.product.author.value}
+                        </span>
+                      )}
+                      <span className="font-semibold text-[18px] leading-[120%] md:text-[24px]">
+                        {item.node.title}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="text-right w-full pt-2">
