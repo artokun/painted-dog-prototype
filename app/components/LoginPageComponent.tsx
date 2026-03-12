@@ -157,10 +157,10 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
       visible={visible}
       id="login-page-scroll-container"
       direction="left"
-      className="pt-16 flex items-center justify-center bg-[#f6ead6] px-4 lg:px-0"
+      className="pt-16 flex items-center justify-center px-4 lg:px-0"
     >
       <div
-        className={`pd_login-wrapper top-40 md:top-10 lg:top-0 scale-none drop-shadow-xl  w-full  max-w-[464px] bg-white p-6 rotate-0 filter xl:-rotate-1 xl:scale-[.70] relative after:absolute after:-bottom-[15px] after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#ffffff_12px,_transparent_13px)] before:absolute before:-top-[15px] before:left-0 before:h-4 before:w-full before:rotate-180`}
+        className={`pd_login-wrapper top-40 md:top-10 lg:top-0 scale-none  w-full  max-w-[464px] bg-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-6 rotate-0 filter xl:-rotate-1 xl:scale-[.70] relative after:absolute after:-bottom-[15px] after:left-0 after:h-4 after:w-full after:bg-[radial-gradient(circle_at_10px_-4px,#F9F6F0_12px,_transparent_13px)] after:bg-[length:20px_20px] before:bg-[length:20px_20px] before:bg-[radial-gradient(circle_at_10px_-4px,#F9F6F0_12px,_transparent_13px)] before:absolute before:-top-[15px] before:left-0 before:h-4 before:w-full before:rotate-180`}
       >
         <div className="flex justify-between gap-4">
           <p className="font-semibold">Account</p>
