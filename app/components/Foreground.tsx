@@ -178,18 +178,38 @@ export const Foreground = () => {
     globalStore.currentRoute = pathname;
   }, [pathname]);
 
-  // This removes the loading overlay when the scene is rendered
   useEffect(() => {
     if (isRendered) {
+      const overlay = document.getElementById("loading-overlay");
+      const btn = document.getElementById("enter-site-btn");
+
+      if (!overlay) return;
+
       setTimeout(() => {
-        document
-          .getElementById("loading-overlay")
-          ?.classList.remove("opacity-100");
-        document.getElementById("loading-overlay")?.classList.add("opacity-0");
-        setTimeout(() => {
-          document.getElementById("loading-overlay")?.remove();
-        }, 300);
-      }, 300);
+        if (btn) {
+          btn.classList.remove("opacity-0");
+          btn.classList.add("opacity-100");
+        }
+      }, 500);
+
+      const dismiss = () => {
+        overlay.classList.remove("opacity-100");
+        overlay.classList.add("opacity-0");
+        setTimeout(() => overlay.remove(), 600);
+      };
+
+      overlay.addEventListener("click", dismiss, { once: true });
+
+      const fallbackTimer = setTimeout(() => {
+        if (document.getElementById("loading-overlay")) {
+          dismiss();
+        }
+      }, 6000);
+
+      return () => {
+        clearTimeout(fallbackTimer);
+        overlay.removeEventListener("click", dismiss);
+      };
     }
   }, [isRendered]);
 

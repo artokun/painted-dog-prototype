@@ -53,7 +53,7 @@ export default function RootLayout({
           <div
             id="loading-overlay"
             className={cn(
-              "absolute opacity-100 transition-opacity duration-600",
+              "absolute opacity-100 transition-opacity duration-600 flex flex-col",
               "inset-0 flex items-center justify-center z-50"
             )}
             style={{
@@ -71,7 +71,12 @@ export default function RootLayout({
               muted
               playsInline
             />
-
+            <p
+              id="enter-site-btn"
+              className="opacity-0 transition-opacity duration-500 text-black/60 text-sm tracking-widest uppercase pointer-events-none"
+            >
+              Click anywhere to continue
+            </p>
             {/* <Image src="/logo-dog.png" alt="Logo" width={200} height={200} /> */}
           </div>
         </main>

@@ -44,7 +44,7 @@ export function CameraRig() {
 
   // --- Y limits (use stable height to avoid pan-dependent drift) ---
   const baseTopLimit = 0.1;
-  const homeOffset = stableViewportHeight * 0.08;
+  const homeOffset = stableViewportHeight * 0.14;
   const topLimit = baseTopLimit + homeOffset;
   const cameraMovementPerPage = 0.6;
   const bottomLimit = topLimit - cameraMovementPerPage * (scrollPages - 1);
@@ -118,8 +118,11 @@ export function CameraRig() {
     rigRef.current.position.x = rigX.get();
     rigRef.current.rotation.y = rotY.get();
 
-    const { topLimit: top, bottomLimit: bot, baseTopLimit: base } =
-      limitsRef.current;
+    const {
+      topLimit: top,
+      bottomLimit: bot,
+      baseTopLimit: base,
+    } = limitsRef.current;
 
     // Determine target Y purely from current state — no flags or refs
     let targetY: number;
@@ -153,7 +156,6 @@ export function CameraRig() {
       targetY,
       speed
     );
-
   });
 
   return (
