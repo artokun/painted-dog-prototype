@@ -131,7 +131,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
       id="menu-overlay-scroll-container"
       style={style}
       className={cn(
-        "absolute inset-0 h-dvh w-dvw text-black z-30 overflow-y-auto overflow-x-hidden bg-[#f6e5cc]",
+        "absolute inset-0 h-dvh w-dvw text-black z-30 overflow-y-auto overflow-x-hidden bg-[url(/bg-noise.svg)] bg-cover bg-center",
         visible && "pointer-events-auto"
       )}
     >

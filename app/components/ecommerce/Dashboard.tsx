@@ -632,14 +632,20 @@ function OrderHistory({
           className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
         >
           {/* Order Meta */}
-          <div className="flex justify-between items-start mb-3">
-            <div className="text-[14px]">Order no. {order.orderNumber}</div>
-            <div className="text-[14px]">
+          <div className="flex flex-col md:flex-row justify-between items-start mb-3">
+            <p className="text-[13px] md:text-[14px]">
+              Order no. {order.orderNumber}
+            </p>
+            <p className="text-[13px] md:text-[14px]">
               Date: {new Date(order.processedAt).toLocaleDateString()}
-            </div>
-            <div className="text-[14px]">
-              Status: {order.fulfillmentStatus || "Processing"}
-            </div>
+            </p>
+
+            <p className="text-[13px] md:text-[14px] space-x-0.5">
+              Status:
+              <span className="rounded-sm border-[0.5px] bg-[#F9F6F0] p-1 mx-1">
+                {order.fulfillmentStatus || "Processing"}
+              </span>
+            </p>
           </div>
 
           {/* Line Items */}
@@ -668,7 +674,7 @@ function OrderHistory({
                           {item.node.variant.product.author.value}
                         </span>
                       )}
-                      <span className="font-semibold text-[24px]">
+                      <span className="font-semibold text-[18px] leading-[120%] md:text-[24px]">
                         {item.node.title}
                       </span>
                     </div>
