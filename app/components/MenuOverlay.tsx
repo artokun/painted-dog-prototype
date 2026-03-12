@@ -142,13 +142,13 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           {/* Menu Content */}
           <div
             ref={menuRef}
-            className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-white w-full  md:w-full lg:rotate-1 lg:max-w-[829px]"
+            className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] w-full  md:w-full lg:rotate-1 lg:max-w-[829px]"
           >
             <div className="torn-right"></div>
             <div className="torn-bottom"></div>
             <div className="flex flex-col w-full outline-[#575757] outline-[1.74px] outline-offset-2 border-[4.36px] border-[#575757]">
               {/* main navigation */}
-              <div className="flex flex-col items-center relative md:flex-row justify-between w-full px-5 md:px-[41px] py-8">
+              <div className="flex flex-col items-center relative md:flex-row justify-between w-full px-5 md:px-[41px] py-6">
                 <button
                   onClick={handleClose}
                   className="p-0  md:p-2  flex absolute right-[1rem] md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
@@ -156,7 +156,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 >
                   <CloseIcon className="text-[24px] w-6 h-6 size-[24.42px]" />
                 </button>
-                <ThreeLink className="w-[90%] md:max-w-[180px]" href="/">
+                <ThreeLink className="w-[60%] md:max-w-[180px]" href="/">
                   <Image
                     src="/logo-dog-overlay.png"
                     alt="Logo"
@@ -237,7 +237,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
 
               {/* for writers reader links */}
               <div className="flex flex-col md:flex-row  w-full border-y">
-                <div className="flex-1 border-b md:border-b-0 flex flex-col py-8 gap-2">
+                <div className="flex-1 border-b md:border-b-0 flex flex-col py-6 gap-2">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
@@ -255,7 +255,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     Newsletter
                   </button>
                 </div>
-                <div className="flex-1 flex flex-col py-8 md:border-l">
+                <div className="flex-1 flex flex-col py-6 md:border-l">
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
@@ -275,7 +275,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               </div>
 
               {/* bottom navgation */}
-              <div className="flex flex-col items-center gap-4 py-8">
+              <div className="flex flex-col items-center gap-2 py-6">
                 <nav className="flex gap-4">
                   <ThreeLink
                     href="/about"
