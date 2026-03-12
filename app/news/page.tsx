@@ -70,10 +70,10 @@ export default async function NewsArchivePage({
 
   return (
     <PageTransition id="news-page-scroll-container">
-      <div className="w-full pt-20 px-5 md:px-8 pb-7 text-black">
+      <div className="w-full pt-20 px-5 md:px-8 xl:px-0 pb-7 text-black max-w-[1320px] mx-auto">
         <header className=" pt-14  pb-14 md:pt-20 md:pb-40 ">
           <div className="w-full flex flex-col gap-6">
-            <div className="w-full grid grid-cols-3 gap-6 items-center">
+            <div className="w-full grid grid-cols-3 gap-4 md:gap-6 items-center">
               <div className="leading-none col-span-1 flex justify-center gap-4">
                 <p className="text-[32px] md:text-[72px] tracking-[-0.04em] font-fields font-semibold">
                   {total}
@@ -91,7 +91,7 @@ export default async function NewsArchivePage({
 
             <div className="w-full grid grid-cols-3 gap-8">
               <div className="col-span-1"></div>
-              <div className="col-span-2 flex flex-wrap gap-4">
+              <div className="col-span-2 flex flex-wrap gap-2">
                 <Link
                   href={buildNewsHref({ page: 1 })}
                   className={cn(
@@ -143,9 +143,9 @@ export default async function NewsArchivePage({
                     </span>
                   </div>
                   {item.excerpt && (
-                    <div className="mt-2 md:mt-0 flex items-start md:max-h-0 md:overflow-hidden md:group-hover:max-h-16 md:group-hover:mt-2 md:transition-all md:duration-300">
+                    <div className="mt-1 md:mt-0 flex items-start md:max-h-0 md:overflow-hidden md:group-hover:max-h-16 md:group-hover:mt-2 md:transition-all md:duration-300">
                       <span className="shrink-0 mr-2">—</span>
-                      <span className="text-sm md:text-base leading-relaxed line-clamp-2 font-semibold">
+                      <span className="text-sm md:text-base leading-relaxed line-clamp-2 text-black">
                         {item.excerpt}
                       </span>
                     </div>
@@ -153,7 +153,7 @@ export default async function NewsArchivePage({
                 </div>
               </div>
 
-              <div className="relative overflow-hidden mt-6">
+              <div className="relative mt-2 md:mt-6">
                 <div className="md:transition-transform md:duration-300">
                   {item.coverImageUrl ? (
                     <Image
@@ -161,7 +161,7 @@ export default async function NewsArchivePage({
                       alt=""
                       width={600}
                       height={400}
-                      className="w-full object-cover transition-all duration-300 md:h-auto h-64"
+                      className="w-full object-fit transition-all duration-300 md:h-auto h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                       loading="lazy"
                     />
                   ) : (

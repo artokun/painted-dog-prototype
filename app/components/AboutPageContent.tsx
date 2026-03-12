@@ -46,7 +46,7 @@ export const AboutPageContent = ({
           <>
             <div
               className={cn(
-                "flex flex-col items-center justify-center lg:max-w-11/12 mx-auto w-full mt-20 lg:px-2 px-6"
+                "flex flex-col items-center justify-center xl:max-w-11/12 mx-auto w-full mt-20 xl:px-2 px-6"
               )}
             >
               <AboutPage
@@ -74,7 +74,7 @@ const TabButton = ({
 }) => {
   return (
     <li
-      className="text-5xl md:text-7xl flex text-left cursor-pointer relative"
+      className="text-5xl xl:text-7xl flex text-left cursor-pointer relative"
       onClick={onClick}
     >
       <span className={cn(!active && "underline opacity-30")}>{children}</span>
@@ -121,7 +121,7 @@ const MobileTabSelector = ({
           Friends
         </TabButton>
       </ul>
-      <p className="text-[28px] md:text-[38px] font-fields">
+      <p className="text-[28px] xl:text-[38px] font-fields">
         {getTabDescription()}
       </p>
     </div>
@@ -173,12 +173,12 @@ const AboutPage = ({
   };
 
   return (
-    <div className="md:py-20 py-12 w-full">
-      <div className="lg:hidden w-full py-12 flex flex-col gap-2">
+    <div className="xl:py-20 py-12 w-full">
+      <div className="xl:hidden w-full py-12 flex flex-col gap-2">
         <MobileTabSelector tab={tab} setTab={setTab} />
       </div>
-      <div className="flex gap-6 w-full lg:py-20">
-        <aside className="hidden lg:flex flex-col items-start gap-4 flex-0 min-w-[300px]  lg:min-w-[400px]  xl:min-w-[500px] h-fit sticky top-20">
+      <div className="flex gap-6 w-full xl:py-20">
+        <aside className="hidden xl:flex flex-col items-start gap-4 flex-0 min-w-[300px]  xl:min-w-[500px] h-fit sticky top-20">
           <ul className="flex flex-col gap-2 pb-14">
             <TabButton
               active={tab === Tab.About}
@@ -199,14 +199,14 @@ const AboutPage = ({
               Friends
             </TabButton>
           </ul>
-          <p className="text-[28px] md:text-[38px] font-fields">
+          <p className="text-[28px] xl:text-[38px] font-fields">
             {getTabDescription()}
           </p>
         </aside>
 
         <section
           ref={paperRef}
-          className="flex-1 bg-[#f9f6f0] mt-0 md:mt-6 lg:mt-[230px]  p-8 prose prose-lg max-w-none"
+          className="flex-1 torn-paper bg-[#f9f6f0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] mt-0 xl:mt-[230px] px-6 prose prose-lg max-w-none"
         >
           <div ref={contentTopRef} className="absolute -top-20" />
 

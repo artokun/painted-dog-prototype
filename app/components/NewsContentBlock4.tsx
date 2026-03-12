@@ -95,9 +95,15 @@ export function NewsContentBlock4({
   }, [imageContentBlock4, contentBlock4]);
 
   return (
-    <div ref={containerRef} className="my-8 grid grid-cols-1 md:grid-cols-8 gap-6 items-start">
+    <div
+      ref={containerRef}
+      className="my-8 grid grid-cols-1 md:grid-cols-8 gap-6 items-start"
+    >
       {imageContentBlock4 && imageContentBlock4.fields && (
-        <figure ref={imageRef} className="relative w-full md:col-span-4 flex flex-col items-center">
+        <figure
+          ref={imageRef}
+          className="relative w-full md:col-span-4 flex flex-col items-center"
+        >
           <Image
             ref={imgElementRef}
             src={`https:${imageContentBlock4.fields.file.url}`}
@@ -108,7 +114,7 @@ export function NewsContentBlock4({
             }
             width={1200}
             height={800}
-            className="w-full max-w-[75%] h-auto max-h-[720px]"
+            className="w-full max-w-[75%] h-auto max-h-[720px] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
             loading="lazy"
           />
           {(imageContentBlock4.fields.description ||
@@ -122,7 +128,10 @@ export function NewsContentBlock4({
       )}
 
       {contentBlock4 && contentBlock4.content && (
-        <div ref={contentRef} className="md:col-span-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14">
+        <div
+          ref={contentRef}
+          className="md:col-span-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14"
+        >
           {documentToReactComponents(contentBlock4)}
         </div>
       )}
