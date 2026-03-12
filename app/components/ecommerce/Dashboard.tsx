@@ -35,7 +35,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
   //Redirect if not logged in
   useEffect(() => {
     if (auth.hydrated && !auth.isLoggedIn) {
-      globalStore.currentRoute = "/login";
+      globalStore.currentRoute = "/";
     }
   }, [visible, auth.hydrated, auth.isLoggedIn, router]);
 
