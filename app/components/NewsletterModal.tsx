@@ -130,7 +130,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
   const modalContent = (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-9999 flex items-center justify-end bg-transparent pointer-events-auto opacity-0 md:w-464px px-8 py-6"
+      className="fixed inset-0 z-9999 flex items-center justify-end bg-transparent pointer-events-auto opacity-0 md:w-464px p-4"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -138,7 +138,7 @@ export const NewsletterModal = ({ isOpen, onClose }: NewsletterModalProps) => {
     >
       <div
         ref={modalRef}
-        className="relative w-full md:w-[464px] h-full bg-[#F9F6F0] border-2 border-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4 md:p-10 flex flex-col"
+        className="relative w-full md:w-[464px] h-full bg-[#F9F6F0] border-2 border-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}

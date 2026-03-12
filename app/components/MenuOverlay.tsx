@@ -136,13 +136,13 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
       )}
     >
       {showContent && (
-        <div className="flex flex-col h-full md:justify-center md:px-4 xl:px-0 min-h-full py-4 md:pt-0">
+        <div className="flex flex-col h-fit md:justify-center md:px-4 xl:px-0 min-h-full p-4 lg:p-0 md:pt-0">
           {/* Close Button */}
 
           {/* Menu Content */}
           <div
             ref={menuRef}
-            className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-white w-[90%]  md:w-full lg:rotate-1 lg:max-w-[829px]"
+            className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-white w-full  md:w-full lg:rotate-1 lg:max-w-[829px]"
           >
             <div className="torn-right"></div>
             <div className="torn-bottom"></div>
@@ -158,7 +158,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 </button>
                 <ThreeLink className="w-[90%] md:max-w-[180px]" href="/">
                   <Image
-                    src="/pp-overlay-logo.png"
+                    src="/logo-dog-overlay.png"
                     alt="Logo"
                     width={220}
                     height={85}
@@ -195,7 +195,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 >
                   Cart
                 </button>
-                <div className="flex flex-row gap-5  justify-between w-full pt-8 md:hidden">
+                <div className="flex flex-row gap-3  justify-between w-full pt-8 md:hidden">
                   {auth.isLoggedIn ? (
                     <button
                       className="text-[18px] w-fit uppercase md:text-[20.92px] font-semibold hover:opacity-70 transition-opacity relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
@@ -326,7 +326,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           <div className="flex h-full w-full content-center items-center  -z-10 absolute top-0 left ">
             <p
               ref={textRef}
-              className="hidden text-center md:flex text-[56px] leading-normal text-[#000000] opacity-[.03] font-[500] max-w-[1134px] mx-auto"
+              className="hidden text-center md:flex text-[45px] leading-normal text-[#000000] opacity-[.03] font-[500] max-w-[1134px] mx-auto"
             >
               Painted Dog Press is an independent book publisher of fiction and
               narrative non-fiction. We develop and nurture quality literature

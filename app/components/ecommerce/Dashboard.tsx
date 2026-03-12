@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { PageOverlay } from "@/app/components/PageOverlay";
 import { ThreeLink } from "../ThreeLink";
+import { Footer } from "../Footer";
 
 export function Dashboard({ visible }: { visible: boolean }) {
   const auth = useSnapshot(authStore);
@@ -71,10 +72,10 @@ export function Dashboard({ visible }: { visible: boolean }) {
       visible={visible}
       id="dashboard-page-scroll-container"
       direction="right"
-      className="pt-16 lg:pt-0 flex items-center bg-[#e7d7bf]"
+      className="pt-16 flex flex-col items-center "
     >
-      <div className="flex w-full 2xl:max-w-[1320] mx-auto">
-        <div className="mt-40 md:mt-10 px-6 flex w-full mx-auto flex-col lg:pt-8 lg:flex-row lg:px-10">
+      <div className="flex my-16 md:my-0 h-full w-full 2xl:max-w-[1320] mx-auto">
+        <div className="mt-0 md:mt-10 px-6 flex w-full mx-auto flex-col lg:pt-8 xl:flex-row lg:px-10">
           {/* Heading */}
           <div className="flex gap-3  flex-col max-w-auto lg:max-w-[600px] pb-8">
             <h2 className="text-[48px] md:text-[72px] font-semibold leading-[72px]">
@@ -89,7 +90,7 @@ export function Dashboard({ visible }: { visible: boolean }) {
           </div>
 
           {/* Main Container */}
-          <div className="w-full mx-auto torn-paper">
+          <div className="w-full mx-auto torn-paper h-fit">
             <div className="torn-right"></div>
             <div className="torn-bottom"></div>
             <div className=" bg-white  flex h-[500px]">
@@ -269,6 +270,8 @@ export function Dashboard({ visible }: { visible: boolean }) {
           </div>
         </div>
       </div>
+
+      <Footer />
     </PageOverlay>
   );
 }
@@ -315,7 +318,7 @@ function ProfileInfo({
   if (editing) {
     return (
       <>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-end items-center mb-6 w-full">
           {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
           <div className="flex gap-3 pt-4">
             <button
@@ -340,7 +343,7 @@ function ProfileInfo({
           <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
             <span className="text-gray-600">First Name</span>
             <input
-              className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+              className="text-right font-medium focus:outline-none bg-transparent"
               value={form.firstName}
               onChange={(e) => setForm({ ...form, firstName: e.target.value })}
             />
@@ -348,7 +351,7 @@ function ProfileInfo({
           <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
             <span className="text-gray-600">Surname</span>
             <input
-              className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+              className="text-right font-medium focus:outline-none bg-transparent"
               value={form.lastName}
               onChange={(e) => setForm({ ...form, lastName: e.target.value })}
             />
@@ -356,7 +359,7 @@ function ProfileInfo({
           <div className="grid grid-cols-2 gap-4 pb-2 border-b items-center">
             <span className="text-gray-600">Email Address</span>
             <input
-              className="text-right overflow-hidden font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+              className="text-right overflow-hidden font-medium focus:outline-none bg-transparent"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
@@ -394,7 +397,9 @@ function ProfileInfo({
         </div>
         <div className="grid grid-cols-2 gap-4 pb-2 border-b">
           <span className="text-gray-600">Email Address</span>
-          <span className="text-right">{user?.email || "N/A"}</span>
+          <span className="text-right overflow-scroll">
+            {user?.email || "N/A"}
+          </span>
         </div>
       </div>
     </>
@@ -477,7 +482,7 @@ function AddressInfo({ accessToken }: { accessToken: string | null }) {
             // Edit form
             <>
               {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-              <div className="flex gap-3 pt-4 mb-6">
+              <div className="flex justify-end gap-3 pt-4 mb-6">
                 <button
                   onClick={() => handleSave(address.id)}
                   disabled={saving}
@@ -511,7 +516,7 @@ function AddressInfo({ accessToken }: { accessToken: string | null }) {
                   >
                     <span className="text-gray-600">{label}</span>
                     <input
-                      className="text-right font-medium border-b border-gray-300 focus:outline-none focus:border-black bg-transparent"
+                      className="text-right font-medium focus:outline-none focus:border-black bg-transparent"
                       value={form[field]}
                       onChange={(e) =>
                         setForm({ ...form, [field]: e.target.value })

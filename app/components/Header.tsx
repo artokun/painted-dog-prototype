@@ -506,7 +506,7 @@ export const Header = () => {
               <Link className="flex w-40 md:hidden" href="/">
                 <Image
                   className="object-contain w-auto lg:h-auto"
-                  src="/logo-dog-inline.png"
+                  src="/logo-dog-mobile-header.png"
                   alt="Logo"
                   height={90}
                   width={190}
@@ -604,7 +604,7 @@ export const Header = () => {
             <ThreeLink href="/">
               <Image
                 className="w-full max-w-[1320px] mx-auto"
-                src="/logo-dog-inline-hd.png"
+                src="/logo-dog-header.png"
                 alt="Logo"
                 height={6120}
                 width={1340}
