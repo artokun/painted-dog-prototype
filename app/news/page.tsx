@@ -121,7 +121,12 @@ export default async function NewsArchivePage({
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-6">
+        <div
+          className={cn(
+            "grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-6",
+            totalPages <= 1 && "pb-[120px]"
+          )}
+        >
           {paginatedItems.map((item) => (
             <Link
               key={item.id}

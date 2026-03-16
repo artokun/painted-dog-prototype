@@ -51,11 +51,11 @@ export default async function NewsArticlePage({
           {article.summaryCopy && article.summaryCopy.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
               <div className="md:col-span-3 md:col-start-2">
-                <div className="prose max-w-none [&_p]:text-2xl [&_p]:text-black [&_p]:leading-relaxed [&_p]:font-medium">
+                <div className="prose max-w-none [&_p]:text-lg md:[&_p]:text-2xl [&_p]:text-black [&_p]:leading-relaxed [&_p]:font-medium">
                   {documentToReactComponents(article.summaryCopy)}
                 </div>
                 {(article.author || article.photoCredit) && (
-                  <div className="mt-4 text-[16px] text-black font-medium">
+                  <div className="mt-4 text-[13px] md:text-[16px] text-black md:font-medium">
                     {article.author && <div>Written by {article.author}</div>}
                     {article.photoCredit && (
                       <div>Leading image by {article.photoCredit}</div>
