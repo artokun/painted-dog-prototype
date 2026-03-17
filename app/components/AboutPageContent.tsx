@@ -142,11 +142,11 @@ const AboutPage = ({
 
   useEffect(() => {
     // Scroll to top of content
-    if (contentTopRef.current) {
-      contentTopRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+    const scrollContainer = document.getElementById(
+      "about-page-scroll-container"
+    );
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     // Animate paper section sliding up from below on mount and tab change
@@ -208,6 +208,8 @@ const AboutPage = ({
           ref={paperRef}
           className="flex-1 torn-paper bg-[#f9f6f0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] mt-0 xl:mt-[230px] px-6 prose prose-lg max-w-none"
         >
+          <div className="torn-right"></div>
+          <div className="torn-bottom"></div>
           <div ref={contentTopRef} className="absolute -top-20" />
 
           {tab === Tab.About && (

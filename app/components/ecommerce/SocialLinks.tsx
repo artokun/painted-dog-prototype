@@ -9,7 +9,7 @@ import {
   Bluesky,
 } from "@/app/components/icons/social";
 
-function SocialLiniks() {
+function SocialLinks() {
   return (
     <div className="flex gap-2 mt-2 mb-1 md:mt-0 justify-center items-center [&>button]:hover:text-gray-500 [&>button]:transition-colors [&svg]:w-full [&svg]:h-full">
       <ThreeLink
@@ -58,4 +58,4 @@ function SocialLiniks() {
   );
 }
 
-export default SocialLiniks;
+export default SocialLinks;

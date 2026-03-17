@@ -252,7 +252,6 @@ function MobileBookPageContent() {
             </div>
           </div>
         </section>
-        <Footer />
       </div>
       {portalRoot &&
         createPortal(

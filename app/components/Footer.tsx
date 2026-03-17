@@ -8,7 +8,7 @@ import { bookStore } from "../store/bookStore";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "usehooks-ts";
 import { openCart } from "@/app/store/cartUIStore";
-import SocialLinks from "./ecommerce/SocialLiniks";
+import SocialLinks from "./ecommerce/SocialLinks";
 import { NewsletterModal } from "./NewsletterModal";
 import { authStore, logout } from "../store/authStore";
 
@@ -146,14 +146,14 @@ export const Footer = () => {
             <div className="flex lg:flex-1 lg:justify-center gap-6 flex-col menu-section-legal mx-auto xl:ml-auto top-0 lg:relative lg:top-[15px] lg:mr-0 lg:gap-8 lg:flex-row md:mx-auto!">
               <div className="flex gap-8 lg:gap-4">
                 <ThreeLink
-                  className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
+                  className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 xl:after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                   href="/legal"
                   noUnderline
                 >
                   Privacy
                 </ThreeLink>
                 <ThreeLink
-                  className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
+                  className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 xl:after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
                   href="/legal"
                   noUnderline
                 >

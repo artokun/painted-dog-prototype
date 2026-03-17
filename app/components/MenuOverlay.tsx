@@ -15,7 +15,7 @@ import { NewsletterModal } from "./NewsletterModal";
 // import { useMediaQuery } from "usehooks-ts";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/dist/SplitText";
-import SocialLiniks from "./ecommerce/SocialLiniks";
+import SocialLiniks from "./ecommerce/SocialLinks";
 import { authStore, logout } from "../store/authStore";
 
 // Register the plugin
@@ -130,6 +130,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
       ref={containerRef}
       id="menu-overlay-scroll-container"
       style={style}
+      onClick={handleClose}
       className={cn(
         "absolute inset-0 h-dvh w-dvw text-black z-30 overflow-y-auto overflow-x-hidden bg-[url(/bg-noise.svg)] bg-cover bg-center",
         visible && "pointer-events-auto"
@@ -142,6 +143,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           {/* Menu Content */}
           <div
             ref={menuRef}
+            onClick={(e) => e.stopPropagation()}
             className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] w-full  md:w-full lg:rotate-1 lg:max-w-[829px]"
           >
             <div className="torn-right"></div>
@@ -156,7 +158,17 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 >
                   <CloseIcon className="text-[24px] w-6 h-6 size-[24.42px]" />
                 </button>
-                <ThreeLink className="w-[60%] md:max-w-[180px]" href="/">
+
+                <button
+                  className="w-[60%] md:max-w-[180px] cursor-pointer"
+                  onClick={() => {
+                    if (currentRoute === "/") {
+                      handleClose();
+                    } else {
+                      globalStore.currentRoute = "/";
+                    }
+                  }}
+                >
                   <Image
                     src="/logo-dog-overlay.png"
                     alt="Logo"
@@ -164,7 +176,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     height={85}
                     className="w-full h-full"
                   />
-                </ThreeLink>
+                </button>
 
                 {auth.isLoggedIn ? (
                   <button

@@ -27,6 +27,22 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setIsCheckingOut(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        setIsCheckingOut(false);
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
   // GSAP Slide Animation
   useEffect(() => {
     if (!sidebarRef.current || !overlayRef.current) return;
@@ -111,13 +127,12 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
 
   return (
     <div className="pointer-events-auto">
-      {" "}
       {/* Add pointer-events-auto wrapper */}
       {/* Overlay */}
       <div
         ref={overlayRef}
         onClick={onClose}
-        className="fixed inset bg-black/10 bg-opacity-50 z-100 opacity-0"
+        className="fixed inset-0 bg-black/10 bg-opacity-50 z-100 opacity-0"
       />
       {/* Sidebar */}
       <div
