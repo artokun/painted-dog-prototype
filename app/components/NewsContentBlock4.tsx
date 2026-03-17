@@ -114,7 +114,7 @@ export function NewsContentBlock4({
             }
             width={1200}
             height={800}
-            className="w-full max-w-[75%] h-auto max-h-[720px] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+            className="w-full max-w-[75%] h-auto max-h-[720px] object-fit shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
             loading="lazy"
           />
           {(imageContentBlock4.fields.description ||

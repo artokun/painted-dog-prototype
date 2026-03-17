@@ -50,35 +50,43 @@ export function NewsParallaxHeader({
       if (!scrollContainer) return;
 
       const ctx = gsap.context(() => {
-        // Animate title, excerpt and emdash together to half image height
-        const textElements = [titleRef.current, excerptRef.current, emdashRef.current].filter(Boolean);
-        gsap.to(textElements, {
-          y: threshold,
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top+=40",
-            end: `+=${threshold}`,
-            scrub: 0.05,
-            scroller: scrollContainer,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        // Animate image - moves to align with summary section
-        const summarySection = document.querySelector('article > div:first-child');
-        if (summarySection && imageRef.current) {
+        // Find the summary section content to calculate target positions
+        const summarySection = document.querySelector('article > div:first-child > div');
+        
+        if (summarySection && imageRef.current && titleRef.current) {
+          // Phase 1: Text scrolls down to image (image stays at top)
           const imageTop = imageRef.current.offsetTop;
-          const summaryTop = (summarySection as HTMLElement).offsetTop;
-          const distance = summaryTop - imageTop - threshold;
-
-          gsap.to(imageRef.current, {
-            y: distance,
+          const titleTop = titleRef.current.offsetTop;
+          const textToImageDistance = imageTop - titleTop;
+          
+          // Animate title, excerpt and emdash down to image level
+          const textElements = [titleRef.current, excerptRef.current, emdashRef.current].filter(Boolean);
+          gsap.to(textElements, {
+            y: textToImageDistance,
             ease: "none",
             scrollTrigger: {
               trigger: containerRef.current,
               start: "top top+=40",
-              end: `+=${Math.abs(distance) * 1.5}`,
+              end: `+=${textToImageDistance}`,
+              scrub: 0.05,
+              scroller: scrollContainer,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          // Phase 2: Image scrolls down so its bottom aligns with summary content bottom
+          const summaryBottom = (summarySection as HTMLElement).offsetTop + (summarySection as HTMLElement).offsetHeight;
+          const imageHeight = imgElementRef.current!.offsetHeight;
+          const imageBottom = imageTop + imageHeight;
+          const imageToSummaryDistance = summaryBottom - imageBottom;
+          
+          gsap.to(imageRef.current, {
+            y: imageToSummaryDistance,
+            ease: "none",
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: `top+=${textToImageDistance} top+=40`,
+              end: `+=${imageToSummaryDistance}`,
               scrub: 0.05,
               scroller: scrollContainer,
               invalidateOnRefresh: true,
@@ -139,7 +147,7 @@ export function NewsParallaxHeader({
         {coverImageUrl ? (
           <figure
             ref={imageRef}
-            className="relative w-full md:col-span-4 md:col-start-5 flex justify-center"
+            className="relative w-full md:col-span-4 md:col-start-5 md:pl-6 flex justify-center"
           >
             <Image
               ref={imgElementRef}

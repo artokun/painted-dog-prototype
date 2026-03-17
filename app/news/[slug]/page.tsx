@@ -51,11 +51,11 @@ export default async function NewsArticlePage({
           {article.summaryCopy && article.summaryCopy.content && (
             <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
               <div className="md:col-span-3 md:col-start-2">
-                <div className="prose max-w-none [&_p]:text-2xl [&_p]:text-black [&_p]:leading-relaxed [&_p]:font-medium">
+                <div className="prose max-w-none [&_p]:text-lg md:[&_p]:text-2xl [&_p]:text-black [&_p]:leading-relaxed [&_p]:font-medium">
                   {documentToReactComponents(article.summaryCopy)}
                 </div>
                 {(article.author || article.photoCredit) && (
-                  <div className="mt-4 text-[16px] text-black font-medium">
+                  <div className="mt-4 text-[13px] md:text-[16px] text-black md:font-medium">
                     {article.author && <div>Written by {article.author}</div>}
                     {article.photoCredit && (
                       <div>Leading image by {article.photoCredit}</div>
@@ -75,7 +75,7 @@ export default async function NewsArticlePage({
           )}
 
           {article.fullWidthImage && article.fullWidthImage.fields && (
-            <figure className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+            <figure className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] [@media(min-width:1600px)]:w-full [@media(min-width:1600px)]:max-w-[1600px] [@media(min-width:1600px)]:left-auto [@media(min-width:1600px)]:right-auto [@media(min-width:1600px)]:ml-0 [@media(min-width:1600px)]:mr-0 [@media(min-width:1600px)]:mx-auto">
               <Image
                 src={`https:${article.fullWidthImage.fields.file.url}`}
                 alt={
@@ -85,7 +85,7 @@ export default async function NewsArticlePage({
                 }
                 width={1920}
                 height={1080}
-                className="w-full h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                className="w-full h-auto object-fit shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                 loading="lazy"
               />
               {(article.fullWidthImage.fields.description ||
@@ -128,7 +128,7 @@ export default async function NewsArticlePage({
                   }
                   width={1200}
                   height={800}
-                  className="w-full h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                  className="w-full h-auto object-fit shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                   loading="lazy"
                 />
                 {(article.imageWithCaption.fields.description ||

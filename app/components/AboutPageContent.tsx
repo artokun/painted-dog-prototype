@@ -46,7 +46,7 @@ export const AboutPageContent = ({
           <>
             <div
               className={cn(
-                "flex flex-col items-center justify-center xl:max-w-11/12 mx-auto w-full mt-20 xl:px-2 px-6"
+                "flex flex-col items-center justify-center max-w-[1320px] mx-auto w-full mt-20 xl:px-2 px-6"
               )}
             >
               <AboutPage
