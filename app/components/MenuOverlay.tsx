@@ -15,7 +15,7 @@ import { NewsletterModal } from "./NewsletterModal";
 // import { useMediaQuery } from "usehooks-ts";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/dist/SplitText";
-import SocialLiniks from "./ecommerce/SocialLiniks";
+import SocialLiniks from "./ecommerce/SocialLinks";
 import { authStore, logout } from "../store/authStore";
 
 // Register the plugin
@@ -156,7 +156,17 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 >
                   <CloseIcon className="text-[24px] w-6 h-6 size-[24.42px]" />
                 </button>
-                <ThreeLink className="w-[60%] md:max-w-[180px]" href="/">
+
+                <button
+                  className="w-[60%] md:max-w-[180px] cursor-pointer"
+                  onClick={() => {
+                    if (currentRoute === "/") {
+                      handleClose();
+                    } else {
+                      globalStore.currentRoute = "/";
+                    }
+                  }}
+                >
                   <Image
                     src="/logo-dog-overlay.png"
                     alt="Logo"
@@ -164,7 +174,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                     height={85}
                     className="w-full h-full"
                   />
-                </ThreeLink>
+                </button>
 
                 {auth.isLoggedIn ? (
                   <button

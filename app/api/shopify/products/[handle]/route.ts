@@ -75,10 +75,17 @@ export async function GET(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    return NextResponse.json({
-      success: true,
-      product: data.data.product,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        product: data.data.product,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching product:", error);
     return NextResponse.json(

@@ -419,6 +419,9 @@ function AddressInfo({ accessToken }: { accessToken: string | null }) {
   useEffect(() => {
     async function fetchAddresses() {
       if (!accessToken) return;
+
+      //Already have address, skip the round trip
+      if (addresses.length > 0) return;
       setLoading(true);
       const result = await getCustomerAddresses(accessToken);
       if (result.success) setAddresses(result.addresses || []);

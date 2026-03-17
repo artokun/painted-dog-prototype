@@ -13,7 +13,7 @@ interface AuthStore {
   isLoggedIn: boolean;
   user: User | null;
   accessToken: string | null;
-  hydrated: boolean; // true once the session check has completed
+  hydrated: boolean;
 }
 
 export const authStore = proxy<AuthStore>({
@@ -26,6 +26,7 @@ export const authStore = proxy<AuthStore>({
 // ── Rehydrate from the httpOnly session cookie (via API bridge) ──────────────
 // Call this once in a top-level client component on mount.
 export async function hydrateAuth() {
+  if (authStore.hydrated) return;
   try {
     const res = await fetch("/api/auth/session");
     if (res.ok) {
