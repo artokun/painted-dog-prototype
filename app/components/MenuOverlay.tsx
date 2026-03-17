@@ -130,6 +130,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
       ref={containerRef}
       id="menu-overlay-scroll-container"
       style={style}
+      onClick={handleClose}
       className={cn(
         "absolute inset-0 h-dvh w-dvw text-black z-30 overflow-y-auto overflow-x-hidden bg-[url(/bg-noise.svg)] bg-cover bg-center",
         visible && "pointer-events-auto"
@@ -142,6 +143,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
           {/* Menu Content */}
           <div
             ref={menuRef}
+            onClick={(e) => e.stopPropagation()}
             className="flex torn-paper flex-col items-center self-center justify-center p-4  bg-[#F9F6F0] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] w-full  md:w-full lg:rotate-1 lg:max-w-[829px]"
           >
             <div className="torn-right"></div>
