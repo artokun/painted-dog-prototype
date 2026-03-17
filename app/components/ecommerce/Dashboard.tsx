@@ -635,7 +635,7 @@ function OrderHistory({
           className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
         >
           {/* Order Meta */}
-          <div className="flex flex-col md:flex-row justify-between items-start mb-3">
+          <div className="flex gap-0.5 lg:gap-0 flex-col md:flex-row justify-between items-start mb-3">
             <p className="text-[13px] md:text-[14px]">
               Order no. {order.orderNumber}
             </p>

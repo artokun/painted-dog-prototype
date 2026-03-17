@@ -130,12 +130,16 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
       ref={containerRef}
       id="menu-overlay-scroll-container"
       style={style}
-      onClick={handleClose}
       className={cn(
         "absolute inset-0 h-dvh w-dvw text-black z-30 overflow-y-auto overflow-x-hidden bg-[url(/bg-noise.svg)] bg-cover bg-center",
         visible && "pointer-events-auto"
       )}
     >
+      <button
+        aria-label="Close menu"
+        onClick={handleClose}
+        className="absolute inset-0 w-full h-full cursor-default"
+      />
       {showContent && (
         <div className="flex flex-col h-fit md:justify-center md:px-4 xl:px-0 min-h-full p-4 lg:p-0 md:pt-0">
           {/* Close Button */}
@@ -153,7 +157,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
               <div className="flex flex-col items-center relative md:flex-row justify-between w-full px-5 md:px-[41px] py-6">
                 <button
                   onClick={handleClose}
-                  className="p-0  md:p-2  flex absolute right-[1rem] md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
+                  className="p-0  md:p-2  flex absolute right-4 md:hidden self-end hover:opacity-70 transition-opacity pointer-events-auto hover:cursor-pointer"
                   aria-label="Close menu"
                 >
                   <CloseIcon className="text-[24px] w-6 h-6 size-[24.42px]" />
