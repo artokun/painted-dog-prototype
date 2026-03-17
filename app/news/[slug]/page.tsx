@@ -75,7 +75,7 @@ export default async function NewsArticlePage({
           )}
 
           {article.fullWidthImage && article.fullWidthImage.fields && (
-            <figure className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+            <figure className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] [@media(min-width:1600px)]:w-full [@media(min-width:1600px)]:max-w-[1600px] [@media(min-width:1600px)]:left-auto [@media(min-width:1600px)]:right-auto [@media(min-width:1600px)]:ml-0 [@media(min-width:1600px)]:mr-0 [@media(min-width:1600px)]:mx-auto">
               <Image
                 src={`https:${article.fullWidthImage.fields.file.url}`}
                 alt={
@@ -85,7 +85,7 @@ export default async function NewsArticlePage({
                 }
                 width={1920}
                 height={1080}
-                className="w-full h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                className="w-full h-auto object-fit shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                 loading="lazy"
               />
               {(article.fullWidthImage.fields.description ||
@@ -128,7 +128,7 @@ export default async function NewsArticlePage({
                   }
                   width={1200}
                   height={800}
-                  className="w-full h-auto shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                  className="w-full h-auto object-fit shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                   loading="lazy"
                 />
                 {(article.imageWithCaption.fields.description ||
