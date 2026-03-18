@@ -53,45 +53,94 @@ export function NewsParallaxHeader({
         // Find the summary section content to calculate target positions
         const summarySection = document.querySelector('article > div:first-child > div');
         
-        if (summarySection && imageRef.current && titleRef.current) {
-          // Phase 1: Text scrolls down to image (image stays at top)
+        if (summarySection && imageRef.current && titleRef.current && excerptRef.current) {
           const imageTop = imageRef.current.offsetTop;
           const titleTop = titleRef.current.offsetTop;
-          const textToImageDistance = imageTop - titleTop;
-          
-          // Animate title, excerpt and emdash down to image level
-          const textElements = [titleRef.current, excerptRef.current, emdashRef.current].filter(Boolean);
-          gsap.to(textElements, {
-            y: textToImageDistance,
-            ease: "none",
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top+=40",
-              end: `+=${textToImageDistance}`,
-              scrub: 0.05,
-              scroller: scrollContainer,
-              invalidateOnRefresh: true,
-            },
-          });
-
-          // Phase 2: Image scrolls down so its bottom aligns with summary content bottom
-          const summaryBottom = (summarySection as HTMLElement).offsetTop + (summarySection as HTMLElement).offsetHeight;
+          const excerptBottom = excerptRef.current.offsetTop + excerptRef.current.offsetHeight;
+          const summaryTop = (summarySection as HTMLElement).offsetTop;
+          const summaryBottom = summaryTop + (summarySection as HTMLElement).offsetHeight;
           const imageHeight = imgElementRef.current!.offsetHeight;
-          const imageBottom = imageTop + imageHeight;
-          const imageToSummaryDistance = summaryBottom - imageBottom;
           
-          gsap.to(imageRef.current, {
-            y: imageToSummaryDistance,
-            ease: "none",
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: `top+=${textToImageDistance} top+=40`,
-              end: `+=${imageToSummaryDistance}`,
-              scrub: 0.05,
-              scroller: scrollContainer,
-              invalidateOnRefresh: true,
-            },
-          });
+          // Phase 1: Text scrolls down to image (image stays at top)
+          const phase1Distance = imageTop - titleTop;
+          
+          // Phase 2: Text and image scroll together until excerpt bottom is 102px above summary
+          const targetExcerptBottom = summaryTop - 102;
+          const currentExcerptBottom = excerptBottom + phase1Distance;
+          const phase2Distance = targetExcerptBottom - currentExcerptBottom;
+          
+          // Phase 3: Image continues alone until its bottom aligns with summary bottom
+          const currentImageBottom = imageTop + phase2Distance + imageHeight;
+          const phase3Distance = summaryBottom - currentImageBottom;
+          
+          const textElements = [titleRef.current, excerptRef.current, emdashRef.current].filter(Boolean);
+          
+          // Phase 1: Text scrolls to image (image stays at top)
+          gsap.fromTo(textElements, 
+            { y: 0 },
+            {
+              y: phase1Distance,
+              ease: "none",
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top top+=40",
+                end: `+=${phase1Distance}`,
+                scrub: 0.05,
+                scroller: scrollContainer,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
+          
+          // Phase 2: Text and image scroll together
+          gsap.fromTo(textElements,
+            { y: phase1Distance },
+            {
+              y: phase1Distance + phase2Distance,
+              ease: "none",
+              immediateRender: false,
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: `top+=${phase1Distance} top+=40`,
+                end: `+=${phase2Distance}`,
+                scrub: 0.05,
+                scroller: scrollContainer,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
+          gsap.fromTo(imageRef.current,
+            { y: 0 },
+            {
+              y: phase2Distance,
+              ease: "none",
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: `top+=${phase1Distance} top+=40`,
+                end: `+=${phase2Distance}`,
+                scrub: 0.05,
+                scroller: scrollContainer,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
+          // Phase 3: Image continues alone
+          gsap.fromTo(imageRef.current,
+            { y: phase2Distance },
+            {
+              y: phase2Distance + phase3Distance,
+              ease: "none",
+              immediateRender: false,
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: `top+=${phase1Distance + phase2Distance} top+=40`,
+                end: `+=${phase3Distance}`,
+                scrub: 0.05,
+                scroller: scrollContainer,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
         }
       }, containerRef);
 
