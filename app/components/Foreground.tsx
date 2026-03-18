@@ -200,14 +200,7 @@ export const Foreground = () => {
 
       overlay.addEventListener("click", dismiss, { once: true });
 
-      const fallbackTimer = setTimeout(() => {
-        if (document.getElementById("loading-overlay")) {
-          dismiss();
-        }
-      }, 6000);
-
       return () => {
-        clearTimeout(fallbackTimer);
         overlay.removeEventListener("click", dismiss);
       };
     }
