@@ -75,7 +75,7 @@ export function NewsParallaxHeader({
           
           const textElements = [titleRef.current, excerptRef.current, emdashRef.current].filter(Boolean);
           
-          // Phase 1: Text scrolls to image
+          // Phase 1: Text scrolls to image (image stays at top)
           gsap.fromTo(textElements, 
             { y: 0 },
             {
@@ -98,6 +98,7 @@ export function NewsParallaxHeader({
             {
               y: phase1Distance + phase2Distance,
               ease: "none",
+              immediateRender: false,
               scrollTrigger: {
                 trigger: containerRef.current,
                 start: `top+=${phase1Distance} top+=40`,
@@ -108,7 +109,6 @@ export function NewsParallaxHeader({
               },
             }
           );
-          
           gsap.fromTo(imageRef.current,
             { y: 0 },
             {
@@ -124,13 +124,13 @@ export function NewsParallaxHeader({
               },
             }
           );
-          
           // Phase 3: Image continues alone
           gsap.fromTo(imageRef.current,
             { y: phase2Distance },
             {
               y: phase2Distance + phase3Distance,
               ease: "none",
+              immediateRender: false,
               scrollTrigger: {
                 trigger: containerRef.current,
                 start: `top+=${phase1Distance + phase2Distance} top+=40`,
