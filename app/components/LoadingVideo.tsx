@@ -8,15 +8,8 @@ interface LoadingVideoProps {
   className?: string;
 }
 
-const SAFARI_USER_AGENT = /^((?!chrome|android).)*safari/i;
-
 export function LoadingVideo({ src, className }: LoadingVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isSafari, setIsSafari] = useState(false);
-
-  useEffect(() => {
-    setIsSafari(SAFARI_USER_AGENT.test(navigator.userAgent));
-  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -81,8 +74,7 @@ export function LoadingVideo({ src, className }: LoadingVideoProps) {
     <video
       ref={videoRef}
       className={cn(
-        "w-[300px] h-[300px] object-cover rounded-lg",
-        !isSafari && "mix-blend-multiply",
+        "w-[300px] h-[300px] object-cover rounded-lg mix-blend-multiply",
         className
       )}
       src={src}
