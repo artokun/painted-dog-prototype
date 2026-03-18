@@ -62,14 +62,12 @@ export default function RootLayout({
               backgroundPosition: "center",
             }}
           >
-            <video
+            <img
               id="loading-video"
-              className="w-[300px] h-[300px] object-cover rounded-lg mix-blend-multiply"
-              src={`/loading/${Math.floor(Math.random() * 3) + 1}.mp4`}
-              autoPlay
-              loop
-              muted
-              playsInline
+              className="w-[300px] h-[300px] object-cover rounded-lg mix-blend-multiply pointer-events-none"
+              src={`/loading/${Math.floor(Math.random() * 3) + 1}.gif`}
+              alt=""
+              aria-hidden="true"
             />
             <p
               id="enter-site-btn"
