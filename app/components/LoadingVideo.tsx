@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -8,10 +9,39 @@ interface LoadingVideoProps {
   className?: string;
 }
 
+const NON_SAFARI_BROWSERS =
+  /(Chrome|CriOS|Chromium|Android|FxiOS|EdgiOS|EdgA|Edg\/|OPR|OPT|SamsungBrowser)/i;
+
+function getSafariMajorVersion(userAgent: string) {
+  if (NON_SAFARI_BROWSERS.test(userAgent) || !/Safari/i.test(userAgent)) {
+    return null;
+  }
+
+  const versionMatch = userAgent.match(/Version\/(\d+)/i);
+  if (versionMatch) {
+    return Number(versionMatch[1]);
+  }
+
+  const iosVersionMatch = userAgent.match(/OS (\d+)_/i);
+  return iosVersionMatch ? Number(iosVersionMatch[1]) : null;
+}
+
 export function LoadingVideo({ src, className }: LoadingVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [useStaticFallback, setUseStaticFallback] = useState(false);
 
   useEffect(() => {
+    const safariMajorVersion = getSafariMajorVersion(navigator.userAgent);
+    setUseStaticFallback(
+      safariMajorVersion !== null && safariMajorVersion <= 17
+    );
+  }, []);
+
+  useEffect(() => {
+    if (useStaticFallback) {
+      return;
+    }
+
     const video = videoRef.current;
     if (!video) {
       return;
@@ -68,7 +98,28 @@ export function LoadingVideo({ src, className }: LoadingVideoProps) {
       window.removeEventListener("touchstart", handleReady);
       window.removeEventListener("click", handleReady);
     };
-  }, [src]);
+  }, [src, useStaticFallback]);
+
+  if (useStaticFallback) {
+    return (
+      <div
+        className={cn(
+          "relative w-[300px] h-[300px] rounded-lg overflow-hidden bg-[#E7D7BF]",
+          className
+        )}
+        aria-hidden="true"
+      >
+        <Image
+          src="/logo-dog.png"
+          alt=""
+          fill
+          priority
+          sizes="300px"
+          className="object-contain p-4 mix-blend-multiply"
+        />
+      </div>
+    );
+  }
 
   return (
     <video
