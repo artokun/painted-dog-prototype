@@ -67,7 +67,7 @@ export default function RootLayout({
             />
             <p
               id="enter-site-btn"
-              className="opacity-0 transition-opacity duration-500 text-black/60 text-sm tracking-widest uppercase pointer-events-none"
+              className="opacity-0 transition-opacity duration-500 text-black text-base pointer-events-none font-fields font-medium leading-normal"
             >
               Click anywhere to continue
             </p>
