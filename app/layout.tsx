@@ -3,8 +3,8 @@ import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { Middle, Foreground } from "./components/ClientComponents";
+import { LoadingVideo } from "./components/LoadingVideo";
 
 export const metadata: Metadata = {
   title: "Painted Dog",
@@ -62,16 +62,12 @@ export default function RootLayout({
               backgroundPosition: "center",
             }}
           >
-            <img
-              id="loading-video"
-              className="w-[300px] h-[300px] object-cover rounded-lg mix-blend-multiply pointer-events-none"
-              src={`/loading/${Math.floor(Math.random() * 3) + 1}.gif`}
-              alt=""
-              aria-hidden="true"
+            <LoadingVideo
+              src={`/loading/${Math.floor(Math.random() * 3) + 1}.mp4`}
             />
             <p
               id="enter-site-btn"
-              className="opacity-0 transition-opacity duration-500 text-black/60 text-sm tracking-widest uppercase pointer-events-none"
+              className="opacity-0 transition-opacity duration-500 text-black text-base pointer-events-none font-fields font-medium leading-normal"
             >
               Click anywhere to continue
             </p>
