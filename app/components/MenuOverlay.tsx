@@ -317,18 +317,11 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                 </nav>
                 <nav className="flex gap-4 text-center">
                   <ThreeLink
-                    href="/privacy"
-                    className="text-[13px] hover:opacity-70 transition-opacity"
-                    animatedUnderline
-                  >
-                    Privacy
-                  </ThreeLink>
-                  <ThreeLink
                     href="/legal"
                     className="text-[13px]  hover:opacity-70 transition-opacity"
                     animatedUnderline
                   >
-                    Legal
+                    Privacy & Legal
                   </ThreeLink>
                 </nav>
                 <div className="flex">
