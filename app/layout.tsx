@@ -3,8 +3,8 @@ import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { Middle, Foreground } from "./components/ClientComponents";
+import { LoadingVideo } from "./components/LoadingVideo";
 
 export const metadata: Metadata = {
   title: "Painted Dog",
@@ -62,14 +62,8 @@ export default function RootLayout({
               backgroundPosition: "center",
             }}
           >
-            <video
-              id="loading-video"
-              className="w-[300px] h-[300px] object-cover rounded-lg mix-blend-multiply"
+            <LoadingVideo
               src={`/loading/${Math.floor(Math.random() * 3) + 1}.mp4`}
-              autoPlay
-              loop
-              muted
-              playsInline
             />
             <p
               id="enter-site-btn"
