@@ -44,7 +44,7 @@ export function CameraRig() {
 
   // --- Y limits (use stable height to avoid pan-dependent drift) ---
   const baseTopLimit = 0.1;
-  const homeOffset = stableViewportHeight * 0.14;
+  const homeOffset = stableViewportHeight * 0.06;
   const topLimit = baseTopLimit + homeOffset;
   const cameraMovementPerPage = 0.6;
   const bottomLimit = topLimit - cameraMovementPerPage * (scrollPages - 1);
