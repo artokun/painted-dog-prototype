@@ -44,7 +44,7 @@ export function CameraRig() {
 
   // --- Y limits (use stable height to avoid pan-dependent drift) ---
   const baseTopLimit = 0.1;
-  const homeOffset = stableViewportHeight * 0.14;
+  const homeOffset = stableViewportHeight * 0.06;
   const topLimit = baseTopLimit + homeOffset;
   const cameraMovementPerPage = 0.6;
   const bottomLimit = topLimit - cameraMovementPerPage * (scrollPages - 1);
@@ -66,13 +66,12 @@ export function CameraRig() {
     xApi.start({ rigX: targetX });
   }, [currentRoute, viewport.width, xApi]);
 
-  // --- 2. Focus freeze ---
+  // --- 2. Focus snap ---
   useEffect(() => {
     if (focusedBookId !== null) {
-      // Capture current Y so the lerp holds this value
-      if (rigRef.current) {
-        frozenY.current = rigRef.current.position.y;
-      }
+      // Move camera above baseTopLimit so the focused book sits lower on screen
+      // (Book lift animation targets BASE_CAMERA_Y which matches baseTopLimit)
+      frozenY.current = baseTopLimit + 0.04;
     } else {
       frozenY.current = null;
     }
@@ -129,9 +128,9 @@ export function CameraRig() {
     let speed: number;
 
     if (frozenY.current !== null) {
-      // Book focused — hold position
+      // Book focused — smoothly center on book
       targetY = frozenY.current;
-      speed = 1; // instant
+      speed = LERP_SPEED;
     } else if (currentRoute !== "/") {
       // Non-home route
       targetY = base;
