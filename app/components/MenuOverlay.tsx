@@ -257,7 +257,7 @@ export const MenuOverlay = ({ visible }: { visible: boolean }) => {
                   <ThreeLink
                     className="text-[24px] md:text-[32px] font-semibold"
                     noUnderline
-                    href="/for-readers-writers#readers"
+                    href="#"
                   >
                     For Readers
                   </ThreeLink>
