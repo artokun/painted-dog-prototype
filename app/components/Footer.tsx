@@ -84,7 +84,7 @@ export const Footer = () => {
               <ThreeLink
                 className="text-[32px] font-semibold"
                 noUnderline
-                href="/contact"
+                href="#"
               >
                 For Readers
               </ThreeLink>
@@ -103,7 +103,7 @@ export const Footer = () => {
               <ThreeLink
                 className="text-[32px] font-semibold"
                 noUnderline
-                href="/contact"
+                href="#"
               >
                 For Writers
               </ThreeLink>

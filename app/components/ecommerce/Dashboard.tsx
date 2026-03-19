@@ -398,7 +398,7 @@ function ProfileInfo({
         </div>
         <div className="grid grid-cols-2 gap-4 pb-2 border-b">
           <span className="text-gray-600">Email Address</span>
-          <span className="text-right overflow-scroll">
+          <span className="text-right overflow-x-scroll md:overflow-hidden">
             {user?.email || "N/A"}
           </span>
         </div>
