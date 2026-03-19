@@ -13,6 +13,7 @@ import { cartUIStore, setProceedToCheckout } from "../store/cartUIStore";
 import { cartStore } from "../store/cartStore";
 import { createCart } from "@/lib/shopify-client";
 import { PageOverlay } from "./PageOverlay";
+import { Eye, EyeClosed } from "lucide-react";
 
 interface FormData {
   firstName?: string;
@@ -31,6 +32,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
   const cartUi = useSnapshot(cartUIStore);
   const cart = useSnapshot(cartStore);
   const global = useSnapshot(globalStore);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -269,7 +271,7 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
             <label className="flex text-[15px] md:text-base gap-1 items-center">
               <span>Password</span>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 className="border-black py-2 pl-2 h-8 flex-1 focus:outline-none focus:ring-0 placeholder:text-end text-right bg-transparent autofill:bg-transparent autofill:text-black autofill:shadow-[inset_0_0_0px_1000px_transparent] text-[#1A1A1A] placeholder:text-[#1A1A1A] placeholder:opacity-40 scroll-m-0 border-b-0"
                 {...register("password", {
@@ -292,6 +294,13 @@ export const LoginPageComponent = ({ visible }: { visible: boolean }) => {
                       },
                 })}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="pl-2 text-[#1A1A1A] opacity-50 hover:opacity-100 transition-opacity focus:outline"
+              >
+                {showPassword ? <Eye /> : <EyeClosed />}
+              </button>
             </label>
             {errors.password && (
               <span className="text-red-500 text-sm mt-1 block">

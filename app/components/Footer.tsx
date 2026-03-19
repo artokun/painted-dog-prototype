@@ -150,14 +150,7 @@ export const Footer = () => {
                   href="/legal"
                   noUnderline
                 >
-                  Privacy
-                </ThreeLink>
-                <ThreeLink
-                  className="text-base relative after:bg-black after:absolute after:h-0.5 after:w-0 after:bottom-0 xl:after:bottom-4 after:left-0 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
-                  href="/legal"
-                  noUnderline
-                >
-                  Legal
+                  Privacy & Legal
                 </ThreeLink>
               </div>
               <SocialLinks />
