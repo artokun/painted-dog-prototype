@@ -1,9 +1,15 @@
-const Page = () => {
-  return (
-    <div className="flex items-center justify-center absolute inset-0 top-0 left-0 h-full w-full bg-black/50 z-10 pointer-events-none">
-      About Coming Soon
-    </div>
-  );
+import { Metadata } from "next";
+import { getAboutContent } from "@/lib/about";
+
+export const metadata: Metadata = {
+  title: "About Us | Painted Dog",
+  description: "About us",
+};
+
+const Page = async () => {
+  const aboutContent = await getAboutContent();
+  
+  return null;
 };
 
 export default Page;

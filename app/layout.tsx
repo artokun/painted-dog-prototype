@@ -3,8 +3,8 @@ import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { Middle, Foreground } from "./components/ClientComponents";
+import { LoadingVideo } from "./components/LoadingVideo";
 
 export const metadata: Metadata = {
   title: "Painted Dog",
@@ -53,11 +53,25 @@ export default function RootLayout({
           <div
             id="loading-overlay"
             className={cn(
-              "absolute opacity-100 transition-opacity duration-600",
-              "inset-0 bg-[#2F2F2F] flex items-center justify-center z-50"
+              "absolute opacity-100 transition-opacity duration-600 flex flex-col",
+              "inset-0 flex items-center justify-center z-50"
             )}
+            style={{
+              backgroundImage: "url(/bg-noise.svg)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
-            <Image src="/logo-dog.png" alt="Logo" width={200} height={200} />
+            <LoadingVideo
+              src={`/loading/${Math.floor(Math.random() * 3) + 1}.mp4`}
+            />
+            <p
+              id="enter-site-btn"
+              className="opacity-0 transition-opacity duration-500 text-black text-base pointer-events-none font-fields font-medium leading-normal"
+            >
+              Click anywhere to continue
+            </p>
+            {/* <Image src="/logo-dog.png" alt="Logo" width={200} height={200} /> */}
           </div>
         </main>
         <div id="portal-root" />

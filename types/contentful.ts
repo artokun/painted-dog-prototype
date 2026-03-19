@@ -2,6 +2,7 @@
 
 import type { Entry } from "contentful";
 import type {
+  TypeAboutSkeleton,
   TypeBookSkeleton,
   TypeAuthorSkeleton,
   TypeGenreSkeleton,
@@ -10,11 +11,15 @@ import type {
   TypeReviewSkeleton,
   TypePodcastEpisodeSkeleton,
   TypeLegalPageSkeleton,
-  TypePolicySkeleton
+  TypePolicySkeleton,
+  TypePeopleSkeleton,
+  TypeNewsArticleSkeleton,
+  TypeNewsCategorySkeleton,
 } from "./index";
 
 // Union type for all Contentful entries
 export type ContentfulEntry =
+  | Entry<TypeAboutSkeleton>
   | Entry<TypeBookSkeleton>
   | Entry<TypeAuthorSkeleton>
   | Entry<TypeGenreSkeleton>
@@ -23,10 +28,14 @@ export type ContentfulEntry =
   | Entry<TypeReviewSkeleton>
   | Entry<TypePodcastEpisodeSkeleton>
   | Entry<TypeLegalPageSkeleton>
-  | Entry<TypePolicySkeleton>;
+  | Entry<TypePolicySkeleton>
+  | Entry<TypePeopleSkeleton>
+  | Entry<TypeNewsArticleSkeleton>
+  | Entry<TypeNewsCategorySkeleton>;
 
 // Content type IDs for easy reference
 export const CONTENT_TYPES = {
+  about: "about",
   book: "book",
   author: "author",
   genre: "genre",
@@ -36,4 +45,7 @@ export const CONTENT_TYPES = {
   podcastEpisode: "podcastEpisode",
   legalPage: "legalPage",
   policy: "policy",
+  people: "people",
+  newsArticle: "newsArticle",
+  newsCategory: "newsCategory",
 } as const;

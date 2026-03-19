@@ -1,8 +1,13 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { BBAnchor, Html, useCursor } from "@react-three/drei";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Html, useCursor } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import debounce from "lodash.debounce";
 import {
   BookXS,
   BookSM,
@@ -39,6 +44,8 @@ import { globalStore } from "../store/globalStore";
 
 const GRID_DELAY = 50; // delay between books in grid mode
 const STACK_DELAY = 10; // delay between books in stack mode
+const FOCUSED_BOOK_CENTER_FACTOR = 0.15;
+const BASE_CAMERA_Y = 0.1; // Must match baseTopLimit in CameraRig
 
 function Book({
   book,
@@ -59,6 +66,7 @@ function Book({
   const { search } = useSnapshot(filterStore);
   const { isSorting } = useSnapshot(filterStore);
   const { view } = useSnapshot(filterStore);
+  const { currentRoute } = useSnapshot(globalStore);
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [someBookIsFocused, setSomeBookIsFocused] = useState(false);
@@ -67,7 +75,6 @@ function Book({
   const isSlidingRef = useRef(false);
   const wasFocusedRef = useRef(false);
   const [bookFlipped, setBookFlipped] = useState(false);
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     if (isMobile) {
@@ -131,16 +138,22 @@ function Book({
 
   const currentBookIndex = getCurrentBookIndex(book.id);
   const reverseBookIndex = Object.keys(books).length - 1 - currentBookIndex;
+  const focusedBookYOffset =
+    getContentfulBookSize(book.bookSize)[2] * FOCUSED_BOOK_CENTER_FACTOR;
 
   const stackAnimation = useMemo(
-    () => ({
+    () => {
+      const [featuredWidth] = getContentfulBookSize(book.bookSize);
+      const featuredStackPosZ = -featuredWidth / 2;
+
+      return {
+      posY: bookPosition.posY,
+      scale: 1,
       posX:
         book.featured || isFocused
           ? isFocused
-            ? book.featured
-              ? 0 // Featured books when focused should be perfectly centered
-              : calculateFocusedBookCenterOffset(camera, book.bookSize, 0)
-            : 0 // No offset for featured books either
+            ? calculateFocusedBookCenterOffset(camera, book.bookSize, 0)
+            : 0
           : isSorting
             ? getContentfulBookSize(book.bookSize)[0] *
               2 *
@@ -150,13 +163,12 @@ function Book({
                 ? 0
                 : book.offset.posX
               : book.featured
-                ? 0 // Remove X offset for featured books
+                ? 0
                 : book.offset.posX,
-      posY: bookPosition.posY,
       posZ: isFocused
         ? 0
         : someBookIsFocused
-          ? -0.5 //distance the other books jump back when a book is focused
+          ? -0.5
           : isSorting
             ? -getContentfulBookSize(book.bookSize)[2] * 2
             : search.length > 1
@@ -164,14 +176,13 @@ function Book({
                 ? 0
                 : -0.5
               : book.featured
-                ? -getContentfulBookSize("MD")[0] / 2 // No offset for featured books
+                ? featuredStackPosZ
                 : -getContentfulBookSize(book.bookSize)[0] / 2 +
                   book.offset.posZ,
       rotX: 0,
       rotY: book.featured ? 0 : book.offset.rotY,
       rotZ: 0,
       onRest: () => {
-        // Reset isSorting when animation completes
         if (filterStore.isSorting) {
           filterStore.isSorting = false;
         }
@@ -188,7 +199,8 @@ function Book({
       },
       delay: (_key: string) =>
         isFocused || someBookIsFocused ? 0 : currentBookIndex * STACK_DELAY,
-    }),
+      };
+    },
     [
       book.featured,
       book.bookSize,
@@ -204,7 +216,6 @@ function Book({
       book.offset.posX,
       book.offset.rotY,
       bookPosition.posY,
-      windowSize,
     ]
   );
 
@@ -213,6 +224,7 @@ function Book({
       posX: isFocused ? 0 : bookPosition.posX,
       posY: bookPosition.posY,
       posZ: bookPosition.posZ,
+      scale: 1,
       rotX: 0,
       rotY: 0,
       rotZ: 0,
@@ -269,7 +281,7 @@ function Book({
       },
       config: isGridMode ? config.default : config.gentle,
     },
-    [isFocused, isGridMode, book.bookSize, windowSize, isMobile]
+    [isFocused, isGridMode, book.bookSize, isMobile, currentRoute]
   );
 
   const dropHeight = getDropHeight(book.id);
@@ -280,14 +292,14 @@ function Book({
       ref: bookFocusedLiftRef,
       to: isFocused
         ? {
-            posY: camera.position.y - bookSpring.posY.get(),
+            posY: BASE_CAMERA_Y - bookSpring.posY.get() + focusedBookYOffset,
             rotX: Math.PI / 2,
             rotY: -Math.PI / 2,
           }
         : isGridMode
           ? isFocused
             ? {
-                posY: camera.position.y,
+                posY: BASE_CAMERA_Y,
                 rotX: Math.PI / 2,
                 rotY: -Math.PI / 2,
               }
@@ -303,17 +315,24 @@ function Book({
             },
       config: config.default,
       delay: (key: string) => {
+        const isReturningFromBookRoute =
+          !isFocused && currentRoute.startsWith("/books/");
+
         switch (key) {
           case "posY":
             return isGridMode
               ? isFocused || wasFocusedRef.current
                 ? 0
                 : reverseBookIndex * GRID_DELAY
-              : 250;
+              : isReturningFromBookRoute
+                ? 0
+                : 250;
           case "rotX":
           case "rotY":
             return isGridMode && !isFocused
               ? reverseBookIndex * GRID_DELAY
+              : isReturningFromBookRoute
+                ? 0
               : !isFocused
                 ? 250
                 : 0;
@@ -326,7 +345,7 @@ function Book({
         }
       },
     },
-    [isFocused, dropHeight, isGridMode, book.featured]
+    [isFocused, dropHeight, isGridMode, book.featured, currentRoute]
   );
 
   useChain(
@@ -372,7 +391,8 @@ function Book({
   useFrame(() => {
     // tilt the book when focused
     if (isFocused) {
-      const targetOffset = camera.position.y - bookSpring.posY.get();
+      const targetOffset =
+        BASE_CAMERA_Y - bookSpring.posY.get() + focusedBookYOffset;
       liftApi.start({
         posY: targetOffset,
         config: config.stiff,
@@ -406,7 +426,7 @@ function Book({
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       const normalizedX = (e.clientX / window.innerWidth) * 2 - 1;
       const normalizedY = (e.clientY / window.innerHeight) * 2 - 1;
@@ -421,18 +441,9 @@ function Book({
       }
     };
 
-    const handleResize = debounce(() => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    }, 100);
-
     window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("resize", handleResize);
     return () => {
-      handleResize.cancel();
-      if (typeof window !== 'undefined') {
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("resize", handleResize);
-      }
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [isFocused, bookFocusedTiltGroupApi, bookFlipped]);
 
@@ -453,6 +464,7 @@ function Book({
       position-x={bookSpring.posX}
       position-y={bookSpring.posY}
       position-z={bookSpring.posZ}
+      scale={bookSpring.scale}
       rotation-x={bookSpring.rotX}
       rotation-y={bookSpring.rotY}
       rotation-z={bookSpring.rotZ}

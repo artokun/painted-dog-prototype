@@ -5,7 +5,7 @@ import { FloatingBar } from "./FloatingBar";
 import { Loader } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { globalStore } from "../store/globalStore";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { subscribeKey } from "valtio/utils";
 import { bookStore } from "../store/bookStore";
 import { useSnapshot } from "valtio";
@@ -14,39 +14,195 @@ import { ContactPageContent } from "./ContactPageContent";
 import { LegalPageContent } from "./LegalPageContent";
 import { NotFoundContent } from "./NotFoundContent";
 import { Cursor } from "./Cursor";
+import { MenuOverlay } from "./MenuOverlay";
+import { AboutPageContent } from "./AboutPageContent";
+import { LoginPageComponent } from "./LoginPageComponent";
+import { Dashboard } from "./ecommerce/Dashboard";
+import { cartUIStore, closeCart } from "../store/cartUIStore";
+import { CartSidebar } from "./ecommerce/CartSidebar";
+import { hydrateAuth } from "../store/authStore";
+import type { AboutContent } from "@/lib/about";
+import { ForgotPasswordModal } from "./ForgotPasswordModal";
+import {
+  forgotPasswordStore,
+  closeForgotPassword,
+} from "../store/forgotPasswordStore";
+import { ResetPasswordModal } from "@/app/components/ResetPasswordModal";
+import { openResetPassword } from "@/app/store/resetPasswordStore";
+import { HomeContent } from "./HomeContent";
+import { cn } from "@/lib/utils";
+import { HOME_COLLAPSE_SCROLL_RANGE_PX } from "@/app/constants/motion";
+import { PageSlot } from "./PageSlot";
 
 export const Foreground = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { isRendered } = useSnapshot(bookStore);
-  const { currentRoute } = useSnapshot(globalStore);
+  const { isRendered, focusedBookId } = useSnapshot(bookStore);
+  const { currentRoute, isMenuOpen } = useSnapshot(globalStore);
+  const { isOpen: isCartOpen } = useSnapshot(cartUIStore);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const focusRouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
+  const { isOpen: isForgotPasswordOpen } = useSnapshot(forgotPasswordStore);
+
+  const isHomePage = currentRoute === "/";
+
+  const isAboutPage = currentRoute === "/about";
   const isContactPage = currentRoute === "/contact";
   const isLegalPage = currentRoute === "/legal";
+  const isLoginPage = currentRoute === "/login";
+  const isDashboardPage = currentRoute === "/dashboard";
+
   const isNotFound = currentRoute === "/not-found";
+  // const [wasVisible, setWasVisible] = useState(visible);
 
   // Hide floating bar - hardcode to false instead of using Leva controls
   const showFloatingBar = false;
+
+  // Restore auth session from httpOnly cookie on mount
+  useEffect(() => {
+    hydrateAuth();
+  }, []);
+
+  // Sync native scroll to globalStore.scrollProgress + scrollPages
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const syncScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const maxScroll = scrollHeight - clientHeight;
+      const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
+      globalStore.scrollProgress = Math.min(Math.max(progress, 0), 1);
+      globalStore.overlayScrollPosition = scrollTop;
+      globalStore.landingTransitionProgress = scrollTop > 0 ? 1 : 0;
+      // Keep scrollPages in sync for camera Y travel calculation
+      globalStore.scrollPages = Math.max(scrollHeight / clientHeight, 1);
+    };
+
+    container.addEventListener("scroll", syncScroll, { passive: true });
+    syncScroll();
+
+    // Recompute on resize
+    const observer = new ResizeObserver(syncScroll);
+    observer.observe(container);
+
+    return () => {
+      container.removeEventListener("scroll", syncScroll);
+      observer.disconnect();
+    };
+  }, []);
+
+  // Forward wheel and touch events to scroll container
+  // (container is pointer-events-none so it can't receive events directly,
+  // but we need Canvas to stay clickable)
+  const touchStartY = useRef(0);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const canScroll =
+      isHomePage && focusedBookId === null && !isMenuOpen && !isCartOpen;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (canScroll) {
+        container.scrollTop += e.deltaY;
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (canScroll && e.touches.length === 1) {
+        touchStartY.current = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (canScroll && e.touches.length === 1) {
+        const currentY = e.touches[0].clientY;
+        const deltaY = touchStartY.current - currentY;
+        container.scrollTop += deltaY;
+        touchStartY.current = currentY;
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [isHomePage, focusedBookId, isMenuOpen, isCartOpen]);
+
+  // Reset scroll when leaving home or focusing a book
+  useEffect(() => {
+    if (scrollContainerRef.current && (!isHomePage || focusedBookId)) {
+      scrollContainerRef.current.scrollTop = 0;
+      globalStore.scrollProgress = 0;
+      globalStore.overlayScrollPosition = 0;
+      globalStore.landingTransitionProgress = 0;
+      globalStore.featuredBookAnchorNdcY = 0;
+    }
+  }, [isHomePage, focusedBookId]);
+
+  // Fetch about content when needed
+  useEffect(() => {
+    if (isAboutPage) {
+      fetch("/api/about?t=" + Date.now()) // Cache bust
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.data) {
+            setAboutContent(data.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch about content:", error);
+        });
+    }
+  }, [isAboutPage]);
 
   // This sets the current route to the pathname when the pathname changes
   useEffect(() => {
     if (!pathname.startsWith("/books/")) {
       bookStore.focusedBookId = null;
     }
+
+    if (pathname !== "/login") {
+      globalStore.previousRoute = globalStore.currentRoute;
+    }
+
     globalStore.currentRoute = pathname;
   }, [pathname]);
 
-  // This removes the loading overlay when the scene is rendered
   useEffect(() => {
     if (isRendered) {
+      const overlay = document.getElementById("loading-overlay");
+      const btn = document.getElementById("enter-site-btn");
+
+      if (!overlay) return;
+
       setTimeout(() => {
-        document
-          .getElementById("loading-overlay")
-          ?.classList.remove("opacity-100");
-        document.getElementById("loading-overlay")?.classList.add("opacity-0");
-        setTimeout(() => {
-          document.getElementById("loading-overlay")?.remove();
-        }, 300);
-      }, 300);
+        if (btn) {
+          btn.classList.remove("opacity-0");
+          btn.classList.add("opacity-100");
+        }
+      }, 500);
+
+      const dismiss = () => {
+        overlay.classList.remove("opacity-100");
+        overlay.classList.add("opacity-0");
+        setTimeout(() => overlay.remove(), 600);
+      };
+
+      overlay.addEventListener("click", dismiss, { once: true });
+
+      return () => {
+        overlay.removeEventListener("click", dismiss);
+      };
     }
   }, [isRendered]);
 
@@ -69,34 +225,99 @@ export const Foreground = () => {
       bookStore,
       "focusedBookId",
       (focusedBookId) => {
+        if (focusRouteTimerRef.current) {
+          clearTimeout(focusRouteTimerRef.current);
+          focusRouteTimerRef.current = null;
+        }
+
         const book = focusedBookId ? bookStore.books[focusedBookId] : null;
         if (focusedBookId && book?.slug) {
           router.push(`/books/${book.slug}`);
         } else {
-          router.push("/");
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = 0;
+          }
+          globalStore.scrollProgress = 0;
+          globalStore.overlayScrollPosition = 0;
+          globalStore.landingTransitionProgress = 0;
+          globalStore.featuredBookAnchorNdcY = 0;
+          // Let the 3D book unfocus animation play before swapping back to home route.
+          focusRouteTimerRef.current = setTimeout(() => {
+            router.push("/");
+            focusRouteTimerRef.current = null;
+          }, 220);
         }
       }
     );
 
     return () => {
+      if (focusRouteTimerRef.current) {
+        clearTimeout(focusRouteTimerRef.current);
+        focusRouteTimerRef.current = null;
+      }
       unsubscribeCurrentRoute();
       unsubscribeFocusedBookId();
     };
   }, [pathname]);
 
+  // Detect reset password URL and open modal
+  useEffect(() => {
+    const match = pathname.match(/^\/account\/reset\/([^/]+)\/([^/]+)$/);
+    if (match) {
+      const [, customerId, token] = match;
+      openResetPassword(customerId, token);
+      // Navigate to home so URL is clean
+      router.push("/");
+    }
+  }, [pathname]);
+
   return (
-    <div
-      id="foreground"
-      className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20 pointer-events-none"
-    >
-      <Header />
-      {showFloatingBar && <FloatingBar />}
-      <BookPageContent />
-      <Cursor />
-      <ContactPageContent visible={isContactPage} />
-      <LegalPageContent visible={isLegalPage} />
-      <NotFoundContent visible={isNotFound} />
-      <Loader />
-    </div>
+    <>
+      {/* Native Scroll Container — sits between Canvas (z-0) and UI overlay (z-20) */}
+      <div
+        ref={scrollContainerRef}
+        id="scroll-container"
+        className={cn(
+          "absolute inset-0 z-10 overflow-y-auto overflow-x-hidden pointer-events-none",
+          (isMenuOpen || isCartOpen || !isHomePage || focusedBookId) &&
+            "overflow-hidden"
+        )}
+      >
+        <HomeContent />
+      </div>
+
+      {/* UI Overlay — fixed on top, pointer-events-none with selective auto on children */}
+      <div
+        id="foreground"
+        className="absolute top-0 left-0 h-full w-full flex items-center justify-center flex-col z-20 pointer-events-none"
+      >
+        <Header />
+        {showFloatingBar && <FloatingBar />}
+        <PageSlot>
+          <BookPageContent />
+          <AboutPageContent visible={isAboutPage} aboutContent={aboutContent} />
+          <ContactPageContent visible={isContactPage} />
+          <LegalPageContent visible={isLegalPage} />
+          <LoginPageComponent visible={isLoginPage} />
+          <Dashboard visible={isDashboardPage} />
+          <NotFoundContent visible={isNotFound} />
+        </PageSlot>
+        <Cursor />
+        <MenuOverlay visible={isMenuOpen} />
+
+        {/* Cart Sidebar - Single instance at top level */}
+        <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
+
+        {/*Forgot Password Modal */}
+        <ForgotPasswordModal
+          isOpen={isForgotPasswordOpen}
+          onClose={closeForgotPassword}
+        />
+
+        <ResetPasswordModal />
+
+        <Loader />
+      </div>
+    </>
   );
 };

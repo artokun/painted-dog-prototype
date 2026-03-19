@@ -1,0 +1,140 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import Image from "next/image";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import type { Document } from "@contentful/rich-text-types";
+
+gsap.registerPlugin(ScrollTrigger);
+
+interface NewsContentBlock4Props {
+  imageContentBlock4?: {
+    fields: {
+      file: { url: string };
+      description?: string;
+      title?: string;
+    };
+  };
+  contentBlock4?: Document;
+}
+
+export function NewsContentBlock4({
+  imageContentBlock4,
+  contentBlock4,
+}: NewsContentBlock4Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const imgElementRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    // Only run on desktop
+    if (window.innerWidth < 768) return;
+
+    const setupAnimation = () => {
+      if (!imgElementRef.current || !imageRef.current || !contentRef.current || !containerRef.current) return;
+
+      // Find the scrolling container
+      let scrollContainer: HTMLElement | null = null;
+      let element: HTMLElement | null = containerRef.current.parentElement;
+      while (element) {
+        const overflow = window.getComputedStyle(element).overflowY;
+        if (overflow === "auto" || overflow === "scroll") {
+          scrollContainer = element;
+          break;
+        }
+        element = element.parentElement;
+      }
+
+      if (!scrollContainer) return;
+
+      const ctx = gsap.context(() => {
+        // Calculate how far the image needs to travel to align bottom with content bottom
+        const imageHeight = imgElementRef.current!.offsetHeight;
+        const contentHeight = contentRef.current!.offsetHeight;
+        // Reduce distance to keep image within the block - subtract some margin
+        const distance = Math.max(0, contentHeight - imageHeight - 100);
+
+        if (distance > 0) {
+          gsap.to(imageRef.current, {
+            y: distance,
+            ease: "none",
+            scrollTrigger: {
+              trigger: imageRef.current,
+              start: "top top+=40",
+              end: `+=${distance}`,
+              scrub: 0.05,
+              scroller: scrollContainer,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      }, containerRef);
+
+      return ctx;
+    };
+
+    // Wait for image to load
+    if (imgElementRef.current) {
+      if (imgElementRef.current.complete) {
+        const ctx = setupAnimation();
+        return () => ctx?.revert();
+      } else {
+        const handleLoad = () => {
+          const ctx = setupAnimation();
+          return () => ctx?.revert();
+        };
+        imgElementRef.current.addEventListener("load", handleLoad);
+        return () => {
+          imgElementRef.current?.removeEventListener("load", handleLoad);
+        };
+      }
+    }
+  }, [imageContentBlock4, contentBlock4]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="my-8 grid grid-cols-1 md:grid-cols-8 gap-6 items-start"
+    >
+      {imageContentBlock4 && imageContentBlock4.fields && (
+        <figure
+          ref={imageRef}
+          className="relative w-full md:col-span-4 flex flex-col items-center"
+        >
+          <Image
+            ref={imgElementRef}
+            src={`https:${imageContentBlock4.fields.file.url}`}
+            alt={
+              imageContentBlock4.fields.description ||
+              imageContentBlock4.fields.title ||
+              ""
+            }
+            width={1200}
+            height={800}
+            className="w-full max-w-[75%] h-auto max-h-[720px] object-fit shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+            loading="lazy"
+          />
+          {(imageContentBlock4.fields.description ||
+            imageContentBlock4.fields.title) && (
+            <figcaption className="mt-2 text-sm text-black max-w-[75%]">
+              {imageContentBlock4.fields.description ||
+                imageContentBlock4.fields.title}
+            </figcaption>
+          )}
+        </figure>
+      )}
+
+      {contentBlock4 && contentBlock4.content && (
+        <div
+          ref={contentRef}
+          className="md:col-span-3 prose prose-lg max-w-none [&_p]:text-black [&_p]:leading-relaxed [&_p]:mb-14"
+        >
+          {documentToReactComponents(contentBlock4)}
+        </div>
+      )}
+    </div>
+  );
+}

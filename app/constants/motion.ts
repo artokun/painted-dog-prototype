@@ -1,0 +1,1 @@
+export const HOME_COLLAPSE_SCROLL_RANGE_PX = 400;

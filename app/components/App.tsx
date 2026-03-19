@@ -1,13 +1,10 @@
-import React from "react";
-import { Stats } from "@react-three/drei";
 import { useControls } from "leva";
-import CameraController from "./CameraController";
+import { CameraRig } from "./CameraRig";
 import { Select, Selection } from "@react-three/postprocessing";
 import BookStack from "./BookStack";
 import Effects from "../api/Effects";
-import Floor from "./Floor";
-import Skybox from "./Skybox";
 import Lights from "./Lights";
+import { StudioEnvironment } from "./StudioEnvironment";
 import { bookStore } from "@/app/store/bookStore";
 import { useSnapshot } from "valtio";
 import { useMediaQuery } from "usehooks-ts";
@@ -24,44 +21,28 @@ export default function App() {
     { collapsed: true }
   );
 
-  const { showFloor, showStats } = useControls(
-    "UI",
-    {
-      showFloor: {
-        value: false,
-        label: "Floor",
-      },
-      showStats: {
-        value: false,
-        label: "Stats",
-      },
-    },
-    { collapsed: true }
-  );
-
   if (isMobile) {
     return (
       <>
+        <StudioEnvironment />
         <Lights />
         <Background />
         <BookStack />
-        <CameraController />
+        <CameraRig />
       </>
     );
   }
 
   return (
     <Selection>
-      {showStats && <Stats />}
       <Effects enabled={effectsEnabled} />
-      <Skybox />
+      <StudioEnvironment />
       <Lights />
       <Select>
         <Background />
-        {showFloor && <Floor />}
         <BookStack />
       </Select>
-      <CameraController />
+      <CameraRig />
     </Selection>
   );
 }
@@ -78,7 +59,7 @@ const Background = () => {
   return (
     <mesh position={[0, 0, -5]} visible={visible} onClick={handleMissedClick}>
       <planeGeometry args={[10, 10]} />
-      <meshBasicMaterial transparent opacity={0} />
+      <meshBasicMaterial transparent opacity={0} depthWrite={false} />
     </mesh>
   );
 };
