@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "base-ui": {
+      "source": "noklip-io/agent-skills",
+      "sourceType": "github",
+      "computedHash": "7de7edf387caf23732467753f7e77147657d50e383218c966662833a52fc82b9"
+    }
+  }
+}

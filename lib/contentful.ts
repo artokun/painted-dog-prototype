@@ -3,36 +3,45 @@ import type { ContentfulEntry } from "../types/contentful";
 export { CONTENT_TYPES } from "../types/contentful";
 
 // Only initialize Contentful clients server-side
-let contentfulClient: ReturnType<typeof createClient> | null = null;
+let publishedClient: ReturnType<typeof createClient> | null = null;
 let previewClient: ReturnType<typeof createClient> | null = null;
 
-function getContentfulClient() {
-  if (typeof window !== 'undefined') {
-    throw new Error('Contentful client should only be used server-side');
+function isDevContentfulPreviewEnabled(): boolean {
+  const v = process.env.DEV_ENABLE_CONTENTFUL_PREVIEW;
+  return v === "true" || v === "1";
+}
+
+function getContentfulPublishedClient() {
+  if (typeof window !== "undefined") {
+    throw new Error("Contentful client should only be used server-side");
   }
 
-  if (!contentfulClient) {
+  if (!publishedClient) {
     if (!process.env.CONTENTFUL_SPACE_ID) {
       throw new Error("CONTENTFUL_SPACE_ID environment variable is required");
     }
 
     if (!process.env.CONTENTFUL_ACCESS_TOKEN) {
-      throw new Error("CONTENTFUL_ACCESS_TOKEN environment variable is required");
+      throw new Error(
+        "CONTENTFUL_ACCESS_TOKEN environment variable is required"
+      );
     }
 
-    contentfulClient = createClient({
+    publishedClient = createClient({
       space: process.env.CONTENTFUL_SPACE_ID!,
       accessToken: process.env.CONTENTFUL_ACCESS_TOKEN!,
       environment: process.env.CONTENTFUL_ENVIRONMENT || "master",
     });
   }
 
-  return contentfulClient;
+  return publishedClient;
 }
 
-function getPreviewClient() {
-  if (typeof window !== 'undefined') {
-    throw new Error('Contentful preview client should only be used server-side');
+function getContentfulPreviewClient() {
+  if (typeof window !== "undefined") {
+    throw new Error(
+      "Contentful preview client should only be used server-side"
+    );
   }
 
   if (!previewClient) {
@@ -53,7 +62,16 @@ function getPreviewClient() {
   return previewClient;
 }
 
-export { getContentfulClient as contentfulClient, getPreviewClient as previewClient };
+/**
+ * Returns the Delivery or Preview Contentful client based on
+ * `DEV_ENABLE_CONTENTFUL_PREVIEW`. Preview client is never instantiated when
+ * that flag is off (and `getContentfulPreviewClient` is not exported).
+ */
+export function getContentfulClient() {
+  return isDevContentfulPreviewEnabled()
+    ? getContentfulPreviewClient()
+    : getContentfulPublishedClient();
+}
 
 // Helper functions with types
 type InferSkeleton<TEntry> =
@@ -79,4 +97,4 @@ export async function getEntry<TEntry extends ContentfulEntry>(
 }
 
 // Export content types for easy access
-export default contentfulClient;
+export default getContentfulClient;

@@ -9,6 +9,7 @@ Interactive 3D book catalog and ecommerce platform built with Next.js, React Thr
 **Tech Stack:**
 - Next.js 15.5.10 with App Router and Turbopack
 - React 19.1.0
+- Base UI 1.3.0 for unstyled base components 
 - React Three Fiber 9.2.0 + Drei (local fork at `lib/drei/`) + Postprocessing
 - React Spring Three for physics-based 3D animations
 - GSAP for web/scroll animations

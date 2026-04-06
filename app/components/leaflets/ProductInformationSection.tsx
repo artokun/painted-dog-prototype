@@ -12,16 +12,19 @@ export const ProductInformationSection = () => {
   console.log(book.prices);
 
   return (
-    <div className="flex flex-col mb-auto">
+    <div className="mb-auto flex flex-col">
       <h6 className="text-sm">Product Information</h6>
       {book.prices.map((price) => (
         <div key={price.id}>
-          <h2 className="text-2xl font-medium mb-4">{price.text}</h2>
-          <MarkdownParagraph content={price.description || ""} />
+          <h2 className="mb-4 text-2xl font-medium">{price.text}</h2>
+          <MarkdownParagraph
+            content={price.description || ""}
+            lightboxEnabled
+          />
 
           {price.productInformation && (
             <div
-              className="grid mt-8"
+              className="mt-8 grid"
               style={{ gridTemplateColumns: "1fr 1fr" }}
             >
               <span>ISBN:</span>
@@ -29,11 +32,13 @@ export const ProductInformationSection = () => {
               <span>Price:</span>
               <span>R{price.price}</span>
               <span>Publication Date:</span>
-              <span>{new Date(book.publishDate).toLocaleDateString('en-GB', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric' 
-              })}</span>
+              <span>
+                {new Date(book.publishDate).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </span>
               {Object.entries(price.productInformation)
                 .sort((a, b) => a[0].length - b[0].length)
                 .map(([key, value]) => (

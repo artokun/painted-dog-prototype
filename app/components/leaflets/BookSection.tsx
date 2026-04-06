@@ -16,7 +16,7 @@ export const BookSection = ({
     <div className="flex flex-col gap-2">
       <h2 className="text-2xl font-medium">{book?.title}</h2>
       {book?.isbn && (
-        <p className="relative text-sm text-gray-800 -translate-y-2">
+        <p className="relative -translate-y-2 text-sm text-gray-800">
           ISBN&nbsp;: {book.isbn}
         </p>
       )}
@@ -26,6 +26,7 @@ export const BookSection = ({
         truncateLength={110}
         truncateBy="words"
         onReadMore={setSelectedIndex ? () => setSelectedIndex(6) : undefined}
+        lightboxEnabled
       />
     </div>
   );

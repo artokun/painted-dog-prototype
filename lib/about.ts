@@ -1,5 +1,5 @@
 import type { Entry } from "contentful";
-import { contentfulClient, CONTENT_TYPES } from "./contentful";
+import { getContentfulClient, CONTENT_TYPES } from "./contentful";
 import type { TypeAbout, TypePeople, TypeLink } from "@/types";
 import type { Document } from "@contentful/rich-text-types";
 
@@ -133,7 +133,7 @@ function transformAboutEntry(entry: ContentfulAboutEntry): AboutContent {
 
 // Fetch about page content
 export async function getAboutContent(): Promise<AboutContent | null> {
-  const client = contentfulClient();
+  const client = getContentfulClient();
 
   const entries = await client.getEntries({
     content_type: CONTENT_TYPES.about,
