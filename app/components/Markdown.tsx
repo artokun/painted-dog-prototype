@@ -4,6 +4,7 @@ import React from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
+import { Lightbox } from "./Lightbox";
 
 interface MarkdownProps {
   content: string;
@@ -13,6 +14,7 @@ interface MarkdownProps {
   truncateBy?: "words" | "characters";
   onReadMore?: () => void;
   components?: Record<string, React.ComponentType<any>>;
+  lightboxEnabled?: boolean;
 }
 
 function truncateText(
@@ -61,6 +63,7 @@ export function Markdown({
   truncateBy = "words",
   onReadMore,
   components = {},
+  lightboxEnabled = false,
 }: MarkdownProps) {
   // Convert straight quotes to curly quotes
   const processedContent = content
@@ -76,31 +79,31 @@ export function Markdown({
     p: (props) => <p className="mb-4 last:mb-0">{props.children}</p>,
     // Headers with appropriate sizing
     h1: (props) => (
-      <h1 className="text-2xl font-bold mb-4 mt-6 first:mt-0">
+      <h1 className="mt-6 mb-4 text-2xl font-bold first:mt-0">
         {props.children}
       </h1>
     ),
     h2: (props) => (
-      <h2 className="text-xl font-bold mb-3 mt-5 first:mt-0">
+      <h2 className="mt-5 mb-3 text-xl font-bold first:mt-0">
         {props.children}
       </h2>
     ),
     h3: (props) => (
-      <h3 className="text-lg font-bold mb-2 mt-4 first:mt-0">
+      <h3 className="mt-4 mb-2 text-lg font-bold first:mt-0">
         {props.children}
       </h3>
     ),
     h4: (props) => (
-      <h4 className="text-base font-bold mb-2 mt-3 first:mt-0">
+      <h4 className="mt-3 mb-2 text-base font-bold first:mt-0">
         {props.children}
       </h4>
     ),
     // Lists with proper indentation
     ul: (props) => (
-      <ul className="list-disc pl-6 mb-4 space-y-1">{props.children}</ul>
+      <ul className="mb-4 list-disc space-y-1 pl-6">{props.children}</ul>
     ),
     ol: (props) => (
-      <ol className="list-decimal pl-6 mb-4 space-y-1">{props.children}</ol>
+      <ol className="mb-4 list-decimal space-y-1 pl-6">{props.children}</ol>
     ),
     li: (props) => <li className="leading-relaxed">{props.children}</li>,
     // Links with styling
@@ -110,19 +113,19 @@ export function Markdown({
         target={props.target ?? "_blank"}
         rel={props.rel ?? "noopener noreferrer"}
         className={cn(
-          "underline hover:opacity-70 transition-opacity",
+          "underline transition-opacity hover:opacity-70",
           props.className
         )}
       />
     ),
     // Code blocks
     pre: (props) => (
-      <pre className="bg-gray-100 dark:bg-gray-800 rounded p-3 mb-4 overflow-x-auto">
+      <pre className="mb-4 overflow-x-auto rounded bg-gray-100 p-3 dark:bg-gray-800">
         {props.children}
       </pre>
     ),
     code: (props) => (
-      <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm">
+      <code className="rounded bg-gray-100 px-1.5 py-0.5 text-sm dark:bg-gray-800">
         {props.children}
       </code>
     ),
@@ -151,7 +154,7 @@ export function Markdown({
     em: (props) => <em className="italic">{props.children}</em>,
     // Tables (GitHub-flavored markdown)
     table: (props) => (
-      <div className="overflow-x-auto mb-4">
+      <div className="mb-4 overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
           {props.children}
         </table>
@@ -173,13 +176,39 @@ export function Markdown({
     ),
     td: (props) => <td className="px-3 py-2 text-sm">{props.children}</td>,
     // Images with responsive sizing
-    img: (props) => (
-      <img
-        {...props}
-        alt={props.alt ?? ""}
-        className={cn("max-w-full h-auto rounded my-4", props.className)}
-      />
-    ),
+    img: (props) => {
+      console.log(props);
+      const image = (
+        <img
+          src={props.src ?? ""}
+          alt={props.alt ?? ""}
+          className={cn(
+            "h-auto max-w-full rounded",
+            !lightboxEnabled && "my-4",
+            lightboxEnabled && "cursor-pointer",
+            props.className
+          )}
+        />
+      );
+      if (lightboxEnabled) {
+        return (
+          <Lightbox
+            title={props.alt ?? ""}
+            className="appearance-none whitespace-pre-wrap"
+            lightboxContent={
+              <img
+                src={props.src ?? ""}
+                alt={props.alt ?? ""}
+                className="h-auto max-h-full max-w-full object-contain"
+              />
+            }
+          >
+            {image}
+          </Lightbox>
+        );
+      }
+      return image;
+    },
   };
 
   const mergedComponents = { ...defaultComponents, ...components };
@@ -192,7 +221,7 @@ export function Markdown({
       {isTruncated && onReadMore && (
         <button
           onClick={onReadMore}
-          className="ml-1 font-medium underline cursor-pointer inline-block"
+          className="ml-1 inline-block cursor-pointer font-medium underline"
         >
           Read More
         </button>
@@ -209,6 +238,7 @@ export function MarkdownParagraph({
   truncateLength = 50,
   truncateBy = "words",
   onReadMore,
+  lightboxEnabled = false,
 }: Omit<MarkdownProps, "components">) {
   // We want to parse markdown but preserve whitespace
   return (
@@ -219,6 +249,7 @@ export function MarkdownParagraph({
       truncateLength={truncateLength}
       truncateBy={truncateBy}
       onReadMore={onReadMore}
+      lightboxEnabled={lightboxEnabled}
       components={{
         // Override paragraph to preserve whitespace and paragraph breaks
         p: ({ children }: { children: React.ReactNode }) => (
@@ -243,9 +274,7 @@ export function MarkdownParagraph({
 
           const textContent = extractText(props.children).trim();
 
-          return (
-            <span className="italic">&ldquo;{textContent}&rdquo;</span>
-          );
+          return <span className="italic">&ldquo;{textContent}&rdquo;</span>;
         },
         // Ensure emphasis and strong work properly
         em: (props) => <em className="italic">{props.children}</em>,

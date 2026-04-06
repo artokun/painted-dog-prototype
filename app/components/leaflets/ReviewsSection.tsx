@@ -11,19 +11,23 @@ export const ReviewsSection = () => {
   if (!book) return null;
 
   return (
-    <div className="flex flex-col mb-auto">
+    <div className="mb-auto flex flex-col">
       <h6 className="text-sm">Reviews</h6>
-      <h2 className="text-2xl font-medium mb-10">Critical Reception</h2>
-      <div className="flex flex-col gap-9 mb-9">
+      <h2 className="mb-10 text-2xl font-medium">Critical Reception</h2>
+      <div className="mb-9 flex flex-col gap-9">
         {book?.reviews.length > 0 ? (
           book?.reviews.map((review) => (
             <div className="flex flex-col gap-2" key={review.id}>
-              <MarkdownParagraph content={review.excerpt || ""} />
+              <MarkdownParagraph
+                content={review.excerpt || ""}
+                lightboxEnabled
+              />
               <div className="flex flex-col items-end">
                 <span className="text-sm">
                   <MarkdownParagraph
                     content={review.criticName || ""}
-                    className="inline [&>p]:inline [&>p]:mb-0 uppercase"
+                    className="inline uppercase [&>p]:mb-0 [&>p]:inline"
+                    lightboxEnabled
                   />
                   {review.externalLink ? ", " : ""}
                 </span>
@@ -33,7 +37,7 @@ export const ReviewsSection = () => {
                       href={review.externalLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="underline text-sm"
+                      className="text-sm underline"
                     >
                       {review.title
                         ? review.title
@@ -67,7 +71,7 @@ export const ReviewsSection = () => {
           Have you found a review we have excluded? Let us know using our
           contact form.
         </p>
-        <PDButton href="/contact" className="self-start mt-4" primary tall wide>
+        <PDButton href="/contact" className="mt-4 self-start" primary tall wide>
           Contact Us
         </PDButton>
       </div>
