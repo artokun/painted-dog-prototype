@@ -177,7 +177,6 @@ export function Markdown({
     td: (props) => <td className="px-3 py-2 text-sm">{props.children}</td>,
     // Images with responsive sizing
     img: (props) => {
-      console.log(props);
       const image = (
         <img
           src={props.src ?? ""}
